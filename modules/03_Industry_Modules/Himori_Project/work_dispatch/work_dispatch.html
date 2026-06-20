@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <script src="../../../global_shared.js"></script>
+    <script src="../../../../../../../global_shared.js"></script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>日森精工 | 💬 公告客服模組</title>
+    <title>🏗️ 排班派工模組</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,7 +33,7 @@
 
         body {
             font-family: 'Outfit', 'Noto Sans TC', sans-serif;
-            background: url('../../../01_企業識別與設計/底色.png') center center / cover no-repeat fixed;
+            background: url('../../../../../../../01_企業識別與設計/底色.png') center center / cover no-repeat fixed;
             color: var(--text-dark);
             padding: 2rem 1.5rem;
         }
@@ -504,10 +504,10 @@
         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; width: 100%;">
             <div>
                 <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 8px; flex-wrap: wrap;">
-                    <img src="../../../01_企業識別與設計/橫式logo.png" alt="Logo" style="height: 57px; width: auto; filter: drop-shadow(0 0 4px rgba(255,255,255,0.05));">
-                    <h1 style="font-size: 1.45rem; border-left: 2px solid var(--border); padding-left: 16px; font-weight: 700; color: #FFFFFF; margin: 0; display: flex; align-items: center; gap: 8px;">💬 公告客服模組 <span style="font-size: 0.68rem; font-weight: normal; color: var(--text-muted, #64748B); margin-left: 8px; vertical-align: middle; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.08); letter-spacing: 0.5px;">v1.0.0</span></h1>
+                    <img src="../../../../../../../01_企業識別與設計/橫式logo.png" alt="Logo" style="height: 57px; width: auto; filter: drop-shadow(0 0 4px rgba(255,255,255,0.05));">
+                    <h1 style="font-size: 1.45rem; border-left: 2px solid var(--border); padding-left: 16px; font-weight: 700; color: #FFFFFF; margin: 0; display: flex; align-items: center; gap: 8px;">🏗️ 排班派工模組 <span style="font-size: 0.68rem; font-weight: normal; color: var(--text-muted, #64748B); margin-left: 8px; vertical-align: middle; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.08); letter-spacing: 0.5px;">v1.0.0</span></h1>
                 </div>
-                <p class="subtitle" style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">對外 LINE 客服問答回覆、公告發佈與打卡請假對帳模擬</p>
+                <p class="subtitle" style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">工程排班排程、派工指派與現場出勤追蹤</p>
             </div>
             
         </div>
@@ -515,8 +515,10 @@
 
         <!-- 分頁頁籤 -->
         <div class="tabs" style="margin-bottom:1.5rem;">
-            <button class="tab-btn active" onclick="switchTab('announcement')">📢 內部公告與群發</button>
-            <button class="tab-btn " onclick="switchTab('qa_admin')">📚 日森精工Q&A問答庫管理</button>
+            <button class="tab-btn active" onclick="switchTab('roster')">📅 派工排班規劃</button>
+            <button class="tab-btn" onclick="switchTab('settings')">👥 員工名冊與資料審查</button>
+            <button class="tab-btn" onclick="switchTab('intent')">📝 勞務承攬意向書</button>
+            <button class="tab-btn" onclick="switchTab('recruitment_ads')">📢 招募登報廣告</button>
         </div>
 
         <!-- ==================== 頁籤 1：考勤與薪資計算 ==================== -->
@@ -617,7 +619,7 @@
         </div>
 
         <!-- ==================== 頁籤 3：預排班表與提醒 ==================== -->
-        <div id="tab-roster" class="tab-content">
+        <div id="tab-roster" class="tab-content active">
             <div class="dashboard-grid">
                 <!-- 左側：安排派工 -->
                 <div class="card">
@@ -743,7 +745,7 @@
         </div>
 
         <!-- ==================== 頁籤 5：全員公告與群發 ==================== -->
-        <div id="tab-announcement" class="tab-content active">
+        <div id="tab-announcement" class="tab-content">
             <div class="dashboard-grid">
                 <!-- 左側：發送公告 -->
                 <div class="card">
@@ -840,14 +842,6 @@
                             </div>
                             <button type="button" class="btn btn-outline" onclick="simulateLineLeave()">提交 LINE 請假申請</button>
                         </div>
-
-                        <div class="card" style="box-shadow: none; border-color: var(--border); margin-bottom: 0;">
-                            <h3>📱 3. 模擬員工點擊「我的電子名片」</h3>
-                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem;">
-                                員工點擊 LINE 選單，查詢個人的電子名片（需先於網頁後台開通）。
-                            </p>
-                            <button type="button" class="btn btn-outline" onclick="simulateLineCardQuery()">發送「查詢我的名片」</button>
-                        </div>
                     </div>
                 </div>
 
@@ -856,10 +850,10 @@
                     <div class="phone-mockup">
                         <div class="phone-header">
                             <div class="status-dot"></div>
-                            <span>日森精工 官方對話</span>
+                            <span id="sim-company-name">日森精工 官方對話</span>
                         </div>
                         <div class="phone-body" id="phone-chat-body">
-                            <div class="chat-bubble system">
+                            <div class="chat-bubble system" id="sim-welcome-bubble">
                                 您好！我是日森精工數位管家。請點選下方選單進行「出勤與薪資查詢」或「請假申請」回報。
                             </div>
                         </div>
@@ -1081,7 +1075,7 @@
         <!-- ==================== 頁籤 7：系統參數與數據管理 ==================== -->
         <div id="tab-settings" class="tab-content">
             <div class="card">
-                <h2>⚙️ 系統核心參數設定 (授權管理員配置)</h2>
+                <h2>👥 員工名冊與現場職員資料管理</h2>
                 
                 <div class="parameter-grid">
                     <!-- 加班與假日津貼設定 -->
@@ -1159,6 +1153,7 @@
                     <button type="button" class="btn btn-outline" style="margin-top: 0.75rem; padding: 0.4rem 1rem; font-size: 0.8rem; max-width: 150px;" onclick="addEmployee()">+ 新增員工</button>
                 </div>
 
+                
                 <!-- Make Webhook 設定 -->
                 <div class="card" style="box-shadow: none; border-color: var(--border); margin-top: 1.5rem;">
                     <h3>🔗 Make.com Webhook 雲端串接設定</h3>
@@ -1177,58 +1172,131 @@
                     </div>
                 </div>
 
-                <!-- CSV 數據備份與還原 -->
-                <div class="card" style="box-shadow: none; border-color: var(--border); margin-top: 1.5rem;">
-                    <h3>📂 本地端與雲端資料同步機制 (CSV 備份與還原)</h3>
-                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
-                        * **同步策略說明**：系統在雲端部署後，本介面可作為**離線作業、測試沙盒與緊急備份端**。您可以定時將雲端 Google Sheets 匯出的 CSV 檔案匯入此處，或者將本機更新後的資料匯出 CSV 上傳至 Google Sheets，實現兩端雙向同步。
-                    </p>
-                    
-                    <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); text-align: center;">
-                        <!-- 員工 -->
-                        <div class="csv-box">
-                            <div class="csv-title">1. 人員基本資料 (`01_人員基本資料.csv`)</div>
-                            <div class="csv-actions">
-                                <input type="file" id="csv-file-employees" accept=".csv">
-                                <button type="button" class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem; width: auto;" onclick="importCSV('csv-file-employees', 'employees')">匯入</button>
-                            </div>
-                            <button type="button" class="btn" style="padding: 6px; font-size: 0.8rem;" onclick="exportCSV('employees')">下載/匯出 CSV</button>
-                        </div>
-                        
-                        <!-- 班表 -->
-                        <div class="csv-box">
-                            <div class="csv-title">2. 預計出勤班表 (`02_預計出勤班表.csv`)</div>
-                            <div class="csv-actions">
-                                <input type="file" id="csv-file-roster" accept=".csv">
-                                <button type="button" class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem; width: auto;" onclick="importCSV('csv-file-roster', 'roster')">匯入</button>
-                            </div>
-                            <button type="button" class="btn" style="padding: 6px; font-size: 0.8rem;" onclick="exportCSV('roster')">下載/匯出 CSV</button>
-                        </div>
+                <div style="margin-top: 1.5rem; display: flex; gap: 10px;">
+                    <button type="button" class="btn btn-outline btn-danger" style="max-width: 250px; color: white;" onclick="resetParameters()">重設全系統為預設資料</button>
+                </div>
+            </div>
+        </div>
 
-                        <!-- 實際回報 -->
-                        <div class="csv-box">
-                            <div class="csv-title">3. 實際每日出勤 (`03_每日出勤回報.csv`)</div>
-                            <div class="csv-actions">
-                                <input type="file" id="csv-file-attendance" accept=".csv">
-                                <button type="button" class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem; width: auto;" onclick="importCSV('csv-file-attendance', 'attendance')">匯入</button>
-                            </div>
-                            <button type="button" class="btn" style="padding: 6px; font-size: 0.8rem;" onclick="exportCSV('attendance')">下載/匯出 CSV</button>
+        <!-- ==================== 頁籤 8：勞務承攬意向書 ==================== -->
+        <div id="tab-intent" class="tab-content">
+            <!-- 員工 LINE 意向書與基本資料審核區 -->
+            <div class="card" style="box-shadow: none; border-color: var(--border);">
+                <h2>✍️ 招募增員與 LINE 勞務承攬意向書審核</h2>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+                    * 追蹤同仁從 LINE 註冊 ➡️ 簽署意向書 ➡️ 審核核准 ➡️ 繳交存摺 ➡️ 完工建檔的完整招募期程。核准後自動同步建立員工檔案、系統帳號、電子名片與基本保險。
+                </p>
+                <div style="display: flex; gap: 1.5rem; min-height: 300px;">
+                    <!-- 左側人員列表 -->
+                    <div style="width: 220px; border-right: 1px solid var(--border); padding-right: 1rem;">
+                        <h4 style="font-size:0.9rem; margin-bottom:0.8rem; color:var(--text-light);">👤 增員招募期程名單</h4>
+                        <ul id="intent-user-list" style="list-style: none; display:flex; flex-direction:column; gap:0.5rem; padding: 0;">
+                            <!-- 動態渲染 -->
+                        </ul>
+                        <div style="margin-top:1rem; border-top:1px solid var(--border); padding-top:1rem;">
+                            <button class="btn btn-outline" style="font-size:0.78rem; padding:6px;" onclick="simulateLineRegister()">➕ 模擬同仁LINE註冊</button>
                         </div>
-
-                        <!-- 請假紀錄 -->
-                        <div class="csv-box">
-                            <div class="csv-title">4. 請假審核紀錄 (`04_請假審核紀錄.csv`)</div>
-                            <div class="csv-actions">
-                                <input type="file" id="csv-file-leave" accept=".csv">
-                                <button type="button" class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem; width: auto;" onclick="importCSV('csv-file-leave', 'leave')">匯入</button>
+                    </div>
+                    <!-- 右側資料詳情 -->
+                    <div id="intent-detail-panel" style="flex-grow: 1; display: none; background: rgba(255,255,255,0.01); border: 1px solid var(--border); border-radius:8px; padding:1.2rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px dashed var(--border); padding-bottom:0.5rem; margin-bottom:1rem;">
+                            <h4 id="intent-detail-name" style="color:var(--accent);"></h4>
+                            <span class="badge" id="intent-panel-status" style="font-size:0.75rem;">已審核</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="card" style="box-shadow:none; border-color:var(--border); margin:0; padding:1rem; background:rgba(0,0,0,0.1);">
+                                <h5>🪪 證件與照片審查 (身分證及個人照)</h5>
+                                <div id="intent-id-files" style="display:flex; gap:0.5rem; margin-top:0.8rem;">
+                                    <div style="width:110px; height:70px; background:#1e293b; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; color:var(--text-muted); border:1px solid var(--border);">身分證[正面]</div>
+                                    <div style="width:110px; height:70px; background:#1e293b; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; color:var(--text-muted); border:1px solid var(--border);">身分證[反面]</div>
+                                    <div style="width:80px; height:70px; background:#1e293b; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; color:var(--text-muted); border:1px solid var(--border);">個人半身照</div>
+                                </div>
+                                <p id="intent-idno-txt" style="font-size:0.8rem; margin-top:0.5rem; color:var(--text-muted);"></p>
                             </div>
-                            <button type="button" class="btn" style="padding: 6px; font-size: 0.8rem;" onclick="exportCSV('leave')">下載/匯出 CSV</button>
+                            <div class="card" style="box-shadow:none; border-color:var(--border); margin:0; padding:1rem; background:rgba(0,0,0,0.1);">
+                                <h5>🏦 匯款指定存摺影本 (核准意向書後收取)</h5>
+                                <div id="intent-bank-files" style="width:130px; height:70px; background:#1e293b; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; color:var(--text-muted); border:1px solid var(--border); margin-top:0.8rem;">銀行存摺封面</div>
+                                <p id="intent-bank-txt" style="font-size:0.8rem; margin-top:0.5rem; color:var(--text-muted);"></p>
+                            </div>
+                        </div>
+                        <div class="card" style="box-shadow:none; border-color:var(--border); margin-top:1rem; padding:1rem; background:rgba(0,0,0,0.1);">
+                            <h5>📝 勞務承攬工作意向書內容</h5>
+                            <p style="font-size:0.8rem; color:var(--text-light); margin:0.5rem 0;" id="intent-sign-date">簽署日期：—</p>
+                            <div style="display:flex; gap:1rem; align-items:center; margin-top:0.8rem;">
+                                <button class="btn btn-outline" id="btn-download-intent" style="width:auto; padding: 5px 12px; font-size:0.8rem;" onclick="alert('📄 已下載該員[勞務承攬工作意向書_簽名存檔.pdf]！')">📄 下載意向書 PDF</button>
+                                <button class="btn" style="width:auto; padding: 5px 12px; font-size:0.8rem; background:var(--warning); color:white;" id="btn-simulate-sign" onclick="simulateSignIntent()">✍️ 模擬同仁簽署意向書</button>
+                                <button class="btn" style="width:auto; padding: 5px 12px; font-size:0.8rem; background:var(--accent); color:white;" id="btn-approve-intent-only" onclick="approveIntentOnly()">✅ 核准意向書 (通知同仁繳存摺)</button>
+                                <button class="btn" style="width:auto; padding: 5px 12px; font-size:0.8rem; background:var(--warning); color:white;" id="btn-simulate-bank" onclick="simulateSubmitBank()">🏦 模擬同仁上傳存摺</button>
+                                <button class="btn" style="width:auto; padding: 5px 12px; font-size:0.8rem; background:var(--success); color:white;" id="btn-approve-intent" onclick="approveIntent()">✅ 最終核准建檔並開通 (一鍵同步)</button>
+                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <div style="margin-top: 1.5rem; display: flex; gap: 10px;">
-                    <button type="button" class="btn btn-outline btn-danger" style="max-width: 250px; color: white;" onclick="resetParameters()">重設全系統為預設資料</button>
+        <!-- ==================== 頁籤 9：招募登報廣告 ==================== -->
+        <div id="tab-recruitment_ads" class="tab-content">
+            <div style="display:grid; grid-template-columns: 1fr 380px; gap:1.5rem;">
+                <!-- 廣告發佈與管理 -->
+                <div class="card" style="box-shadow:none; border-color:var(--border); margin:0;">
+                    <h2>📢 新增與發佈招募廣告 (傳單 / 短影音)</h2>
+                    <div style="margin-top: 1rem;">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>廣告名稱 / 主題</label>
+                                <input type="text" id="ad-title" placeholder="例如: 誠徵台積電F20廠區拉線人員">
+                            </div>
+                            <div class="form-group">
+                                <label>發佈管道</label>
+                                <select id="ad-channel">
+                                    <option value="LINE官方帳號群發">LINE 官方帳號群發</option>
+                                    <option value="Facebook社群分享">Facebook 社群分享</option>
+                                    <option value="報紙求才分類廣告">報紙求才分類廣告</option>
+                                    <option value="104人力銀行">104 人力銀行</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>上傳宣傳單 / 短影片 (模擬檔案)</label>
+                                <input type="file" id="ad-file" style="display:none;" onchange="previewAdFile()">
+                                <button type="button" class="btn btn-outline" style="width:100%; text-align:center; padding:8px;" onclick="document.getElementById('ad-file').click()">📸 上傳傳單/短影片檔</button>
+                                <span id="ad-filename-preview" style="font-size:0.75rem; color:var(--accent); display:block; margin-top:4px;"></span>
+                            </div>
+                            <div class="form-group">
+                                <label>模擬預覽類型</label>
+                                <select id="ad-file-type">
+                                    <option value="image">DM 傳單圖檔</option>
+                                    <option value="video">招募短影音</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>文案與描述</label>
+                            <textarea id="ad-desc" style="width:100%; height:80px; background:var(--bg-light); border:1px solid var(--border); border-radius:8px; color:var(--text-dark); padding:8px; outline:none; resize:none; font-size:0.88rem;" placeholder="輸入徵才廣告文案與薪資福利說明..."></textarea>
+                        </div>
+                        <button type="button" class="btn btn-primary" style="margin-top:0.8rem; width:100%;" onclick="publishRecruitmentAd()">⚡ 發佈廣告與推播群發</button>
+                    </div>
+                </div>
+
+                <!-- 廣告發佈歷史 -->
+                <div class="card" style="box-shadow:none; border-color:var(--border); margin:0; display:flex; flex-direction:column; height: 100%;">
+                    <h2>📜 招募廣告發佈歷程</h2>
+                    <div style="flex-grow:1; overflow-y:auto; margin-top:1rem; max-height: 350px;">
+                        <table style="font-size:0.75rem;">
+                            <thead>
+                                <tr>
+                                    <th>廣告主旨 / 管道</th>
+                                    <th>附屬檔案</th>
+                                    <th>狀態</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ad-history-body">
+                                <!-- 動態加載 -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1278,6 +1346,14 @@
         });
  // 存儲主管警報狀態
 
+        // ==================== 1.5 員工身分判斷工具 ====================
+        function getUserRole(name) {
+            if (employeeDb && employeeDb[name]) {
+                return employeeDb[name].isLead ? "幹部" : "員工";
+            }
+            return "大眾";
+        }
+
         // ==================== 2. 時間計算工具 ====================
         function getTodayDate() {
             return new Date(simulatedDate);
@@ -1325,160 +1401,411 @@
 
         function initApp() {
             syncFromGlobal();
-
-            const user = JSON.parse(sessionStorage.getItem("himori_user")) || {};
-            const publishCard = document.getElementById("admin-publish-card");
-            const readonlyCard = document.getElementById("readonly-user-card");
-            const row = document.getElementById("announcement-layout-row");
-            const tabs = document.querySelector(".tabs");
-
-            const hasPublishAuth = user.authorizedModules && user.authorizedModules.includes("announcement_publish");
-
-            if (hasPublishAuth) {
-                if (publishCard) publishCard.style.display = "block";
-                if (readonlyCard) readonlyCard.style.display = "none";
-                if (row) row.style.gridTemplateColumns = "1fr 320px";
-                if (tabs) tabs.style.display = "flex";
-            } else {
-                if (publishCard) publishCard.style.display = "none";
-                if (readonlyCard) {
-                    readonlyCard.style.display = "block";
-                    const csStaff = (HimoriDb.accountsDb || []).find(acc => acc.authorizedModules && acc.authorizedModules.includes("announcement_publish")) || { name: "系統管理員" };
-                    const nameSpan = document.getElementById("readonly-cs-name");
-                    if (nameSpan) nameSpan.textContent = csStaff.name;
-                }
-                if (row) row.style.gridTemplateColumns = "320px 1fr";
-                if (tabs) tabs.style.display = "none"; // 現場人員隱藏 Tabs
-                switchTab('announcement');
+            
+            // 動態更新公司名稱與標題
+            const coNameShort = (typeof HimoriCompanyConfig !== 'undefined' && HimoriCompanyConfig.name) ? HimoriCompanyConfig.name.replace(/有限公司$/, "") : "日森精工";
+            const coNameFull = (typeof HimoriCompanyConfig !== 'undefined' && HimoriCompanyConfig.name) ? HimoriCompanyConfig.name : "日森精工有限公司";
+            
+            document.title = coNameShort + " | 🏗️ 排班派工模組";
+            
+            const subtitleEl = document.querySelector("header .subtitle");
+            if (subtitleEl) {
+                subtitleEl.textContent = `工程排班排程、派工指派與現場出勤追蹤，展示 ${coNameShort} 專業品牌形象`;
             }
+            
+            const simCoNameEl = document.getElementById("sim-company-name");
+            if (simCoNameEl) simCoNameEl.textContent = coNameShort + " 官方對話";
+            
+            const simWelcomeBubble = document.getElementById("sim-welcome-bubble");
+            if (simWelcomeBubble) {
+                simWelcomeBubble.textContent = `您好！我是${coNameShort}數位管家。請點選下方選單進行「出勤與薪資查詢」或「請假申請」回報。`;
+            }
+            
+            const coInputEl = document.getElementById("co-name");
+            if (coInputEl) coInputEl.placeholder = coNameFull;
+            
+            if (document.getElementById("sys-sim-date")) document.getElementById("sys-sim-date").value = simulatedDate;
+            if (alarmState && typeof showAlarmBanner === 'function') showAlarmBanner();
 
-            // 設定未匹配警示欄的專人名稱
-            const csStaffGlobal = (HimoriDb.accountsDb || []).find(acc => acc.authorizedModules && acc.authorizedModules.includes("announcement_publish")) || { name: "系統管理員" };
-            const qaTitleName = document.getElementById("qa-admin-cs-name");
-            if (qaTitleName) qaTitleName.textContent = csStaffGlobal.name;
+            // 將載入的參數反映到設定畫面輸入框中
+            if (document.getElementById("p-ot-rate")) document.getElementById("p-ot-rate").value = params.otRate;
+            if (document.getElementById("p-holiday-allowance")) document.getElementById("p-holiday-allowance").value = params.holidayRate;
+            if (document.getElementById("p-lead-rate")) document.getElementById("p-lead-rate").value = params.leadRate;
+            if (document.getElementById("p-bonus-days")) document.getElementById("p-bonus-days").value = params.bonusDays;
+            if (document.getElementById("p-bonus-amount")) document.getElementById("p-bonus-amount").value = params.bonusAmount;
+            if (document.getElementById("p-webhook-reminder")) document.getElementById("p-webhook-reminder").value = webhookReminderUrl;
+            if (document.getElementById("p-webhook-announcement")) document.getElementById("p-webhook-announcement").value = webhookAnnouncementUrl;
 
-            renderDashboard();
+            // 支援 portal 解析帶頁籤的 URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialTab = urlParams.get('tab');
+            if (initialTab && document.getElementById('tab-' + initialTab)) {
+                switchTab(initialTab);
+            } else {
+                renderDashboard();
+            }
         }
 
 
 
         function renderDashboard() {
-            if (typeof renderAnnouncementHistoryTable === 'function') renderAnnouncementHistoryTable();
-            if (typeof initQaPanel === 'function') initQaPanel();
+            if (typeof renderEmployeesSettingsTable === 'function') renderEmployeesSettingsTable();
+            if (typeof renderRosterTable === 'function') renderRosterTable();
+            if (typeof initIntentReviewPanel === 'function') initIntentReviewPanel();
+            if (typeof initRecruitmentAdsPanel === 'function') initRecruitmentAdsPanel();
         }
     
 
 
-        // ── Q&A 管理與提問回覆 JS (主管公告模組) ──
-        let unresolvedQa = [];
+        // ── 意向書審核與不重複建檔 JS ──
+        let activeIntentName = null;
 
-        function initQaPanel() {
-            renderQaTable();
-            initUnresolvedQaList();
+        function initIntentReviewPanel() {
+            renderIntentList();
         }
 
-        function renderQaTable() {
-            const tbody = document.getElementById("qa-table-body");
-            if (!tbody) return;
-            tbody.innerHTML = "";
-
-            const qas = HimoriDb.qaDb || [];
-            qas.forEach((item, idx) => {
-                const tr = document.createElement("tr");
-                tr.innerHTML = `
-                    <td><strong>[${item.keyword}]</strong><br><span style="color:var(--text-muted);">${item.question}</span></td>
-                    <td>${item.answer}</td>
-                    <td><button class="btn btn-outline" style="padding:2px 6px; font-size:0.75rem; color:var(--danger); border-color:var(--danger);" onclick="deleteQaItem(${idx})">刪除</button></td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function saveQaItem() {
-            const q = document.getElementById("qa-q").value.trim();
-            const kw = document.getElementById("qa-kw").value.trim();
-            const a = document.getElementById("qa-a").value.trim();
-
-            if (!q || !kw || !a) {
-                alert("❌ 請完整填寫問題、關鍵字及回覆內容！");
-                return;
-            }
-
-            HimoriDb.qaDb.push({ question: q, keyword: kw, answer: a });
-            HimoriDb.save();
-            alert("✅ 問答條目儲存成功！");
-            
-            document.getElementById("qa-q").value = "";
-            document.getElementById("qa-kw").value = "";
-            document.getElementById("qa-a").value = "";
-            
-            renderQaTable();
-        }
-
-        function deleteQaItem(idx) {
-            if (confirm("是否確定刪除此問答項目？")) {
-                HimoriDb.qaDb.splice(idx, 1);
-                HimoriDb.save();
-                renderQaTable();
-            }
-        }
-
-        function initUnresolvedQaList() {
-            unresolvedQa = JSON.parse(localStorage.getItem("unresolvedQaList")) || [
-                { name: "王大同", text: "請問安全鞋可以換尺寸嗎？", date: "2026-06-15", resolved: false },
-                { name: "張憲明", text: "明天台積電工地幾點集合？", date: "2026-06-16", resolved: false }
-            ];
-            localStorage.setItem("unresolvedQaList", JSON.stringify(unresolvedQa));
-
-            const list = document.getElementById("unresolved-qa-list");
+        function renderIntentList() {
+            const list = document.getElementById("intent-user-list");
             if (!list) return;
             list.innerHTML = "";
 
-            const pending = unresolvedQa.filter(x => !x.resolved);
-            if (pending.length === 0) {
-                list.innerHTML = `<li style="color:var(--text-muted); text-align:center; font-size:0.85rem; margin-top:2rem;">目前沒有未處理的提問。</li>`;
-                return;
-            }
-
-            pending.forEach((item, idx) => {
+            const intentList = HimoriDb.intentDb || [];
+            intentList.forEach((item, idx) => {
                 const li = document.createElement("li");
-                li.style.background = "rgba(239,68,68,0.08)";
-                li.style.border = "1px solid rgba(239,68,68,0.2)";
-                li.style.padding = "10px";
-                li.style.borderRadius = "8px";
-                li.style.fontSize = "0.82rem";
+                li.style.padding = "8px 12px";
+                li.style.background = activeIntentName === item.name ? "rgba(56,189,248,0.15)" : "rgba(255,255,255,0.02)";
+                li.style.border = activeIntentName === item.name ? "1px solid var(--accent)" : "1px solid transparent";
+                li.style.borderRadius = "6px";
+                li.style.cursor = "pointer";
+                li.style.display = "flex";
+                li.style.justifyContent = "space-between";
+                li.style.fontSize = "0.85rem";
+                li.onclick = () => selectIntent(item.name);
+
+                let statusText = "增員中 ⏳";
+                let statusColor = "var(--text-muted)";
+                if (item.status === "待審核") { statusText = "意向書審核 ⏳"; statusColor = "var(--warning)"; }
+                else if (item.status === "待繳存摺") { statusText = "待繳存摺 🏦"; statusColor = "var(--accent)"; }
+                else if (item.status === "已繳存摺") { statusText = "存摺審核 ⏳"; statusColor = "#34d399"; }
+                else if (item.status === "已核准") { statusText = "正式同仁 ✅"; statusColor = "var(--success)"; }
 
                 li.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                        <strong style="color:var(--danger);">🙋‍♂️ Professional ${item.name}</strong>
-                        <span style="color:var(--text-muted); font-size:0.75rem;">${item.date}</span>
-                    </div>
-                    <p style="margin:4px 0; color:white;">"${item.text}"</p>
-                    <div style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:6px;">
-                        <input type="text" placeholder="輸入回覆..." id="unres-ans-${idx}" style="flex-grow:1; background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:4px; color:white; padding:2px 6px; font-size:0.75rem; outline:none;">
-                        <button class="btn" style="background:var(--success); color:white; padding:2px 8px; font-size:0.75rem; width:auto;" onclick="resolveQaItem(${idx})">回覆</button>
-                    </div>
+                    <strong>${item.name}</strong>
+                    <span style="color:${statusColor}">${statusText}</span>
                 `;
                 list.appendChild(li);
             });
         }
 
-        function resolveQaItem(idx) {
-            const ansInput = document.getElementById("unres-ans-" + idx);
-            const answerText = ansInput.value.trim();
-            if (!answerText) {
-                alert("❌ 請輸入回覆內容！");
+        function selectIntent(name) {
+            activeIntentName = name;
+            renderIntentList();
+
+            const item = HimoriDb.intentDb.find(x => x.name === name);
+            if (!item) return;
+
+            document.getElementById("intent-detail-panel").style.display = "block";
+            document.getElementById("intent-detail-name").textContent = name + " 的招募增員期程追蹤";
+            
+            const badge = document.getElementById("intent-panel-status");
+            const btnSimulateSign = document.getElementById("btn-simulate-sign");
+            const btnApproveIntent = document.getElementById("btn-approve-intent-only");
+            const btnSimulateBank = document.getElementById("btn-simulate-bank");
+            const btnApprove = document.getElementById("btn-approve-intent");
+            const btnDownload = document.getElementById("btn-download-intent");
+            
+            const idFiles = document.getElementById("intent-id-files");
+            const bankFiles = document.getElementById("intent-bank-files");
+            
+            btnSimulateSign.style.display = "none";
+            btnApproveIntent.style.display = "none";
+            btnSimulateBank.style.display = "none";
+            btnApprove.style.display = "none";
+            btnDownload.style.display = "none";
+            
+            idFiles.style.opacity = "0.3";
+            bankFiles.style.opacity = "0.3";
+
+            if (item.status === "增員中") {
+                badge.textContent = "1. LINE 訪客登記 (增員中)";
+                badge.style.background = "rgba(148,163,184,0.2)";
+                badge.style.color = "var(--text-muted)";
+                btnSimulateSign.style.display = "inline-block";
+                document.getElementById("intent-sign-date").textContent = "意向書簽署：—";
+                document.getElementById("intent-idno-txt").textContent = "尚未提供身分證號與半身相片";
+                document.getElementById("intent-bank-txt").textContent = "尚未收存摺 (待勞務意向書通過後始收取)";
+            } 
+            else if (item.status === "待審核") {
+                badge.textContent = "2. 意向書已填 (待審核)";
+                badge.style.background = "rgba(245,158,11,0.2)";
+                badge.style.color = "var(--warning)";
+                btnApproveIntent.style.display = "inline-block";
+                btnDownload.style.display = "inline-block";
+                document.getElementById("intent-sign-date").textContent = "意向書簽署：" + item.signDate;
+                document.getElementById("intent-idno-txt").textContent = "身分證號：" + item.idno + " | 已上傳個人半身照 ✅";
+                document.getElementById("intent-bank-txt").textContent = "尚未收存摺 (意向書審核通過後始收取)";
+                idFiles.style.opacity = "1";
+            } 
+            else if (item.status === "待繳存摺") {
+                badge.textContent = "3. 意向書已過 (待同仁繳存摺)";
+                badge.style.background = "rgba(56,189,248,0.2)";
+                badge.style.color = "var(--accent)";
+                btnSimulateBank.style.display = "inline-block";
+                btnDownload.style.display = "inline-block";
+                document.getElementById("intent-sign-date").textContent = "意向書簽署：" + item.signDate;
+                document.getElementById("intent-idno-txt").textContent = "身分證號：" + item.idno + " | 已上傳個人半身照 ✅";
+                document.getElementById("intent-bank-txt").textContent = "等待同仁於 LINE 模擬器上傳存摺影本...";
+                idFiles.style.opacity = "1";
+            } 
+            else if (item.status === "已繳存摺") {
+                badge.textContent = "4. 存摺已繳 (待最終審核)";
+                badge.style.background = "rgba(52,211,153,0.2)";
+                badge.style.color = "#34d399";
+                btnApprove.style.display = "inline-block";
+                btnDownload.style.display = "inline-block";
+                document.getElementById("intent-sign-date").textContent = "意向書簽署：" + item.signDate;
+                document.getElementById("intent-idno-txt").textContent = "身分證號：" + item.idno + " | 已上傳個人半身照 ✅";
+                document.getElementById("intent-bank-txt").textContent = "銀行代號：" + item.bankNo + " / 帳號：" + item.bankAcct;
+                idFiles.style.opacity = "1";
+                bankFiles.style.opacity = "1";
+            } 
+            else if (item.status === "已核准") {
+                badge.textContent = "5. 正式同仁 (準備派班)";
+                badge.style.background = "rgba(16,185,129,0.2)";
+                badge.style.color = "var(--success)";
+                btnDownload.style.display = "inline-block";
+                document.getElementById("intent-sign-date").textContent = "意向書簽署：" + item.signDate;
+                document.getElementById("intent-idno-txt").textContent = "身分證號：" + item.idno + " | 已上傳個人半身照 ✅";
+                document.getElementById("intent-bank-txt").textContent = "銀行代號：" + item.bankNo + " / 帳號：" + item.bankAcct;
+                idFiles.style.opacity = "1";
+                bankFiles.style.opacity = "1";
+            }
+        }
+
+        function simulateLineRegister() {
+            const name = prompt("請輸入新同仁的姓名：");
+            if (!name) return;
+            const phone = prompt("請輸入新同仁的電話：", "0988-123-456");
+            if (!phone) return;
+
+            if (HimoriDb.intentDb.some(x => x.name === name) || HimoriDb.employeeDb[name]) {
+                alert("❌ 該員姓名已存在於增員名單或員工名冊中，無法重複登記！");
                 return;
             }
 
-            const pendingIndices = unresolvedQa.map((x, i) => x.resolved ? -1 : i).filter(i => i !== -1);
-            const realIdx = pendingIndices[idx];
+            HimoriDb.intentDb.push({
+                name: name,
+                phone: phone,
+                step: "registered",
+                idno: "",
+                bankNo: "",
+                bankAcct: "",
+                signDate: "",
+                status: "增員中"
+            });
+            HimoriDb.save();
+            alert("✅ 同仁 [" + name + "] 已從 LINE 介面加入會員，狀態更新為：增員中。");
+            renderIntentList();
+            selectIntent(name);
+        }
 
-            unresolvedQa[realIdx].resolved = true;
-            localStorage.setItem("unresolvedQaList", JSON.stringify(unresolvedQa));
+        function simulateSignIntent() {
+            if (!activeIntentName) return;
+            const item = HimoriDb.intentDb.find(x => x.name === activeIntentName);
+            if (!item) return;
+
+            const idno = prompt("請輸入身分證字號：", "A123" + Math.floor(100000 + Math.random()*900000));
+            if (!idno) return;
+
+            item.step = "signed";
+            item.status = "待審核";
+            item.idno = idno;
+            item.signDate = HimoriDb.simulatedDate;
+            HimoriDb.save();
+
+            alert("✅ 同仁 [" + activeIntentName + "] 已填寫工作意向書並上傳身分證與半身照片，狀態更新為：待審核。");
+            renderIntentList();
+            selectIntent(activeIntentName);
+        }
+
+        function approveIntentOnly() {
+            if (!activeIntentName) return;
+            const item = HimoriDb.intentDb.find(x => x.name === activeIntentName);
+            if (!item) return;
+
+            item.step = "approved";
+            item.status = "待繳存摺";
+            HimoriDb.save();
+
+            alert("✅ 同仁 [" + activeIntentName + "] 的意向書已核准通過！狀態更新為 [待繳存摺]，系統已自動在 LINE 推送通知，請其於準備派班前提供指定存摺資訊。");
+            renderIntentList();
+            selectIntent(activeIntentName);
+        }
+
+        function simulateSubmitBank() {
+            if (!activeIntentName) return;
+            const item = HimoriDb.intentDb.find(x => x.name === activeIntentName);
+            if (!item) return;
+
+            const bankNo = prompt("請輸入銀行代號 (3碼)：", "013");
+            if (!bankNo) return;
+            const bankAcct = prompt("請輸入銀行帳號：", "123456789012");
+            if (!bankAcct) return;
+
+            item.step = "bank_submitted";
+            item.status = "已繳存摺";
+            item.bankNo = bankNo;
+            item.bankAcct = bankAcct;
+            HimoriDb.save();
+
+            alert("✅ 同仁 [" + activeIntentName + "] 已上傳匯款指定存摺照片與帳戶號碼，狀態更新為：存摺待審核。");
+            renderIntentList();
+            selectIntent(activeIntentName);
+        }
+
+        function approveIntent() {
+            if (!activeIntentName) return;
+            const item = HimoriDb.intentDb.find(x => x.name === activeIntentName);
+            if (!item) return;
+
+            // 一鍵同步建檔 (不重複建檔)
+            item.step = "completed";
+            item.status = "已核准";
+
+            // 1. 同步加入 employeeDb
+            if (!HimoriDb.employeeDb[item.name]) {
+                HimoriDb.employeeDb[item.name] = {
+                    specialty: "軌道安裝",
+                    transAllow: 0,
+                    lodgAllow: 0,
+                    profAllow: 0,
+                    isLead: false
+                };
+            }
+
+            // 2. 同步建立 accountsDb
+            const nextIdx = HimoriDb.accountsDb.length + 101;
+            const empId = "emp" + nextIdx;
+            if (!HimoriDb.accountsDb.some(x => x.name === item.name)) {
+                HimoriDb.accountsDb.push({
+                    empId: empId,
+                    name: item.name,
+                    password: "emp123",
+                    role: "現場同仁 / 領隊",
+                    authorizedModules: ["attendance_management", "announcement_service"]
+                });
+            }
+
+            // 3. 同步建立 cardsDb
+            if (!HimoriDb.cardsDb[item.name]) {
+                HimoriDb.cardsDb[item.name] = {
+                    enabled: true,
+                    title: "技術專員",
+                    phone: item.phone,
+                    address: "台北市大安區信義路四段1號2樓"
+                };
+            }
+
+            // 4. 同步建立 insurancesDb (基本保險加保 - 200萬!)
+            if (!HimoriDb.insurancesDb[item.name]) {
+                HimoriDb.insurancesDb[item.name] = {
+                    status: "basic",
+                    increasedAmount: 0,
+                    history: [
+                        { date: HimoriDb.simulatedDate, type: "基本保險加保 (200萬)", status: "已完成" }
+                    ]
+                };
+            }
+
+            HimoriDb.save();
+            alert("🎉 審核核定完成！\n1. 同仁資料已匯入員工名冊\n2. 帳號已建立 (" + empId + " / emp123)\n3. 電子名片與基本險 (200萬) 已自動加保開通！");
             
-            alert("✅ 已成功回覆給同仁！此提問已結案。");
-            initUnresolvedQaList();
+            if (typeof renderEmployeesSettingsTable === 'function') renderEmployeesSettingsTable();
+            renderIntentList();
+            selectIntent(activeIntentName);
+        }
+
+
+
+        // ── 招募登報廣告 JS ──
+        let adHistory = [];
+
+        function initRecruitmentAdsPanel() {
+            const coNameShort = (typeof HimoriCompanyConfig !== 'undefined' && HimoriCompanyConfig.name) ? HimoriCompanyConfig.name.replace(/有限公司$/, "") : "日森精工";
+            adHistory = JSON.parse(localStorage.getItem("adHistoryDb")) || [
+                { title: "誠徵拉線/接線熟手 (日薪2500~2800)", channel: "LINE官方帳號群發", file: "flyer_jisen_2026.png", type: "image", date: "2026-06-12", status: "已發佈 ✅" },
+                { title: coNameShort + "-無塵室配管徵才影片", channel: "Facebook社群分享", file: "recruit_short_video.mp4", type: "video", date: "2026-06-15", status: "已發佈 ✅" }
+            ];
+            localStorage.setItem("adHistoryDb", JSON.stringify(adHistory));
+            renderAdHistoryTable();
+        }
+
+        function previewAdFile() {
+            const fileEl = document.getElementById("ad-file");
+            if (fileEl && fileEl.files && fileEl.files.length > 0) {
+                document.getElementById("ad-filename-preview").textContent = "📎 " + fileEl.files[0].name;
+            }
+        }
+
+        function publishRecruitmentAd() {
+            const title = document.getElementById("ad-title").value.trim();
+            const channel = document.getElementById("ad-channel").value;
+            const fileType = document.getElementById("ad-file-type").value;
+            const desc = document.getElementById("ad-desc").value.trim();
+            const today = HimoriDb.simulatedDate || new Date().toISOString().split('T')[0];
+
+            if (!title || !desc) {
+                alert("❌ 請輸入廣告名稱與文案！");
+                return;
+            }
+
+            const mockFile = fileType === 'image' ? "flyer_mock_" + Math.floor(Math.random()*1000) + ".jpg" : "video_mock_" + Math.floor(Math.random()*1000) + ".mp4";
+            
+            adHistory.unshift({
+                title: title,
+                channel: channel,
+                file: mockFile,
+                type: fileType,
+                date: today,
+                status: "已發佈 ✅"
+            });
+            localStorage.setItem("adHistoryDb", JSON.stringify(adHistory));
+            
+            if (channel === 'LINE官方帳號群發') {
+                HimoriDb.announcementHistory.unshift({
+                    time: today + " 13:00",
+                    title: "【招募宣傳】" + title,
+                    target: "全員",
+                    content: "公司已發布徵才廣告：\n" + desc + "\n\n歡迎各位同仁轉發分享給有興趣加入的親朋好友！",
+                    status: "已發送 ✅"
+                });
+                HimoriDb.save();
+            }
+
+            document.getElementById("ad-title").value = "";
+            document.getElementById("ad-desc").value = "";
+            document.getElementById("ad-filename-preview").textContent = "";
+            document.getElementById("ad-file").value = "";
+
+            alert("🎉 徵才求職廣告已成功發佈至 [" + channel + "]！並同步推送LINE廣播。");
+            renderAdHistoryTable();
+        }
+
+        function renderAdHistoryTable() {
+            const tbody = document.getElementById("ad-history-body");
+            if (!tbody) return;
+            tbody.innerHTML = "";
+
+            adHistory.forEach(ad => {
+                const tr = document.createElement("tr");
+                const icon = ad.type === 'image' ? "🖼️ " : "🎥 ";
+                tr.innerHTML = `
+                    <td><strong>${ad.title}</strong><br><span style="color:var(--text-muted); font-size:0.75rem;">${ad.channel} | ${ad.date}</span></td>
+                    <td><span style="color:var(--accent); cursor:pointer;" onclick="alert('播放或查看附件: ${ad.file}')">${icon}${ad.file}</span></td>
+                    <td><span class="badge" style="background:rgba(16,185,129,0.15); color:var(--success); font-size:0.7rem;">${ad.status}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
 
 
@@ -1912,6 +2239,7 @@
 
             const payload = {
                 name: item.name,
+                role: getUserRole(item.name), // 預留當前使用者身分標籤，以便 LINE Messaging API 動態切換 Rich Menu
                 date: item.date,
                 createdDate: item.createdDate,
                 site: item.site,
@@ -1952,6 +2280,10 @@
                 <div class="flex-card">
                     <div class="flex-card-header">${item.name} ── LINE 派工訊息通知</div>
                     <div class="flex-card-body">
+                        <div class="flex-row">
+                            <span class="flex-label">通知對象與身分</span>
+                            <span class="flex-value" style="color:#C5A880; font-weight:bold;">${item.name} (${getUserRole(item.name)})</span>
+                        </div>
                         <div class="flex-row">
                             <span class="flex-label">通知類型</span>
                             <span class="flex-value" style="color:#0284c7">${stageName}</span>
@@ -2080,6 +2412,7 @@
 
             const payload = {
                 name: item.name,
+                role: getUserRole(item.name), // 預留當前使用者身分標籤，以便 LINE Messaging API 動態切換 Rich Menu
                 date: item.date,
                 createdDate: item.createdDate,
                 site: item.site,
@@ -2339,43 +2672,6 @@
             chatBody.scrollTop = chatBody.scrollHeight;
         }
 
-        function simulateLineCardQuery() {
-            const name = document.getElementById("s-worker").value;
-            if (!name) return;
-
-            appendChatMessage(`查詢我的名片`, `user`);
-
-            setTimeout(() => {
-                HimoriDb.load();
-                const cardsDb = HimoriDb.cardsDb || {};
-                const cData = cardsDb[name] || { enabled: false };
-
-                if (!cData.enabled) {
-                    appendChatMessage(`❌ 您好，您的電子名片尚未被管理員開通。請聯絡系統管理員進行開通設定。`, `system`);
-                } else {
-                    const title = cData.title || "同仁";
-                    const phone = cData.phone || "未設定";
-                    const address = cData.address || "未設定";
-                    
-                    // 模擬一個非常漂亮的圖文電子名片在對話中！
-                    const cardHtml = `
-                        <div style="background: linear-gradient(135deg, #0A2F4D, #0F172A); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; margin-top: 5px; color: #FFFFFF; font-size: 0.8rem; box-shadow: 0 4px 10px rgba(0,0,0,0.2); line-height: 1.5; text-align: left; max-width: 260px;">
-                            <div style="font-weight: bold; font-size: 1rem; color: #C5A880; margin-bottom: 2px; letter-spacing: 1px;">${name}</div>
-                            <div style="font-size: 0.72rem; color: #94A3B8; margin-bottom: 8px;">${title}</div>
-                            <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 8px;">
-                                <div style="margin-bottom: 2px;">📳 電話：${phone}</div>
-                                <div>📍 地址：${address}</div>
-                            </div>
-                            <div style="margin-top: 10px; text-align: center;">
-                                <a href="modules/functional/employee_cards/employee_cards.html?name=${encodeURIComponent(name)}&view=true" target="_blank" style="display: inline-block; background-color: #C5A880; color: #0A2F4D; padding: 4px 12px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 0.7rem; transition: opacity 0.2s;">🔗 開啟數位名片</a>
-                            </div>
-                        </div>
-                    `;
-                    appendChatMessage(cardHtml, `system`);
-                }
-            }, 600);
-        }
-
         function simulateLineQuery() {
             const name = document.getElementById("s-worker").value;
             const emp = employeeDb[name];
@@ -2498,7 +2794,7 @@
 
                 const flexHTML = `
                     <div class="flex-card">
-                        <div class="flex-card-header">日森精工 | 薪資與出勤對帳單</div>
+                        <div class="flex-card-header">${(typeof HimoriCompanyConfig !== 'undefined' && HimoriCompanyConfig.name) ? HimoriCompanyConfig.name.replace(/有限公司$/, "") : "日森精工"} | 薪資與出勤對帳單</div>
                         <div class="flex-card-body">
                             <div class="flex-row">
                                 <span class="flex-label">查詢同仁</span>
@@ -3090,7 +3386,7 @@
 
         // ── 資料儲存 ──
         let accData = JSON.parse(localStorage.getItem('acc_data') || JSON.stringify({
-            company: { name:'日森精工有限公司', taxId:'', type:'ltd', capital:500000, par:1000, shares:500, owner:'', founded:'', address:'', business:'' },
+            company: { name: (typeof HimoriCompanyConfig !== 'undefined' && HimoriCompanyConfig.name) ? HimoriCompanyConfig.name : '日森精工有限公司', taxId:'', type:'ltd', capital:500000, par:1000, shares:500, owner:'', founded:'', address:'', business:'' },
             shareholders: [
                 { name: '法人股東', shares: 255, type: 'corp', idno: '法人統編' },
                 { name: '自然人股東', shares: 245, type: 'person', idno: '自然人身分證' }

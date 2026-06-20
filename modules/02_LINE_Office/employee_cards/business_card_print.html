@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
     
     <!-- 🌐 共享數據中心 -->
-    <script src="../../../global_shared.js"></script>
+    <script src="../../../../../global_shared.js"></script>
 
     <style>
         :root {
@@ -342,7 +342,7 @@
                 return `url('${pathOrBase64}')`;
             }
             let cleanPath = pathOrBase64;
-            const prefix = "modules/functional/employee_cards/";
+            const prefix = "modules/02_LINE_Office/employee_cards/";
             if (cleanPath.startsWith(prefix)) {
                 cleanPath = "./" + cleanPath.substring(prefix.length);
             } else if (!cleanPath.startsWith("./") && !cleanPath.startsWith("../")) {

@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <script src="../../../global_shared.js"></script>
+    <script src="../../../../../../../global_shared.js"></script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>日森精工 | 📊 營運內帳模組</title>
+    <title>日森精工 | 👑 股東權益模組</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,7 +33,7 @@
 
         body {
             font-family: 'Outfit', 'Noto Sans TC', sans-serif;
-            background: url('../../../01_企業識別與設計/底色.png') center center / cover no-repeat fixed;
+            background: url('../../../../../../../01_企業識別與設計/底色.png') center center / cover no-repeat fixed;
             color: var(--text-dark);
             padding: 2rem 1.5rem;
         }
@@ -504,10 +504,10 @@
         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; width: 100%;">
             <div>
                 <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 8px; flex-wrap: wrap;">
-                    <img src="../../../01_企業識別與設計/橫式logo.png" alt="Logo" style="height: 57px; width: auto; filter: drop-shadow(0 0 4px rgba(255,255,255,0.05));">
-                    <h1 style="font-size: 1.45rem; border-left: 2px solid var(--border); padding-left: 16px; font-weight: 700; color: #FFFFFF; margin: 0; display: flex; align-items: center; gap: 8px;">📊 營運內帳模組 <span style="font-size: 0.68rem; font-weight: normal; color: var(--text-muted, #64748B); margin-left: 8px; vertical-align: middle; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.08); letter-spacing: 0.5px;">v1.0.0</span></h1>
+                    <img src="../../../../../../../01_企業識別與設計/橫式logo.png" alt="Logo" style="height: 57px; width: auto; filter: drop-shadow(0 0 4px rgba(255,255,255,0.05));">
+                    <h1 style="font-size: 1.45rem; border-left: 2px solid var(--border); padding-left: 16px; font-weight: 700; color: #FFFFFF; margin: 0; display: flex; align-items: center; gap: 8px;">👑 股東權益模組 <span style="font-size: 0.68rem; font-weight: normal; color: var(--text-muted, #64748B); margin-left: 8px; vertical-align: middle; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.08); letter-spacing: 0.5px;">v1.0.0</span></h1>
                 </div>
-                <p class="subtitle" style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">公司平日現金與存款流水帳、請款憑證照片上傳與日誌統計</p>
+                <p class="subtitle" style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">查看股權分配、EPS、預算對比圖表與損益平衡決策分析</p>
             </div>
             
         </div>
@@ -872,47 +872,10 @@
 
             <!-- 頂部儀表板摘要 -->
             <div class="card" style="margin-bottom:1.5rem;">
-                <h2>📊 會計調控中心</h2>
+                <h2>⚖️ 資產負債模組</h2>
                 <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem;">整合股權治理、財務報表、稅務試算與預測模型，掌握公司完整財務狀況。</p>
                 <div id="acc-dashboard-kpi" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;"></div>
             </div>
-
-
-            <!-- 會計師完稅核定區 -->
-            <div class="card" style="box-shadow:none; border-color:var(--border); margin-top:1.5rem;" id="cpa-audit-card">
-                <h3>🏛️ 會計師報稅與完稅核定確認</h3>
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem; padding:1rem; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:8px;">
-                    <div>
-                        <div style="font-size:0.95rem; font-weight:700; color:white;">本期申報狀態：<span id="cpa-status-badge" class="badge">待核定 ⏳</span></div>
-                        <p style="font-size:0.78rem; color:var(--text-muted); margin-top:4px;" id="cpa-detail-desc">等候會計師申報完稅後，請主管核對稅額並拍照上傳申報書核定。</p>
-                    </div>
-                    <div id="cpa-audit-actions">
-                        <button class="btn btn-primary" style="width:auto; padding:8px 16px;" onclick="showCpaModal()">📸 拍照上傳申報書並輸入核定稅額</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- CPA Audit Modal -->
-            <div id="cpa-modal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:400px; background:#1e293b; border:2px solid var(--accent); border-radius:12px; padding:1.5rem; z-index:9999; box-shadow:0 20px 50px rgba(0,0,0,0.8);">
-                <h4 style="color:var(--accent); margin-bottom:1rem; text-align:center;">🏛️ 申報完稅核定登記</h4>
-                <div class="form-group">
-                    <label>核定營業稅額 (元)</label>
-                    <input type="number" id="cpa-tax-vat" value="7500">
-                </div>
-                <div class="form-group">
-                    <label>核定營所稅額 (元)</label>
-                    <input type="number" id="cpa-tax-corp" value="28000">
-                </div>
-                <div class="form-group">
-                    <label>拍照上傳申報核定書</label>
-                    <button class="btn btn-outline" style="width:100%;" onclick="alert('📸 模擬拍照上傳成功！')">📸 選擇核定書照片</button>
-                </div>
-                <div style="display:flex; gap:0.5rem; margin-top:1.5rem;">
-                    <button class="btn btn-outline" onclick="document.getElementById('cpa-modal').style.display='none'">取消</button>
-                    <button class="btn btn-primary" style="background:var(--success); color:white;" onclick="submitCpaAudit()">確認完稅核定</button>
-                </div>
-            </div>
-
 
             <!-- 子頁籤列 -->
             <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.5rem;">
@@ -927,7 +890,7 @@
             </div>
 
             <!-- ── 公司資訊 ── -->
-            <div id="atab-company" class="atab-content">
+            <div id="atab-company" class="atab-content" style="display:none;">
                 <div class="card">
                     <h3>🏢 公司基本資訊與組織章程</h3>
                     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0.75rem;margin-top:1rem;">
@@ -957,7 +920,7 @@
             </div>
 
             <!-- ── 股權結構 ── -->
-            <div id="atab-equity" class="atab-content" style="display:none;">
+            <div id="atab-equity" class="atab-content">
                 <div class="card">
                     <h3>👥 股東名冊與持股結構</h3>
                     <div class="card" style="box-shadow:none;border-color:var(--border);margin-bottom:1rem;">
@@ -1047,145 +1010,96 @@
                         </div>
                     </div>
                     <div id="balance-sheet-result"></div>
+
+
+            <!-- 董事會資產負債表核定 -->
+            <div class="card" style="box-shadow:none; border-color:var(--border); margin-top:1.5rem;">
+                <h3>⚖️ 資產負債表會計師報稅核定狀態</h3>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem; padding:1rem; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:8px;">
+                    <div>
+                        <div style="font-size:0.95rem; font-weight:700; color:white;">報稅核定狀態：<span id="board-cpa-status" class="badge">待核定 ⏳</span></div>
+                        <p style="font-size:0.78rem; color:var(--text-muted); margin-top:4px;" id="board-cpa-desc">等候會計師申報完稅核定後，由財務會計模組核定或於此確認鎖定。</p>
+                    </div>
+                    <div id="board-cpa-actions">
+                        <button class="btn btn-primary" style="width:auto; padding:8px 16px;" onclick="boardApproveCpa()">✅ 一鍵確認核定並鎖定資產負債表</button>
+                    </div>
                 </div>
             </div>
 
+                </div>
+            </div>
 
-            <!-- 子頁籤 3: 營業與營所稅申報 -->
+            <!-- ── 營所稅試算 ── -->
             <div id="atab-tax-corp" class="atab-content" style="display:none;">
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem;">
-                    <!-- 營業稅 (VAT) -->
-                    <div class="card" style="box-shadow:none; border-color:var(--border); margin:0;">
-                        <h3>🏛️ 營業稅申報即時試算 (銷項減進項)</h3>
-                        <div style="margin-top:1.5rem; display:flex; flex-direction:column; gap:0.8rem;">
-                            <div style="display:flex; justify-content:space-between; font-size:0.88rem;">
-                                <span>銷項發票稅額累計 (A)</span>
-                                <span id="tax-calc-output-tax" style="color:var(--accent); font-weight:700;">$0</span>
-                            </div>
-                            <div style="display:flex; justify-content:space-between; font-size:0.88rem;">
-                                <span>進項憑證稅額累計 (B)</span>
-                                <span id="tax-calc-input-tax" style="color:var(--warning); font-weight:700;">$0</span>
-                            </div>
-                            <hr style="border-color:var(--border);">
-                            <div style="display:flex; justify-content:space-between; font-size:1.05rem; font-weight:700; color:white;">
-                                <span>應納營業稅額 (A - B)</span>
-                                <span id="tax-calc-vat-payable" style="color:var(--success); font-weight:700;">$0</span>
-                            </div>
-                        </div>
-                        <p style="font-size:0.75rem; color:var(--text-muted); margin-top:1.5rem; line-height:1.5;">
-                            * 註：營業稅每兩個月申報一次。本試算依本期開立之電子發票與進項發票自動統計。
-                        </p>
+                <div class="card">
+                    <h3>🧾 營利事業所得稅試算</h3>
+                    <div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;align-items:flex-end;">
+                        <div class="form-group" style="margin:0;"><label>申報年度</label><input type="number" id="cit-year" value="2026" style="width:100px;"></div>
+                        <button class="btn" onclick="calcCorpTax()" style="margin-bottom:0;">🔢 計算稅額</button>
                     </div>
-
-                    <!-- 營所稅 (Corporate Tax) -->
-                    <div class="card" style="box-shadow:none; border-color:var(--border); margin:0;">
-                        <h3>🏛️ 營利事業所得稅試算 (EBIT 20%)</h3>
-                        <div style="margin-top:1rem;">
-                            <div class="form-group">
-                                <label>營所稅率 (%)</label>
-                                <input type="number" id="corp-tax-rate" value="20" readonly style="background:#0f172a;">
-                            </div>
-                            <div style="margin-top:1rem; padding:1rem; background:rgba(56,189,248,0.08); padding:1rem; border-radius:8px; border:1px dashed var(--accent);">
-                                <div style="font-size:0.82rem; color:var(--text-muted);">本期營業利益 (EBIT)：</div>
-                                <div style="font-size:1.1rem; font-weight:700; color:white; margin:0.3rem 0;">本期預估營所稅額：$<span id="corp-tax-result" style="color:var(--accent);">0</span></div>
-                            </div>
-                        </div>
+                    <div id="corp-tax-result"></div>
+                    <div style="margin-top:1rem;padding:0.75rem;background:#fef9ec;border-radius:8px;border:1px solid #f6d860;font-size:0.8rem;">
+                        <strong>📌 台灣營所稅規則（2024年）：</strong><br>
+                        • 應稅所得 ≤ $120,000 → <strong>免稅</strong><br>
+                        • 應稅所得 > $120,000 → <strong>稅率 20%</strong>（但最多課到「應稅所得 - $120,000」的半數）<br>
+                        • 最低稅負：基本所得額超過 $600,000 → 額外徵收 <strong>12%</strong>
                     </div>
                 </div>
             </div>
 
-            <!-- 子頁籤 4: 憑證管理中心 -->
-            <div id="atab-voucher" class="atab-content" style="display:none;">
-                <div style="display:grid; grid-template-columns: 1fr 350px; gap:1.5rem;">
-                    <!-- 憑證登記 -->
-                    <div class="card" style="box-shadow:none; border-color:var(--border); margin:0;">
-                        <h3>📝 憑證/發票登記填單 (含 OCR AI 模擬辨識與電子發票連動)</h3>
-                        
-                        <!-- 發票連動勾選 -->
-                        <div style="margin-bottom:1.2rem; background:rgba(56,189,248,0.08); padding:0.8rem; border-radius:6px; border:1px dashed var(--accent);">
-                            <label style="display:flex; align-items:center; gap:0.5rem; font-weight:600; cursor:pointer;">
-                                <input type="checkbox" id="v-link-invoice" onchange="toggleInvoiceLinkage()"> 🔗 連動已開立之電子發票 (帶入銷項收入)
-                            </label>
-                            <div id="v-invoice-select-group" style="display:none; margin-top:0.6rem;">
-                                <label style="font-size:0.75rem;">選擇發票號碼</label>
-                                <select id="v-invoice-select" style="padding:4px; font-size:0.85rem;" onchange="pullLinkedInvoice()"></select>
-                            </div>
-                        </div>
 
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>憑證種類</label>
-                                <select id="v-type">
-                                    <option value="銷項發票">銷項發票 (工程款收入)</option>
-                                    <option value="進項發票">進項統一發票 (含稅費用)</option>
-                                    <option value="收據">一般免用統一發票收據</option>
-                                    <option value="交通憑證">出差與交通費核銷</option>
-                                    <option value="其他">其他合法報稅憑證</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>發票/憑證號碼 (選填)</label>
-                                <input type="text" id="v-no" placeholder="例如: AB-12345678">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>消費品項/說明</label>
-                                <input type="text" id="v-desc" placeholder="例如: 高鐵出差車票">
-                            </div>
-                            <div class="form-group">
-                                <label>憑證金額 (含稅元)</label>
-                                <input type="number" id="v-amount" placeholder="金額">
-                            </div>
+            <!-- 子頁籤 9: 損益平衡分析與試算 -->
+            <div id="atab-breakeven" class="atab-content" style="display:none;">
+                <div style="display:grid; grid-template-columns: 350px 1fr; gap:1.5rem;">
+                    <!-- 試算參數 -->
+                    <div class="card" style="box-shadow:none; border-color:var(--border); margin:0;">
+                        <h3>🧮 損益平衡試算模型</h3>
+                        <div class="form-group" style="margin-top:1rem;">
+                            <label>每月固定成本 (元/月)</label>
+                            <input type="number" id="be-fixed" value="500000" oninput="calcBreakEven()">
                         </div>
                         <div class="form-group">
-                            <label>上傳憑證/發票照影本 (模擬 AI 拍照辨識)</label>
-                            <input type="file" id="v-file" style="display:none;" onchange="triggerMockOcr()">
-                            <button class="btn btn-outline" style="width:100%; text-align:center; padding:10px;" onclick="document.getElementById('v-file').click()">📸 模擬手機拍照上傳憑證</button>
-                            
-                            <div id="ocr-loader" style="display:none; margin-top:0.8rem; text-align:center; font-size:0.8rem; color:var(--accent);">
-                                ⏳ 正在進行 OCR AI 影像辨識與稅額解析...
-                                <div style="width:100%; height:4px; background:rgba(255,255,255,0.1); border-radius:2px; overflow:hidden; margin-top:4px;">
-                                    <div style="width:0%; height:100%; background:var(--accent); animation: ocrProgress 1.5s linear forwards;"></div>
-                                </div>
-                            </div>
-
-                            <div id="v-img-preview" style="display:none; text-align:center; margin-top:0.8rem;">
-                                <div style="display:inline-block; border:1px solid var(--border); border-radius:4px; padding:4px; background:white;">
-                                    <div style="width:160px; height:100px; background:#e2e8f0; display:flex; align-items:center; justify-content:center; font-size:0.75rem; color:#64748b; font-weight:bold;">發票收據照片 [已上傳]</div>
-                                </div>
-                            </div>
+                            <label>每工日平均收費日薪 (元/天)</label>
+                            <input type="number" id="be-price" value="3000" oninput="calcBreakEven()">
                         </div>
-                        <button class="btn btn-primary" style="margin-top:1rem; width:100%;" onclick="submitVoucher()">💾 登入並儲存憑證</button>
+                        <div class="form-group">
+                            <label>變動成本費率 (日薪的 %)</label>
+                            <input type="number" id="be-var-rate" value="60" oninput="calcBreakEven()">
+                        </div>
+                        <div style="margin-top:1.5rem; background:rgba(56,189,248,0.08); padding:1rem; border-radius:8px; border:1px dashed var(--border);">
+                            <div style="font-size:0.82rem; color:var(--text-muted);">試算分析結果：</div>
+                            <div style="font-size:1.1rem; font-weight:700; color:white; margin:0.4rem 0;">損益平衡天數：<span id="be-days-result" style="color:var(--accent);">0</span> 天/月</div>
+                            <div style="font-size:0.95rem; font-weight:600; color:var(--text-light);">損益平衡營業額：$<span id="be-rev-result">0</span> 元</div>
+                        </div>
                     </div>
- 
-                    <!-- 憑證列表 -->
-                    <div class="card" style="box-shadow:none; border-color:var(--border); margin:0;">
-                        <h3>📜 本期已登記憑證歷史</h3>
-                        <div style="max-height: 350px; overflow-y: auto; margin-top: 1rem;">
-                            <table style="font-size:0.78rem;">
-                                <thead>
-                                    <tr>
-                                        <th>品項/號碼</th>
-                                        <th>金額</th>
-                                        <th>狀態</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="voucher-list-body">
-                                    <!-- 動態加載 -->
-                                </tbody>
-                            </table>
+
+                    <!-- 損益平衡 SVG 折線分析圖 -->
+                    <div class="card" style="box-shadow:none; border-color:var(--border); margin:0; display:flex; flex-direction:column; justify-content:space-between; height: 100%;">
+                        <h3>📈 損益分析圖表 (預算/成本/盈虧平衡線)</h3>
+                        <div style="flex-grow:1; display:flex; align-items:center; justify-content:center; margin-top:1rem;">
+                            <svg width="450" height="240" style="background:rgba(0,0,0,0.2); border-radius:8px;">
+                                <line x1="50" y1="20" x2="50" y2="200" stroke="#334155" stroke-width="1" />
+                                <line x1="50" y1="200" x2="420" y2="200" stroke="#334155" stroke-width="1" />
+                                
+                                <line x1="50" y1="140" x2="400" y2="140" stroke="var(--warning)" stroke-width="2" stroke-dasharray="4" />
+                                <text x="320" y="132" fill="var(--warning)" font-size="9">固定成本</text>
+                                
+                                <line x1="50" y1="140" x2="400" y2="90" stroke="#fbbf24" stroke-width="2.5" />
+                                <text x="320" y="80" fill="#fbbf24" font-size="9">總成本</text>
+                                
+                                <line x1="50" y1="200" x2="400" y2="40" stroke="var(--accent)" stroke-width="2.5" />
+                                <text x="320" y="48" fill="var(--accent)" font-size="9">總營收</text>
+                                
+                                <circle cx="210" cy="117" r="5" fill="var(--danger)" />
+                                <text x="220" y="122" fill="var(--danger)" font-size="10" font-weight="bold">平衡點 (BEP)</text>
+                                
+                                <text x="400" y="215" fill="var(--text-muted)" font-size="9">出勤工日/月</text>
+                                <text x="15" y="30" fill="var(--text-muted)" font-size="9" transform="rotate(-90 15 30)">金額 (元)</text>
+                            </svg>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <style>
-                @keyframes ocrProgress {
-                    0% { width: 0%; }
-                    100% { width: 100%; }
-                }
-            </style>
 
 
             <!-- ── 財務預測 ── -->
@@ -1513,198 +1427,73 @@
             if (typeof loadBalanceSheetInputs === 'function') loadBalanceSheetInputs();
             if (typeof buildBalanceSheet === 'function') buildBalanceSheet();
             if (typeof calcCorpTax === 'function') calcCorpTax();
-            if (typeof initVoucherPanel === 'function') initVoucherPanel();
+            if (typeof calcBreakEven === 'function') calcBreakEven();
+            if (typeof renderBoardCpaView === 'function') renderBoardCpaView();
         }
     
 
 
-        // ── 憑證管理與電子發票連動 JS ──
-        let vouchers = [];
+        // ── 損益平衡分析模組 JS ──
+        function calcBreakEven() {
+            const fixed = parseFloat(document.getElementById("be-fixed").value) || 0;
+            const price = parseFloat(document.getElementById("be-price").value) || 0;
+            const varRate = parseFloat(document.getElementById("be-var-rate").value) || 0;
 
-        function initVoucherPanel() {
-            vouchers = HimoriDb.vouchersDb || [];
-            renderVoucherList();
-            renderCpaAuditView();
-        }
+            const varCost = price * (varRate / 100);
+            const margin = price - varCost;
 
-        function toggleInvoiceLinkage() {
-            const isChecked = document.getElementById("v-link-invoice").checked;
-            const selectGroup = document.getElementById("v-invoice-select-group");
-            
-            if (isChecked) {
-                selectGroup.style.display = "block";
-                populateInvoiceDropdown();
-            } else {
-                selectGroup.style.display = "none";
-                document.getElementById("v-type").value = "進項發票";
-                document.getElementById("v-no").value = "";
-                document.getElementById("v-desc").value = "";
-                document.getElementById("v-amount").value = "";
-            }
-        }
-
-        function populateInvoiceDropdown() {
-            const dropdown = document.getElementById("v-invoice-select");
-            dropdown.innerHTML = "";
-            
-            const invList = HimoriDb.invoicesDb || [];
-            const validInvoices = invList.filter(i => i.status === 'valid');
-            
-            if (validInvoices.length === 0) {
-                const opt = document.createElement("option");
-                opt.value = "";
-                opt.textContent = "-- 無已開立之電子發票 --";
-                dropdown.appendChild(opt);
+            if (margin <= 0) {
+                document.getElementById("be-days-result").textContent = "∞";
+                document.getElementById("be-rev-result").textContent = "無法達到平衡 (邊際利潤為負)";
                 return;
             }
 
-            validInvoices.forEach(i => {
-                const opt = document.createElement("option");
-                opt.value = i.invoiceNo;
-                opt.textContent = i.invoiceNo + " (" + i.customerName + " - $" + i.amount.toLocaleString() + ")";
-                dropdown.appendChild(opt);
-            });
-            
-            pullLinkedInvoice();
+            const breakEvenDays = Math.ceil(fixed / margin);
+            const breakEvenRevenue = breakEvenDays * price;
+
+            document.getElementById("be-days-result").textContent = breakEvenDays;
+            document.getElementById("be-rev-result").textContent = breakEvenRevenue.toLocaleString();
         }
 
-        function pullLinkedInvoice() {
-            const invoiceNo = document.getElementById("v-invoice-select").value;
-            if (!invoiceNo) return;
 
-            const inv = HimoriDb.invoicesDb.find(x => x.invoiceNo === invoiceNo);
-            if (!inv) return;
 
-            document.getElementById("v-type").value = "銷項發票";
-            document.getElementById("v-no").value = inv.invoiceNo;
-            document.getElementById("v-desc").value = "銷項發票工程款: " + inv.customerName;
-            document.getElementById("v-amount").value = inv.amount + inv.tax;
-        }
-
-        function triggerMockOcr() {
-            const loader = document.getElementById("ocr-loader");
-            loader.style.display = "block";
-            document.getElementById("v-img-preview").style.display = "none";
-            
-            setTimeout(() => {
-                loader.style.display = "none";
-                document.getElementById("v-img-preview").style.display = "block";
-                
-                document.getElementById("v-type").value = "進項發票";
-                document.getElementById("v-no").value = "XY-" + Math.floor(10000000 + Math.random() * 90000000);
-                document.getElementById("v-desc").value = "工地購置配電箱材料 (OCR自動辨識)";
-                document.getElementById("v-amount").value = Math.floor(5000 + Math.random() * 20000);
-                
-                alert("✨ OCR AI 辨識完成！已自動帶入發票號碼、品目與金額，請核對後儲存。");
-            }, 1500);
-        }
-
-        function submitVoucher() {
-            const type = document.getElementById("v-type").value;
-            const no = document.getElementById("v-no").value.trim() || "—";
-            const desc = document.getElementById("v-desc").value.trim();
-            const amount = parseFloat(document.getElementById("v-amount").value);
-            const today = HimoriDb.simulatedDate || new Date().toISOString().split('T')[0];
-
-            if (!desc || isNaN(amount) || amount <= 0) {
-                alert("❌ 請輸入正確的憑證品目與消費金額！");
-                return;
+        // ── 董事會資產負債表核定與鎖定 JS ──
+        function boardApproveCpa() {
+            if (confirm("是否確定核對會計師申報書無誤，並鎖定本期資產負債表？")) {
+                HimoriDb.accData.balanceSheet.status = "已完稅核定 ✅";
+                HimoriDb.save();
+                alert("🎉 資產負債表已核定鎖定！");
+                renderBoardCpaView();
             }
-
-            const id = "VOU-" + Date.now();
-            const newVoucher = { id, type, no, desc, amount, date: today, status: "已核銷", invoiceLink: no };
-            
-            HimoriDb.vouchersDb.unshift(newVoucher);
-            
-            if (type === '銷項發票') {
-                // 銷項發票由電子發票開立連動，僅做憑證記錄
-            } else {
-                expenses.push({
-                    id: "EXP-" + Date.now(),
-                    date: today,
-                    category: type,
-                    amount: amount,
-                    desc: desc + " (憑證號: " + no + ")"
-                });
-                localStorage.setItem("expenses", JSON.stringify(expenses));
-            }
-            
-            HimoriDb.save();
-
-            document.getElementById("v-no").value = "";
-            document.getElementById("v-desc").value = "";
-            document.getElementById("v-amount").value = "";
-            document.getElementById("v-img-preview").style.display = "none";
-            document.getElementById("v-link-invoice").checked = false;
-            document.getElementById("v-invoice-select-group").style.display = "none";
-
-            alert("✅ 憑證儲存成功！已同步至財務流水帳中。");
-            initVoucherPanel();
-            
-            buildIncomeStatement();
-            buildBalanceSheet();
         }
 
-        function renderVoucherList() {
-            const tbody = document.getElementById("voucher-list-body");
-            if (!tbody) return;
-            tbody.innerHTML = "";
-            
-            const list = HimoriDb.vouchersDb || [];
-            list.forEach(v => {
-                const tr = document.createElement("tr");
-                const labelColor = v.type === '銷項發票' ? 'var(--accent)' : 'var(--warning)';
-                tr.innerHTML = `
-                    <td><strong>${v.desc}</strong><br><span style="color:var(--text-muted); font-size:0.75rem;"><span style="color:${labelColor}">${v.type}</span> | ${v.no}</span></td>
-                    <td>$${v.amount.toLocaleString()}</td>
-                    <td><span class="badge" style="background:rgba(16,185,129,0.15); color:var(--success);">核銷完成</span></td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-
-
-        // ── CPA 報稅核定 JS ──
-        function showCpaModal() {
-            document.getElementById("cpa-modal").style.display = "block";
-        }
-
-        function submitCpaAudit() {
-            const vat = parseFloat(document.getElementById("cpa-tax-vat").value) || 0;
-            const corp = parseFloat(document.getElementById("cpa-tax-corp").value) || 0;
-            
-            HimoriDb.accData.balanceSheet.status = "已完稅核定 ✅";
-            HimoriDb.accData.balanceSheet.vatFinal = vat;
-            HimoriDb.accData.balanceSheet.corpFinal = corp;
-            HimoriDb.save();
-            
-            document.getElementById("cpa-modal").style.display = "none";
-            alert("🎉 會計師完稅核定已登記確認！相關報表已被鎖定標記。");
-            renderCpaAuditView();
-            buildBalanceSheet();
-        }
-
-        function renderCpaAuditView() {
+        function renderBoardCpaView() {
             const status = HimoriDb.accData.balanceSheet.status || "待核定";
-            const badge = document.getElementById("cpa-status-badge");
-            const desc = document.getElementById("cpa-detail-desc");
-            const actions = document.getElementById("cpa-audit-actions");
-            
+            const badge = document.getElementById("board-cpa-status");
+            const desc = document.getElementById("board-cpa-desc");
+            const actions = document.getElementById("board-cpa-actions");
+
             if (!badge) return;
 
             if (status === "已完稅核定 ✅") {
-                badge.textContent = "已完稅核定 ✅";
+                badge.textContent = "已核定確認 ✅";
                 badge.style.background = "rgba(16,185,129,0.2)";
                 badge.style.color = "var(--success)";
-                desc.textContent = "核定稅額：營業稅 $" + (HimoriDb.accData.balanceSheet.vatFinal || 0).toLocaleString() + " 元 / 營所稅 $" + (HimoriDb.accData.balanceSheet.corpFinal || 0).toLocaleString() + " 元。本期財務已鎖定。";
+                desc.textContent = "本期資產負債表已通過會計師報稅核定鎖定。營業稅與營所稅核定數已同步載入。";
                 if (actions) actions.style.display = "none";
+                
+                document.querySelectorAll("#atab-balance input").forEach(input => input.disabled = true);
+                document.querySelectorAll("#atab-balance button").forEach(btn => {
+                    if (btn.textContent.includes("保存")) btn.style.display = "none";
+                });
             } else {
                 badge.textContent = "待核定 ⏳";
                 badge.style.background = "rgba(245,158,11,0.2)";
                 badge.style.color = "var(--warning)";
-                desc.textContent = "等候會計師申報完稅後，請主管核對稅額並拍照上傳申報書核定。";
+                desc.textContent = "等候會計師申報完稅核定後，由財務會計模組核定或於此確認鎖定。";
                 if (actions) actions.style.display = "block";
+                
+                document.querySelectorAll("#atab-balance input").forEach(input => input.disabled = false);
             }
         }
 

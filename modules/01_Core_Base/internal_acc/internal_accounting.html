@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <script src="../../../global_shared.js"></script>
+    <script src="../../../../../global_shared.js"></script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>日森精工 | 📅 假勤酬勞模組</title>
+    <title>日森精工 | 📊 營運內帳模組</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,7 +33,7 @@
 
         body {
             font-family: 'Outfit', 'Noto Sans TC', sans-serif;
-            background: url('../../../01_企業識別與設計/底色.png') center center / cover no-repeat fixed;
+            background: url('../../../../../01_企業識別與設計/底色.png') center center / cover no-repeat fixed;
             color: var(--text-dark);
             padding: 2rem 1.5rem;
         }
@@ -504,25 +504,29 @@
         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; width: 100%;">
             <div>
                 <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 8px; flex-wrap: wrap;">
-                    <img src="../../../01_企業識別與設計/橫式logo.png" alt="Logo" style="height: 57px; width: auto; filter: drop-shadow(0 0 4px rgba(255,255,255,0.05));">
-                    <h1 style="font-size: 1.45rem; border-left: 2px solid var(--border); padding-left: 16px; font-weight: 700; color: #FFFFFF; margin: 0; display: flex; align-items: center; gap: 8px;">📅 假勤酬勞模組 <span style="font-size: 0.68rem; font-weight: normal; color: var(--text-muted, #64748B); margin-left: 8px; vertical-align: middle; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.08); letter-spacing: 0.5px;">v1.0.0</span></h1>
+                    <img src="../../../../../01_企業識別與設計/橫式logo.png" alt="Logo" style="height: 57px; width: auto; filter: drop-shadow(0 0 4px rgba(255,255,255,0.05));">
+                    <h1 style="font-size: 1.45rem; border-left: 2px solid var(--border); padding-left: 16px; font-weight: 700; color: #FFFFFF; margin: 0; display: flex; align-items: center; gap: 8px;">📊 營運內帳模組 <span style="font-size: 0.68rem; font-weight: normal; color: var(--text-muted, #64748B); margin-left: 8px; vertical-align: middle; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.08); letter-spacing: 0.5px;">v1.0.0</span></h1>
                 </div>
-                <p class="subtitle" style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">管理同仁請假申請審查、每日出勤狀態與動態排班排程</p>
+                <p class="subtitle" style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">公司平日現金與存款流水帳、請款憑證照片上傳與日誌統計</p>
             </div>
             
         </div>
     </header>
 
         <!-- 分頁頁籤 -->
-        <div class="tabs" style="margin-bottom:1.5rem;">
-            <button class="tab-btn active" onclick="switchTab('payroll')">📅 每日出勤明細</button>
-            <button class="tab-btn " onclick="switchTab('discrepancy')">⚠️ 出勤異常對帳</button>
-            <button class="tab-btn " onclick="switchTab('leave')">✍️ 請假審核中心</button>
-            <button class="tab-btn " onclick="switchTab('line_simulation')">💬 LINE 員工自助模擬</button>
+        <div class="tabs" style="display:none;">
+            <button class="tab-btn active" onclick="switchTab('payroll')">💰 考勤與薪資計算</button>
+            <button class="tab-btn" onclick="switchTab('discrepancy')">🔍 派工差異對帳</button>
+            <button class="tab-btn" onclick="switchTab('roster')">📅 預排班表與提醒</button>
+            <button class="tab-btn" onclick="switchTab('leave')">📋 請假管理與審核</button>
+            <button class="tab-btn" onclick="switchTab('announcement')">📢 全員公告與群發</button>
+            <button class="tab-btn" onclick="switchTab('line-sim')">💬 LINE 互動模擬區</button>
+            <button class="tab-btn" onclick="switchTab('accounting')">📊 會計調控中心</button>
+            <button class="tab-btn" onclick="switchTab('settings')">⚙️ 系統與數據管理</button>
         </div>
 
         <!-- ==================== 頁籤 1：考勤與薪資計算 ==================== -->
-        <div id="tab-payroll" class="tab-content active">
+        <div id="tab-payroll" class="tab-content">
             <div class="dashboard-grid">
                 <!-- 左側：輸入出勤回報 -->
                 <div class="card">
@@ -864,7 +868,7 @@
 
         
         <!-- ==================== 頁籤 9：會計調控中心 ==================== -->
-        <div id="tab-accounting" class="tab-content">
+        <div id="tab-accounting" class="tab-content active">
 
             <!-- 頂部儀表板摘要 -->
             <div class="card" style="margin-bottom:1.5rem;">
@@ -872,6 +876,43 @@
                 <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem;">整合股權治理、財務報表、稅務試算與預測模型，掌握公司完整財務狀況。</p>
                 <div id="acc-dashboard-kpi" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;"></div>
             </div>
+
+
+            <!-- 會計師完稅核定區 -->
+            <div class="card" style="box-shadow:none; border-color:var(--border); margin-top:1.5rem;" id="cpa-audit-card">
+                <h3>🏛️ 會計師報稅與完稅核定確認</h3>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem; padding:1rem; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:8px;">
+                    <div>
+                        <div style="font-size:0.95rem; font-weight:700; color:white;">本期申報狀態：<span id="cpa-status-badge" class="badge">待核定 ⏳</span></div>
+                        <p style="font-size:0.78rem; color:var(--text-muted); margin-top:4px;" id="cpa-detail-desc">等候會計師申報完稅後，請主管核對稅額並拍照上傳申報書核定。</p>
+                    </div>
+                    <div id="cpa-audit-actions">
+                        <button class="btn btn-primary" style="width:auto; padding:8px 16px;" onclick="showCpaModal()">📸 拍照上傳申報書並輸入核定稅額</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- CPA Audit Modal -->
+            <div id="cpa-modal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:400px; background:#1e293b; border:2px solid var(--accent); border-radius:12px; padding:1.5rem; z-index:9999; box-shadow:0 20px 50px rgba(0,0,0,0.8);">
+                <h4 style="color:var(--accent); margin-bottom:1rem; text-align:center;">🏛️ 申報完稅核定登記</h4>
+                <div class="form-group">
+                    <label>核定營業稅額 (元)</label>
+                    <input type="number" id="cpa-tax-vat" value="7500">
+                </div>
+                <div class="form-group">
+                    <label>核定營所稅額 (元)</label>
+                    <input type="number" id="cpa-tax-corp" value="28000">
+                </div>
+                <div class="form-group">
+                    <label>拍照上傳申報核定書</label>
+                    <button class="btn btn-outline" style="width:100%;" onclick="alert('📸 模擬拍照上傳成功！')">📸 選擇核定書照片</button>
+                </div>
+                <div style="display:flex; gap:0.5rem; margin-top:1.5rem;">
+                    <button class="btn btn-outline" onclick="document.getElementById('cpa-modal').style.display='none'">取消</button>
+                    <button class="btn btn-primary" style="background:var(--success); color:white;" onclick="submitCpaAudit()">確認完稅核定</button>
+                </div>
+            </div>
+
 
             <!-- 子頁籤列 -->
             <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.5rem;">
@@ -1009,23 +1050,143 @@
                 </div>
             </div>
 
-            <!-- ── 營所稅試算 ── -->
+
+            <!-- 子頁籤 3: 營業與營所稅申報 -->
             <div id="atab-tax-corp" class="atab-content" style="display:none;">
-                <div class="card">
-                    <h3>🧾 營利事業所得稅試算</h3>
-                    <div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;align-items:flex-end;">
-                        <div class="form-group" style="margin:0;"><label>申報年度</label><input type="number" id="cit-year" value="2026" style="width:100px;"></div>
-                        <button class="btn" onclick="calcCorpTax()" style="margin-bottom:0;">🔢 計算稅額</button>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem;">
+                    <!-- 營業稅 (VAT) -->
+                    <div class="card" style="box-shadow:none; border-color:var(--border); margin:0;">
+                        <h3>🏛️ 營業稅申報即時試算 (銷項減進項)</h3>
+                        <div style="margin-top:1.5rem; display:flex; flex-direction:column; gap:0.8rem;">
+                            <div style="display:flex; justify-content:space-between; font-size:0.88rem;">
+                                <span>銷項發票稅額累計 (A)</span>
+                                <span id="tax-calc-output-tax" style="color:var(--accent); font-weight:700;">$0</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; font-size:0.88rem;">
+                                <span>進項憑證稅額累計 (B)</span>
+                                <span id="tax-calc-input-tax" style="color:var(--warning); font-weight:700;">$0</span>
+                            </div>
+                            <hr style="border-color:var(--border);">
+                            <div style="display:flex; justify-content:space-between; font-size:1.05rem; font-weight:700; color:white;">
+                                <span>應納營業稅額 (A - B)</span>
+                                <span id="tax-calc-vat-payable" style="color:var(--success); font-weight:700;">$0</span>
+                            </div>
+                        </div>
+                        <p style="font-size:0.75rem; color:var(--text-muted); margin-top:1.5rem; line-height:1.5;">
+                            * 註：營業稅每兩個月申報一次。本試算依本期開立之電子發票與進項發票自動統計。
+                        </p>
                     </div>
-                    <div id="corp-tax-result"></div>
-                    <div style="margin-top:1rem;padding:0.75rem;background:#fef9ec;border-radius:8px;border:1px solid #f6d860;font-size:0.8rem;">
-                        <strong>📌 台灣營所稅規則（2024年）：</strong><br>
-                        • 應稅所得 ≤ $120,000 → <strong>免稅</strong><br>
-                        • 應稅所得 > $120,000 → <strong>稅率 20%</strong>（但最多課到「應稅所得 - $120,000」的半數）<br>
-                        • 最低稅負：基本所得額超過 $600,000 → 額外徵收 <strong>12%</strong>
+
+                    <!-- 營所稅 (Corporate Tax) -->
+                    <div class="card" style="box-shadow:none; border-color:var(--border); margin:0;">
+                        <h3>🏛️ 營利事業所得稅試算 (EBIT 20%)</h3>
+                        <div style="margin-top:1rem;">
+                            <div class="form-group">
+                                <label>營所稅率 (%)</label>
+                                <input type="number" id="corp-tax-rate" value="20" readonly style="background:#0f172a;">
+                            </div>
+                            <div style="margin-top:1rem; padding:1rem; background:rgba(56,189,248,0.08); padding:1rem; border-radius:8px; border:1px dashed var(--accent);">
+                                <div style="font-size:0.82rem; color:var(--text-muted);">本期營業利益 (EBIT)：</div>
+                                <div style="font-size:1.1rem; font-weight:700; color:white; margin:0.3rem 0;">本期預估營所稅額：$<span id="corp-tax-result" style="color:var(--accent);">0</span></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <!-- 子頁籤 4: 憑證管理中心 -->
+            <div id="atab-voucher" class="atab-content" style="display:none;">
+                <div style="display:grid; grid-template-columns: 1fr 350px; gap:1.5rem;">
+                    <!-- 憑證登記 -->
+                    <div class="card" style="box-shadow:none; border-color:var(--border); margin:0;">
+                        <h3>📝 憑證/發票登記填單 (含 OCR AI 模擬辨識與電子發票連動)</h3>
+                        
+                        <!-- 發票連動勾選 -->
+                        <div style="margin-bottom:1.2rem; background:rgba(56,189,248,0.08); padding:0.8rem; border-radius:6px; border:1px dashed var(--accent);">
+                            <label style="display:flex; align-items:center; gap:0.5rem; font-weight:600; cursor:pointer;">
+                                <input type="checkbox" id="v-link-invoice" onchange="toggleInvoiceLinkage()"> 🔗 連動已開立之電子發票 (帶入銷項收入)
+                            </label>
+                            <div id="v-invoice-select-group" style="display:none; margin-top:0.6rem;">
+                                <label style="font-size:0.75rem;">選擇發票號碼</label>
+                                <select id="v-invoice-select" style="padding:4px; font-size:0.85rem;" onchange="pullLinkedInvoice()"></select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>憑證種類</label>
+                                <select id="v-type">
+                                    <option value="銷項發票">銷項發票 (工程款收入)</option>
+                                    <option value="進項發票">進項統一發票 (含稅費用)</option>
+                                    <option value="收據">一般免用統一發票收據</option>
+                                    <option value="交通憑證">出差與交通費核銷</option>
+                                    <option value="其他">其他合法報稅憑證</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>發票/憑證號碼 (選填)</label>
+                                <input type="text" id="v-no" placeholder="例如: AB-12345678">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>消費品項/說明</label>
+                                <input type="text" id="v-desc" placeholder="例如: 高鐵出差車票">
+                            </div>
+                            <div class="form-group">
+                                <label>憑證金額 (含稅元)</label>
+                                <input type="number" id="v-amount" placeholder="金額">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>上傳憑證/發票照影本 (模擬 AI 拍照辨識)</label>
+                            <input type="file" id="v-file" style="display:none;" onchange="triggerMockOcr()">
+                            <button class="btn btn-outline" style="width:100%; text-align:center; padding:10px;" onclick="document.getElementById('v-file').click()">📸 模擬手機拍照上傳憑證</button>
+                            
+                            <div id="ocr-loader" style="display:none; margin-top:0.8rem; text-align:center; font-size:0.8rem; color:var(--accent);">
+                                ⏳ 正在進行 OCR AI 影像辨識與稅額解析...
+                                <div style="width:100%; height:4px; background:rgba(255,255,255,0.1); border-radius:2px; overflow:hidden; margin-top:4px;">
+                                    <div style="width:0%; height:100%; background:var(--accent); animation: ocrProgress 1.5s linear forwards;"></div>
+                                </div>
+                            </div>
+
+                            <div id="v-img-preview" style="display:none; text-align:center; margin-top:0.8rem;">
+                                <div style="display:inline-block; border:1px solid var(--border); border-radius:4px; padding:4px; background:white;">
+                                    <div style="width:160px; height:100px; background:#e2e8f0; display:flex; align-items:center; justify-content:center; font-size:0.75rem; color:#64748b; font-weight:bold;">發票收據照片 [已上傳]</div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" style="margin-top:1rem; width:100%;" onclick="submitVoucher()">💾 登入並儲存憑證</button>
+                    </div>
+ 
+                    <!-- 憑證列表 -->
+                    <div class="card" style="box-shadow:none; border-color:var(--border); margin:0;">
+                        <h3>📜 本期已登記憑證歷史</h3>
+                        <div style="max-height: 350px; overflow-y: auto; margin-top: 1rem;">
+                            <table style="font-size:0.78rem;">
+                                <thead>
+                                    <tr>
+                                        <th>品項/號碼</th>
+                                        <th>金額</th>
+                                        <th>狀態</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="voucher-list-body">
+                                    <!-- 動態加載 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <style>
+                @keyframes ocrProgress {
+                    0% { width: 0%; }
+                    100% { width: 100%; }
+                }
+            </style>
+
 
             <!-- ── 財務預測 ── -->
             <div id="atab-forecast" class="atab-content" style="display:none;">
@@ -1323,283 +1484,228 @@
             if (document.getElementById("sys-sim-date")) document.getElementById("sys-sim-date").value = simulatedDate;
             if (alarmState && typeof showAlarmBanner === 'function') showAlarmBanner();
 
-            const user = JSON.parse(sessionStorage.getItem("himori_user"));
-            if (user && user.role.includes("現場同仁")) {
-                document.querySelector(".tabs").style.display = "none";
-                switchTab('line_simulation');
+            // 將載入的參數反映到設定畫面輸入框中
+            if (document.getElementById("p-ot-rate")) document.getElementById("p-ot-rate").value = params.otRate;
+            if (document.getElementById("p-holiday-allowance")) document.getElementById("p-holiday-allowance").value = params.holidayRate;
+            if (document.getElementById("p-lead-rate")) document.getElementById("p-lead-rate").value = params.leadRate;
+            if (document.getElementById("p-bonus-days")) document.getElementById("p-bonus-days").value = params.bonusDays;
+            if (document.getElementById("p-bonus-amount")) document.getElementById("p-bonus-amount").value = params.bonusAmount;
+            if (document.getElementById("p-webhook-reminder")) document.getElementById("p-webhook-reminder").value = webhookReminderUrl;
+            if (document.getElementById("p-webhook-announcement")) document.getElementById("p-webhook-announcement").value = webhookAnnouncementUrl;
+
+            // 支援 portal 解析帶頁籤的 URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialTab = urlParams.get('tab');
+            if (initialTab && document.getElementById('tab-' + initialTab)) {
+                switchTab(initialTab);
             } else {
-                switchTab('payroll');
+                renderDashboard();
             }
-            renderDashboard();
         }
 
 
 
         function renderDashboard() {
-            if (typeof renderAttendanceTable === 'function') renderAttendanceTable();
-            if (typeof renderDiscrepancyTable === 'function') renderDiscrepancyTable();
-            if (typeof renderLeaveTable === 'function') renderLeaveTable();
-            if (typeof initLinePanel === 'function') initLinePanel();
+            if (typeof loadCompanyInfoToForm === 'function') loadCompanyInfoToForm();
+            if (typeof renderShareholders === 'function') renderShareholders();
+            if (typeof calcDividend === 'function') calcDividend();
+            if (typeof buildIncomeStatement === 'function') buildIncomeStatement();
+            if (typeof loadBalanceSheetInputs === 'function') loadBalanceSheetInputs();
+            if (typeof buildBalanceSheet === 'function') buildBalanceSheet();
+            if (typeof calcCorpTax === 'function') calcCorpTax();
+            if (typeof initVoucherPanel === 'function') initVoucherPanel();
         }
     
 
 
-        // ── LINE 員工端模擬 JS (僅包含對話與自助查詢，QA資料庫後台移至客服公告模組) ──
-        let unresolvedQa = [];
+        // ── 憑證管理與電子發票連動 JS ──
+        let vouchers = [];
 
-        function initLinePanel() {
-            renderLineQuickBtns();
+        function initVoucherPanel() {
+            vouchers = HimoriDb.vouchersDb || [];
+            renderVoucherList();
+            renderCpaAuditView();
+        }
+
+        function toggleInvoiceLinkage() {
+            const isChecked = document.getElementById("v-link-invoice").checked;
+            const selectGroup = document.getElementById("v-invoice-select-group");
             
-            // 設定 LINE 模擬器頭部名稱
-            const user = JSON.parse(sessionStorage.getItem("himori_user")) || { name: "李志強", role: "現場同仁" };
-            const badge = document.getElementById("line-user-badge");
-            if (badge) badge.textContent = "同仁 " + user.name;
-        }
-
-        function renderLineQuickBtns() {
-            const container = document.getElementById("line-quick-qa-btns");
-            if (!container) return;
-            container.innerHTML = "";
-
-            const qas = HimoriDb.qaDb || [];
-            qas.forEach(item => {
-                const btn = document.createElement("button");
-                btn.style.background = "rgba(56,189,248,0.1)";
-                btn.style.border = "1px solid rgba(56,189,248,0.3)";
-                btn.style.color = "var(--accent)";
-                btn.style.padding = "4px 10px";
-                btn.style.borderRadius = "12px";
-                btn.style.fontSize = "0.72rem";
-                btn.style.cursor = "pointer";
-                btn.style.whiteSpace = "nowrap";
-                btn.textContent = item.keyword;
-                btn.onclick = () => lineSendCustomText(item.keyword);
-                container.appendChild(btn);
-            });
-        }
-
-        function appendLineChatBubble(sender, text, isButtonOptions = false, buttons = []) {
-            const chat = document.getElementById("line-chat-history");
-            if (!chat) return;
-
-            const bubble = document.createElement("div");
-            if (sender === "user") {
-                bubble.style.alignSelf = "flex-end";
-                bubble.style.background = "var(--accent)";
-                bubble.style.color = "var(--primary)";
-                bubble.style.padding = "8px 12px";
-                bubble.style.borderRadius = "12px 0 12px 12px";
-                bubble.style.maxWidth = "85%";
-                bubble.style.fontSize = "0.82rem";
-                bubble.textContent = text;
+            if (isChecked) {
+                selectGroup.style.display = "block";
+                populateInvoiceDropdown();
             } else {
-                bubble.style.alignSelf = "flex-start";
-                bubble.style.background = "#202d3c";
-                bubble.style.color = "white";
-                bubble.style.padding = "10px 12px";
-                bubble.style.borderRadius = "0 12px 12px 12px";
-                bubble.style.maxWidth = "85%";
-                bubble.style.fontSize = "0.82rem";
-                
-                let html = text.replace(/\\n/g, "<br>").replace(/\n/g, "<br>");
-                if (isButtonOptions && buttons.length > 0) {
-                    html += `<div style="display:flex; flex-direction:column; gap:6px; margin-top:8px; border-top:1px dashed rgba(255,255,255,0.1); padding-top:8px;">`;
-                    buttons.forEach(btn => {
-                        html += `<button onclick="${btn.action}" style="background:#1e293b; border:1px solid var(--accent); color:var(--accent); font-size:0.75rem; padding:4px 0; border-radius:4px; font-weight:600; cursor:pointer;">${btn.label}</button>`;
-                    });
-                    html += `</div>`;
-                }
-                bubble.innerHTML = html;
+                selectGroup.style.display = "none";
+                document.getElementById("v-type").value = "進項發票";
+                document.getElementById("v-no").value = "";
+                document.getElementById("v-desc").value = "";
+                document.getElementById("v-amount").value = "";
             }
-
-            chat.appendChild(bubble);
-            chat.scrollTop = chat.scrollHeight;
         }
 
-        function lineSendCustomText(overrideText) {
-            const input = document.getElementById("line-input-msg");
-            const text = overrideText || (input ? input.value.trim() : "");
-            if (!text) return;
-
-            if (input && !overrideText) input.value = "";
-
-            appendLineChatBubble("user", text);
-
-            const user = JSON.parse(sessionStorage.getItem("himori_user")) || { name: "李志強", role: "現場同仁" };
-
-            // 搜尋 Q&A 資料庫
-            setTimeout(() => {
-                const qas = HimoriDb.qaDb || [];
-                const match = qas.find(x => text.includes(x.keyword) || x.keyword.includes(text));
-                
-                if (match) {
-                    appendLineChatBubble("bot", match.answer);
-                } else {
-                    const csStaff = (HimoriDb.accountsDb || []).find(acc => acc.authorizedModules && acc.authorizedModules.includes("announcement_publish")) || { name: "客服人員" };
-                    appendLineChatBubble("bot", "⚠️ 抱歉，我未能找到與「" + text + "」相關的預設解答。您的提問已即時轉交客服窗口人員 (" + csStaff.name + ")，我們會儘速與您聯絡！");
-                    
-                    // 記錄至未匹配警示庫
-                    unresolvedQa = JSON.parse(localStorage.getItem("unresolvedQaList")) || [];
-                    unresolvedQa.unshift({
-                        name: user.name,
-                        text: text,
-                        date: HimoriDb.simulatedDate,
-                        resolved: false
-                    });
-                    localStorage.setItem("unresolvedQaList", JSON.stringify(unresolvedQa));
-                }
-            }, 500);
-        }
-
-        function lineSendAction(actionType) {
-            const user = JSON.parse(sessionStorage.getItem("himori_user")) || { name: "李志強", role: "現場同仁" };
+        function populateInvoiceDropdown() {
+            const dropdown = document.getElementById("v-invoice-select");
+            dropdown.innerHTML = "";
             
-            if (actionType === 'clock_in') {
-                appendLineChatBubble("user", "⏰ 每日出勤打卡");
-                setTimeout(() => {
-                    const today = HimoriDb.simulatedDate;
-                    const isClocked = HimoriDb.attendanceLogs.some(x => x.name === user.name && x.date === today);
-                    if (isClocked) {
-                        appendLineChatBubble("bot", "您今天 (" + today + ") 已經完成打卡回報，不需重複打卡！");
-                    } else {
-                        const specialty = HimoriDb.employeeDb[user.name]?.specialty || "軌道安裝";
-                        HimoriDb.attendanceLogs.push({
-                            date: today,
-                            foreman: "李志強",
-                            name: user.name,
-                            site: "台積電F20",
-                            zone: specialty,
-                            hours: 8,
-                            note: "LINE 模擬打卡回報"
-                        });
-                        HimoriDb.save();
-                        appendLineChatBubble("bot", "🟢 打卡成功！\\n日期：" + today + "\\n地點：台積電F20\\n同仁：" + user.name + "\\n備註：已成功登錄出勤日誌。");
-                        
-                        if (typeof renderAttendanceTable === 'function') renderAttendanceTable();
-                        if (typeof renderDiscrepancyTable === 'function') renderDiscrepancyTable();
-                    }
-                }, 500);
-            } 
-            else if (actionType === 'view_roster') {
-                appendLineChatBubble("user", "📅 查詢確認排班");
-                setTimeout(() => {
-                    const today = HimoriDb.simulatedDate;
-                    const roster = HimoriDb.rosterDb.find(x => x.name === user.name && x.date === today);
-                    if (roster) {
-                        appendLineChatBubble("bot", "您在今天 (" + today + ") 有指派班表：\\n• 工地：" + roster.site + "\\n• 工區：" + roster.zone + "\\n• 狀態：" + roster.status + "\\n\\n請點選下方按鈕回報出勤意願：", true, [
-                            { label: "✅ 願意出勤", action: "lineConfirmRoster(true)" },
-                            { label: "❌ 無法出勤 (需請假)", action: "lineConfirmRoster(false)" }
-                        ]);
-                    } else {
-                        appendLineChatBubble("bot", "您在今天 (" + today + ") 沒有排定班表。");
-                    }
-                }, 500);
-            }
-            else if (actionType === 'query_attendance') {
-                appendLineChatBubble("user", "📊 當月出勤狀況");
-                setTimeout(() => {
-                    const logs = HimoriDb.attendanceLogs.filter(x => x.name === user.name);
-                    const days = logs.length;
-                    const hours = logs.reduce((sum, item) => sum + item.hours, 0);
-                    appendLineChatBubble("bot", "📊 【當月出勤統計】\\n同仁：" + user.name + "\\n• 累計上班天數：" + days + " 天\\n• 累計出勤時數：" + hours + " 小時\\n• 無故缺勤次數：0 次");
-                }, 500);
-            }
-            else if (actionType === 'query_leave') {
-                appendLineChatBubble("user", "🏥 查詢請假狀況");
-                setTimeout(() => {
-                    const leaves = HimoriDb.leaveDb.filter(x => x.name === user.name);
-                    if (leaves.length === 0) {
-                        appendLineChatBubble("bot", "您當月尚無任何請假申請紀錄。");
-                    } else {
-                        let text = "🏥 【您的請假審核狀態】";
-                        leaves.forEach((l, idx) => {
-                            text += "\\n" + (idx+1) + ". [" + l.type + "] 日期:" + l.date + " -> 狀態: " + l.status;
-                        });
-                        appendLineChatBubble("bot", text);
-                    }
-                }, 500);
-            }
-            else if (actionType === 'query_salary') {
-                appendLineChatBubble("user", "💰 查詢累計薪酬");
-                setTimeout(() => {
-                    const logs = HimoriDb.attendanceLogs.filter(x => x.name === user.name);
-                    const days = logs.length;
-                    
-                    const specialty = HimoriDb.employeeDb[user.name]?.specialty || "軌道安裝";
-                    const rate = HimoriDb.tradesDb[specialty] || 2200;
-                    const otRate = HimoriDb.params.otRate || 1.5;
-                    const leadRate = HimoriDb.employeeDb[user.name]?.isLead ? (HimoriDb.params.leadRate || 100) : 0;
-                    
-                    let basePay = days * rate;
-                    let otHours = 0;
-                    logs.forEach(l => {
-                        if (l.hours > 8) otHours += (l.hours - 8);
-                    });
-                    
-                    let otPay = Math.round(otHours * (rate / 8) * otRate);
-                    let leadPay = days * leadRate;
-                    let total = basePay + otPay + leadPay;
-                    
-                    appendLineChatBubble("bot", "💰 【本月累計薪酬預估】\\n同仁：" + user.name + " (" + specialty + ")\\n• 日薪單價：$" + rate.toLocaleString() + "\\n• 累計工日：" + days + " 天 ($" + basePay.toLocaleString() + ")\\n• 累計加班：" + otHours + " 小時 ($" + otPay.toLocaleString() + ")\\n• 領導加給：$" + leadPay.toLocaleString() + "\\n━━━━━━━━━━━━━━━━━\\n• 實領金額累計 (預估): $" + total.toLocaleString() + " 元\\n*(註: 最終發放以月底出勤對帳為準)*");
-                }, 500);
-            }
-        }
-
-        function lineConfirmRoster(isWilling) {
-            const user = JSON.parse(sessionStorage.getItem("himori_user")) || { name: "李志強" };
-            const today = HimoriDb.simulatedDate;
-            const roster = HimoriDb.rosterDb.find(x => x.name === user.name && x.date === today);
+            const invList = HimoriDb.invoicesDb || [];
+            const validInvoices = invList.filter(i => i.status === 'valid');
             
-            if (roster) {
-                if (isWilling) {
-                    roster.status = "已接受";
-                    appendLineChatBubble("bot", "✅ 感謝您的回覆！出勤狀態已更新為：已接受。請做好廠區個人防護，準時上工。");
-                } else {
-                    roster.status = "已拒絕";
-                    appendLineChatBubble("bot", "❌ 已收到您的拒絕回覆。請儘速點選 LINE [請假申請] 提交假單，以避免被列為曠工！");
-                }
-                HimoriDb.save();
-                if (typeof renderRosterTable === 'function') renderRosterTable();
-            }
-        }
-
-        function lineShowLeaveForm() {
-            document.getElementById("line-leave-modal").style.display = "block";
-            document.getElementById("line-l-date").value = HimoriDb.simulatedDate;
-        }
-
-        function lineSubmitLeave() {
-            const type = document.getElementById("line-l-type").value;
-            const date = document.getElementById("line-l-date").value;
-            const reason = document.getElementById("line-l-reason").value.trim();
-            const user = JSON.parse(sessionStorage.getItem("himori_user")) || { name: "李志強" };
-
-            if (!reason) {
-                alert("❌ 請輸入請假事由！");
+            if (validInvoices.length === 0) {
+                const opt = document.createElement("option");
+                opt.value = "";
+                opt.textContent = "-- 無已開立之電子發票 --";
+                dropdown.appendChild(opt);
                 return;
             }
 
-            const id = "LV-" + String(HimoriDb.leaveDb.length + 101);
-            HimoriDb.leaveDb.push({
-                id: id,
-                date: date,
-                name: user.name,
-                type: type,
-                reason: reason,
-                proof: "LINE申報",
-                status: "待審核",
-                appliedAt: HimoriDb.simulatedDate + " 08:30:00"
+            validInvoices.forEach(i => {
+                const opt = document.createElement("option");
+                opt.value = i.invoiceNo;
+                opt.textContent = i.invoiceNo + " (" + i.customerName + " - $" + i.amount.toLocaleString() + ")";
+                dropdown.appendChild(opt);
             });
+            
+            pullLinkedInvoice();
+        }
+
+        function pullLinkedInvoice() {
+            const invoiceNo = document.getElementById("v-invoice-select").value;
+            if (!invoiceNo) return;
+
+            const inv = HimoriDb.invoicesDb.find(x => x.invoiceNo === invoiceNo);
+            if (!inv) return;
+
+            document.getElementById("v-type").value = "銷項發票";
+            document.getElementById("v-no").value = inv.invoiceNo;
+            document.getElementById("v-desc").value = "銷項發票工程款: " + inv.customerName;
+            document.getElementById("v-amount").value = inv.amount + inv.tax;
+        }
+
+        function triggerMockOcr() {
+            const loader = document.getElementById("ocr-loader");
+            loader.style.display = "block";
+            document.getElementById("v-img-preview").style.display = "none";
+            
+            setTimeout(() => {
+                loader.style.display = "none";
+                document.getElementById("v-img-preview").style.display = "block";
+                
+                document.getElementById("v-type").value = "進項發票";
+                document.getElementById("v-no").value = "XY-" + Math.floor(10000000 + Math.random() * 90000000);
+                document.getElementById("v-desc").value = "工地購置配電箱材料 (OCR自動辨識)";
+                document.getElementById("v-amount").value = Math.floor(5000 + Math.random() * 20000);
+                
+                alert("✨ OCR AI 辨識完成！已自動帶入發票號碼、品目與金額，請核對後儲存。");
+            }, 1500);
+        }
+
+        function submitVoucher() {
+            const type = document.getElementById("v-type").value;
+            const no = document.getElementById("v-no").value.trim() || "—";
+            const desc = document.getElementById("v-desc").value.trim();
+            const amount = parseFloat(document.getElementById("v-amount").value);
+            const today = HimoriDb.simulatedDate || new Date().toISOString().split('T')[0];
+
+            if (!desc || isNaN(amount) || amount <= 0) {
+                alert("❌ 請輸入正確的憑證品目與消費金額！");
+                return;
+            }
+
+            const id = "VOU-" + Date.now();
+            const newVoucher = { id, type, no, desc, amount, date: today, status: "已核銷", invoiceLink: no };
+            
+            HimoriDb.vouchersDb.unshift(newVoucher);
+            
+            if (type === '銷項發票') {
+                // 銷項發票由電子發票開立連動，僅做憑證記錄
+            } else {
+                expenses.push({
+                    id: "EXP-" + Date.now(),
+                    date: today,
+                    category: type,
+                    amount: amount,
+                    desc: desc + " (憑證號: " + no + ")"
+                });
+                localStorage.setItem("expenses", JSON.stringify(expenses));
+            }
+            
             HimoriDb.save();
 
-            document.getElementById("line-leave-modal").style.display = "none";
-            document.getElementById("line-l-reason").value = "";
+            document.getElementById("v-no").value = "";
+            document.getElementById("v-desc").value = "";
+            document.getElementById("v-amount").value = "";
+            document.getElementById("v-img-preview").style.display = "none";
+            document.getElementById("v-link-invoice").checked = false;
+            document.getElementById("v-invoice-select-group").style.display = "none";
 
-            appendLineChatBubble("user", "🏥 申報請假 [" + type + "]，日期：" + date + "，事由：" + reason);
-            setTimeout(() => {
-                appendLineChatBubble("bot", "🏥 請假申請已成功提交！\\n單號：" + id + "\\n狀態：主管審核中。\\n*(請假後會由系統自動依規定調整全勤津貼累計天數)*");
-                if (typeof renderLeaveTable === 'function') renderLeaveTable();
-            }, 500);
+            alert("✅ 憑證儲存成功！已同步至財務流水帳中。");
+            initVoucherPanel();
+            
+            buildIncomeStatement();
+            buildBalanceSheet();
+        }
+
+        function renderVoucherList() {
+            const tbody = document.getElementById("voucher-list-body");
+            if (!tbody) return;
+            tbody.innerHTML = "";
+            
+            const list = HimoriDb.vouchersDb || [];
+            list.forEach(v => {
+                const tr = document.createElement("tr");
+                const labelColor = v.type === '銷項發票' ? 'var(--accent)' : 'var(--warning)';
+                tr.innerHTML = `
+                    <td><strong>${v.desc}</strong><br><span style="color:var(--text-muted); font-size:0.75rem;"><span style="color:${labelColor}">${v.type}</span> | ${v.no}</span></td>
+                    <td>$${v.amount.toLocaleString()}</td>
+                    <td><span class="badge" style="background:rgba(16,185,129,0.15); color:var(--success);">核銷完成</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+
+
+        // ── CPA 報稅核定 JS ──
+        function showCpaModal() {
+            document.getElementById("cpa-modal").style.display = "block";
+        }
+
+        function submitCpaAudit() {
+            const vat = parseFloat(document.getElementById("cpa-tax-vat").value) || 0;
+            const corp = parseFloat(document.getElementById("cpa-tax-corp").value) || 0;
+            
+            HimoriDb.accData.balanceSheet.status = "已完稅核定 ✅";
+            HimoriDb.accData.balanceSheet.vatFinal = vat;
+            HimoriDb.accData.balanceSheet.corpFinal = corp;
+            HimoriDb.save();
+            
+            document.getElementById("cpa-modal").style.display = "none";
+            alert("🎉 會計師完稅核定已登記確認！相關報表已被鎖定標記。");
+            renderCpaAuditView();
+            buildBalanceSheet();
+        }
+
+        function renderCpaAuditView() {
+            const status = HimoriDb.accData.balanceSheet.status || "待核定";
+            const badge = document.getElementById("cpa-status-badge");
+            const desc = document.getElementById("cpa-detail-desc");
+            const actions = document.getElementById("cpa-audit-actions");
+            
+            if (!badge) return;
+
+            if (status === "已完稅核定 ✅") {
+                badge.textContent = "已完稅核定 ✅";
+                badge.style.background = "rgba(16,185,129,0.2)";
+                badge.style.color = "var(--success)";
+                desc.textContent = "核定稅額：營業稅 $" + (HimoriDb.accData.balanceSheet.vatFinal || 0).toLocaleString() + " 元 / 營所稅 $" + (HimoriDb.accData.balanceSheet.corpFinal || 0).toLocaleString() + " 元。本期財務已鎖定。";
+                if (actions) actions.style.display = "none";
+            } else {
+                badge.textContent = "待核定 ⏳";
+                badge.style.background = "rgba(245,158,11,0.2)";
+                badge.style.color = "var(--warning)";
+                desc.textContent = "等候會計師申報完稅後，請主管核對稅額並拍照上傳申報書核定。";
+                if (actions) actions.style.display = "block";
+            }
         }
 
 
@@ -3381,20 +3487,32 @@
         }
 
         // ── 損益表 ──
+
         function buildIncomeStatement() {
             const year = document.getElementById('is-year')?.value || '2026';
             const el   = document.getElementById('income-statement-result');
             if (!el) return;
 
-            const revenue    = invoices.filter(i => i.issueDate?.startsWith(year)).reduce((s,i)=>s+i.amount,0);
-            const outputTax  = invoices.filter(i => i.issueDate?.startsWith(year)).reduce((s,i)=>s+i.tax,0);
+            // 相容 i.issueDate 與 i.date 欄位，且僅採納 valid (正常開立) 發票
+            const revenue    = invoices.filter(i => ((i.issueDate || i.date)?.startsWith(year)) && i.status === 'valid').reduce((s,i)=>s+i.amount,0);
+            const outputTax  = invoices.filter(i => ((i.issueDate || i.date)?.startsWith(year)) && i.status === 'valid').reduce((s,i)=>s+i.tax,0);
             const payrollCost= payslips.filter(p => p.month?.startsWith(year) && p.status==='已匯款').reduce((s,p)=>s+p.gross,0);
             const otherExpense= expenses.filter(e => e.date?.startsWith(year)).reduce((s,e)=>s+e.amount,0);
+            
             const ebit       = revenue - payrollCost - otherExpense;
             const corpTax    = calcCorpTaxAmountCorrect(ebit);
             const netProfit  = ebit - corpTax;
             const totalShares= accData.shareholders.reduce((s,sh)=>s+sh.shares,0) || accData.company.shares || 1;
             const eps        = totalShares > 0 ? netProfit / totalShares : 0;
+
+            const inputTax = HimoriDb.vouchersDb.filter(v => v.type === '進項發票' && v.date?.startsWith(year)).reduce((s,v) => s + Math.round(v.amount * 0.05), 0);
+            const vatPayable = outputTax - inputTax;
+
+            if (document.getElementById('tax-calc-output-tax')) {
+                document.getElementById('tax-calc-output-tax').textContent = '$' + outputTax.toLocaleString();
+                document.getElementById('tax-calc-input-tax').textContent = '$' + inputTax.toLocaleString();
+                document.getElementById('tax-calc-vat-payable').textContent = '$' + vatPayable.toLocaleString();
+            }
 
             const row = (label, amt, indent=false, bold=false, color='') =>
                 `<tr>
@@ -3410,16 +3528,16 @@
                 </tr></thead>
                 <tbody>
                     ${row('一、營業收入（未稅）', revenue, false, true, 'var(--accent)')}
-                    ${row('  銷項稅額（-）', -outputTax, true)}
+                    ${row('  銷項營業稅（5%）（-）', -outputTax, true)}
                     <tr><td colspan="2" style="height:1px;background:var(--border);padding:0;"></td></tr>
                     ${row('二、直接成本', payrollCost, false, true)}
-                    ${row('  人事薪資費用（-）', -payrollCost, true)}
+                    ${row('  現場人事薪資費用（-）', -payrollCost, true)}
                     <tr><td colspan="2" style="height:1px;background:var(--border);padding:0;"></td></tr>
                     ${row('三、其他費用', otherExpense, false, true)}
-                    ${row('  各項費用支出（-）', -otherExpense, true)}
+                    ${row('  進項憑證與各項支出（-）', -otherExpense, true)}
                     <tr><td colspan="2" style="height:2px;background:var(--accent);padding:0;"></td></tr>
                     ${row('四、營業利益（EBIT）', ebit, false, true, ebit>=0?'var(--success)':'var(--danger)')}
-                    ${row('  所得稅費用（-）', -corpTax, true)}
+                    ${row('  營所稅估算 (20%)（-）', -corpTax, true)}
                     <tr><td colspan="2" style="height:2px;background:var(--accent);padding:0;"></td></tr>
                     ${row('五、本期稅後淨利', netProfit, false, true, netProfit>=0?'var(--success)':'var(--danger)')}
                     <tr><td colspan="2" style="height:1px;background:var(--border);padding:0;"></td></tr>
@@ -3432,11 +3550,9 @@
                 <span>EPS：<strong>$${eps.toFixed(2)}</strong></span>
             </div>`;
 
-            // 自動帶入股利試算
             const npInput = document.getElementById('div-net-profit');
             if (npInput && !npInput.value) { npInput.value = Math.max(0, Math.round(netProfit)); }
         }
-
         // ── 資產負債表 ──
         function loadBalanceSheetInputs() {
             const bs = accData.balanceSheet;

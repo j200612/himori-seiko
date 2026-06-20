@@ -14,8 +14,22 @@
         email: "admin@himori-seiko.com",
         address: "台北市大安區信義路四段1號2樓",
         taxId: "日森精工有限公司 (統編核准中)",
-        cardFront: "modules/functional/employee_cards/card_front.png",
-        cardBack: "modules/functional/employee_cards/card_back.png"
+        cardFront: "modules/02_LINE_Office/employee_cards/card_front.png",
+        cardBack: "modules/02_LINE_Office/employee_cards/card_back.png",
+        modulesVersionTags: {
+            base_brand: "v1.0.0",
+            base_hr: "v1.0.0",
+            base_permissions: "v1.0.0",
+            func_employee_cards: "v1.0.0",
+            func_work_dispatch: "v1.0.0",
+            func_attendance: "v1.0.0",
+            func_group_insurance: "v1.0.0",
+            func_internal_acc: "v1.0.0",
+            func_external_acc: "v1.0.0",
+            func_e_invoicing: "v1.0.0",
+            func_board_meeting: "v1.0.0",
+            func_line_hub: "v1.0.0"
+        }
     };
 
     // 系統 SaaS 模組註冊中心 (一般類與功能類)
@@ -24,7 +38,7 @@
             category: 'base',
             name: '🎨 企業識別模組',
             version: '1.0.0',
-            src: 'modules/base/brand/brand.html',
+            src: 'modules/01_Core_Base/base/brand/brand.html',
             desc: '管理公司名稱、Logo、底色與官方網站內容',
             dependencies: []
         },
@@ -32,7 +46,7 @@
             category: 'base',
             name: '👥 員工名冊模組',
             version: '1.0.0',
-            src: 'modules/base/hr/hr_base.html',
+            src: 'modules/01_Core_Base/base/hr/hr_base.html',
             desc: '最基礎的同仁名冊與通訊錄登記',
             dependencies: []
         },
@@ -40,7 +54,7 @@
             category: 'base',
             name: '⚙️ 權限訂閱模組',
             version: '1.0.0',
-            src: 'modules/base/permissions/permissions.html',
+            src: 'modules/01_Core_Base/base/permissions/permissions.html',
             desc: '配置同仁帳號角色，以及模擬 SaaS 模組加購與品牌客製化',
             dependencies: []
         },
@@ -48,7 +62,7 @@
             category: 'functional',
             name: '📇 電子名片模組',
             version: '1.0.0',
-            src: 'modules/functional/employee_cards/employee_cards.html',
+            src: 'modules/02_LINE_Office/employee_cards/employee_cards.html',
             desc: '設計與開啟同仁電子名片，設定聯絡資訊',
             dependencies: ['base_hr']
         },
@@ -56,7 +70,7 @@
             category: 'functional',
             name: '🏗️ 排班派工模組',
             version: '1.0.0',
-            src: 'modules/functional/work_dispatch/work_dispatch.html',
+            src: 'modules/03_Industry_Modules/Himori_Project/work_dispatch/work_dispatch.html',
             desc: '工程排班排程、派工指派與現場出勤追蹤',
             dependencies: ['base_hr']
         },
@@ -64,7 +78,7 @@
             category: 'functional',
             name: '📅 假勤酬勞模組',
             version: '1.0.0',
-            src: 'modules/functional/attendance/attendance.html',
+            src: 'modules/02_LINE_Office/attendance/attendance.html',
             desc: '每日出勤明細核對、異常對帳與假單線上審批',
             dependencies: ['func_work_dispatch']
         },
@@ -72,7 +86,7 @@
             category: 'functional',
             name: '🛡️ 團保作業模組',
             version: '1.0.0',
-            src: 'modules/functional/group_insurance/group_insurance.html',
+            src: 'modules/03_Industry_Modules/Himori_Project/group_insurance/group_insurance.html',
             desc: '辦理加保/退保、增額投保與保費送件檔(CSV)匯出',
             dependencies: ['base_hr']
         },
@@ -80,7 +94,7 @@
             category: 'functional',
             name: '📊 營運內帳模組',
             version: '1.0.0',
-            src: 'modules/functional/internal_acc/internal_accounting.html',
+            src: 'modules/01_Core_Base/internal_acc/internal_accounting.html',
             desc: '公司平日現金與存款流水帳、請款憑證照片上傳與日誌統計',
             dependencies: []
         },
@@ -88,7 +102,7 @@
             category: 'functional',
             name: '🧾 財會外帳模組',
             version: '1.0.0',
-            src: 'modules/functional/external_acc/external_accounting.html',
+            src: 'modules/03_Industry_Modules/Himori_Project/external_acc/external_accounting.html',
             desc: '模擬會計師報稅發票對碰、營業稅/營所稅估算與內外帳落差分析',
             dependencies: ['func_internal_acc']
         },
@@ -96,7 +110,7 @@
             category: 'functional',
             name: '🧾 電子發票模組',
             version: '1.0.0',
-            src: 'modules/functional/e_invoicing/e_invoicing.html',
+            src: 'modules/01_Core_Base/e_invoicing/e_invoicing.html',
             desc: '模擬電子發票開立、發送、折讓與作廢歷史管理',
             dependencies: []
         },
@@ -104,7 +118,7 @@
             category: 'functional',
             name: '👑 股東權益模組',
             version: '1.0.0',
-            src: 'modules/functional/board_meeting/board_meeting.html',
+            src: 'modules/03_Industry_Modules/Himori_Project/board_meeting/board_meeting.html',
             desc: '查看股權分配、EPS、預算對比圖表與損益平衡決策分析',
             dependencies: []
         },
@@ -112,7 +126,7 @@
             category: 'functional',
             name: '💬 公告客服模組',
             version: '1.0.0',
-            src: 'modules/functional/line_hub/line_hub.html',
+            src: 'modules/02_LINE_Office/line_hub/line_hub.html',
             desc: '對外 LINE 客服問答回覆、公告發佈與打卡請假對帳模擬',
             dependencies: ['base_hr']
         }
@@ -123,9 +137,9 @@
         params: { otRate: 1.5, holidayRate: 1.5, leadRate: 100, bonusDays: 22, bonusAmount: 3000 },
         tradesDb: { "拉線工程": 2500, "接線工程": 2800, "軌道安裝": 2200 },
         employeeDb: {
-            "張憲明": { specialty: "拉線工程", transAllow: 1000, lodgAllow: 0, profAllow: 500, isLead: false },
-            "李志強": { specialty: "接線工程", transAllow: 1000, lodgAllow: 2000, profAllow: 1000, isLead: true },
-            "王大同": { specialty: "軌道安裝", transAllow: 0, lodgAllow: 0, profAllow: 0, isLead: false }
+            "張憲明": { specialty: "拉線工程", transAllow: 1000, lodgAllow: 0, profAllow: 500, isLead: false, laborType: "contract" },
+            "李志強": { specialty: "接線工程", transAllow: 1000, lodgAllow: 2000, profAllow: 1000, isLead: true, laborType: "hire" },
+            "王大同": { specialty: "軌道安裝", transAllow: 0, lodgAllow: 0, profAllow: 0, isLead: false, laborType: "contract" }
         },
         rosterDb: [
             { date: "2026-06-15", createdDate: "2026-06-12", name: "張憲明", site: "台積電F20", zone: "6S整理整頓", status: "已接受", notified_1st: "已送出 ✅", notified_5d: "—", notified_2d: "已送出 ✅", notified_1d: "已送出 ✅" },
@@ -310,6 +324,10 @@
                     return moduleUpgradeMap[modId] || modId;
                 });
                 this.companyConfig = JSON.parse(localStorage.getItem("companyConfig")) || defaults.companyConfig;
+                if (this.companyConfig && !this.companyConfig.modulesVersionTags) {
+                    this.companyConfig.modulesVersionTags = { ...defaults.companyConfig.modulesVersionTags };
+                }
+
             } catch (e) {
                 console.error("載入資料庫失敗，自動重設...", e);
                 this.reset();

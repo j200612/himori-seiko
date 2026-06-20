@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
     
     <!-- 🌐 共享數據中心 -->
-    <script src="../../../global_shared.js"></script>
+    <script src="../../../../../../global_shared.js"></script>
 
     <style>
         :root {
@@ -36,7 +36,7 @@
         }
 
         body {
-            background: url('../../../01_企業識別與設計/底色.png') center center / cover no-repeat fixed;
+            background: url('../../../../../../01_企業識別與設計/底色.png') center center / cover no-repeat fixed;
             color: var(--text-light);
             min-height: 100vh;
             padding: 2rem;
@@ -166,6 +166,17 @@
             color: var(--text-muted);
             border: 1px solid rgba(148, 163, 184, 0.3);
         }
+        .tag-hire {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34D399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .tag-contract {
+            background: rgba(245, 158, 11, 0.15);
+            color: #FBBF24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
 
         /* 操作按鈕 */
         .action-group {
@@ -370,7 +381,7 @@
         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; width: 100%;">
             <div>
                 <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 8px; flex-wrap: wrap;">
-                    <img src="../../../01_企業識別與設計/橫式logo.png" alt="Logo" style="height: 57px; width: auto; filter: drop-shadow(0 0 4px rgba(255,255,255,0.05));">
+                    <img src="../../../../../../01_企業識別與設計/橫式logo.png" alt="Logo" style="height: 57px; width: auto; filter: drop-shadow(0 0 4px rgba(255,255,255,0.05));">
                     <h1 style="font-size: 1.45rem; border-left: 2px solid var(--border); padding-left: 16px; font-weight: 700; color: #FFFFFF; margin: 0; display: flex; align-items: center; gap: 8px;">👥 員工名冊模組 <span style="font-size: 0.68rem; font-weight: normal; color: var(--text-muted, #64748B); margin-left: 8px; vertical-align: middle; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.08); letter-spacing: 0.5px;">v1.0.0</span></h1>
                 </div>
                 <p class="subtitle" style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">最基礎的同仁名冊與通訊錄登記</p>
@@ -391,6 +402,7 @@
                     <tr>
                         <th>姓名</th>
                         <th>職務身分</th>
+                        <th>法規身分</th>
                         <th>專長類別</th>
                         <th>聯絡電話</th>
                         <th>身分證字號</th>
@@ -450,9 +462,18 @@
 
                 <div class="form-row">
                     <div class="form-group">
+                        <label>勞動法規身分 <span style="color:var(--danger)">*</span></label>
+                        <select id="emp-labor-type">
+                            <option value="hire">雇傭 - 有勞健保</option>
+                            <option value="contract">承攬 - 無勞健保</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label>身分證號 (EHS 入廠報備用)</label>
                         <input type="text" id="emp-idno" placeholder="例如: A123456789">
                     </div>
+                </div>
+                <div class="form-row">
                     <div class="form-group">
                         <label>發薪狀態</label>
                         <select id="emp-status">
@@ -461,6 +482,7 @@
                             <option value="增員中">意向登記 📋</option>
                         </select>
                     </div>
+                    <div class="form-group"></div>
                 </div>
 
                 <div class="form-row">
@@ -531,7 +553,11 @@
                 const idno = intentInfo.idno || '—';
                 const bank = intentInfo.bankNo || '—';
                 const acct = intentInfo.bankAcct || '—';
-                const specialty = emp.specialty || '—';
+                
+                const laborType = emp.laborType || 'contract';
+                const laborTypeHTML = `<span class="tag ${laborType === 'hire' ? 'tag-hire' : 'tag-contract'}">${laborType === 'hire' ? '雇傭 (有勞健保)' : '承攬 (無勞健保)'}</span>`;
+            
+const specialty = emp.specialty || '—';
                 const status = intentInfo.status || '已核准';
 
                 if (searchVal) {
@@ -551,6 +577,7 @@
                 tr.innerHTML = `
                     <td><strong>${name}</strong></td>
                     <td><span class="tag ${emp.isLead ? 'tag-lead' : 'tag-staff'}">${emp.isLead ? '👑 領隊' : '👤 同仁'}</span></td>
+                    <td>${laborTypeHTML}</td>
                     <td>${specialty}</td>
                     <td>${phone}</td>
                     <td><code style="color:var(--text-muted)">${idno}</code></td>
@@ -582,6 +609,7 @@
             document.getElementById("emp-specialty").value = "拉線工程";
             document.getElementById("emp-phone").value = "";
             document.getElementById("emp-is-lead").value = "false";
+            document.getElementById("emp-labor-type").value = "hire";
             document.getElementById("emp-idno").value = "";
             document.getElementById("emp-status").value = "已核准";
             document.getElementById("emp-bank-no").value = "";
@@ -612,6 +640,7 @@
             document.getElementById("emp-specialty").value = emp.specialty || "拉線工程";
             document.getElementById("emp-phone").value = cardInfo.phone || intentInfo.phone || "";
             document.getElementById("emp-is-lead").value = emp.isLead ? "true" : "false";
+            document.getElementById("emp-labor-type").value = emp.laborType || "contract";
             document.getElementById("emp-idno").value = intentInfo.idno || "";
             document.getElementById("emp-status").value = intentInfo.status || "已核准";
             document.getElementById("emp-bank-no").value = intentInfo.bankNo || "";
@@ -639,6 +668,7 @@
             const status = document.getElementById("emp-status").value;
             const bankNo = document.getElementById("emp-bank-no").value.trim();
             const bankAcct = document.getElementById("emp-bank-acct").value.trim();
+            const laborType = document.getElementById("emp-labor-type").value;
             const transAllow = parseInt(document.getElementById("emp-allow-trans").value) || 0;
             const lodgAllow = parseInt(document.getElementById("emp-allow-lodg").value) || 0;
             const profAllow = parseInt(document.getElementById("emp-allow-prof").value) || 0;
@@ -656,7 +686,8 @@
                 transAllow: transAllow,
                 lodgAllow: lodgAllow,
                 profAllow: profAllow,
-                isLead: isLead
+                isLead: isLead,
+                laborType: laborType
             };
 
             // 2. 寫入 intentDb (基本資料與匯款銀行)
