@@ -55,6 +55,13 @@
 
 ## 📅 版本歷史與變更記錄 (Version History)
 
+### 📌 v1.1.0 (2026-06-20 / SaaS 重構與功能插拔預留)
+* **核心變更**：
+  * 徹底重構 `modules/` 檔案目錄，重組為「黃金三層架構」（`01_Core_Base`、`02_LINE_Office`、`03_Industry_Modules/Himori_Project`）。
+  * 在 `global_shared.js` 中新增 `modulesVersionTags` 版本控管卡榫屬性，實現模組化版本追蹤。
+  * 在「員工名冊模組（`hr_base.html`）」正式引入 `laborType` 勞動法規身分欄位，區分 `[雇傭-有勞健保]` 與 `[承攬-無勞健保]`。
+  * 移除所有對 C 槽本機臨時路徑的同步邏輯，專案定居並直接在 G 槽進行開發與同步。
+
 ### 📌 v1.0.0 (2026-06-18 / 首個穩定版本)
 * **核心變更**：
   * 重構全專案目錄，將 12 大模組重新整理至 2 層結構（`modules/base/` 與 `modules/functional/`）。
