@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日森精工 | 🎨 企業識別模組</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- 🌐 共享數據中心 -->
+    <script src="../../../global_shared.js"></script>
+
+    <style>
+        :root {
+            --primary: #0F172A;
+            --primary-light: #1E293B;
+            --accent: #38BDF8;
+            --accent-glow: rgba(56, 189, 248, 0.2);
+            --bg-dark: #090D1A;
+            --card-bg: rgba(30, 41, 59, 0.4);
+            --text-light: #F8FAFC;
+            --text-muted: #94A3B8;
+            --border: rgba(255, 255, 255, 0.08);
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+        }
+
+        body {
+            background: url('../../../01_企業識別與設計/底色.png') center center / cover no-repeat fixed;
+            color: var(--text-light);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #FFF, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .grid-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ════════════════════ 卡片樣式 ════════════════════ */
+        .glass-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--accent);
+            border-left: 4px solid var(--accent);
+            padding-left: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* 表單元素 */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+            line-height: 1.6;
+        }
+
+        /* 圖片上傳與預覽 */
+        .uploader-box {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(15, 23, 42, 0.2);
+        }
+
+        .uploader-box:hover {
+            border-color: var(--accent);
+            background: rgba(56, 189, 248, 0.05);
+        }
+
+        .uploader-box svg {
+            width: 36px;
+            height: 36px;
+            fill: var(--text-muted);
+            transition: fill 0.3s;
+        }
+
+        .uploader-box:hover svg {
+            fill: var(--accent);
+        }
+
+        .uploader-box span {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        .image-preview {
+            width: 100%;
+            height: 120px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: rgba(15, 23, 42, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .image-preview img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+
+        .image-preview .placeholder {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        /* 按鈕樣式 */
+        .button-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 0.85rem 1.8rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.25s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            color: white;
+            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(56, 189, 248, 0.4);
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.15);
+            color: #FCA5A5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.3);
+            color: white;
+        }
+
+        /* 提示框與 Toast */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid var(--success);
+            color: var(--text-light);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transform: translateY(150%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 10000;
+            font-size: 0.9rem;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; width: 100%;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 8px; flex-wrap: wrap;">
+                    <img src="../../../01_企業識別與設計/橫式logo.png" alt="Logo" style="height: 57px; width: auto; filter: drop-shadow(0 0 4px rgba(255,255,255,0.05));">
+                    <h1 style="font-size: 1.45rem; border-left: 2px solid var(--border); padding-left: 16px; font-weight: 700; color: #FFFFFF; margin: 0; display: flex; align-items: center; gap: 8px;">🎨 企業識別模組 <span style="font-size: 0.68rem; font-weight: normal; color: var(--text-muted, #64748B); margin-left: 8px; vertical-align: middle; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.08); letter-spacing: 0.5px;">v1.0.0</span></h1>
+                </div>
+                <p class="subtitle" style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">配置公司名稱、Logo、底色與官方網站內容</p>
+            </div>
+            
+        </div>
+    </header>
+
+        <div class="grid-layout">
+            <!-- 左欄：基本文字設定 -->
+            <div class="glass-card">
+                <div class="card-title">📝 企業基本資料與文案</div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>公司中文名稱</label>
+                        <input type="text" id="comp-name" placeholder="例如: 日森精工有限公司">
+                    </div>
+                    <div class="form-group">
+                        <label>公司英文名稱</label>
+                        <input type="text" id="comp-eng-name" placeholder="例如: HIMORI SEIKO Co., Ltd.">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>統一編號 (統編)</label>
+                        <input type="text" id="comp-tax-id" placeholder="例如: 88888888">
+                    </div>
+                    <div class="form-group">
+                        <label>官方聯絡信箱</label>
+                        <input type="email" id="comp-email" placeholder="例如: service@yourcompany.com">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>公司地址</label>
+                    <input type="text" id="comp-address" placeholder="公司營業地址">
+                </div>
+
+                <div class="form-group">
+                    <label>品牌 Slogan / 標語</label>
+                    <input type="text" id="comp-slogan" placeholder="例如: 安全・合規・韌性・精密">
+                </div>
+
+                <div class="form-group">
+                    <label>官方網站 - 公司簡介與描述</label>
+                    <textarea id="comp-desc" placeholder="輸入官方首頁顯示的詳細公司介紹，以呈現專業形象。"></textarea>
+                </div>
+            </div>
+
+            <!-- 右欄：圖片上傳與預覽 -->
+            <div class="glass-card">
+                <div class="card-title">🖼️ 品牌圖檔與視覺</div>
+
+                <!-- 橫式 Logo -->
+                <div class="form-group">
+                    <label>橫式 Logo (用於導覽列與側邊欄 - 建議寬高比 4:1)</label>
+                    <div style="display: grid; grid-template-columns: 1fr 120px; gap: 1rem; align-items: center;">
+                        <input type="text" id="comp-logo-horiz-path" placeholder="輸入本地路徑或由右側按鈕上傳" style="font-size:0.8rem;">
+                        <div class="image-preview" id="horiz-preview-box">
+                            <span class="placeholder">無預覽</span>
+                        </div>
+                    </div>
+                    <div class="uploader-box" onclick="triggerFilePicker('horiz')">
+                        <svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>
+                        <span>點擊上傳或拖曳橫式 LOGO (自動轉為 Base64)</span>
+                    </div>
+                </div>
+
+                <!-- 直式 Logo -->
+                <div class="form-group">
+                    <label>直式 Logo (用於名片與公文 - 建議寬高比 1:1 或 1:1.5)</label>
+                    <div style="display: grid; grid-template-columns: 1fr 120px; gap: 1rem; align-items: center;">
+                        <input type="text" id="comp-logo-vert-path" placeholder="輸入本地路徑或由右側按鈕上傳" style="font-size:0.8rem;">
+                        <div class="image-preview" id="vert-preview-box">
+                            <span class="placeholder">無預覽</span>
+                        </div>
+                    </div>
+                    <div class="uploader-box" onclick="triggerFilePicker('vert')">
+                        <svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>
+                        <span>點擊上傳或拖曳直式 LOGO (自動轉為 Base64)</span>
+                    </div>
+                </div>
+
+                <!-- 背景圖片 -->
+                <div class="form-group">
+                    <label>系統背景底圖 (SaaS 控制台背景底圖)</label>
+                    <div style="display: grid; grid-template-columns: 1fr 120px; gap: 1rem; align-items: center;">
+                        <input type="text" id="comp-bg-path" placeholder="底色圖片路徑" style="font-size:0.8rem;">
+                        <div class="image-preview" id="bg-preview-box">
+                            <span class="placeholder">無預覽</span>
+                        </div>
+                    </div>
+                    <div class="uploader-box" onclick="triggerFilePicker('bg')">
+                        <svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>
+                        <span>點擊上傳背景底圖</span>
+                    </div>
+                </div>
+
+                <!-- 名片正面底圖 -->
+                <div class="form-group">
+                    <label>電子名片 - 正面背景底圖 (建議寬高比 1.66:1 - 例如 900x540)</label>
+                    <div style="display: grid; grid-template-columns: 1fr 120px; gap: 1rem; align-items: center;">
+                        <input type="text" id="comp-card-front-path" placeholder="名片正面圖片路徑" style="font-size:0.8rem;">
+                        <div class="image-preview" id="card-front-preview-box">
+                            <span class="placeholder">無預覽</span>
+                        </div>
+                    </div>
+                    <div class="uploader-box" onclick="triggerFilePicker('cardfront')">
+                        <svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>
+                        <span>點擊上傳名片正面底圖</span>
+                    </div>
+                </div>
+
+                <!-- 名片反面底圖 -->
+                <div class="form-group">
+                    <label>電子名片 - 反面背景底圖 (建議寬高比 1.66:1 - 例如 900x540)</label>
+                    <div style="display: grid; grid-template-columns: 1fr 120px; gap: 1rem; align-items: center;">
+                        <input type="text" id="comp-card-back-path" placeholder="名片反面圖片路徑" style="font-size:0.8rem;">
+                        <div class="image-preview" id="card-back-preview-box">
+                            <span class="placeholder">無預覽</span>
+                        </div>
+                    </div>
+                    <div class="uploader-box" onclick="triggerFilePicker('cardback')">
+                        <svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>
+                        <span>點擊上傳名片反面底圖</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底層按鈕 -->
+        <div class="button-group">
+            <button class="btn btn-primary" onclick="saveBrandConfig()">💾 儲存並套用品牌設定</button>
+        </div>
+    </div>
+
+    <!-- 隱藏的檔案選擇器 -->
+    <input type="file" id="file-picker" accept="image/*" style="display:none;" onchange="handleFileSelected(event)">
+
+    <!-- Toast 通知 -->
+    <div class="toast" id="toast-notify">
+        <span>✅ 品牌設定已成功更新！系統已無縫更換企業識別。</span>
+    </div>
+
+    <script>
+        let currentUploadTarget = '';
+
+        // 頁面初始化
+        window.addEventListener("DOMContentLoaded", function() {
+            loadBrandData();
+        });
+
+        // 載入當前品牌資訊
+        function loadBrandData() {
+            HimoriDb.load();
+            const config = HimoriDb.companyConfig || {};
+
+            document.getElementById("comp-name").value = config.name || '';
+            document.getElementById("comp-eng-name").value = config.engName || '';
+            document.getElementById("comp-tax-id").value = config.taxId || '';
+            document.getElementById("comp-email").value = config.email || '';
+            document.getElementById("comp-address").value = config.address || '';
+            document.getElementById("comp-slogan").value = config.slogan || '';
+            document.getElementById("comp-desc").value = config.description || '';
+
+            // 設定路徑與預覽
+            document.getElementById("comp-logo-horiz-path").value = config.logoHorizontal || '';
+            document.getElementById("comp-logo-vert-path").value = config.logoVertical || '';
+            document.getElementById("comp-bg-path").value = config.backgroundImg || '';
+            document.getElementById("comp-card-front-path").value = config.cardFront || '';
+            document.getElementById("comp-card-back-path").value = config.cardBack || '';
+
+            updatePreview("horiz-preview-box", config.logoHorizontal);
+            updatePreview("vert-preview-box", config.logoVertical);
+            updatePreview("bg-preview-box", config.backgroundImg);
+            updatePreview("card-front-preview-box", config.cardFront);
+            updatePreview("card-back-preview-box", config.cardBack);
+        }
+
+        // 更新預覽區
+        function updatePreview(boxId, pathOrBase64) {
+            const box = document.getElementById(boxId);
+            box.innerHTML = '';
+            if (pathOrBase64) {
+                // 如果是相對路徑，需要加上../../前綴以在iframe中正確顯示
+                let displayUrl = pathOrBase64;
+                if (!pathOrBase64.startsWith("data:") && !pathOrBase64.startsWith("http") && !pathOrBase64.startsWith("../../")) {
+                    displayUrl = "../../" + pathOrBase64;
+                }
+                const img = document.createElement("img");
+                img.src = displayUrl;
+                img.alt = "Preview";
+                box.appendChild(img);
+            } else {
+                box.innerHTML = '<span class="placeholder">（留白）</span>';
+            }
+        }
+
+        // 觸發上傳
+        function triggerFilePicker(target) {
+            currentUploadTarget = target;
+            document.getElementById("file-picker").value = "";
+            document.getElementById("file-picker").click();
+        }
+
+        // 處理圖片轉為 Base64
+        function handleFileSelected(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // 限制圖片容量 1.5MB 以防 localStorage 溢出
+            if (file.size > 1.5 * 1024 * 1024) {
+                alert("❌ 圖片容量過大 (超過 1.5MB)，請先壓縮圖檔後再上傳！");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Str = e.target.result;
+                if (currentUploadTarget === 'horiz') {
+                    document.getElementById("comp-logo-horiz-path").value = base64Str;
+                    updatePreview("horiz-preview-box", base64Str);
+                } else if (currentUploadTarget === 'vert') {
+                    document.getElementById("comp-logo-vert-path").value = base64Str;
+                    updatePreview("vert-preview-box", base64Str);
+                } else if (currentUploadTarget === 'bg') {
+                    document.getElementById("comp-bg-path").value = base64Str;
+                    updatePreview("bg-preview-box", base64Str);
+                } else if (currentUploadTarget === 'cardfront') {
+                    document.getElementById("comp-card-front-path").value = base64Str;
+                    updatePreview("card-front-preview-box", base64Str);
+                } else if (currentUploadTarget === 'cardback') {
+                    document.getElementById("comp-card-back-path").value = base64Str;
+                    updatePreview("card-back-preview-box", base64Str);
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // 儲存設定
+        function saveBrandConfig() {
+            HimoriDb.load();
+            
+            const name = document.getElementById("comp-name").value.trim();
+            if (!name) {
+                alert("❌ 請輸入公司中文名稱！");
+                return;
+            }
+
+            HimoriDb.companyConfig = {
+                name: name,
+                engName: document.getElementById("comp-eng-name").value.trim(),
+                logoHorizontal: document.getElementById("comp-logo-horiz-path").value.trim(),
+                logoVertical: document.getElementById("comp-logo-vert-path").value.trim(),
+                backgroundImg: document.getElementById("comp-bg-path").value.trim(),
+                cardFront: document.getElementById("comp-card-front-path").value.trim(),
+                cardBack: document.getElementById("comp-card-back-path").value.trim(),
+                slogan: document.getElementById("comp-slogan").value.trim(),
+                description: document.getElementById("comp-desc").value.trim(),
+                email: document.getElementById("comp-email").value.trim(),
+                address: document.getElementById("comp-address").value.trim(),
+                taxId: document.getElementById("comp-tax-id").value.trim()
+            };
+
+            HimoriDb.save();
+            
+            // 廣播資料庫變更事件，讓外層 portal 即時更新 Navbar/Sidebar/Title
+            window.parent.dispatchEvent(new CustomEvent('himori_db_updated'));
+
+            showToast("💾 品牌設定已成功更新！系統已無縫更換企業識別。");
+        }
+
+        // 重設品牌
+        function resetBrandToDefault() {
+            if (confirm("⚠️ 確定要將品牌識別重設為『日森精工』預設配置嗎？這將覆蓋您目前上傳的 Logo。")) {
+                localStorage.removeItem("companyConfig");
+                loadBrandData();
+                window.parent.dispatchEvent(new CustomEvent('himori_db_updated'));
+                showToast("🔄 品牌設定已重設為預設配置！");
+            }
+        }
+
+        // 顯示 Toast 訊息
+        function showToast(msg) {
+            const toast = document.getElementById("toast-notify");
+            toast.querySelector("span").textContent = msg;
+            toast.classList.add("show");
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3500);
+        }
+    </script>
+
+    <!-- 頁尾開發商版權宣告 -->
+    <div style="font-size: 0.7rem; color: var(--text-muted, #64748B); text-align: center; margin: 3rem 0 1.5rem 0; padding-top: 1.5rem; border-top: 1px solid var(--border, rgba(255,255,255,0.08)); width: 100%; letter-spacing: 0.5px;">
+        © 2026 映向行銷. Powered by Image Marketing
+    </div>
+</body>
+</html>

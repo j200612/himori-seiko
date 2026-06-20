@@ -1,0 +1,407 @@
+// ==================== 日森精工 | 數位營運中心 共享數據中心 ====================
+// 本檔案負責跨模組（iframe）的資料庫存取、統一初始化、SaaS 模組管理與自動自我修復。
+
+(function(global) {
+    // 預設公司品牌識別配置
+    const defaultCompanyConfig = {
+        name: "日森精工有限公司",
+        engName: "HIMORI SEIKO Co., Ltd.",
+        logoHorizontal: "01_企業識別與設計/橫式logo.png",
+        logoVertical: "01_企業識別與設計/直式logo.png",
+        backgroundImg: "01_企業識別與設計/底色.png",
+        slogan: "安全・合規・韌性・精密",
+        description: "日森精工專注於半導體晶圓廠區、高科技無塵室之6S廠務維護、精密天車軌道安裝校正、機電整合工程與工安合規管理，提供高彈性與高韌性的廠房後勤支援。",
+        email: "admin@himori-seiko.com",
+        address: "台北市大安區信義路四段1號2樓",
+        taxId: "日森精工有限公司 (統編核准中)",
+        cardFront: "modules/functional/employee_cards/card_front.png",
+        cardBack: "modules/functional/employee_cards/card_back.png"
+    };
+
+    // 系統 SaaS 模組註冊中心 (一般類與功能類)
+    const HimoriModules = {
+        base_brand: {
+            category: 'base',
+            name: '🎨 企業識別模組',
+            version: '1.0.0',
+            src: 'modules/base/brand/brand.html',
+            desc: '管理公司名稱、Logo、底色與官方網站內容',
+            dependencies: []
+        },
+        base_hr: {
+            category: 'base',
+            name: '👥 員工名冊模組',
+            version: '1.0.0',
+            src: 'modules/base/hr/hr_base.html',
+            desc: '最基礎的同仁名冊與通訊錄登記',
+            dependencies: []
+        },
+        base_permissions: {
+            category: 'base',
+            name: '⚙️ 權限訂閱模組',
+            version: '1.0.0',
+            src: 'modules/base/permissions/permissions.html',
+            desc: '配置同仁帳號角色，以及模擬 SaaS 模組加購與品牌客製化',
+            dependencies: []
+        },
+        func_employee_cards: {
+            category: 'functional',
+            name: '📇 電子名片模組',
+            version: '1.0.0',
+            src: 'modules/functional/employee_cards/employee_cards.html',
+            desc: '設計與開啟同仁電子名片，設定聯絡資訊',
+            dependencies: ['base_hr']
+        },
+        func_work_dispatch: {
+            category: 'functional',
+            name: '🏗️ 排班派工模組',
+            version: '1.0.0',
+            src: 'modules/functional/work_dispatch/work_dispatch.html',
+            desc: '工程排班排程、派工指派與現場出勤追蹤',
+            dependencies: ['base_hr']
+        },
+        func_attendance: {
+            category: 'functional',
+            name: '📅 假勤酬勞模組',
+            version: '1.0.0',
+            src: 'modules/functional/attendance/attendance.html',
+            desc: '每日出勤明細核對、異常對帳與假單線上審批',
+            dependencies: ['func_work_dispatch']
+        },
+        func_group_insurance: {
+            category: 'functional',
+            name: '🛡️ 團保作業模組',
+            version: '1.0.0',
+            src: 'modules/functional/group_insurance/group_insurance.html',
+            desc: '辦理加保/退保、增額投保與保費送件檔(CSV)匯出',
+            dependencies: ['base_hr']
+        },
+        func_internal_acc: {
+            category: 'functional',
+            name: '📊 營運內帳模組',
+            version: '1.0.0',
+            src: 'modules/functional/internal_acc/internal_accounting.html',
+            desc: '公司平日現金與存款流水帳、請款憑證照片上傳與日誌統計',
+            dependencies: []
+        },
+        func_external_acc: {
+            category: 'functional',
+            name: '🧾 財會外帳模組',
+            version: '1.0.0',
+            src: 'modules/functional/external_acc/external_accounting.html',
+            desc: '模擬會計師報稅發票對碰、營業稅/營所稅估算與內外帳落差分析',
+            dependencies: ['func_internal_acc']
+        },
+        func_e_invoicing: {
+            category: 'functional',
+            name: '🧾 電子發票模組',
+            version: '1.0.0',
+            src: 'modules/functional/e_invoicing/e_invoicing.html',
+            desc: '模擬電子發票開立、發送、折讓與作廢歷史管理',
+            dependencies: []
+        },
+        func_board_meeting: {
+            category: 'functional',
+            name: '👑 股東權益模組',
+            version: '1.0.0',
+            src: 'modules/functional/board_meeting/board_meeting.html',
+            desc: '查看股權分配、EPS、預算對比圖表與損益平衡決策分析',
+            dependencies: []
+        },
+        func_line_hub: {
+            category: 'functional',
+            name: '💬 公告客服模組',
+            version: '1.0.0',
+            src: 'modules/functional/line_hub/line_hub.html',
+            desc: '對外 LINE 客服問答回覆、公告發佈與打卡請假對帳模擬',
+            dependencies: ['base_hr']
+        }
+    };
+
+    // 預設資料庫參數
+    const defaults = {
+        params: { otRate: 1.5, holidayRate: 1.5, leadRate: 100, bonusDays: 22, bonusAmount: 3000 },
+        tradesDb: { "拉線工程": 2500, "接線工程": 2800, "軌道安裝": 2200 },
+        employeeDb: {
+            "張憲明": { specialty: "拉線工程", transAllow: 1000, lodgAllow: 0, profAllow: 500, isLead: false },
+            "李志強": { specialty: "接線工程", transAllow: 1000, lodgAllow: 2000, profAllow: 1000, isLead: true },
+            "王大同": { specialty: "軌道安裝", transAllow: 0, lodgAllow: 0, profAllow: 0, isLead: false }
+        },
+        rosterDb: [
+            { date: "2026-06-15", createdDate: "2026-06-12", name: "張憲明", site: "台積電F20", zone: "6S整理整頓", status: "已接受", notified_1st: "已送出 ✅", notified_5d: "—", notified_2d: "已送出 ✅", notified_1d: "已送出 ✅" },
+            { date: "2026-06-15", createdDate: "2026-06-12", name: "李志強", site: "台積電F20", zone: "軌道安裝工程", status: "已接受", notified_1st: "已送出 ✅", notified_5d: "—", notified_2d: "已送出 ✅", notified_1d: "已送出 ✅" },
+            { date: "2026-06-15", createdDate: "2026-06-12", name: "王大同", site: "台積電F20", zone: "軌道安裝工程", status: "已接受", notified_1st: "已送出 ✅", notified_5d: "—", notified_2d: "已送出 ✅", notified_1d: "已送出 ✅" }
+        ],
+        attendanceLogs: [
+            { date: "2026-06-15", foreman: "李志強", name: "張憲明", site: "台積電F20", zone: "6S整理整頓", hours: 8, note: "準時下班" },
+            { date: "2026-06-15", foreman: "李志強", name: "李志強", site: "台積電F20", zone: "軌道安裝工程", hours: 10, note: "加班2小時調整軌道" },
+            { date: "2026-06-15", foreman: "李志強", name: "王大同", site: "台積電F20", zone: "軌道安裝工程", hours: 8, note: "無" }
+        ],
+        leaveDb: [
+            { id: "LV-001", date: "2026-06-12", name: "張憲明", type: "一般事假", reason: "家中有事請假", proof: "無", status: "已核准", appliedAt: "2026-06-09 10:00:00" },
+            { id: "LV-002", date: "2026-06-16", name: "王大同", type: "派工前一日臨時假", reason: "感冒發燒看診", proof: "未提供證明", status: "待審核", appliedAt: "2026-06-15 18:22:15" }
+        ],
+        announcementHistory: [
+            { time: "2026/06/15 17:30", title: "安全防護具宣導", target: "全員", content: "進入廠區請務必配戴新型反光背心及安全帶...", status: "已發送 ✅" }
+        ],
+        accData: {
+            company: { name:'日森精工有限公司', taxId:'', type:'ltd', capital:500000, par:1000, shares:500, owner:'', founded:'', address:'', business:'' },
+            shareholders: [
+                { name: '法人股東', shares: 255, type: 'corp', idno: '法人統編' },
+                { name: '自然人股東', shares: 245, type: 'person', idno: '自然人身分證' }
+            ],
+            balanceSheet: { cash:0, prepaid:0, fixed:0, ap:0, loan:0, otherLiab:0, status: "未核定" }
+        },
+        accountsDb: [
+            { empId: "admin", name: "林總經理", password: "admin123", role: "系統管理員 / 主管", authorizedModules: ["base_brand", "base_hr", "func_employee_cards", "func_work_dispatch", "func_attendance", "func_group_insurance", "func_internal_acc", "func_external_acc", "func_e_invoicing", "func_board_meeting", "func_line_hub", "base_permissions"] },
+            { empId: "accountant", name: "會計淑芬", password: "acc123", role: "會計財務", authorizedModules: ["base_hr", "func_work_dispatch", "func_attendance", "func_internal_acc", "func_external_acc", "func_e_invoicing"] },
+            { empId: "emp101", name: "李志強", password: "emp123", role: "現場同仁 / 領隊", authorizedModules: ["base_hr", "func_attendance", "func_line_hub"] },
+            { empId: "emp102", name: "張憲明", password: "emp123", role: "現場同仁 / 領隊", authorizedModules: ["base_hr", "func_attendance", "func_line_hub"] },
+            { empId: "emp103", name: "王大同", password: "emp123", role: "現場同仁 / 領隊", authorizedModules: ["base_hr", "func_attendance", "func_line_hub"] }
+        ],
+        cardsDb: {
+            "張憲明": { enabled: true, title: "拉線組長", phone: "0912-345-678", address: "台北市大安區信義路四段1號2樓" },
+            "李志強": { enabled: true, title: "工程主任 / 領隊", phone: "0923-456-789", address: "台北市大安區信義路四段1號2樓" },
+            "王大同": { enabled: false, title: "技術專員", phone: "0934-567-890", address: "台北市大安區信義row四段1號2樓" }
+        },
+        insurancesDb: {
+            "張憲明": { status: "basic", increasedAmount: 0, history: [
+                { date: "2026-06-12", type: "基本保險加保", status: "已完成" }
+            ]},
+            "李志強": { status: "increased", increasedAmount: 3000000, history: [
+                { date: "2026-06-12", type: "基本保險加保", status: "已完成" },
+                { date: "2026-06-15", type: "增額保險加保 (300萬)", status: "已完成" }
+            ]},
+            "王大同": { status: "none", increasedAmount: 0, history: [] }
+        },
+        invoicesDb: [
+            { invoiceNo: "AB-87654321", date: "2026-06-16", customerName: "台積電", taxId: "24436181", amount: 150000, tax: 7500, status: "valid", period: "115年 05-06月", taxType: "taxable", format: "three-way", items: [
+                { name: "拉線與軌道工程款", price: 150000, qty: 1 }
+            ]}
+        ],
+        intentDb: [
+            { name: "張憲明", phone: "0912-345-678", step: "completed", idno: "A123456789", bankNo: "013", bankAcct: "123456789012", signDate: "2026-06-12", status: "已核准" },
+            { name: "李志強", phone: "0923-456-789", step: "completed", idno: "B123456789", bankNo: "700", bankAcct: "123456789012", signDate: "2026-06-12", status: "已核准" },
+            { name: "王大同", phone: "0934-567-890", step: "signed", idno: "C123456789", bankNo: "007", bankAcct: "123456789012", signDate: "2026-06-15", status: "待審核" },
+            { name: "陳小兵", phone: "0955-123-456", step: "registered", idno: "", bankNo: "", bankAcct: "", signDate: "", status: "增員中" }
+        ],
+        qaDb: [
+            { question: "請假手續與考評扣除規定", keyword: "請假", answer: "請假規定：同仁請假應提前於一日前下午18:00前，由LINE或系統提交假單；若臨時生病/突發狀況需於當天早上07:30前告知。未提供合格證明之請假，將扣除當月考評分數及全勤津貼累計天數。" },
+            { question: "現場同仁基本薪資與加班計費", keyword: "薪資", answer: "計薪說明：本公司依工日核薪。平日正常工時8小時。平日延長工時(超時)以1.5倍計算超時津貼。擔任現場領隊者，每日額外發放領導加給。當月出勤達22天以上且無缺勤紀錄者，發放全勤津貼3,000元。" },
+            { question: "安全防護具與防墜設施規定", keyword: "安全帽", answer: "安全規定：進入工地廠區必須全程正確佩戴符合CNS國家標準之安全帽、防滑工作鞋及高能見度反光背心。高處作業(2公尺以上)必須確實掛妥雙掛勾安全帶，違規者將面臨罰款與停工處分。" },
+            { question: "出勤打卡與無故曠工處分", keyword: "出勤", answer: "出勤規定：每日早上08:00前需於LINE模擬器或打卡處完成打卡。無故不按時出勤且未請假者，視為曠工；曠工一天扣除三天考評分數，連續曠工達三日者終止承攬關係。" }
+        ],
+        vouchersDb: [
+            { id: "VOU-001", type: "進項發票", no: "XY-98765432", desc: "工地購置接線端子與管線材料", amount: 12500, date: "2026-06-14", status: "已核銷", invoiceLink: "AB-87654321", verified: true, imageUrl: "" },
+            { id: "VOU-002", type: "交通憑證", no: "HR-12345", desc: "高鐵出差車票-新竹廠勘", amount: 290, date: "2026-06-15", status: "已核銷", invoiceLink: "—", verified: true, imageUrl: "" }
+        ],
+        simulatedDate: "2026-06-16",
+        subscribedModules: [
+            "base_brand",
+            "base_hr",
+            "func_employee_cards",
+            "func_work_dispatch",
+            "func_attendance",
+            "func_group_insurance",
+            "func_internal_acc",
+            "func_external_acc",
+            "func_e_invoicing",
+            "func_board_meeting",
+            "func_line_hub",
+            "base_permissions"
+        ],
+        companyConfig: { ...defaultCompanyConfig }
+    };
+
+    // 舊模組 ID 升級字典 (對舊 LocalStorage 資料進行向上相容)
+    const moduleUpgradeMap = {
+        // 原始名稱 -> 最新名稱
+        "business_cards": "func_employee_cards",
+        "hr_management": "func_work_dispatch",
+        "attendance_management": "func_attendance",
+        "accounting_finance": "func_internal_acc",
+        "announcement_service": "func_line_hub",
+        
+        // 中間版名稱 -> 最新名稱
+        "brand_identity": "base_brand",
+        "hr_base": "base_hr",
+        "employee_cards": "func_employee_cards",
+        "work_dispatch": "func_work_dispatch",
+        "attendance_mgmt": "func_attendance",
+        "group_insurance": "func_group_insurance",
+        "internal_accounting": "func_internal_acc",
+        "external_accounting": "func_external_acc",
+        "e_invoicing": "func_e_invoicing",
+        "board_meeting": "func_board_meeting",
+        "line_hub": "func_line_hub",
+        "permissions": "base_permissions"
+    };
+
+    // 數據管理物件
+    const HimoriDb = {
+        params: {},
+        tradesDb: {},
+        employeeDb: {},
+        rosterDb: [],
+        attendanceLogs: [],
+        leaveDb: [],
+        announcementHistory: [],
+        accData: {},
+        accountsDb: [],
+        cardsDb: {},
+        insurancesDb: {},
+        invoicesDb: [],
+        intentDb: [],
+        qaDb: [],
+        vouchersDb: [],
+        simulatedDate: "2026-06-16",
+        alarmState: "",
+        webhookReminderUrl: "",
+        webhookAnnouncementUrl: "",
+        subscribedModules: [],
+        companyConfig: {},
+
+        // 載入資料庫
+        load() {
+            try {
+                // 基本防呆與自動初始化
+                if (!localStorage.getItem("森精工_db_initialized") || !localStorage.getItem("employeeDb") || !JSON.parse(localStorage.getItem("employeeDb"))["李志強"]) {
+                    this.reset();
+                    return;
+                }
+
+                this.params = JSON.parse(localStorage.getItem("params")) || defaults.params;
+                this.tradesDb = JSON.parse(localStorage.getItem("tradesDb")) || defaults.tradesDb;
+                this.employeeDb = JSON.parse(localStorage.getItem("employeeDb")) || defaults.employeeDb;
+                this.rosterDb = JSON.parse(localStorage.getItem("rosterDb")) || defaults.rosterDb;
+                this.attendanceLogs = JSON.parse(localStorage.getItem("attendanceLogs")) || defaults.attendanceLogs;
+                this.leaveDb = JSON.parse(localStorage.getItem("leaveDb")) || defaults.leaveDb;
+                this.announcementHistory = JSON.parse(localStorage.getItem("announcementHistory")) || defaults.announcementHistory;
+                this.accData = JSON.parse(localStorage.getItem("acc_data")) || defaults.accData;
+                
+                // 讀取並轉換 accountsDb 確保模組 ID 相容
+                let accounts = JSON.parse(localStorage.getItem("accountsDb")) || defaults.accountsDb;
+                accounts.forEach(acc => {
+                    if (acc.authorizedModules) {
+                        acc.authorizedModules = acc.authorizedModules.map(modId => {
+                            return moduleUpgradeMap[modId] || modId;
+                        });
+                        // 確保基礎一般類模組 base_hr 與 base_brand 自動包含
+                        if (!acc.authorizedModules.includes("base_hr")) acc.authorizedModules.push("base_hr");
+                        if (!acc.authorizedModules.includes("base_brand")) acc.authorizedModules.push("base_brand");
+                    }
+                });
+                this.accountsDb = accounts;
+
+                this.cardsDb = JSON.parse(localStorage.getItem("cardsDb")) || defaults.cardsDb;
+                this.insurancesDb = JSON.parse(localStorage.getItem("insurancesDb")) || defaults.insurancesDb;
+                this.invoicesDb = JSON.parse(localStorage.getItem("invoicesDb")) || defaults.invoicesDb;
+                this.intentDb = JSON.parse(localStorage.getItem("intentDb")) || defaults.intentDb;
+                this.qaDb = JSON.parse(localStorage.getItem("qaDb")) || defaults.qaDb;
+                this.vouchersDb = JSON.parse(localStorage.getItem("vouchersDb")) || defaults.vouchersDb;
+                this.simulatedDate = localStorage.getItem("simulated_date") || defaults.simulatedDate;
+                this.alarmState = localStorage.getItem("alarm_state") || "";
+                this.webhookReminderUrl = localStorage.getItem("webhook_reminder_url") || "";
+                this.webhookAnnouncementUrl = localStorage.getItem("webhook_announcement_url") || "";
+                
+                // 讀取訂閱模組與公司配置
+                let subscribed = JSON.parse(localStorage.getItem("subscribedModules")) || defaults.subscribedModules;
+                this.subscribedModules = subscribed.map(modId => {
+                    return moduleUpgradeMap[modId] || modId;
+                });
+                this.companyConfig = JSON.parse(localStorage.getItem("companyConfig")) || defaults.companyConfig;
+            } catch (e) {
+                console.error("載入資料庫失敗，自動重設...", e);
+                this.reset();
+            }
+        },
+
+        // 儲存資料庫
+        save() {
+            localStorage.setItem("params", JSON.stringify(this.params));
+            localStorage.setItem("tradesDb", JSON.stringify(this.tradesDb));
+            localStorage.setItem("employeeDb", JSON.stringify(this.employeeDb));
+            localStorage.setItem("rosterDb", JSON.stringify(this.rosterDb));
+            localStorage.setItem("attendanceLogs", JSON.stringify(this.attendanceLogs));
+            localStorage.setItem("leaveDb", JSON.stringify(this.leaveDb));
+            localStorage.setItem("announcementHistory", JSON.stringify(this.announcementHistory));
+            localStorage.setItem("acc_data", JSON.stringify(this.accData));
+            localStorage.setItem("accountsDb", JSON.stringify(this.accountsDb));
+            localStorage.setItem("cardsDb", JSON.stringify(this.cardsDb));
+            localStorage.setItem("insurancesDb", JSON.stringify(this.insurancesDb));
+            localStorage.setItem("invoicesDb", JSON.stringify(this.invoicesDb));
+            localStorage.setItem("intentDb", JSON.stringify(this.intentDb));
+            localStorage.setItem("qaDb", JSON.stringify(this.qaDb));
+            localStorage.setItem("vouchersDb", JSON.stringify(this.vouchersDb));
+            localStorage.setItem("simulated_date", this.simulatedDate);
+            localStorage.setItem("alarm_state", this.alarmState);
+            localStorage.setItem("webhook_reminder_url", this.webhookReminderUrl);
+            localStorage.setItem("webhook_announcement_url", this.webhookAnnouncementUrl);
+            
+            // 儲存訂閱模組與公司配置
+            localStorage.setItem("subscribedModules", JSON.stringify(this.subscribedModules));
+            localStorage.setItem("companyConfig", JSON.stringify(this.companyConfig));
+            
+            // 觸發自訂事件，讓同視窗的其他 iframe 得知更新
+            const event = new CustomEvent("himori_db_updated");
+            window.dispatchEvent(event);
+            if (window.parent && window.parent !== window) {
+                window.parent.dispatchEvent(event);
+            }
+        },
+
+        // 重設資料庫
+        reset() {
+            localStorage.clear();
+            this.params = { ...defaults.params };
+            this.tradesDb = { ...defaults.tradesDb };
+            this.employeeDb = { ...defaults.employeeDb };
+            this.rosterDb = [ ...defaults.rosterDb ];
+            this.attendanceLogs = [ ...defaults.attendanceLogs ];
+            this.leaveDb = [ ...defaults.leaveDb ];
+            this.announcementHistory = [ ...defaults.announcementHistory ];
+            this.accData = { ...defaults.accData };
+            this.accountsDb = [ ...defaults.accountsDb ];
+            this.cardsDb = { ...defaults.cardsDb };
+            this.insurancesDb = { ...defaults.insurancesDb };
+            this.invoicesDb = [ ...defaults.invoicesDb ];
+            this.intentDb = [ ...defaults.intentDb ];
+            this.qaDb = [ ...defaults.qaDb ];
+            this.vouchersDb = [ ...defaults.vouchersDb ];
+            this.simulatedDate = defaults.simulatedDate;
+            this.alarmState = "";
+            this.webhookReminderUrl = "";
+            this.webhookAnnouncementUrl = "";
+            
+            // 訂閱與公司配置重設
+            this.subscribedModules = [ ...defaults.subscribedModules ];
+            this.companyConfig = { ...defaults.companyConfig };
+            
+            this.save();
+            localStorage.setItem("森精工_db_initialized", "true");
+        }
+    };
+
+    // 初始化載入
+    HimoriDb.load();
+
+    // 暴露全域變數
+    global.HimoriModules = HimoriModules;
+    global.HimoriDb = HimoriDb;
+    
+    // 將公司 Config 動態映射至全域，方便直接呼叫
+    Object.defineProperty(global, 'HimoriCompanyConfig', {
+        get: function() {
+            return HimoriDb.companyConfig;
+        },
+        configurable: true
+    });
+    
+    // 綁定 window 儲存異動事件監聽（供跨視窗同步）
+    window.addEventListener("storage", function(e) {
+        HimoriDb.load();
+        const event = new CustomEvent("himori_db_updated");
+        window.dispatchEvent(event);
+    });
+
+})(typeof window !== "undefined" ? window : global);

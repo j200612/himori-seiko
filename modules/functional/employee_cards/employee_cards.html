@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日森精工 | 📇 電子名片模組</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- 🌐 共享數據中心 -->
+    <script src="../../../global_shared.js"></script>
+
+    <style>
+        :root {
+            --primary: #0F172A;
+            --primary-light: #1E293B;
+            --accent: #0284C7; /* 與人事系統相同的科技藍 */
+            --accent-glow: rgba(2, 132, 199, 0.15);
+            --bg-page: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --text-dark: #1E293B;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+        }
+
+        body {
+            background: url('../../../01_企業識別與設計/底色.png') center center / cover no-repeat fixed;
+            color: var(--text-dark);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .subtitle {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 400px 260px 1fr;
+            gap: 1.5rem;
+            align-items: flex-start;
+        }
+
+        /* ════════════════════ 左側列表 ════════════════════ */
+        .list-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            height: 580px;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        .list-header {
+            font-weight: 600;
+            font-size: 0.95rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.75rem;
+            color: var(--text-dark);
+        }
+
+        .employee-list {
+            overflow-y: auto;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .employee-item {
+            padding: 0.85rem 1rem;
+            background: rgba(15, 23, 42, 0.02);
+            border: 1px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-dark);
+        }
+
+        .employee-item:hover {
+            background: rgba(2, 132, 199, 0.05);
+            border-color: rgba(2, 132, 199, 0.2);
+        }
+
+        .employee-item.active {
+            background: rgba(2, 132, 199, 0.1);
+            border-color: var(--accent);
+        }
+
+        .emp-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .emp-status {
+            font-size: 0.72rem;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+        }
+
+        .status-enabled {
+            background: rgba(16, 185, 129, 0.12);
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .status-disabled {
+            background: rgba(148, 163, 184, 0.15);
+            color: var(--text-muted);
+        }
+
+
+
+        .card-container {
+            background-color: #FFFFFF;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.5rem 1.25rem;
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            margin: 0;
+            flex-shrink: 0;
+        }
+
+        /* 2D 翻轉名片容器 */
+        .flip-card-wrapper {
+            background-color: transparent;
+            width: 360px;
+            height: 216px;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+            flex-shrink: 0; /* 防止被 flex 壓縮 */
+            position: relative;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 正面與背面共用樣式 */
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            line-height: 0;
+            box-shadow: 0 8px 20px rgba(10, 47, 77, 0.15);
+        }
+
+        .card-front img, .card-back img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* 2D 平面翻轉過渡效果 */
+        .card-front {
+            transform: scaleX(1);
+            opacity: 1;
+            z-index: 2;
+        }
+
+        .card-back {
+            transform: scaleX(0);
+            opacity: 0;
+            z-index: 1;
+        }
+
+        /* 當點擊加上 .flipped 類別時 */
+        .flip-card-wrapper.flipped .card-front {
+            transform: scaleX(0);
+            opacity: 0;
+            z-index: 1;
+            transition: transform 0.15s ease-in, opacity 0.15s, z-index 0s 0.15s;
+        }
+
+        .flip-card-wrapper.flipped .card-back {
+            transform: scaleX(1);
+            opacity: 1;
+            z-index: 2;
+            transition: transform 0.15s ease-out 0.15s, opacity 0.15s 0.15s, z-index 0s 0.15s;
+        }
+
+        /* 當未加上 .flipped 類別時 */
+        .flip-card-wrapper:not(.flipped) .card-front {
+            transform: scaleX(1);
+            opacity: 1;
+            z-index: 2;
+            transition: transform 0.15s ease-out 0.15s, opacity 0.15s 0.15s, z-index 0s 0.15s;
+        }
+
+        .flip-card-wrapper:not(.flipped) .card-back {
+            transform: scaleX(0);
+            opacity: 0;
+            z-index: 1;
+            transition: transform 0.15s ease-in, opacity 0.15s, z-index 0s 0.15s;
+        }
+
+        .flip-hint {
+            font-size: 0.78rem;
+            color: #C5A880;
+            font-weight: 600;
+            margin-top: -0.8rem;
+            margin-bottom: 1.2rem;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        .action-title {
+            font-size: 0.82rem;
+            color: #64748B;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            width: 100%;
+            border-bottom: 1px solid #E2E8F0;
+            padding-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .action-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            width: 100%;
+        }
+
+        .btn-action {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background-color: #F1F5F9;
+            border: 1px solid #E2E8F0;
+            color: #0F172A;
+            padding: 0.85rem 1.2rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-align: left;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            cursor: pointer;
+        }
+
+        .btn-action:hover {
+            background-color: #0A2F4D;
+            border-color: #0A2F4D;
+            color: #FFFFFF;
+            transform: translateX(4px);
+        }
+
+        .btn-action svg {
+            color: #0A2F4D;
+            flex-shrink: 0;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .btn-action:hover svg {
+            color: #C5A880;
+        }
+
+        .btn-line {
+            background-color: rgba(6, 199, 85, 0.08);
+            border-color: rgba(6, 199, 85, 0.2);
+            color: #059c36;
+        }
+
+        .btn-line svg {
+            color: #06C755;
+        }
+
+        .btn-line:hover {
+            background-color: #06C755;
+            border-color: #06C755;
+            color: #FFFFFF;
+        }
+
+        .btn-line:hover svg {
+            color: #FFFFFF;
+        }
+
+        .btn-save {
+            background-color: #0A2F4D;
+            color: #C5A880;
+            border-color: #0A2F4D;
+            justify-content: center;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(10, 47, 77, 0.15);
+        }
+
+        .btn-save svg {
+            color: #C5A880;
+        }
+
+        .btn-save:hover {
+            background-color: #0F3D61;
+            border-color: #0F3D61;
+            color: #FFFFFF;
+            transform: translateY(-2px);
+        }
+
+        .btn-save:hover svg {
+            color: #FFFFFF;
+        }
+
+        .company-branding {
+            margin-top: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .company-logo {
+            height: 42px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        /* 編輯卡片 */
+        .config-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            flex-shrink: 0; /* 防止被 flex 壓縮 */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .form-group label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .form-group input {
+            padding: 0.65rem 0.75rem;
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-dark);
+            font-size: 0.88rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .checkbox-group input {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            font-size: 0.85rem;
+            color: var(--text-dark);
+            cursor: pointer;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            border-top: 1px solid var(--border);
+            padding-top: 1rem;
+        }
+
+        .btn {
+            padding: 0.65rem 1.25rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+        }
+
+        #toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--success);
+            color: white;
+            padding: 0.85rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        #toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* 📱 響應式排版：小螢幕下改回單欄與垂直堆疊 */
+        @media (max-width: 1100px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; width: 100%;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 8px; flex-wrap: wrap;">
+                    <img src="../../../01_企業識別與設計/橫式logo.png" alt="Logo" style="height: 57px; width: auto; filter: drop-shadow(0 0 4px rgba(255,255,255,0.05));">
+                    <h1 style="font-size: 1.45rem; border-left: 2px solid var(--border); padding-left: 16px; font-weight: 700; color: #FFFFFF; margin: 0; display: flex; align-items: center; gap: 8px;">📇 電子名片模組 <span style="font-size: 0.68rem; font-weight: normal; color: var(--text-muted, #64748B); margin-left: 8px; vertical-align: middle; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.08); letter-spacing: 0.5px;">v1.0.0</span></h1>
+                </div>
+                <p class="subtitle" style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">為同仁配置與啟用數位名片，展示日森精工專業品牌形象</p>
+            </div>
+            
+        </div>
+    </header>
+
+        <div class="main-layout">
+            <!-- 1. 最左邊：數位名片預覽 (同數位名片樣式) -->
+            <div class="card-container" id="b-card-container">
+                <!-- 2D 翻轉名片區 -->
+                <div class="flip-card-wrapper" id="flip-card" onclick="toggleFlip()">
+                    <div class="flip-card-inner">
+                        <!-- 正面 -->
+                        <div class="card-front" style="background-size: cover; background-position: center; box-sizing: border-box;">
+                            <!-- 正面僅保留 LOGO 與公司名稱，無個人資訊 -->
+                        </div>
+                        <!-- 背面 -->
+                        <div class="card-back" style="background-size: cover; background-position: center; display: flex; flex-direction: column; justify-content: flex-end; line-height: 1.5; text-align: left; box-sizing: border-box; padding: 1.25rem 1.5rem;">
+                            <!-- 背面個人資訊 (底圖包含浮水印) -->
+                            <div class="info-area" style="color: #FFFFFF;">
+                                <div id="card-back-name" style="font-size: 1.3rem; font-weight: bold; letter-spacing: 2px; margin-bottom: 2px; color: #C5A880;">邱冠英</div>
+                                <div id="card-back-title" style="font-size: 0.78rem; color: #94A3B8; margin-bottom: 8px; font-weight: 600;">董事 / 專案經理</div>
+                                <div style="font-size: 0.76rem; color: #94A3B8; line-height: 1.4;">
+                                    <div id="card-back-phone">📳 020-1235-7850</div>
+                                    <div id="card-back-address">📍 台北市大安區信義路四段1號2樓</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 點擊翻轉提示 -->
+                <div class="flip-hint" onclick="toggleFlip()">
+                    <span>🔄 點擊名片可翻轉看背面</span>
+                </div>
+
+                <div class="action-title">聯絡與互動選單 (即時預覽)</div>
+
+                <!-- 數位操作按鈕 -->
+                <div class="action-list">
+                    <!-- 撥打電話 -->
+                    <a href="tel:0900000000" class="btn-action" id="preview-btn-phone">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.387a12.035 12.035 0 0 1-7.147-7.147c-.157-.441.009-.928.387-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v1.25Z"></path>
+                        </svg>
+                        <span id="preview-phone-txt">撥打電話：0900-000-000</span>
+                    </a>
+
+                    <!-- LINE 客服 -->
+                    <a href="#" class="btn-action btn-line" id="preview-btn-line">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M24 10.3c0-5.2-5.4-9.3-12-9.3S0 5.1 0 10.3c0 4.6 4.3 8.5 10.1 9.2.4.1.9.3 1 .7l.3 2.1c0 .2.2.4.4.4.2 0 .3-.1.4-.2l2.6-2.6c1.7-.6 3.1-1.6 4.1-2.9 3.2-1.8 5.1-4.2 5.1-6.7z"/>
+                        </svg>
+                        加入 LINE 官方帳號
+                    </a>
+
+                    <!-- 前往官網 -->
+                    <a href="../../../index.html" class="btn-action" target="_blank">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-.778.099-1.533.284-2.253"></path>
+                        </svg>
+                        瀏覽官方網站
+                    </a>
+
+                    <!-- 儲存通訊錄 -->
+                    <a href="#" class="btn-action btn-save" id="preview-btn-save" download>
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"></path>
+                        </svg>
+                        儲存通訊錄
+                    </a>
+                </div>
+
+                <!-- 頁底 Logo 區 -->
+                <div class="company-branding">
+                    <img src="../../../01_企業識別與設計/橫式logo.png" alt="日森精工 Logo" class="company-logo">
+                </div>
+            </div>
+
+            <!-- 2. 中間：員工名冊 -->
+            <div class="list-card">
+                <div class="list-header">👥 員工名冊</div>
+                <div class="employee-list" id="emp-list-container">
+                    <!-- 動態載入 -->
+                </div>
+            </div>
+
+            <!-- 3. 右邊：編輯設定區 -->
+            <div class="config-card">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="edit-enabled" onchange="updateCardState()">
+                    <label for="edit-enabled"><strong>啟用此同仁電子名片 (未啟用將無法在對外頁面中展示)</strong></label>
+                </div>
+
+                <div class="form-row" style="margin-top: 0.5rem;">
+                    <div class="form-group">
+                        <label>同仁姓名 (唯讀，自人事名冊同步)</label>
+                        <input type="text" id="edit-name" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>名片顯示職稱</label>
+                        <input type="text" id="edit-title" oninput="syncCardPreview()">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>聯絡電話</label>
+                        <input type="text" id="edit-phone" oninput="syncCardPreview()">
+                    </div>
+                    <div class="form-group">
+                        <label>公司地址</label>
+                        <input type="text" id="edit-address" oninput="syncCardPreview()">
+                    </div>
+                </div>
+
+                <div class="actions" style="display: flex; flex-direction: column; gap: 0.8rem;">
+                    <button class="btn btn-primary" onclick="saveCard()">💾 儲存電子名片設定</button>
+                    <!-- 🖨️ 列印實體名片 -->
+                    <button type="button" class="btn btn-action" id="print-card-btn" onclick="printPhysicalCard()" style="background-color: rgba(10, 47, 77, 0.05); color: #0A2F4D; border: 1px solid rgba(10, 47, 77, 0.15); display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; width: 100%; transition: all 0.3s; cursor: pointer; border-radius: 10px; padding: 0.85rem 1.2rem;">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.844 2.25 12l4.47-1.844L8.56 5.688 10.4 10.156l4.47 1.844-4.47 1.844-1.84 4.468-1.84-4.468Zm11.83-8.874 1.835.758-1.835.758-1.835 4.468-1.835-4.468-1.836-.758 1.836-.758 1.835-4.468 1.835 4.468ZM8.25 19.5l.562-1.359.562 1.359 1.359.562-1.359.562-.562 1.359-.562-1.359-1.359-.562 1.359-.562Z"></path>
+                        </svg>
+                        列印實體名片 / 輸出 PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 提示區 -->
+    <div id="toast">✅ 名片資料儲存成功！</div>
+
+    <script>
+        let cards = {};
+        let employees = {};
+        let selectedName = null;
+
+        // 初始化
+        function init() {
+            // 從 HimoriDb 載入數據
+            cards = HimoriDb.cardsDb || {};
+            employees = HimoriDb.employeeDb || {};
+
+            // 防呆自動同步：如果卡片資料庫缺少某些同仁，則初始化補齊
+            let updated = false;
+            Object.keys(employees).forEach(name => {
+                if (!cards[name]) {
+                    cards[name] = {
+                        enabled: false,
+                        title: employees[name].isLead ? "工程領隊" : "施工同仁",
+                        phone: "0900-000-000",
+                        address: "台北市大安區信義路四段1號2樓"
+                    };
+                    updated = true;
+                }
+            });
+            if (updated) {
+                HimoriDb.cardsDb = cards;
+                HimoriDb.save();
+            }
+
+            applyCardBranding();
+            renderEmployeeList();
+            
+            // 處理 URL 參數以支援分享模式 (View Mode)
+            const paramName = getQueryParam("name");
+            const paramView = getQueryParam("view");
+            
+            if (paramView === "true" && paramName) {
+                enableShareViewMode(paramName);
+            } else {
+                // 預設選取第一個同仁
+                const names = Object.keys(employees);
+                if (names.length > 0) {
+                    selectEmployee(names[0]);
+                }
+            }
+        }
+
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        function enableShareViewMode(name) {
+            // 1. 隱藏名單與編輯設定區
+            const listCard = document.querySelector(".list-card");
+            if (listCard) listCard.style.display = "none";
+            
+            const configCard = document.querySelector(".config-card");
+            if (configCard) configCard.style.display = "none";
+            
+            // 2. 將主要排版改為單欄居中
+            const mainLayout = document.querySelector(".main-layout");
+            if (mainLayout) {
+                mainLayout.style.gridTemplateColumns = "1fr";
+                mainLayout.style.justifyItems = "center";
+            }
+            
+            // 3. 讀取並判斷此同仁名片是否開通
+            const cData = cards[name] || { enabled: false };
+            if (!cData.enabled) {
+                const container = document.getElementById("b-card-container");
+                if (container) {
+                    container.innerHTML = `
+                        <div style="padding: 3rem 2rem; color: var(--text-muted); font-size: 0.95rem; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 1.25rem;">
+                            <span style="font-size: 3.5rem;">🔒</span>
+                            <h3 style="color: #0F172A; font-size: 1.15rem; font-weight: bold; margin: 0;">此電子名片尚未開通</h3>
+                            <p style="font-size: 0.82rem; color: #64748B; line-height: 1.6; max-width: 280px; margin: 0;">
+                                請聯絡系統管理員登入後台「電子名片模組」，為此同仁勾選「啟用此同仁電子名片」完成開通。
+                            </p>
+                        </div>
+                    `;
+                }
+            } else {
+                // 如果已開通，選定此同仁渲染預覽卡片
+                selectEmployee(name);
+            }
+        }
+
+        // 渲染左側名單
+        function renderEmployeeList() {
+            const container = document.getElementById("emp-list-container");
+            container.innerHTML = "";
+
+            Object.keys(employees).forEach(name => {
+                const cardInfo = cards[name] || { enabled: false };
+                const item = document.createElement("div");
+                item.className = `employee-item ${selectedName === name ? 'active' : ''}`;
+                item.onclick = () => selectEmployee(name);
+                
+                const badgeClass = cardInfo.enabled ? 'status-enabled' : 'status-disabled';
+                const badgeText = cardInfo.enabled ? '已啟用' : '未啟用';
+
+                item.innerHTML = `
+                    <span class="emp-name">${name}</span>
+                    <span class="emp-status ${badgeClass}">${badgeText}</span>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // 選取員工
+        function selectEmployee(name) {
+            selectedName = name;
+            renderEmployeeList();
+
+            const cData = cards[name] || { enabled: false, title: "施工同仁", phone: "0900-000-000", address: "台北市大安區信義路四段1號2樓" };
+
+            // 填入表單
+            document.getElementById("edit-name").value = name;
+            document.getElementById("edit-title").value = cData.title;
+            document.getElementById("edit-phone").value = cData.phone;
+            document.getElementById("edit-address").value = cData.address || cData.email || "台北市大安區信義路四段1號2樓";
+            document.getElementById("edit-enabled").checked = cData.enabled;
+
+            // 同步預覽
+            syncCardPreview();
+            updateCardState();
+        }
+
+        // 翻轉卡片
+        function toggleFlip() {
+            const card = document.getElementById('flip-card');
+            if (card) {
+                card.classList.toggle('flipped');
+            }
+        }
+
+        // 名片即時預覽
+        function syncCardPreview() {
+            const name = document.getElementById("edit-name").value;
+            const title = document.getElementById("edit-title").value.trim();
+            const phone = document.getElementById("edit-phone").value.trim();
+            const address = document.getElementById("edit-address").value.trim();
+
+            // 更新預覽卡片背面文字
+            const cardName = document.getElementById("card-back-name");
+            const cardTitle = document.getElementById("card-back-title");
+            const cardPhone = document.getElementById("card-back-phone");
+            const cardAddress = document.getElementById("card-back-address");
+            
+            if (cardName) cardName.textContent = name || "無姓名";
+            if (cardTitle) cardTitle.textContent = title || "職稱未指定";
+            if (cardPhone) cardPhone.textContent = phone ? `📳 ${phone}` : "電話未指定";
+            if (cardAddress) cardAddress.textContent = address ? `📍 ${address}` : "地址未指定";
+
+            // 更新預覽按鈕的連結與文字
+            const phoneBtn = document.getElementById("preview-btn-phone");
+            const phoneTxt = document.getElementById("preview-phone-txt");
+            if (phone) {
+                phoneBtn.href = `tel:${phone.replace(/-/g, '')}`;
+                if (phoneTxt) phoneTxt.textContent = `撥打電話：${phone}`;
+                phoneBtn.style.display = "flex";
+            } else {
+                phoneBtn.href = "#";
+                if (phoneTxt) phoneTxt.textContent = "電話未指定";
+            }
+
+            // 更新通訊錄儲存連結 (動態生成 vCard)
+            const saveBtn = document.getElementById("preview-btn-save");
+            if (saveBtn) {
+                if (name) {
+                    const vcardContent = `BEGIN:VCARD\r\nVERSION:3.0\r\nFN:${name}\r\nTITLE:${title}\r\nTEL;TYPE=CELL:${phone}\r\nADR;TYPE=WORK:;;${address};;;;\r\nORG:日森精工有限公司\r\nEND:VCARD`;
+                    const blob = new Blob([vcardContent], { type: 'text/vcard;charset=utf-8' });
+                    saveBtn.href = URL.createObjectURL(blob);
+                    saveBtn.setAttribute("download", `${name}.vcf`);
+                } else {
+                    saveBtn.href = "#";
+                }
+            }
+        }
+
+        // 卡片啟用狀態視覺反饋
+        function updateCardState() {
+            const enabled = document.getElementById("edit-enabled").checked;
+            const cardContainerEl = document.getElementById("b-card-container");
+            if (enabled) {
+                cardContainerEl.style.opacity = "1";
+                cardContainerEl.style.filter = "none";
+                cardContainerEl.style.boxShadow = "0 10px 30px rgba(0, 0, 0, 0.2)";
+            } else {
+                cardContainerEl.style.opacity = "0.4";
+                cardContainerEl.style.filter = "grayscale(80%)";
+                cardContainerEl.style.boxShadow = "none";
+            }
+        }
+
+        // 儲存設定
+        function saveCard() {
+            if (!selectedName) return;
+
+            const title = document.getElementById("edit-title").value.trim();
+            const phone = document.getElementById("edit-phone").value.trim();
+            const address = document.getElementById("edit-address").value.trim();
+            const enabled = document.getElementById("edit-enabled").checked;
+
+            if (!title) {
+                alert("❌ 名片職稱不能為空！");
+                return;
+            }
+
+            // 更新變數
+            cards[selectedName] = {
+                enabled,
+                title,
+                phone,
+                address
+            };
+
+            // 寫入 localStorage 并廣播
+            HimoriDb.cardsDb = cards;
+            HimoriDb.save();
+
+            // 提示與刷新
+            showToast();
+            renderEmployeeList();
+        }
+
+        // 🖨️ 開啟列印頁面
+        function printPhysicalCard() {
+            if (!selectedName) return;
+            window.open(`business_card_print.html?name=${encodeURIComponent(selectedName)}`, '_blank');
+        }
+
+        function showToast() {
+            const toast = document.getElementById("toast");
+            toast.className = "show";
+            setTimeout(() => {
+                toast.className = "";
+            }, 3000);
+        }
+
+
+        // 監聽跨 iframe 資料更新
+        window.addEventListener("himori_db_updated", function() {
+            cards = HimoriDb.cardsDb || {};
+            employees = HimoriDb.employeeDb || {};
+            applyCardBranding();
+            renderEmployeeList();
+            if (selectedName) {
+                selectEmployee(selectedName);
+            }
+        });
+
+        function applyCardBranding() {
+            if (typeof HimoriCompanyConfig !== 'undefined') {
+                const cardFrontEl = document.querySelector(".card-front");
+                const cardBackEl = document.querySelector(".card-back");
+                
+                if (cardFrontEl) {
+                    cardFrontEl.style.backgroundImage = resolveCardImagePath(HimoriCompanyConfig.cardFront, './card_front.png');
+                }
+                if (cardBackEl) {
+                    cardBackEl.style.backgroundImage = resolveCardImagePath(HimoriCompanyConfig.cardBack, './card_back.png');
+                }
+                
+                // 動態更新頁尾 Logo 與名稱
+                const companyLogoEl = document.querySelector(".company-logo");
+                if (companyLogoEl && HimoriCompanyConfig.logoHorizontal) {
+                    let logoUrl = HimoriCompanyConfig.logoHorizontal;
+                    if (!logoUrl.startsWith("data:") && !logoUrl.startsWith("http") && !logoUrl.startsWith("../../../")) {
+                        logoUrl = "../../../" + logoUrl;
+                    }
+                    companyLogoEl.src = logoUrl;
+                    companyLogoEl.alt = HimoriCompanyConfig.name + " Logo";
+                }
+            }
+        }
+
+        function resolveCardImagePath(pathOrBase64, defaultVal) {
+            if (!pathOrBase64) return `url('${defaultVal}')`;
+            if (pathOrBase64.startsWith("data:") || pathOrBase64.startsWith("http")) {
+                return `url('${pathOrBase64}')`;
+            }
+            let cleanPath = pathOrBase64;
+            const prefix = "modules/functional/employee_cards/";
+            if (cleanPath.startsWith(prefix)) {
+                cleanPath = "./" + cleanPath.substring(prefix.length);
+            } else if (!cleanPath.startsWith("./") && !cleanPath.startsWith("../")) {
+                cleanPath = "../../../" + cleanPath;
+            }
+            return `url('${cleanPath}')`;
+        }
+
+        window.addEventListener("DOMContentLoaded", init);
+    </script>
+
+    <!-- 頁尾開發商版權宣告 -->
+    <div style="font-size: 0.7rem; color: var(--text-muted, #64748B); text-align: center; margin: 3rem 0 1.5rem 0; padding-top: 1.5rem; border-top: 1px solid var(--border, rgba(255,255,255,0.08)); width: 100%; letter-spacing: 0.5px;">
+        © 2026 映向行銷. Powered by Image Marketing
+    </div>
+</body>
+</html>

@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日森精工有限公司 | HIMORI SEIKO - 高科技廠房精密工程與後勤維護夥伴</title>
+    <meta name="description" content="日森精工專注於半導體晶圓廠區、高科技無塵室之6S廠務維護、精密天車軌道安裝校正、機電整合工程與工安合規管理，提供高彈性與高韌性的廠房後勤支援。">
+    <!-- 🌐 數據中心與品牌載入 -->
+    <script src="global_shared.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-blue: #0F172A; /* 日森深邃藍 - 頂部、底部、深色背景 */
+            --primary-light: #1E293B; /* 鋼鐵灰藍 */
+            --safety-teal: #0D9488;  /* 安全防護綠 - EHS、四大支柱與各處高亮 */
+            --accent-blue: #0284C7;  /* 科技高光藍 - 用於 Hero 等科技感高光 */
+            --accent-blue-glow: rgba(2, 132, 199, 0.3);
+            --cleanroom-white: #FFFFFF; /* 極境無塵白 */
+            --bg-light: #F8FAFC;     /* 淡灰底色 */
+            --text-main: #0F172A;    /* 主體文字色 */
+            --text-muted: #475569;   /* 輔助文字色 */
+            --border: #E2E8F0;       /* 邊框線 */
+            --success-line: #06C755; /* LINE 綠 */
+            --danger: #EF4444;       /* 預警紅 */
+            --transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            color: var(--text-main);
+            background-color: var(--cleanroom-white);
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        /* ════════════════════ 頂部導覽列 (Glassmorphism Light) ════════════════════ */
+        header {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(6, 35, 64, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        header.scrolled {
+            background-color: rgba(255, 255, 255, 0.98);
+            border-bottom-color: rgba(6, 35, 64, 0.05);
+            box-shadow: 0 10px 30px rgba(6, 35, 64, 0.08);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0.5rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        .logo-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 1010;
+        }
+
+        .logo-box img {
+            height: 58px;
+            width: auto;
+            object-fit: contain;
+            transition: var(--transition);
+        }
+
+        .logo-text {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #062340;
+            letter-spacing: 1.5px;
+            transition: var(--transition);
+        }
+
+        /* 桌上型選單 */
+        nav {
+            display: flex;
+            align-items: center;
+            gap: 1.8rem;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 1.8rem;
+            align-items: center;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #062340;
+            font-weight: 500;
+            font-size: 0.95rem;
+            position: relative;
+            padding: 0.5rem 0;
+            transition: var(--transition);
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--safety-teal);
+            transition: var(--transition);
+        }
+
+        nav a:hover {
+            color: var(--safety-teal) !important;
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        /* 員工專區按鈕 (高光) */
+        .btn-portal {
+            background: linear-gradient(135deg, var(--safety-teal) 0%, #0b7a6f 100%);
+            color: white !important;
+            padding: 0.6rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            border: none;
+            box-shadow: 0 4px 15px rgba(13, 148, 136, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .btn-portal:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(13, 148, 136, 0.5);
+            background: linear-gradient(135deg, #0f9f8f 0%, var(--safety-teal) 100%);
+        }
+
+        .mobile-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: #062340;
+            cursor: pointer;
+            padding: 0.5rem;
+            z-index: 1010;
+        }
+
+        /* ════════════════════ Hero 主視覺區 (科技感暗調) ════════════════════ */
+        .hero {
+            background: url('01_企業識別與設計/底色.png') center center / cover no-repeat;
+            background-color: #062340;
+            color: white;
+            padding: 11rem 1.5rem 8rem 1.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 背景網格線效果 */
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: center;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+
+
+        .hero-container {
+            max-width: 950px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 5;
+        }
+
+        .tag-hero {
+            display: inline-block;
+            background-color: rgba(2, 132, 199, 0.2);
+            border: 1px solid rgba(2, 132, 199, 0.4);
+            color: #38BDF8;
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 2.5px;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            box-shadow: 0 0 20px rgba(2, 132, 199, 0.1);
+        }
+
+        .hero-logo {
+            height: 195px;
+            width: auto;
+            margin-bottom: 2.2rem;
+            filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.25));
+            transition: var(--transition);
+        }
+
+        .hero-logo:hover {
+            transform: scale(1.05);
+        }
+
+        .hero h1 {
+            font-size: clamp(2.2rem, 5vw, 3.8rem);
+            font-weight: 700;
+            margin-bottom: 1.8rem;
+            letter-spacing: 2px;
+            line-height: 1.3;
+            background: linear-gradient(135deg, #FFFFFF 30%, #38BDF8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .hero p {
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            color: #94A3B8;
+            margin-bottom: 3.5rem;
+            font-weight: 300;
+            max-width: 760px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.8;
+        }
+
+        .hero-btns {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-action-primary {
+            background: linear-gradient(135deg, var(--accent-blue) 0%, #0369a1 100%);
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            box-shadow: 0 10px 20px rgba(2, 132, 199, 0.3);
+            transition: var(--transition);
+        }
+
+        .btn-action-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(2, 132, 199, 0.5);
+            background: linear-gradient(135deg, #0390d9 0%, var(--accent-blue) 100%);
+        }
+
+        .btn-action-secondary {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background-color: rgba(255, 255, 255, 0.05);
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+
+        .btn-action-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-3px);
+        }
+
+        /* 底部裝飾波浪 */
+        .hero-wave {
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            overflow: hidden;
+            line-height: 0;
+            z-index: 2;
+        }
+
+        .hero-wave svg {
+            position: relative;
+            display: block;
+            width: calc(100% + 1.3px);
+            height: 50px;
+        }
+
+        .hero-wave .shape-fill {
+            fill: var(--cleanroom-white);
+        }
+
+        /* ════════════════════ 區塊共用樣式 ════════════════════ */
+        .section-header {
+            text-align: center;
+            margin-bottom: clamp(3rem, 6vw, 4.5rem);
+            padding: 0 1rem;
+        }
+
+        .section-header p {
+            color: var(--safety-teal);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-size: 0.85rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .section-title {
+            font-size: clamp(1.8rem, 4vw, 2.4rem);
+            font-weight: 700;
+            color: var(--primary-blue);
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 50px;
+            height: 4px;
+            background-color: var(--safety-teal);
+            border-radius: 2px;
+            margin: 0.8rem auto 0 auto;
+        }
+
+        /* ════════════════════ 企業願景四大支柱 (Pillars) ════════════════════ */
+        .pillars-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 6rem 1.5rem;
+        }
+
+        .pillars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 2rem;
+        }
+
+        .pillar-card {
+            background-color: var(--cleanroom-white);
+            border: 1px solid var(--border);
+            padding: 3rem 2rem;
+            border-radius: 8px;
+            transition: var(--transition);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.01);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pillar-card::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; width: 4px; height: 100%;
+            background-color: var(--border);
+            transition: var(--transition);
+        }
+
+        .pillar-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 30px rgba(15, 23, 42, 0.05);
+            border-color: rgba(13, 148, 136, 0.2);
+        }
+
+        .pillar-card:hover::before {
+            background-color: var(--safety-teal);
+        }
+
+        .pillar-card-icon {
+            color: var(--safety-teal);
+            margin-bottom: 1.5rem;
+            display: inline-block;
+            transition: var(--transition);
+        }
+
+        .pillar-card:hover .pillar-card-icon {
+            transform: scale(1.08) rotate(5deg);
+        }
+
+        .pillar-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--primary-blue);
+            font-weight: 700;
+        }
+
+        .pillar-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            text-align: justify;
+            line-height: 1.7;
+        }
+
+        /* ════════════════════ 營業項目 (Services) ════════════════════ */
+        .services {
+            background-color: var(--bg-light);
+            padding: 6rem 1.5rem;
+        }
+
+        .services-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+            gap: 2rem;
+        }
+
+        .service-item {
+            padding: 3rem 2rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background-color: var(--cleanroom-white);
+            transition: var(--transition);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.01);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-item::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; width: 4px; height: 100%;
+            background-color: var(--border);
+            transition: var(--transition);
+        }
+
+        .service-item:hover {
+            border-color: rgba(13, 148, 136, 0.2);
+            box-shadow: 0 20px 30px rgba(15, 23, 42, 0.05);
+            transform: translateY(-5px);
+        }
+
+        .service-item:hover::before {
+            background-color: var(--safety-teal);
+        }
+
+        .service-icon {
+            color: var(--safety-teal);
+            margin-bottom: 1.5rem;
+            display: inline-block;
+            transition: var(--transition);
+        }
+
+        .service-item:hover .service-icon {
+            transform: scale(1.08) rotate(5deg);
+        }
+
+        .service-item h4 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--primary-blue);
+            font-weight: 700;
+        }
+
+        .service-item p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        /* ════════════════════ 實務落地：半導體環安衛對接 (EHS Simulator) ════════════════════ */
+        .ehs-landing-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 6rem 1.5rem;
+        }
+
+        .landing-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.3fr;
+            gap: 4rem;
+            align-items: flex-start;
+        }
+
+        .landing-desc h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary-blue);
+            font-weight: 700;
+        }
+
+        .landing-desc p {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+
+        .desc-list {
+            list-style: none;
+        }
+
+        .desc-list-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 1.2rem;
+            font-size: 0.95rem;
+        }
+
+        .desc-list-item svg {
+            color: var(--safety-teal);
+            margin-top: 3px;
+            flex-shrink: 0;
+        }
+
+        /* 證照預警模擬面板 */
+        .simulator-card {
+            background-color: var(--cleanroom-white);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2.2rem;
+            box-shadow: 0 15px 30px rgba(15,23,42,0.04);
+        }
+
+        .sim-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .sim-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sim-title svg {
+            color: var(--danger);
+        }
+
+        .sim-date-badge {
+            background-color: var(--primary-blue);
+            color: white;
+            font-size: 0.82rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .sim-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .sim-table th {
+            text-align: left;
+            padding: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .sim-table td {
+            padding: 0.8rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .status-pill {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-ok {
+            background-color: rgba(6, 199, 85, 0.1);
+            color: #05A344;
+        }
+
+        .status-warning {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            animation: pulseBg 2s infinite;
+        }
+
+        @keyframes pulseBg {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+
+        .sim-btn-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-sim {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 0.65rem 1.2rem;
+            border-radius: 4px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-sim:hover {
+            background-color: var(--safety-teal);
+        }
+
+        .btn-dispatch {
+            background-color: #05A344;
+            color: white;
+            border: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-dispatch.disabled {
+            background-color: #E2E8F0;
+            color: #94A3B8;
+            cursor: not-allowed;
+        }
+
+        /* ════════════════════ 合作夥伴牆 (Partners) ════════════════════ */
+        .partners {
+            padding: 6rem 1.5rem;
+            background-color: var(--bg-light);
+            text-align: center;
+        }
+
+        .partners-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .partners-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 3.5rem;
+        }
+
+        .partner-card {
+            background-color: var(--cleanroom-white);
+            border: 1px solid var(--border);
+            padding: 2rem 1.5rem;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .partner-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
+            border-color: var(--safety-teal);
+        }
+
+        .partner-logo-fallback {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            letter-spacing: 1px;
+            opacity: 0.75;
+            transition: var(--transition);
+        }
+
+        .partner-card:hover .partner-logo-fallback {
+            color: var(--safety-teal);
+            opacity: 1;
+        }
+
+        .partner-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* ════════════════════ 聯絡我們 (Contact) ════════════════════ */
+        .contact {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 6rem 1.5rem;
+        }
+
+        .contact-content {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 4rem;
+            background-color: var(--cleanroom-white);
+            padding: 4rem;
+            border-radius: 8px;
+            box-shadow: 0 15px 30px rgba(15,23,42,0.02);
+            border: 1px solid var(--border);
+        }
+
+        .contact-details h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary-blue);
+            font-weight: 700;
+        }
+
+        .contact-details p {
+            margin-bottom: 2rem;
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+
+        .info-list {
+            margin: 2.5rem 0;
+            list-style: none;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.2rem;
+            margin-bottom: 1.8rem;
+        }
+
+        .info-icon {
+            color: var(--safety-teal);
+            flex-shrink: 0;
+            margin-top: 4px;
+            background-color: rgba(13, 148, 136, 0.08);
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .info-text strong {
+            display: block;
+            color: var(--primary-blue);
+            font-size: 1rem;
+            margin-bottom: 0.3rem;
+            font-weight: 700;
+        }
+
+        .info-text span {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .contact-action {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background-color: var(--bg-light);
+            padding: 3.5rem 2.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .contact-action h4 {
+            font-size: 1.35rem;
+            margin-bottom: 1rem;
+            color: var(--primary-blue);
+            font-weight: 700;
+        }
+
+        .contact-action p {
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            margin-bottom: 2.5rem;
+            line-height: 1.7;
+        }
+
+        .contact-line {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background-color: var(--success-line);
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.05rem;
+            box-shadow: 0 6px 20px rgba(6, 199, 85, 0.25);
+            cursor: pointer;
+            border: none;
+            width: 100%;
+            transition: var(--transition);
+        }
+
+        .contact-line:hover {
+            background-color: #05A344;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(6, 199, 85, 0.4);
+        }
+
+        /* ════════════════════ 彈出視窗 (Modal) ════════════════════ */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(11, 15, 25, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-box {
+            background-color: var(--cleanroom-white);
+            border-radius: 8px;
+            width: 90%;
+            max-width: 450px;
+            padding: 3rem 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border);
+            text-align: center;
+            transform: scale(0.9) translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .modal-overlay.active .modal-box {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-icon {
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.8rem auto;
+        }
+
+        .modal-icon.green {
+            background-color: rgba(6, 199, 85, 0.1);
+            color: var(--success-line);
+        }
+
+        .modal-box h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+            color: var(--primary-blue);
+            font-weight: 700;
+        }
+
+        .modal-box p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 2.2rem;
+            line-height: 1.7;
+        }
+
+        .btn-modal-close {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 0.8rem 2.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+        }
+
+        .btn-modal-close:hover {
+            background-color: var(--safety-teal);
+        }
+
+        /* ════════════════════ 與日森精工並肩前行 (CTA Section) ════════════════════ */
+        .cta-section {
+            background: url('01_企業識別與設計/底色.png') center center / cover no-repeat;
+            background-color: #062340;
+            color: white;
+            padding: 7rem 1.5rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .cta-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .cta-container h2 {
+            font-size: clamp(1.8rem, 4vw, 2.6rem);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            letter-spacing: 2px;
+        }
+
+        .cta-container p {
+            color: #94A3B8;
+            margin-bottom: 0;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+
+        .cta-info-card {
+            background-color: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 1.5rem 2.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.05rem;
+            color: white;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+
+        .cta-info-card svg {
+            color: var(--safety-teal);
+        }
+
+        /* ════════════════════ 頁尾 ════════════════════ */
+        footer {
+            background-color: var(--primary-blue);
+            color: #64748B;
+            padding: 4.5rem 1.5rem;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.92rem;
+        }
+
+        footer p {
+            margin-bottom: 0.6rem;
+        }
+
+        footer .brand {
+            color: #E2E8F0;
+            font-weight: 700;
+            font-size: 1.05rem;
+            letter-spacing: 1.5px;
+            margin-bottom: 0.8rem;
+        }
+
+        /* ════════════════════ 響應式佈局優化 ════════════════════ */
+        @media (max-width: 992px) {
+            .landing-grid {
+                grid-template-columns: 1fr;
+                gap: 3.5rem;
+            }
+
+            .contact-content {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+                padding: 2.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .mobile-toggle {
+                display: block;
+            }
+
+            nav {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background-color: rgba(255, 255, 255, 0.98);
+                border-bottom: 1px solid rgba(6, 35, 64, 0.08);
+                flex-direction: column;
+                padding: 1.5rem;
+                gap: 1.5rem;
+                align-items: stretch;
+                opacity: 0;
+                visibility: hidden;
+                transform: translateY(-10px);
+                pointer-events: none;
+                box-shadow: 0 15px 30px rgba(6, 35, 64, 0.15);
+                transition: var(--transition);
+            }
+
+            nav.active {
+                opacity: 1;
+                visibility: visible;
+                transform: translateY(0);
+                pointer-events: auto;
+            }
+
+            nav ul {
+                flex-direction: column;
+                gap: 1.2rem;
+                align-items: stretch;
+                text-align: center;
+            }
+
+            nav a {
+                display: block;
+                padding: 0.5rem;
+                color: #062340 !important;
+            }
+
+            nav a::after {
+                display: none;
+            }
+
+            .btn-portal {
+                justify-content: center;
+                width: 100%;
+            }
+
+            .hero {
+                padding: 8rem 1.5rem 5rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 導覽列 -->
+    <header id="main-header">
+        <div class="nav-container">
+            <div class="logo-box">
+                <!-- 讀取項目內橫式Logo -->
+                <img id="nav-logo" src="01_企業識別與設計/橫式logo.png" alt="日森精工 Logo" onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='block';">
+                <span id="fallback-logo" class="logo-text" style="display: none;">HIMORI 日森精工</span>
+            </div>
+            
+            <!-- 行動版選單切換按鈕 -->
+            <button class="mobile-toggle" id="mobile-toggle" aria-label="切換選單">
+                <svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path>
+                </svg>
+            </button>
+
+            <!-- 導覽項目 -->
+            <nav id="nav-menu">
+                <ul>
+                    <li><a href="#about">關於日森</a></li>
+                    <li><a href="#services">服務範圍</a></li>
+                    <li><a href="#ehs">工安防護</a></li>
+                    <li><a href="#partners">合作夥伴</a></li>
+                    <li><a href="#contact">聯絡我們</a></li>
+                </ul>
+                <a href="portal.html" class="btn-portal">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"></path>
+                    </svg>
+                    員工專區
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero 主視覺區 -->
+    <section class="hero">
+        <div class="hero-container">
+            <img id="hero-logo" class="hero-logo" src="01_企業識別與設計/直式logo.png" alt="日森精工 Logo" onerror="this.style.display='none';">
+            <h1>高科技廠區後勤維護精密工程專家</h1>
+            <p id="hero-desc">傳承日系職人精密細緻的工藝精神，致力為國際半導體大廠及高科技無塵室廠區，提供最安全、最合規、最高品質的軌道安裝、機電整合與 6S 維護管理服務。</p>
+            <div class="hero-btns">
+                <a href="#contact" class="btn-action-primary">洽談業務與工作</a>
+                <a href="portal.html" class="btn-action-secondary">登入數位營運中心 ➡️</a>
+            </div>
+        </div>
+        <!-- 底部波浪裝飾 -->
+        <div class="hero-wave">
+            <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z" class="shape-fill"></path>
+            </svg>
+        </div>
+    </section>
+
+    <!-- 核心價值與企業願景 (About) -->
+    <section class="pillars-section" id="about">
+        <div class="section-header">
+            <p>Core Vision</p>
+            <h2 class="section-title">日森的核心價值與願景</h2>
+        </div>
+        <div class="pillars-grid">
+            <!-- 安全 -->
+            <div class="pillar-card">
+                <div class="pillar-card-icon">
+                    <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"></path>
+                    </svg>
+                </div>
+                <h3>安全 (Safety)</h3>
+                <p>環安衛是企業生存的唯一底線。建立防護具與訓練審核制度，追求「零職災、零事故」的極致工安防護標準。</p>
+            </div>
+            <!-- 合規 -->
+            <div class="pillar-card">
+                <div class="pillar-card-icon">
+                    <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"></path>
+                    </svg>
+                </div>
+                <h3>合規 (Compliance)</h3>
+                <p>全面落實台積電藍皮書規範。建立數位追溯日誌，確保現場所有工程施作均能符合晶圓廠最嚴格的稽核標準。</p>
+            </div>
+            <!-- 韌性 -->
+            <div class="pillar-card">
+                <div class="pillar-card-icon">
+                    <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"></path>
+                    </svg>
+                </div>
+                <h3>韌性 (Resilience)</h3>
+                <p>靈活應對高科技廠房的變動需求，以強大的後勤調度與自動化派班管理，確保任務交付絕不中斷。</p>
+            </div>
+            <!-- 精密 -->
+            <div class="pillar-card">
+                <div class="pillar-card-icon">
+                    <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75"></path>
+                    </svg>
+                </div>
+                <h3>精密 (Precision)</h3>
+                <p>傳承日式精密工程細節，各項數據與執行標準分毫無差，建立高科技客戶與半導體供應鏈深厚的信賴。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 營業項目 (Services) -->
+    <section class="services" id="services">
+        <div class="services-container">
+            <div class="section-header">
+                <p>Core Services</p>
+                <h2 class="section-title">我們的核心業務範圍</h2>
+            </div>
+            <div class="services-grid">
+                <!-- 6S -->
+                <div class="service-item">
+                    <div class="service-icon">
+                        <svg width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766l.002-.001a2.416 2.416 0 0 1 3.206 2.508l-.002.002a2.416 2.416 0 0 1-2.508 3.206l.001-.002a2.415 2.415 0 0 1-.765-1.208l-3.03-2.496Zm-7.493 3.962 5.087-5.087m-5.087 5.087a2.652 2.652 0 1 0 3.75 3.75l5.087-5.087m-3.75-3.75a2.652 2.652 0 0 0-3.75-3.75l-5.087 5.087m5.087-5.087 5.087-5.087m0 0a2.652 2.652 0 1 1 3.75 3.75L12.75 14.25m3.75-3.75-5.087 5.087m0 0-3.03-2.496a2.415 2.415 0 0 0-1.209-.765l-.001-.002a2.411 2.411 0 0 0-3.206 2.508l.002-.002a2.416 2.416 0 0 0 2.508 3.206l-.002-.001a2.416 2.416 0 0 0 .765-1.208l2.496-3.03Z"></path>
+                        </svg>
+                    </div>
+                    <h4>6S 整理整頓與廠務維護</h4>
+                    <p>依照台積電最高規格無塵室標準，執行精細 6S 維護管理作業，確保高科技廠區生產線潔淨度、安全保障與流暢運作。</p>
+                </div>
+                <!-- 軌道安裝 -->
+                <div class="service-item">
+                    <div class="service-icon">
+                        <svg width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 9.75 16.5 12l-2.25 2.25m-4.5 0L7.5 12l2.25-2.25M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z"></path>
+                        </svg>
+                    </div>
+                    <h4>自動化天車軌道精密安裝</h4>
+                    <p>負責高科技廠房自動搬運天車（OHT）軌道之水平精密組裝、校正及水平雷射測量，確保天車運行無阻、工期如期交付。</p>
+                </div>
+                <!-- 配管機電 -->
+                <div class="service-item">
+                    <div class="service-icon">
+                        <svg width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z"></path>
+                        </svg>
+                    </div>
+                    <h4>機電整合與配管配電工程</h4>
+                    <p>承接廠務二次配管、控制電纜拉線與接線、冷凍空調保養等大宗機電系統保養測試，確保系統高妥善率與防墜保護安全。</p>
+                </div>
+                <!-- QC與庫存 -->
+                <div class="service-item">
+                    <div class="service-icon">
+                        <svg width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.03 0 1.9.793 1.976 1.808M8.25 6h8.25M12 9.75h.008v.008H12V9.75Zm0 2.25h.008v.008H12V12Zm0 2.25h.008v.008H12v-.008Zm0 2.25h.008v.008H12V16.5Z"></path>
+                        </svg>
+                    </div>
+                    <h4>QC 品質工程與 STOCK 庫存管理</h4>
+                    <p>施工中落實全面品質檢核，並針對廠區昂貴材料、耗材，提供精細的 Stock 物料管理，嚴密杜絕料件流失，降低損耗率。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 實務落地：半導體環安衛對接 (EHS) -->
+    <section class="ehs-landing-section" id="ehs">
+        <div class="landing-grid">
+            <div class="landing-desc">
+                <span style="color: var(--safety-teal); font-weight: 700; font-size: 0.85rem; letter-spacing: 2px;">EHS IN OPERATION</span>
+                <h3>實務落地：半導體環安衛對接</h3>
+                <p>將台積電 (TSMC) 環安衛藍皮書標準，完整轉化為日森精工日常的人事控管與派班 SOP。從進廠前的資歷管制，到系統智慧效期預警，徹底防範無效工卡進場風險。</p>
+                
+                <ul class="desc-list">
+                    <li class="desc-list-item">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path>
+                        </svg>
+                        <span><strong>環安衛標準配備</strong>：外勤人員進入晶圓廠區前，必須配戴高強度防霧防護目鏡、防滑絕緣安全鞋，並隨身攜帶台積電資歷工安卡。</span>
+                    </li>
+                    <li class="desc-list-item">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path>
+                        </svg>
+                        <span><strong>先報聘、後補件</strong>：新進員工報聘採用分階段控管 (Status: Pending)，資料未齊全與工安安衛卡未核定前，系統強制鎖定禁止派班。</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- 證照預警模擬面板 -->
+            <div class="simulator-card">
+                <div class="sim-header">
+                    <div class="sim-title">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"></path>
+                        </svg>
+                        <span>EHS 證照時效與派班管制模擬</span>
+                    </div>
+                    <span class="sim-date-badge" id="sim-date">目前時間: 2026-06-17</span>
+                </div>
+                
+                <table class="sim-table">
+                    <thead>
+                        <tr>
+                            <th>工程師</th>
+                            <th>證照/安全卡</th>
+                            <th>有效期限</th>
+                            <th>有效天數</th>
+                            <th>管制狀態</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sim-table-body">
+                        <!-- JS 動態生成 -->
+                    </tbody>
+                </table>
+                
+                <div class="sim-btn-group">
+                    <button class="btn-sim" onclick="advanceTime()">⏰ 模擬時間推進 30 天 (推移至 2026-07-17)</button>
+                    <button class="btn-sim" style="background-color: var(--safety-teal);" onclick="resetSimulator()">🔄 重置模擬器</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 合作夥伴牆 -->
+    <section class="partners" id="partners">
+        <div class="partners-container">
+            <div class="section-header">
+                <p>Ecosystem Partners</p>
+                <h2 class="section-title">高科技半導體產業鏈夥伴</h2>
+            </div>
+            <div class="partners-grid">
+                <div class="partner-card">
+                    <span class="partner-logo-fallback">TSMC 台積電</span>
+                    <span class="partner-desc">晶圓代工合作廠區</span>
+                </div>
+                <div class="partner-card">
+                    <span class="partner-logo-fallback">ASML 艾司摩爾</span>
+                    <span class="partner-desc">微影設備維護協力</span>
+                </div>
+                <div class="partner-card">
+                    <span class="partner-logo-fallback">Applied Materials</span>
+                    <span class="partner-desc">薄膜與蝕刻設備後勤</span>
+                </div>
+                <div class="partner-card">
+                    <span class="partner-logo-fallback">Lam Research</span>
+                    <span class="partner-desc">黃光設備配管配電</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 聯絡我們 (Contact) -->
+    <section class="contact" id="contact">
+        <div class="section-header">
+            <p>Contact Us</p>
+            <h2 class="section-title">與我們聯繫</h2>
+        </div>
+        <div class="contact-content">
+            <div class="contact-details">
+                <img id="contact-logo" src="01_企業識別與設計/橫式logo.png" alt="日森精工有限公司" style="height: 104px; width: auto; margin: 0 auto 1.5rem auto; display: block; object-fit: contain;">
+                <p id="contact-desc">我們提供高彈性、專業且工安合規的半導體無塵室後勤工務服務。如有業務洽談、工程發包、承攬合作或合約諮詢，歡迎與我們的顧問團隊聯繫。</p>
+                
+                <ul class="info-list">
+                    <li class="info-item">
+                        <div class="info-icon">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="info-text">
+                            <strong>公司設立登記地址</strong>
+                            <span id="contact-address">台北市大安區信義路四段1號2樓</span>
+                        </div>
+                    </li>
+                    <li class="info-item">
+                        <div class="info-icon">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path>
+                            </svg>
+                        </div>
+                        <div class="info-text">
+                            <strong>公司統一編號（統一發票開立）</strong>
+                            <span id="contact-tax-id">日森精工有限公司 (統編核准中)</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="contact-action">
+                <h4>LINE 官方線上客服</h4>
+                <p>點擊下方按鈕加入 LINE 官方帳號，即可與線上排班專員或客服客服人員進行 1對1 即時通話、招募諮詢或工務反饋。</p>
+                <button class="contact-line" onclick="showModal('line')">
+                    <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M24 10.3c0-5.2-5.4-9.3-12-9.3S0 5.1 0 10.3c0 4.6 4.3 8.5 10.1 9.2.4.1.9.3 1 .7l.3 2.1c0 .2.2.4.4.4.2 0 .3-.1.4-.2l2.6-2.6c1.7-.6 3.1-1.6 4.1-2.9 3.2-1.8 5.1-4.2 5.1-6.7zM7.5 13H5.8c-.3 0-.5-.2-.5-.5v-4c0-.3.2-.5.5-.5h.5c.3 0 .5.2.5.5v3h.7c.3 0 .5.2.5.5V12.5c0 .3-.2.5-.5.5zm3.8 0h-.5c-.3 0-.5-.2-.5-.5v-4c0-.3.2-.5.5-.5h.5c.3 0 .5.2.5.5v4c0 .3-.2.5-.5.5zm5.5 0h-2.1c-.3 0-.5-.2-.5-.5v-4c0-.3.2-.5.5-.5h2.1c.3 0 .5.2.5.5v.5c0 .3-.2.5-.5.5H15v.7h1.4c.3 0 .5.2.5.5v.5c0 .3-.2.5-.5.5H15v.8h1.8c.3 0 .5.2.5.5v.5c0 .3-.2.5-.5.5zM21.5 13h-2.1c-.3 0-.5-.2-.5-.5v-4c0-.3.2-.5.5-.5h2.1c.3 0 .5.2.5.5v.5c0 .3-.2.5-.5.5h-1.6v.7h1.4c.3 0 .5.2.5.5v.5c0 .3-.2.5-.5.5h-1.4v.8h1.8c.3 0 .5.2.5.5v.5c0 .3-.2.5-.5.5z"/>
+                    </svg>
+                    💬 連接 LINE 官方客服
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 彈出視窗 (Modal Overlay) -->
+    <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+        <!-- LINE 官方 QR Code 彈出視窗 -->
+        <div class="modal-box" id="modal-line" style="display: none;" onclick="event.stopPropagation()">
+            <div class="modal-icon green">
+                <svg width="34" height="34" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M24 10.3c0-5.2-5.4-9.3-12-9.3S0 5.1 0 10.3c0 4.6 4.3 8.5 10.1 9.2.4.1.9.3 1 .7l.3 2.1c0 .2.2.4.4.4.2 0 .3-.1.4-.2l2.6-2.6c1.7-.6 3.1-1.6 4.1-2.9 3.2-1.8 5.1-4.2 5.1-6.7z"/>
+                </svg>
+            </div>
+            <h3>💬 掃描加入 LINE 官方客服</h3>
+            <p>請開啟您的 LINE 掃描以下 QR Code，即可加入日森精工官方帳號。<br>現場同仁加入後可於 LINE 中打卡、請假、對帳並使用智能問答查詢規章。</p>
+            <div style="background-color: #f1f5f9; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; display: inline-flex; align-items: center; justify-content: center; width: 180px; height: 180px;">
+                <!-- 模擬 QR Code 框 -->
+                <svg width="140" height="140" viewBox="0 0 24 24" fill="currentColor" style="color: #0F172A;">
+                    <path d="M0 0h9v9H0V0zm1 1v7h7V1H1zm10 0h9v9h-9V1zm1 1v7h7V2h-7zM0 11h9v9H0v-9zm1 1v7h7v-7H1zm11 1h2v2h-2v-2zm2 2h2v2h-2v-2zm-2 2h2v2h-2v-2zm4-4h2v2h-2v-2zm2 2h2v2h-2v-2zm-2 2h2v2h-2v-2zm-4-4h2v2h-2v-2zm8-6h2v2h-2V5zm-2 2h2v2h-2V7zm2 2h2v2h-2V9z"/>
+                </svg>
+            </div>
+            <button class="btn-modal-close" onclick="hideAllModals()">關閉視窗</button>
+        </div>
+    </div>
+
+    <!-- 與日森精工並肩前行 (CTA) -->
+    <section class="cta-section">
+        <div class="cta-container">
+            <h2 id="cta-title">與日森精工並肩前行</h2>
+            <p id="cta-slogan">HIMORI SEIKO ── 安全・合規・韌性・精密</p>
+        </div>
+    </section>
+
+    <!-- 頁尾 (Footer) -->
+    <footer>
+        <div class="brand" id="footer-brand">日森精工有限公司</div>
+        <p id="footer-slogan">安全・合規・韌性・精密</p>
+        <p style="font-size: 0.75rem; color: #475569; margin-top: 1.5rem; letter-spacing: 0.5px;">
+            © 2026 映向行銷. Powered by Image Marketing (v1.0.0)
+        </p>
+    </footer>
+
+    <!-- JavaScript 互動效果控制 -->
+    <script>
+        // 滾動時導覽列變色效果
+        const header = document.getElementById('main-header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // 手機版漢堡菜單切換
+        const mobileToggle = document.getElementById('mobile-toggle');
+        const navMenu = document.getElementById('nav-menu');
+
+        mobileToggle.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+        });
+
+        // 點擊連結後自動關閉菜單 (手機版)
+        const navLinks = document.querySelectorAll('nav a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if(window.innerWidth <= 768) {
+                    navMenu.classList.remove('active');
+                }
+            });
+        });
+
+        // 彈出視窗控制
+        const overlay = document.getElementById('modal-overlay');
+        const modalLine = document.getElementById('modal-line');
+
+        function showModal(type) {
+            overlay.classList.add('active');
+            if (type === 'line') {
+                modalLine.style.display = 'block';
+            }
+        }
+
+        function hideAllModals() {
+            overlay.classList.remove('active');
+            setTimeout(() => {
+                modalLine.style.display = 'none';
+            }, 300);
+        }
+
+        function closeModal(event) {
+            if (event.target === overlay) {
+                hideAllModals();
+            }
+        }
+
+        // 動態生成漂浮粒子效果 (Hero 背景)
+        function createParticles() {
+            const container = document.getElementById('particles-container');
+            const particleCount = 15;
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.animationDelay = `${Math.random() * 10}s`;
+                particle.style.animationDuration = `${10 + Math.random() * 15}s`;
+                particle.style.transform = `scale(${0.5 + Math.random()})`;
+                container.appendChild(particle);
+            }
+        }
+        window.addEventListener('DOMContentLoaded', createParticles);
+
+        // ════════════ EHS 證照模擬器腳本 ════════════
+        const initialEmployees = [
+            { name: "張憲明", cert: "台積電工安安衛卡", expiry: "2026-07-20" },
+            { name: "李志強", cert: "急救證照", expiry: "2026-06-25" },
+            { name: "王大同", cert: "吊掛高空安全作業證", expiry: "2026-08-15" }
+        ];
+
+        let currentDate = new Date("2026-06-17");
+        let employees = JSON.parse(JSON.stringify(initialEmployees));
+
+        function renderSimulator() {
+            const tableBody = document.getElementById("sim-table-body");
+            const dateBadge = document.getElementById("sim-date");
+            
+            // 格式化日期
+            const yyyy = currentDate.getFullYear();
+            const mm = String(currentDate.getMonth() + 1).padStart(2, '0');
+            const dd = String(currentDate.getDate()).padStart(2, '0');
+            dateBadge.textContent = `目前時間: ${yyyy}-${mm}-${dd}`;
+            
+            tableBody.innerHTML = "";
+            
+            employees.forEach(emp => {
+                const expiryDate = new Date(emp.expiry);
+                // 計算相差天數
+                const timeDiff = expiryDate.getTime() - currentDate.getTime();
+                const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                
+                let statusText = "";
+                let statusClass = "";
+                let btnDisabled = "";
+                let btnText = "派班中";
+                
+                if (daysDiff < 0) {
+                    statusText = `已過期 (${Math.abs(daysDiff)} 天)`;
+                    statusClass = "status-pill status-warning";
+                    btnDisabled = "disabled";
+                    btnText = "❌ 證照失效";
+                } else if (daysDiff <= 30) {
+                    statusText = `預警中 (剩餘 ${daysDiff} 天)`;
+                    statusClass = "status-pill status-warning";
+                    btnDisabled = "disabled";
+                    btnText = "⚠️ 管制派工";
+                } else {
+                    statusText = `正常 (剩餘 ${daysDiff} 天)`;
+                    statusClass = "status-pill status-ok";
+                    btnDisabled = "";
+                    btnText = "☑️ 可指派工作";
+                }
+                
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td style="font-weight:600;">${emp.name}</td>
+                    <td>${emp.cert}</td>
+                    <td>${emp.expiry}</td>
+                    <td>${daysDiff > 0 ? daysDiff + ' 天' : '已失效'}</td>
+                    <td><span class="${statusClass}">${statusText}</span></td>
+                    <td>
+                        <button class="btn-dispatch ${btnDisabled}" ${btnDisabled ? "disabled" : ""}>
+                            ${btnText}
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function advanceTime() {
+            // 時間推進 30 天
+            currentDate.setDate(currentDate.getDate() + 30);
+            renderSimulator();
+        }
+
+        function resetSimulator() {
+            currentDate = new Date("2026-06-17");
+            employees = JSON.parse(JSON.stringify(initialEmployees));
+            renderSimulator();
+        }
+
+        // 載入全域品牌設定
+        function applyDynamicBranding() {
+            if (typeof HimoriCompanyConfig !== 'undefined') {
+                // 修改標題與 Description
+                document.title = `${HimoriCompanyConfig.name} | ${HimoriCompanyConfig.engName} - 高科技廠房精密工程與後勤維護夥伴`;
+                const metaDesc = document.querySelector('meta[name="description"]');
+                if (metaDesc) {
+                    metaDesc.setAttribute("content", HimoriCompanyConfig.description);
+                }
+
+                // 導覽列
+                const navLogo = document.getElementById("nav-logo");
+                if (navLogo) navLogo.src = HimoriCompanyConfig.logoHorizontal;
+                const fallbackLogo = document.getElementById("fallback-logo");
+                if (fallbackLogo) fallbackLogo.textContent = HimoriCompanyConfig.name;
+
+                // Hero
+                const heroLogo = document.getElementById("hero-logo");
+                if (heroLogo) heroLogo.src = HimoriCompanyConfig.logoVertical;
+                const heroDesc = document.getElementById("hero-desc");
+                if (heroDesc) heroDesc.textContent = HimoriCompanyConfig.description;
+
+                // 聯絡我們
+                const contactLogo = document.getElementById("contact-logo");
+                if (contactLogo) contactLogo.src = HimoriCompanyConfig.logoHorizontal;
+                const contactDesc = document.getElementById("contact-desc");
+                if (contactDesc) contactDesc.textContent = `我們提供高彈性、專業且工安合規的半導體無塵室後勤工務服務。如有業務洽談、工程發包、承攬合作或合約諮詢，歡迎與我們的顧問團隊聯繫。`;
+                const contactAddress = document.getElementById("contact-address");
+                if (contactAddress) contactAddress.textContent = HimoriCompanyConfig.address;
+                const contactTaxId = document.getElementById("contact-tax-id");
+                if (contactTaxId) contactTaxId.textContent = HimoriCompanyConfig.taxId;
+
+                // CTA
+                const ctaTitle = document.getElementById("cta-title");
+                if (ctaTitle) ctaTitle.textContent = `與${HimoriCompanyConfig.name}並肩前行`;
+                const ctaSlogan = document.getElementById("cta-slogan");
+                if (ctaSlogan) ctaSlogan.textContent = `${HimoriCompanyConfig.engName} ── ${HimoriCompanyConfig.slogan}`;
+
+                // Footer
+                const footerBrand = document.getElementById("footer-brand");
+                if (footerBrand) footerBrand.textContent = HimoriCompanyConfig.name;
+                const footerSlogan = document.getElementById("footer-slogan");
+                if (footerSlogan) footerSlogan.textContent = `${HimoriCompanyConfig.engName} ── ${HimoriCompanyConfig.slogan}`;
+
+                // 更改 Hero 背景圖為動態底圖
+                const heroSection = document.querySelector('.hero');
+                if (heroSection && HimoriCompanyConfig.backgroundImg) {
+                    heroSection.style.backgroundImage = `url('${HimoriCompanyConfig.backgroundImg}')`;
+                }
+            }
+        }
+
+        // 初始化渲染
+        window.addEventListener("DOMContentLoaded", () => {
+            renderSimulator();
+            applyDynamicBranding();
+        });
+    </script>
+</body>
+</html>

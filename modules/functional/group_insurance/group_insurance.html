@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日森精工 | 🛡️ 團保作業模組</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- 🌐 共享數據中心 -->
+    <script src="../../../global_shared.js"></script>
+
+    <style>
+        :root {
+            --primary: #0F172A;
+            --primary-light: #1E293B;
+            --accent: #38BDF8;
+            --accent-glow: rgba(56, 189, 248, 0.2);
+            --bg-dark: #090D1A;
+            --card-bg: rgba(30, 41, 59, 0.4);
+            --text-light: #F8FAFC;
+            --text-muted: #94A3B8;
+            --border: rgba(255, 255, 255, 0.08);
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+        }
+
+        body {
+            background: url('../../../01_企業識別與設計/底色.png') center center / cover no-repeat fixed;
+            color: var(--text-light);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1050px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #FFF, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* 頁籤切換 */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 0.6rem 1.25rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.88rem;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            color: white;
+            background: rgba(56, 189, 248, 0.08);
+            border-color: rgba(56, 189, 248, 0.2);
+        }
+
+        .tab-btn.active {
+            color: white;
+            background: rgba(56, 189, 248, 0.15);
+            border-color: var(--accent);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 📋 卡片樣式 */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.8rem;
+            backdrop-filter: blur(10px);
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h2 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 1.2rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* 表格樣式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.5rem;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 0.85rem 1rem;
+            font-size: 0.88rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            font-weight: 600;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-none { background: rgba(239, 68, 68, 0.1); color: #f87171; }
+        .badge-basic { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .badge-increased { background: rgba(56, 189, 248, 0.15); color: var(--accent); }
+
+        /* 按鈕 */
+        .btn {
+            padding: 0.45rem 0.85rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            outline: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.25);
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-light);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--text-muted);
+        }
+
+        .btn-success {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #34d399;
+        }
+
+        .btn-success:hover {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+
+        .btn-danger:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* 彈窗樣式 */
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 6, 23, 0.8);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-card {
+            background: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 420px;
+            padding: 2rem;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .modal-header {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: white;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+
+        .modal-body select, .modal-body input {
+            width: 100%;
+            padding: 0.7rem;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: white;
+            outline: none;
+            margin-top: 0.5rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            border-top: 1px solid var(--border);
+            padding-top: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        #toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--success);
+            color: white;
+            padding: 0.85rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 10000;
+        }
+
+        #toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; width: 100%;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 8px; flex-wrap: wrap;">
+                    <img src="../../../01_企業識別與設計/橫式logo.png" alt="Logo" style="height: 57px; width: auto; filter: drop-shadow(0 0 4px rgba(255,255,255,0.05));">
+                    <h1 style="font-size: 1.45rem; border-left: 2px solid var(--border); padding-left: 16px; font-weight: 700; color: #FFFFFF; margin: 0; display: flex; align-items: center; gap: 8px;">🛡️ 團保作業模組 <span style="font-size: 0.68rem; font-weight: normal; color: var(--text-muted, #64748B); margin-left: 8px; vertical-align: middle; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.08); letter-spacing: 0.5px;">v1.0.0</span></h1>
+                </div>
+                <p class="subtitle" style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">辦理每日基本團保、入場前限期保額增額投保，匯出 CSV 格式申報送件檔</p>
+            </div>
+            <div><button class="btn btn-primary" onclick="exportInsuranceCSV()">📤 一鍵導出投保申報 CSV</button></div>
+        </div>
+    </header>
+
+        <!-- 頁籤導覽 -->
+        
+        <!-- 保費統計面板與明細 -->
+        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:1rem; margin-bottom:1.5rem;">
+            <div class="card" style="margin:0; padding:1.2rem; text-align:center;">
+                <div style="font-size:0.75rem; color:var(--text-muted);">本月投保同仁數</div>
+                <div style="font-size:1.4rem; font-weight:700; color:white; margin-top:0.4rem;" id="ins-stat-count">0 人</div>
+            </div>
+            <div class="card" style="margin:0; padding:1.2rem; text-align:center;">
+                <div style="font-size:0.75rem; color:var(--text-muted);">基本險總額 (200萬/人)</div>
+                <div style="font-size:1.4rem; font-weight:700; color:var(--accent); margin-top:0.4rem;" id="ins-stat-basic">0 元</div>
+            </div>
+            <div class="card" style="margin:0; padding:1.2rem; text-align:center;">
+                <div style="font-size:0.75rem; color:var(--text-muted);">增額險總額</div>
+                <div style="font-size:1.4rem; font-weight:700; color:var(--warning); margin-top:0.4rem;" id="ins-stat-increased">0 元</div>
+            </div>
+            <div class="card" style="margin:0; padding:1.2rem; text-align:center;">
+                <div style="font-size:0.75rem; color:var(--text-muted);">本月預估團保保費</div>
+                <div style="font-size:1.4rem; font-weight:700; color:var(--success); margin-top:0.4rem;" id="ins-stat-premium">0 元</div>
+            </div>
+        </div>
+
+
+        <div class="tabs">
+            <button class="tab-btn active" id="tab-btn-roster" onclick="switchTab('roster')">🛡️ 投保加退保管理</button>
+            <button class="tab-btn" id="tab-btn-history" onclick="switchTab('history')">📜 投保歷史與送件紀錄</button>
+        </div>
+
+        <!-- 分頁 1: 加退保管理 -->
+        <div class="tab-content active" id="content-roster">
+            <div class="card">
+                <h2>👥 現場同仁保險狀態總覽</h2>
+                <div style="overflow-x: auto;">
+                    <table id="insurance-table">
+                        <thead>
+                            <tr>
+                                <th>同仁姓名</th>
+                                <th>目前專長</th>
+                                <th>領隊資格</th>
+                                <th>保險等級</th>
+                                <th>增額額度 (元)</th>
+                                <th>最新異動日期</th>
+                                <th style="text-align: right; width: 320px;">投保作業操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="insurance-table-body">
+                            <!-- 動態加載 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 分頁 2: 歷史記錄 -->
+        <div class="tab-content" id="content-history">
+            <div class="card">
+                <h2>📜 投保申報歷史軌跡</h2>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>記錄時間</th>
+                                <th>被保險人</th>
+                                <th>申報類型</th>
+                                <th>申報保額 (元)</th>
+                                <th>案件狀態</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body">
+                            <!-- 動態加載 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 增額投保彈窗 -->
+    <div class="modal" id="increase-modal">
+        <div class="modal-card">
+            <div class="modal-header" id="modal-title">增額投保辦理</div>
+            <div class="modal-body">
+                <label>選擇增額保險額度</label>
+                <select id="modal-amount">
+                    <option value="1000000">100 萬元額度 (入場標準)</option>
+                    <option value="2000000">200 萬元額度 (高險施工)</option>
+                    <option value="3000000">300 萬元額度 (領隊高階保障)</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal()">取消</button>
+                <button class="btn btn-primary" onclick="confirmIncrease()">💾 確認申請投保</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 提示區 -->
+    <div id="toast">✅ 投保變更已儲存，成功廣播更新！</div>
+
+    <script>
+        let insurances = {};
+        let employees = {};
+        let activeTab = 'roster';
+        let modalEmpName = null;
+
+        // 初始化
+        function init() {
+            insurances = HimoriDb.insurancesDb || {};
+            employees = HimoriDb.employeeDb || {};
+
+            // 確保所有員工在資料庫中皆有保險紀錄
+            let updated = false;
+            Object.keys(employees).forEach(name => {
+                if (!insurances[name]) {
+                    insurances[name] = {
+                        status: 'none',
+                        increasedAmount: 0,
+                        history: []
+                    };
+                    updated = true;
+                }
+            });
+            if (updated) {
+                HimoriDb.insurancesDb = insurances;
+                HimoriDb.save();
+            }
+
+            renderInsuranceTable();
+            renderHistoryTable();
+        }
+
+        // 頁籤切換
+        function switchTab(tabId) {
+            activeTab = tabId;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            document.getElementById(`tab-btn-${tabId}`).classList.add('active');
+            document.getElementById(`content-${tabId}`).classList.add('active');
+        }
+
+        // 渲染保險狀態表格
+
+        function renderInsuranceTable() {
+            const tbody = document.getElementById("insurance-table-body");
+            tbody.innerHTML = "";
+
+            let totalCount = 0;
+            let totalBasicCover = 0;
+            let totalIncreasedCover = 0;
+            let totalPremium = 0;
+
+            Object.keys(employees).forEach(name => {
+                const emp = employees[name];
+                const ins = insurances[name] || { status: 'none', increasedAmount: 0, history: [] };
+
+                const tr = document.createElement("tr");
+
+                let badgeHTML = '';
+                if (ins.status === 'none') {
+                    badgeHTML = '<span class="badge badge-none">❌ 未投保</span>';
+                } else if (ins.status === 'basic') {
+                    badgeHTML = '<span class="badge badge-basic">✅ 基本險 (200萬)</span>';
+                    totalCount++;
+                    totalBasicCover += 2000000;
+                    totalPremium += 350; // 基本險保費假設 350/月
+                } else if (ins.status === 'increased') {
+                    badgeHTML = '<span class="badge badge-increased">👑 增額險</span>';
+                    totalCount++;
+                    totalBasicCover += 2000000;
+                    totalIncreasedCover += ins.increasedAmount;
+                    totalPremium += 350 + (ins.increasedAmount / 1000000 * 150); // 每增額 100萬 增加 150保費
+                }
+
+                const latestHistory = ins.history.length > 0 ? ins.history[ins.history.length - 1] : { date: '—', type: '無記錄' };
+
+                let actionBtns = '';
+                if (ins.status === 'none') {
+                    actionBtns = `
+                        <button class="btn btn-success" onclick="applyBasic('${name}')">➕ 基本險加保</button>
+                    `;
+                } else if (ins.status === 'basic') {
+                    actionBtns = `
+                        <button class="btn btn-primary" onclick="openIncreaseModal('${name}')">⚡ 辦理增額險</button>
+                        <button class="btn btn-danger" onclick="applyWithdraw('${name}')">➖ 辦理退保</button>
+                    `;
+                } else if (ins.status === 'increased') {
+                    actionBtns = `
+                        <button class="btn btn-outline" style="color:var(--warning); border-color:rgba(245,158,11,0.3);" onclick="openIncreaseModal('${name}')">🔄 調整保額</button>
+                        <button class="btn btn-success" style="background:rgba(56,189,248,0.1); border-color:var(--accent); color:var(--accent);" onclick="cancelIncrease('${name}')">📉 退回基本險</button>
+                        <button class="btn btn-danger" onclick="applyWithdraw('${name}')">➖ 辦理退保</button>
+                    `;
+                }
+
+                tr.innerHTML = `
+                    <td><strong>${name}</strong></td>
+                    <td>${emp.specialty}</td>
+                    <td>${emp.isLead ? '👑 領隊' : '同仁'}</td>
+                    <td>${badgeHTML}</td>
+                    <td>${ins.increasedAmount > 0 ? ins.increasedAmount.toLocaleString() : '—'}</td>
+                    <td>${latestHistory.date}</td>
+                    <td style="text-align: right; display:flex; justify-content:flex-end; gap:0.5rem;">${actionBtns}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // 更新面板
+            document.getElementById("ins-stat-count").textContent = totalCount + " 人";
+            document.getElementById("ins-stat-basic").textContent = "$" + totalBasicCover.toLocaleString() + " 元";
+            document.getElementById("ins-stat-increased").textContent = "$" + totalIncreasedCover.toLocaleString() + " 元";
+            document.getElementById("ins-stat-premium").textContent = "$" + totalPremium.toLocaleString() + " 元 / 月";
+        }
+        // 渲染歷史記錄表格
+        function renderHistoryTable() {
+            const tbody = document.getElementById("history-table-body");
+            tbody.innerHTML = "";
+
+            let allHistory = [];
+            Object.keys(insurances).forEach(name => {
+                const ins = insurances[name];
+                ins.history.forEach(h => {
+                    allHistory.push({
+                        name: name,
+                        date: h.date,
+                        type: h.type,
+                        amount: h.amount || 0,
+                        status: h.status
+                    });
+                });
+            });
+
+            // 排序 (新到舊)
+            allHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            if (allHistory.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">無歷史投保記錄</td></tr>`;
+                return;
+            }
+
+            allHistory.forEach(h => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${h.date}</td>
+                    <td><strong>${h.name}</strong></td>
+                    <td>${h.type}</td>
+                    <td>${h.amount > 0 ? h.amount.toLocaleString() : '—'}</td>
+                    <td><span class="badge" style="background:rgba(16,185,129,0.1); color:var(--success);">${h.status}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 加基本險
+        function applyBasic(name) {
+            const today = HimoriDb.simulatedDate || new Date().toISOString().split('T')[0];
+            insurances[name].status = 'basic';
+            insurances[name].increasedAmount = 0;
+            insurances[name].history.push({
+                date: today,
+                type: '基本保險加保 (200萬)',
+                amount: 2000000,
+                status: '已完成'
+            });
+
+            saveAndNotify();
+        }
+
+        // 辦理退保
+        function applyWithdraw(name) {
+            if (confirm(`⚠️ 確定要為 [${name}] 辦理全部團體保險退保嗎？`)) {
+                const today = HimoriDb.simulatedDate || new Date().toISOString().split('T')[0];
+                insurances[name].status = 'none';
+                insurances[name].increasedAmount = 0;
+                insurances[name].history.push({
+                    date: today,
+                    type: '退保退保',
+                    amount: 0,
+                    status: '已完成'
+                });
+
+                saveAndNotify();
+            }
+        }
+
+        // 打開增額彈窗
+        function openIncreaseModal(name) {
+            modalEmpName = name;
+            document.getElementById("modal-title").textContent = `為 [${name}] 辦理入場前增額保險`;
+            document.getElementById("increase-modal").style.display = "flex";
+        }
+
+        // 關閉增額彈窗
+        function closeModal() {
+            document.getElementById("increase-modal").style.display = "none";
+            modalEmpName = null;
+        }
+
+        // 確認增額投保
+        function confirmIncrease() {
+            if (!modalEmpName) return;
+
+            const amount = parseInt(document.getElementById("modal-amount").value);
+            const today = HimoriDb.simulatedDate || new Date().toISOString().split('T')[0];
+
+            insurances[modalEmpName].status = 'increased';
+            insurances[modalEmpName].increasedAmount = amount;
+            insurances[modalEmpName].history.push({
+                date: today,
+                type: `入場前增額投保 (${amount/10000}萬)`,
+                amount: amount,
+                status: '已完成'
+            });
+
+            closeModal();
+            saveAndNotify();
+        }
+
+        // 退回基本險
+        function cancelIncrease(name) {
+            const today = HimoriDb.simulatedDate || new Date().toISOString().split('T')[0];
+            insurances[name].status = 'basic';
+            insurances[name].increasedAmount = 0;
+            insurances[name].history.push({
+                date: today,
+                type: '降級退回基本險',
+                amount: 2000000,
+                status: '已完成'
+            });
+
+            saveAndNotify();
+        }
+
+        // 儲存並通知
+        function saveAndNotify() {
+            HimoriDb.insurancesDb = insurances;
+            HimoriDb.save();
+
+            renderInsuranceTable();
+            renderHistoryTable();
+
+            // 彈出 Toast
+            const toast = document.getElementById("toast");
+            toast.className = "show";
+            setTimeout(() => {
+                toast.className = "";
+            }, 3000);
+        }
+
+        // 一鍵匯出符合保險公司格式的投保 CSV
+        function exportInsuranceCSV() {
+            const today = HimoriDb.simulatedDate || new Date().toISOString().split('T')[0];
+            let csvContent = "\uFEFF"; // UTF-8 BOM，防 Excel 亂碼
+            
+            // 標題列
+            csvContent += "加退保生效日,被保險人姓名,身分證字號(身分證明),出生年月日,職稱/工種,保險額度,保險類型(基本/增額)\n";
+            
+            // 模擬一些同仁的基本證件與生日 (張憲明、李志強、王大同)
+            const mockIDCard = {
+                "張憲明": { id: "F123456789", birthday: "1985/08/12" },
+                "李志強": { id: "H198765432", birthday: "1980/12/05" },
+                "王大同": { id: "A187654321", birthday: "1992/03/24" }
+            };
+
+            let count = 0;
+            Object.keys(insurances).forEach(name => {
+                const ins = insurances[name];
+                if (ins.status !== 'none') {
+                    const emp = employees[name] || { specialty: '施工同仁' };
+                    const idData = mockIDCard[name] || { id: "T123456789", birthday: "1990/01/01" };
+                    const amountText = ins.status === 'increased' ? ins.increasedAmount : 2000000;
+                    const typeText = ins.status === 'increased' ? "入場增額險" : "基本保障險";
+
+                    csvContent += `${today},${name},${idData.id},${idData.birthday},${emp.specialty},${amountText},${typeText}\n`;
+                    count++;
+                }
+            });
+
+            if (count === 0) {
+                alert("💡 目前沒有任何人員處於投保狀態，無法匯出！");
+                return;
+            }
+
+            // 建立下載
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `日森精工_團保加退保申報單_${today}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // 監聽更新
+        window.addEventListener("himori_db_updated", function() {
+            insurances = HimoriDb.insurancesDb || {};
+            employees = HimoriDb.employeeDb || {};
+            renderInsuranceTable();
+            renderHistoryTable();
+        });
+
+        window.addEventListener("DOMContentLoaded", init);
+    </script>
+
+    <!-- 頁尾開發商版權宣告 -->
+    <div style="font-size: 0.7rem; color: var(--text-muted, #64748B); text-align: center; margin: 3rem 0 1.5rem 0; padding-top: 1.5rem; border-top: 1px solid var(--border, rgba(255,255,255,0.08)); width: 100%; letter-spacing: 0.5px;">
+        © 2026 映向行銷. Powered by Image Marketing
+    </div>
+</body>
+</html>

@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日森精工 | 🧾 財會外帳模組</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- 🌐 共享數據中心 -->
+    <script src="../../../global_shared.js"></script>
+
+    <style>
+        :root {
+            --primary: #0F172A;
+            --primary-light: #1E293B;
+            --accent: #38BDF8;
+            --accent-glow: rgba(56, 189, 248, 0.2);
+            --bg-dark: #090D1A;
+            --card-bg: rgba(30, 41, 59, 0.4);
+            --text-light: #F8FAFC;
+            --text-muted: #94A3B8;
+            --border: rgba(255, 255, 255, 0.08);
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+        }
+
+        body {
+            background: url('../../../01_企業識別與設計/底色.png') center center / cover no-repeat fixed;
+            color: var(--text-light);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #FFF, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* ════════════════════ 頂部數字儀表板 ════════════════════ */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .summary-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .metric-card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .metric-title {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .metric-desc {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+        }
+
+        /* ════════════════════ 頁籤切換 ════════════════════ */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 600;
+            padding: 0.5rem 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 6px;
+        }
+
+        .tab-btn:hover {
+            color: white;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .tab-btn.active {
+            color: var(--accent);
+            background: rgba(56, 189, 248, 0.1);
+        }
+
+        /* ════════════════════ 內容區 ════════════════════ */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .card-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--accent);
+            border-left: 4px solid var(--accent);
+            padding-left: 0.75rem;
+        }
+
+        /* 表格樣式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 0.9rem 1.1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.88rem;
+        }
+
+        th {
+            font-weight: 600;
+            color: var(--accent);
+            background: rgba(15, 23, 42, 0.3);
+        }
+
+        tr:hover td {
+            background: rgba(56, 189, 248, 0.02);
+        }
+
+        /* 雙欄對碰排版 */
+        .compare-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 850px) {
+            .compare-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .compare-column {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .compare-header {
+            font-size: 1rem;
+            font-weight: 600;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .compare-val {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        /* 調整區塊與分析 */
+        .alert-box {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .alert-title {
+            font-weight: 700;
+            color: var(--warning);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* 彈窗樣式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(2, 6, 23, 0.85);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background: #1E293B;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            width: 550px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            animation: modalSlide 0.3s ease-out;
+        }
+
+        @keyframes modalSlide {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+
+        .modal-body {
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .modal-footer {
+            padding: 1rem 1.25rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+
+        /* 表單元素 */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: white;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        /* 按鈕樣式 */
+        .btn {
+            padding: 0.65rem 1.3rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(148, 163, 184, 0.15);
+            color: var(--text-light);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(148, 163, 184, 0.25);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.72rem;
+            font-weight: bold;
+        }
+
+        .badge-success { background: rgba(16, 185, 129, 0.15); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-danger { background: rgba(239, 68, 68, 0.15); color: #FCA5A5; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .badge-warning { background: rgba(245, 158, 11, 0.15); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; width: 100%;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 8px; flex-wrap: wrap;">
+                    <img src="../../../01_企業識別與設計/橫式logo.png" alt="Logo" style="height: 57px; width: auto; filter: drop-shadow(0 0 4px rgba(255,255,255,0.05));">
+                    <h1 style="font-size: 1.45rem; border-left: 2px solid var(--border); padding-left: 16px; font-weight: 700; color: #FFFFFF; margin: 0; display: flex; align-items: center; gap: 8px;">🧾 財會外帳模組 <span style="font-size: 0.68rem; font-weight: normal; color: var(--text-muted, #64748B); margin-left: 8px; vertical-align: middle; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.08); letter-spacing: 0.5px;">v1.0.0</span></h1>
+                </div>
+                <p class="subtitle" style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">模擬會計師報稅發票對碰、營業稅/營所稅估算與內外帳落差分析</p>
+            </div>
+            
+        </div>
+    </header>
+
+        <!-- 頂部數字儀表板 -->
+        <div class="summary-grid">
+            <div class="metric-card">
+                <span class="metric-title">📊 累積銷項發票 (A)</span>
+                <span class="metric-value" id="summary-sales">$0</span>
+                <span class="metric-desc" id="summary-sales-tax">銷項稅額: $0</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-title">📉 扣抵進項憑證 (B)</span>
+                <span class="metric-value" id="summary-purchases">$0</span>
+                <span class="metric-desc" id="summary-purchases-tax">進項稅額: $0</span>
+            </div>
+            <div class="metric-card" style="border-left: 4px solid var(--accent);">
+                <span class="metric-title">🧾 預估應納營業稅 (A-B)</span>
+                <span class="metric-value" id="summary-vat">$0</span>
+                <span class="metric-desc">申報期: 每雙月 15 日前申報</span>
+            </div>
+            <div class="metric-card" style="border-left: 4px solid var(--success);">
+                <span class="metric-title">👑 預估營所稅額 (20%)</span>
+                <span class="metric-value" id="summary-income-tax">$0</span>
+                <span class="metric-desc" id="summary-income-tax-net">純益額預估: $0</span>
+            </div>
+        </div>
+
+        <!-- 頁籤列 -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('dashboard-tab')">📊 內外帳對碰比對</button>
+            <button class="tab-btn" onclick="switchTab('sales-tab')">📈 銷項發票管理</button>
+            <button class="tab-btn" onclick="switchTab('purchases-tab')">📉 進項憑證申報</button>
+        </div>
+
+        <!-- 頁籤一：內外帳對碰比對 -->
+        <div id="dashboard-tab" class="tab-content active">
+            <div class="glass-card">
+                <div class="card-title">📊 內帳（實際營運）與外帳（申報發票）差異分析</div>
+                
+                <div class="compare-grid">
+                    <!-- 內帳 -->
+                    <div class="compare-column">
+                        <div class="compare-header">
+                            <span>💼 內帳流水資料庫 (實際營運收支)</span>
+                            <span class="compare-val" id="internal-net-profit" style="color:#A7F3D0;">$0</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
+                            <span>內帳收入 (包含無發票收入):</span>
+                            <span id="internal-income">$0</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
+                            <span>內帳支出 (實報實銷、薪資及工程款):</span>
+                            <span id="internal-expense" style="color:#FCA5A5;">$0</span>
+                        </div>
+                        
+                        <div class="alert-box" style="background: rgba(56, 189, 248, 0.08); border-color: rgba(56, 189, 248, 0.2);">
+                            <span class="alert-title" style="color:var(--accent);">💡 內帳重點說明</span>
+                            <p>內帳反映公司**最真實的現金流**，包含所有交通費、現場點工薪資、無收據的工地現金支出等。只要在『企業營運內帳模組』中登載的流水收支皆計入此欄。</p>
+                        </div>
+                    </div>
+
+                    <!-- 外帳 -->
+                    <div class="compare-column">
+                        <div class="compare-header">
+                            <span>🧾 外帳發票資料庫 (向國稅局申報)</span>
+                            <span class="compare-val" id="external-net-profit" style="color:#A7F3D0;">$0</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
+                            <span>開立銷項發票總額 (未稅):</span>
+                            <span id="external-sales">$0</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
+                            <span>取得進項發票與可扣抵憑證:</span>
+                            <span id="external-purchases" style="color:#FCA5A5;">$0</span>
+                        </div>
+
+                        <div class="alert-box" id="audit-alert-box">
+                            <span class="alert-title">⚠️ 內外帳差異落差分析</span>
+                            <div style="display:flex; justify-content:space-between;">
+                                <span>內外帳淨利差額:</span>
+                                <strong id="profit-gap-val" style="color:var(--warning);">$0</strong>
+                            </div>
+                            <p id="profit-gap-desc" style="margin-top:0.3rem; line-height:1.4;"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 剔除憑證原因與合理化調整建議 -->
+                <div style="border-top:1px solid var(--border); padding-top:1.5rem; margin-top:1rem;">
+                    <div class="card-title" style="margin-bottom:1rem;">📋 國稅局剔除憑證及調整明細（外帳申報剔除原因）</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>支出日期</th>
+                                <th>內帳憑證名稱</th>
+                                <th>金額</th>
+                                <th>外帳扣抵狀態</th>
+                                <th>申報剔除原因 / 比對說明</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gap-analysis-table">
+                            <!-- 動態生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 頁籤二：銷項發票管理 -->
+        <div id="sales-tab" class="tab-content">
+            <div class="glass-card">
+                <div class="card-header-row">
+                    <div class="card-title">📈 銷項三聯式發票開立明細 (銷售額)</div>
+                    <button class="btn btn-primary" onclick="openAddInvoiceModal('sales')">➕ 開立/補錄銷項發票</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>發票號碼</th>
+                            <th>開立日期</th>
+                            <th>買受人 (客戶)</th>
+                            <th>統一編號</th>
+                            <th>銷售金額 (未稅)</th>
+                            <th>營業稅 (5%)</th>
+                            <th>發票期別</th>
+                            <th>申報狀態</th>
+                            <th style="width: 80px; text-align: center;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sales-table-body">
+                        <!-- 動態 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 頁籤三：進項憑證申報 -->
+        <div id="purchases-tab" class="tab-content">
+            <div class="glass-card">
+                <div class="card-header-row">
+                    <div class="card-title">📉 進項扣抵憑證與材料發票明細 (成本與費用)</div>
+                    <button class="btn btn-primary" onclick="openAddInvoiceModal('purchase')">➕ 錄入進項憑證</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>憑證單號/發票號</th>
+                            <th>交易日期</th>
+                            <th>憑證項目說明</th>
+                            <th>未稅金額</th>
+                            <th>進項稅額</th>
+                            <th>扣抵狀態</th>
+                            <th>是否為國稅局剔除項目</th>
+                            <th style="width: 80px; text-align: center;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="purchases-table-body">
+                        <!-- 動態 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ➕ 發票新增彈窗 -->
+    <div class="modal-overlay" id="invoice-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <span id="modal-title">補錄憑證資料</span>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="invoice-type">
+
+                <div class="form-group">
+                    <label>發票/憑證號碼</label>
+                    <input type="text" id="inv-no" placeholder="例如: AB-12345678">
+                </div>
+
+                <div class="form-group">
+                    <label>交易日期</label>
+                    <input type="date" id="inv-date">
+                </div>
+
+                <div class="form-group">
+                    <label id="inv-party-label">客戶/供應商名稱</label>
+                    <input type="text" id="inv-party" placeholder="輸入交易對象">
+                </div>
+
+                <div class="form-group">
+                    <label id="inv-desc-label">項目說明 / 統編</label>
+                    <input type="text" id="inv-desc" placeholder="例如: 購置工程材料 / 統編">
+                </div>
+
+                <div class="form-group">
+                    <label>金額 (未稅)</label>
+                    <input type="number" id="inv-amount" placeholder="輸入交易金額" oninput="updateTaxCalc()">
+                </div>
+
+                <div class="form-group">
+                    <label>營業稅 (自動計算 5%)</label>
+                    <input type="number" id="inv-tax" placeholder="營業稅" disabled>
+                </div>
+
+                <div class="form-group" id="deductible-group">
+                    <label>外帳申報扣抵設定</label>
+                    <select id="inv-deductible">
+                        <option value="yes">符合扣抵規定 (外帳申報) ✅</option>
+                        <option value="no">不扣抵 / 國稅局剔除項目 ❌</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveInvoiceData()">💾 儲存發票憑證</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 頁籤切換
+        function switchTab(tabId) {
+            document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
+            document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+            
+            // 找到按鈕並激活
+            const btn = Array.from(document.querySelectorAll(".tab-btn")).find(b => {
+                return b.getAttribute("onclick").includes(tabId);
+            });
+            if (btn) btn.classList.add("active");
+            
+            document.getElementById(tabId).classList.add("active");
+            calculateFinancials();
+        }
+
+        // 初始化
+        window.addEventListener("DOMContentLoaded", function() {
+            // 初始化 demo 資料，如果為空
+            checkAndInitDemoData();
+            calculateFinancials();
+        });
+
+        // 重設/確認 demo 資料
+        function checkAndInitDemoData() {
+            HimoriDb.load();
+            
+            // 如果 invoicesDb 是空的，我們灌入一筆預設銷項
+            if (!HimoriDb.invoicesDb || HimoriDb.invoicesDb.length === 0) {
+                HimoriDb.invoicesDb = [
+                    { invoiceNo: "AB-87654321", date: "2026-06-16", customerName: "台積電", taxId: "24436181", amount: 150000, tax: 7500, status: "valid", period: "115年 05-06月", taxType: "taxable", format: "three-way", items: [{ name: "拉線與軌道工程款", price: 150000, qty: 1 }] }
+                ];
+                HimoriDb.save();
+            }
+
+            // 如果 vouchersDb 是空的，我們灌入預設內帳憑證 (有些有發票，有些無憑證)
+            if (!HimoriDb.vouchersDb || HimoriDb.vouchersDb.length === 0) {
+                HimoriDb.vouchersDb = [
+                    { id: "VOU-001", type: "進項發票", no: "XY-98765432", desc: "工地購置接線端子與管線材料", amount: 12500, date: "2026-06-14", status: "已核銷", invoiceLink: "XY-98765432", verified: true, imageUrl: "" },
+                    { id: "VOU-002", type: "交通憑證", no: "HR-12345", desc: "高鐵出差車票-新竹廠勘", amount: 290, date: "2026-06-15", status: "已核銷", invoiceLink: "—", verified: true, imageUrl: "" },
+                    { id: "VOU-003", type: "工地便當", no: "CASH-Lunch", desc: "現場同仁無發票便當收據", amount: 1200, date: "2026-06-15", status: "已核銷", invoiceLink: "—", verified: false, imageUrl: "" },
+                    { id: "VOU-004", type: "招待費", no: "INV-554433", desc: "林總經理請客戶吃飯 (交際費超限)", amount: 18000, date: "2026-06-15", status: "已核銷", invoiceLink: "INV-554433", verified: false, imageUrl: "" }
+                ];
+                HimoriDb.save();
+            }
+        }
+
+        // 重設按鈕
+        function resetToDemoData() {
+            if (confirm("🔄 確定要將模擬發票與外帳申報重設為系統預設範例嗎？這將覆蓋您目前新增的所有測試憑證。")) {
+                localStorage.removeItem("invoicesDb");
+                localStorage.removeItem("vouchersDb");
+                checkAndInitDemoData();
+                calculateFinancials();
+                alert("✅ 進銷項與外帳模擬數據已重設！");
+            }
+        }
+
+        // 計算財務報表與落差分析
+        function calculateFinancials() {
+            HimoriDb.load();
+            
+            // 1. 銷項發票統計
+            const invoices = HimoriDb.invoicesDb || [];
+            let totalSales = 0;
+            let totalSalesTax = 0;
+            
+            const salesTbody = document.getElementById("sales-table-body");
+            salesTbody.innerHTML = "";
+
+            invoices.forEach(inv => {
+                if (inv.status !== 'void') {
+                    totalSales += inv.amount;
+                    totalSalesTax += (inv.tax || Math.round(inv.amount * 0.05));
+                }
+
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td><strong>${inv.invoiceNo}</strong></td>
+                    <td>${inv.date}</td>
+                    <td>${inv.customerName}</td>
+                    <td><code style="color:var(--text-muted)">${inv.taxId || '—'}</code></td>
+                    <td>$${inv.amount.toLocaleString()}</td>
+                    <td>$${(inv.tax || Math.round(inv.amount * 0.05)).toLocaleString()}</td>
+                    <td>${inv.period || '115年 05-06月'}</td>
+                    <td><span class="badge ${inv.status === 'valid' ? 'badge-success' : 'badge-danger'}">${inv.status === 'valid' ? '申報完成' : '已作廢'}</span></td>
+                    <td style="text-align: center;">
+                        <button class="btn-action" title="作廢發票" onclick="voidInvoice('${inv.invoiceNo}')">❌</button>
+                    </td>
+                `;
+                salesTbody.appendChild(tr);
+            });
+
+            // 2. 進項憑證統計
+            const vouchers = HimoriDb.vouchersDb || [];
+            let totalPurchasesEligible = 0; // 外帳申報可扣抵進項
+            let totalPurchasesTax = 0;      // 外帳申報可扣抵進項稅額
+            let totalInternalExpense = 0;   // 內帳總支出
+            let totalExternalExpense = 0;   // 外帳申報總成本與費用 (A-B的B，包含可申報發票金額)
+            
+            const purchasesTbody = document.getElementById("purchases-table-body");
+            purchasesTbody.innerHTML = "";
+
+            const gapTbody = document.getElementById("gap-analysis-table");
+            gapTbody.innerHTML = "";
+
+            vouchers.forEach(v => {
+                totalInternalExpense += v.amount;
+                
+                // 判斷是否為外帳可申報項目
+                const isDeductible = v.verified && v.invoiceLink && v.invoiceLink !== '—';
+                const tax = isDeductible ? Math.round(v.amount * 0.05) : 0;
+                
+                if (isDeductible) {
+                    totalPurchasesEligible += v.amount;
+                    totalPurchasesTax += tax;
+                    totalExternalExpense += v.amount;
+                }
+
+                // 渲染進項頁籤表格
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td><strong>${v.no || v.id}</strong></td>
+                    <td>${v.date}</td>
+                    <td>${v.desc}</td>
+                    <td>$${v.amount.toLocaleString()}</td>
+                    <td>$${tax.toLocaleString()}</td>
+                    <td><span class="badge ${isDeductible ? 'badge-success' : 'badge-danger'}">${isDeductible ? '可申報扣抵' : '免申報'}</span></td>
+                    <td>
+                        <span class="badge ${!v.verified ? 'badge-danger' : 'badge-success'}">
+                            ${v.verified ? '常規合規' : '國稅局剔除 / 無發票'}
+                        </span>
+                    </td>
+                    <td style="text-align: center;">
+                        <button class="btn-action" title="刪除憑證" onclick="deleteVoucher('${v.id}')">❌</button>
+                    </td>
+                `;
+                purchasesTbody.appendChild(tr);
+
+                // 3. 內外帳落差分析表格動態渲染
+                let gapReason = "—";
+                let statusBadgeHtml = `<span class="badge badge-success">外帳已認列 ✅</span>`;
+                
+                if (!v.verified) {
+                    statusBadgeHtml = `<span class="badge badge-danger">外帳遭剔除 ❌</span>`;
+                    if (v.desc.includes("便當") || v.desc.includes("餐費") || v.no.includes("CASH")) {
+                        gapReason = "無憑證發票收據 (現場現金點工點餐)";
+                    } else if (v.desc.includes("招待") || v.desc.includes("交際")) {
+                        gapReason = "交際招待費超額 / 非營業用途 (遭國稅局剔除)";
+                    } else {
+                        gapReason = "申報憑證不合規";
+                    }
+                } else if (!isDeductible) {
+                    statusBadgeHtml = `<span class="badge badge-warning">免申報扣抵 ⚠️</span>`;
+                    gapReason = "出差高鐵/交通收據 (內帳認列，外帳不扣抵營業稅)";
+                }
+
+                const trGap = document.createElement("tr");
+                trGap.innerHTML = `
+                    <td>${v.date}</td>
+                    <td><strong>${v.desc}</strong></td>
+                    <td>$${v.amount.toLocaleString()}</td>
+                    <td>${statusBadgeHtml}</td>
+                    <td style="color:#FCA5A5; font-size:0.8rem;">${gapReason}</td>
+                `;
+                gapTbody.appendChild(trGap);
+            });
+
+            // 4. 計算內外帳對碰營運結果
+            // 內帳淨利 = 內帳收入 (我們設銷項發票為主要收入，若內帳有其他收入可在這估算)
+            const internalNetProfit = totalSales - totalInternalExpense;
+            // 外帳淨利 = 外帳銷售額 - 外帳申報成本與費用
+            const externalNetProfit = totalSales - totalExternalExpense;
+
+            // 應納營業稅額 = 銷項營業稅 - 進項可申報營業稅
+            const vatPayable = totalSalesTax - totalPurchasesTax;
+
+            // 營所稅預估 (外帳淨利 * 20%)
+            const incomeTaxEst = externalNetProfit > 0 ? Math.round(externalNetProfit * 0.20) : 0;
+
+            // 渲染頂部指標
+            document.getElementById("summary-sales").textContent = `$${totalSales.toLocaleString()}`;
+            document.getElementById("summary-sales-tax").textContent = `銷項稅額: $${totalSalesTax.toLocaleString()}`;
+            document.getElementById("summary-purchases").textContent = `$${totalPurchasesEligible.toLocaleString()}`;
+            document.getElementById("summary-purchases-tax").textContent = `可扣抵進項稅: $${totalPurchasesTax.toLocaleString()}`;
+            document.getElementById("summary-vat").textContent = `$${vatPayable.toLocaleString()}`;
+            document.getElementById("summary-income-tax").textContent = `$${incomeTaxEst.toLocaleString()}`;
+            document.getElementById("summary-income-tax-net").textContent = `申報純益預估: $${externalNetProfit.toLocaleString()}`;
+
+            // 渲染對碰欄位
+            document.getElementById("internal-income").textContent = `$${totalSales.toLocaleString()}`;
+            document.getElementById("internal-expense").textContent = `$${totalInternalExpense.toLocaleString()}`;
+            document.getElementById("internal-net-profit").textContent = `$${internalNetProfit.toLocaleString()}`;
+            
+            document.getElementById("external-sales").textContent = `$${totalSales.toLocaleString()}`;
+            document.getElementById("external-purchases").textContent = `$${totalExternalExpense.toLocaleString()}`;
+            document.getElementById("external-net-profit").textContent = `$${externalNetProfit.toLocaleString()}`;
+
+            // 落差分析文字
+            const profitGap = externalNetProfit - internalNetProfit;
+            document.getElementById("profit-gap-val").textContent = `$${profitGap.toLocaleString()}`;
+
+            const gapDescEl = document.getElementById("profit-gap-desc");
+            const alertBox = document.getElementById("audit-alert-box");
+            if (profitGap > 0) {
+                alertBox.style.background = "rgba(245, 158, 11, 0.15)";
+                alertBox.style.borderColor = "rgba(245, 158, 11, 0.3)";
+                gapDescEl.innerHTML = `⚠️ <strong>外帳淨利比內帳高出 $${profitGap.toLocaleString()} 元！</strong><br>
+                這代表公司實際有很多**內帳日常支出**（如現場同仁無發票便當、計程車費、現金小額款項及經理招待費等），因為無法取得正式發票或遭國稅局審核剔除，**無法認列在申報外帳中**。這將導致外帳上的『帳面純益偏高』，可能需要增繳營所稅。建議尋求會計師購入合規發票以求合理扣抵。`;
+            } else if (profitGap < 0) {
+                alertBox.style.background = "rgba(16, 185, 129, 0.15)";
+                alertBox.style.borderColor = "rgba(16, 185, 129, 0.3)";
+                gapDescEl.innerHTML = `✅ <strong>外帳認列成本高於內帳支出！</strong><br>
+                這通常發生在有外帳專用的成本費用（如發票溢估認列）。這能有效降低申報盈餘，節省營所稅，但應注意查核是否符合稅法合規申報，避免查帳風險。`;
+            } else {
+                alertBox.style.background = "rgba(16, 185, 129, 0.1)";
+                alertBox.style.borderColor = "rgba(255, 255, 255, 0.08)";
+                gapDescEl.innerHTML = `✅ 內外帳完全吻合！所有內帳支出皆成功取得 3 聯式發票申報扣抵，無任何剔除憑證，財務健診極佳。`;
+            }
+        }
+
+        // 開啟新增發票彈窗
+        function openAddInvoiceModal(type) {
+            document.getElementById("invoice-type").value = type;
+            document.getElementById("inv-no").value = "";
+            document.getElementById("inv-date").value = new Date().toISOString().split('T')[0];
+            document.getElementById("inv-amount").value = "";
+            document.getElementById("inv-tax").value = "";
+
+            if (type === 'sales') {
+                document.getElementById("modal-title").textContent = "📈 補錄 / 開立銷項發票";
+                document.getElementById("inv-party-label").textContent = "買受人 (客戶公司名稱)";
+                document.getElementById("inv-party").placeholder = "例如: 聯電股份有限公司";
+                document.getElementById("inv-desc-label").textContent = "買受人統一編號";
+                document.getElementById("inv-desc").placeholder = "輸入客戶 8 碼統編";
+                document.getElementById("deductible-group").style.display = "none";
+            } else {
+                document.getElementById("modal-title").textContent = "📉 錄入進項憑證/發票";
+                document.getElementById("inv-party-label").textContent = "憑證項目說明";
+                document.getElementById("inv-party").placeholder = "例如: 購買工地施工防護材料";
+                document.getElementById("inv-desc-label").textContent = "憑證單號 / 發票號";
+                document.getElementById("inv-desc").placeholder = "例如: XY-11223344";
+                document.getElementById("deductible-group").style.display = "block";
+                document.getElementById("inv-deductible").value = "yes";
+            }
+
+            document.getElementById("invoice-modal").classList.add("show");
+        }
+
+        // 關閉彈窗
+        function closeModal() {
+            document.getElementById("invoice-modal").classList.remove("show");
+        }
+
+        // 動態計算 5% 稅額
+        function updateTaxCalc() {
+            const amt = parseFloat(document.getElementById("inv-amount").value) || 0;
+            document.getElementById("inv-tax").value = Math.round(amt * 0.05);
+        }
+
+        // 儲存發票憑證
+        function saveInvoiceData() {
+            const type = document.getElementById("invoice-type").value;
+            const no = document.getElementById("inv-no").value.trim();
+            const date = document.getElementById("inv-date").value;
+            const party = document.getElementById("inv-party").value.trim();
+            const desc = document.getElementById("inv-desc").value.trim();
+            const amount = parseFloat(document.getElementById("inv-amount").value) || 0;
+            const tax = Math.round(amount * 0.05);
+
+            if (!no || !party || amount <= 0) {
+                alert("❌ 請完整填寫號碼、項目及金額！");
+                return;
+            }
+
+            HimoriDb.load();
+
+            if (type === 'sales') {
+                // 新增銷項發票
+                const newInv = {
+                    invoiceNo: no,
+                    date: date,
+                    customerName: party,
+                    taxId: desc,
+                    amount: amount,
+                    tax: tax,
+                    status: "valid",
+                    period: getTaxPeriod(date),
+                    taxType: "taxable",
+                    format: "three-way",
+                    items: [{ name: "手動補錄銷售款", price: amount, qty: 1 }]
+                };
+                HimoriDb.invoicesDb.push(newInv);
+            } else {
+                // 新增進項憑證到 vouchersDb
+                const deductible = document.getElementById("inv-deductible").value === 'yes';
+                const newVouch = {
+                    id: "VOU-" + Math.floor(Math.random()*9000 + 1000),
+                    type: "進項發票",
+                    no: desc,
+                    desc: party,
+                    amount: amount,
+                    date: date,
+                    status: "已核銷",
+                    invoiceLink: deductible ? desc : "—",
+                    verified: deductible,
+                    imageUrl: ""
+                };
+                HimoriDb.vouchersDb.push(newVouch);
+            }
+
+            HimoriDb.save();
+            
+            // 廣播變更
+            window.parent.dispatchEvent(new CustomEvent('himori_db_updated'));
+
+            closeModal();
+            calculateFinancials();
+        }
+
+        // 自動判斷發票期別 (例如 2026-06-18 屬 05-06月)
+        function getTaxPeriod(dateStr) {
+            const parts = dateStr.split("-");
+            if (parts.length < 2) return "115年 05-06月";
+            const yearNum = parseInt(parts[0]) - 1911;
+            const monthVal = parseInt(parts[1]);
+            let periodStr = "";
+            if (monthVal <= 2) periodStr = "01-02月";
+            else if (monthVal <= 4) periodStr = "03-04月";
+            else if (monthVal <= 6) periodStr = "05-06月";
+            else if (monthVal <= 8) periodStr = "07-08月";
+            else if (monthVal <= 10) periodStr = "09-10月";
+            else periodStr = "11-12月";
+            return `${yearNum}年 ${periodStr}`;
+        }
+
+        // 作廢發票
+        function voidInvoice(invoiceNo) {
+            if (confirm(`⚠️ 確定要作廢發票 ${invoiceNo} 嗎？此動作將立即扣減銷項稅額！`)) {
+                HimoriDb.load();
+                const inv = HimoriDb.invoicesDb.find(i => i.invoiceNo === invoiceNo);
+                if (inv) {
+                    inv.status = 'void';
+                    HimoriDb.save();
+                    window.parent.dispatchEvent(new CustomEvent('himori_db_updated'));
+                    calculateFinancials();
+                }
+            }
+        }
+
+        // 刪除進項憑證
+        function deleteVoucher(id) {
+            if (confirm("⚠️ 確定要刪除這筆進項憑證嗎？這將同時變動您的內帳支出！")) {
+                HimoriDb.load();
+                HimoriDb.vouchersDb = HimoriDb.vouchersDb.filter(v => v.id !== id);
+                HimoriDb.save();
+                window.parent.dispatchEvent(new CustomEvent('himori_db_updated'));
+                calculateFinancials();
+            }
+        }
+    </script>
+
+    <!-- 頁尾開發商版權宣告 -->
+    <div style="font-size: 0.7rem; color: var(--text-muted, #64748B); text-align: center; margin: 3rem 0 1.5rem 0; padding-top: 1.5rem; border-top: 1px solid var(--border, rgba(255,255,255,0.08)); width: 100%; letter-spacing: 0.5px;">
+        © 2026 映向行銷. Powered by Image Marketing
+    </div>
+</body>
+</html>

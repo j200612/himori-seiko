@@ -1,0 +1,3600 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <script src="../../../global_shared.js"></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日森精工 | 👑 股東權益模組</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0F172A; /* 深藍 */
+            --accent: #0284C7; /* 科技藍 */
+            --bg-light: #F8FAFC;
+            --bg-white: #FFFFFF;
+            --text-dark: #1E293B;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            background: url('../../../01_企業識別與設計/底色.png') center center / cover no-repeat fixed;
+            color: var(--text-dark);
+            padding: 2rem 1.5rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* 系統警報 Banner */
+        .alarm-banner {
+            background-color: #FEE2E2;
+            border: 2px solid var(--danger);
+            color: #991B1B;
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            animation: pulse 2s infinite;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        /* 導覽頁籤 (Tabs) */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 2px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 0.75rem 1.25rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: var(--transition);
+        }
+
+        .tab-btn:hover {
+            color: var(--accent);
+        }
+
+        .tab-btn.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 網格版面 */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 992px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr 2.2fr;
+            }
+        }
+
+        /* 卡片設計 */
+        .card {
+            background-color: var(--bg-white);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .card h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1.25rem;
+            color: var(--primary);
+            border-left: 4px solid var(--accent);
+            padding-left: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card h3 {
+            font-size: 1.05rem;
+            color: var(--primary);
+            margin-bottom: 0.75rem;
+        }
+
+        /* 表單與欄位 */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            color: var(--primary);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            background-color: var(--bg-light);
+            font-family: inherit;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            background-color: var(--bg-white);
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: var(--transition);
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background-color: var(--accent);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+        }
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        /* 表格樣式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background-color: var(--bg-light);
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        tr.row-danger {
+            background-color: #FEF2F2 !important;
+        }
+
+        tr:hover {
+            background-color: rgba(2, 132, 199, 0.02);
+        }
+
+        /* 標籤 */
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-success { background-color: #D1FAE5; color: #065F46; }
+        .badge-warning { background-color: #FEF3C7; color: #92400E; }
+        .badge-danger { background-color: #FEE2E2; color: #991B1B; }
+        .badge-info { background-color: #E0F2FE; color: #0369A1; }
+
+        /* 薪資彙整 */
+        .salary-summary-box {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .summary-card {
+            background-color: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem;
+            text-align: left;
+            position: relative;
+        }
+
+        .summary-card .name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .summary-card .days {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-card .total {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-top: 0.75rem;
+            border-top: 1px dashed var(--border);
+            padding-top: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* 參數設定排版 */
+        .parameter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* LINE 手機模擬器樣式 */
+        .phone-mockup {
+            width: 350px;
+            height: 580px;
+            background-color: #7493cd; /* LINE 聊天背景 */
+            border: 10px solid #1E293B;
+            border-radius: 32px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        .phone-header {
+            background-color: #24354c;
+            color: white;
+            padding: 12px 16px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .phone-header .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #10B981;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .phone-body {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .chat-bubble {
+            max-width: 80%;
+            padding: 8px 12px;
+            border-radius: 14px;
+            font-size: 0.8rem;
+            line-height: 1.4;
+        }
+
+        .chat-bubble.user {
+            background-color: #82e56c;
+            color: #1a2a12;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+
+        .chat-bubble.system {
+            background-color: white;
+            color: var(--text-dark);
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        /* Flex Message 模擬 */
+        .flex-card {
+            background-color: white;
+            border-radius: 12px;
+            width: 260px;
+            align-self: flex-start;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+            font-size: 0.78rem;
+            border: 1px solid #cbd5e1;
+        }
+
+        .flex-card-header {
+            background-color: #0F172A;
+            color: white;
+            padding: 10px 12px;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .flex-card-body {
+            padding: 12px;
+        }
+
+        .flex-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .flex-label {
+            color: #64748b;
+        }
+
+        .flex-value {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .flex-divider {
+            height: 1px;
+            background-color: #e2e8f0;
+            margin: 8px 0;
+        }
+
+        .flex-total {
+            border-top: 1px dashed #cbd5e1;
+            padding-top: 6px;
+            margin-top: 6px;
+            font-weight: bold;
+            font-size: 1.05rem;
+            color: #0284C7;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* 檔案匯入區排版 */
+        .csv-box {
+            border: 1px dashed var(--border);
+            padding: 1rem;
+            border-radius: 8px;
+            background-color: var(--bg-light);
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .csv-title {
+            font-weight: bold;
+            font-size: 0.85rem;
+            color: var(--primary);
+        }
+
+        .csv-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .csv-actions input[type="file"] {
+            font-size: 0.75rem;
+            padding: 4px;
+            background: white;
+            border: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- 頂部系統派工警報 Banner -->
+        <div id="global-alert-banner" class="alarm-banner" style="display: none;">
+            <span id="global-alert-text">🚨 派工異常警報：張憲明 已拒絕了 2026-06-25 的派工！請排班主管儘速重新指派人員。</span>
+            <button type="button" class="btn" style="width: auto; padding: 4px 12px; font-size: 0.8rem; background-color: var(--danger); border: 1px solid white;" onclick="dismissGlobalAlert()">已確認並手動排除</button>
+        </div>
+
+        <header>
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; width: 100%;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 8px; flex-wrap: wrap;">
+                    <img src="../../../01_企業識別與設計/橫式logo.png" alt="Logo" style="height: 57px; width: auto; filter: drop-shadow(0 0 4px rgba(255,255,255,0.05));">
+                    <h1 style="font-size: 1.45rem; border-left: 2px solid var(--border); padding-left: 16px; font-weight: 700; color: #FFFFFF; margin: 0; display: flex; align-items: center; gap: 8px;">👑 股東權益模組 <span style="font-size: 0.68rem; font-weight: normal; color: var(--text-muted, #64748B); margin-left: 8px; vertical-align: middle; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.08); letter-spacing: 0.5px;">v1.0.0</span></h1>
+                </div>
+                <p class="subtitle" style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">查看股權分配、EPS、預算對比圖表與損益平衡決策分析</p>
+            </div>
+            
+        </div>
+    </header>
+
+        <!-- 分頁頁籤 -->
+        <div class="tabs" style="display:none;">
+            <button class="tab-btn active" onclick="switchTab('payroll')">💰 考勤與薪資計算</button>
+            <button class="tab-btn" onclick="switchTab('discrepancy')">🔍 派工差異對帳</button>
+            <button class="tab-btn" onclick="switchTab('roster')">📅 預排班表與提醒</button>
+            <button class="tab-btn" onclick="switchTab('leave')">📋 請假管理與審核</button>
+            <button class="tab-btn" onclick="switchTab('announcement')">📢 全員公告與群發</button>
+            <button class="tab-btn" onclick="switchTab('line-sim')">💬 LINE 互動模擬區</button>
+            <button class="tab-btn" onclick="switchTab('accounting')">📊 會計調控中心</button>
+            <button class="tab-btn" onclick="switchTab('settings')">⚙️ 系統與數據管理</button>
+        </div>
+
+        <!-- ==================== 頁籤 1：考勤與薪資計算 ==================== -->
+        <div id="tab-payroll" class="tab-content">
+            <div class="dashboard-grid">
+                <!-- 左側：輸入出勤回報 -->
+                <div class="card">
+                    <h2>📝 填寫出勤回報 (領隊回報)</h2>
+                    <form id="attendance-form" onsubmit="addAttendance(event)">
+                        <div class="form-group">
+                            <label for="date">出勤日期</label>
+                            <input type="date" id="date" required value="2026-06-15">
+                        </div>
+                        <div class="form-group">
+                            <label for="worker">出勤員工</label>
+                            <select id="worker" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="hours">實際工時 (單日最高12小時)</label>
+                            <input type="number" id="hours" min="1" max="15" value="8" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="foreman">帶隊領隊 (對應領導加給)</label>
+                            <select id="foreman" required></select>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="site">工作案場</label>
+                                <input type="text" id="site" value="台積電F20" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="zone">施工分區</label>
+                                <input type="text" id="zone" value="軌道安裝A區" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="note">備註</label>
+                            <input type="text" id="note" placeholder="例如：配合廠區工安宣導">
+                        </div>
+                        <button type="submit" class="btn">新增回報紀錄</button>
+                    </form>
+                </div>
+
+                <!-- 右側：出勤明細與月薪統計 -->
+                <div>
+                    <div class="card" style="overflow-x: auto;">
+                        <h2>📋 每日出勤原始明細</h2>
+                        <table id="attendance-table">
+                            <thead>
+                                <tr>
+                                    <th>日期</th>
+                                    <th>姓名</th>
+                                    <th>案場分區</th>
+                                    <th>實際工時</th>
+                                    <th>超時加班</th>
+                                    <th>例假日</th>
+                                    <th>現場領隊</th>
+                                    <th>當日薪資</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+
+                    <div class="card">
+                        <h2 id="payroll-summary-title">💵 本月薪資與考核累計對帳單</h2>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+                            * 薪資與請假累計僅統計與【系統模擬日期】同月份之資料。考評分依請假與曠工規則自動增減。
+                        </p>
+                        <div class="salary-summary-box" id="salary-summary"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 頁籤 2：派工差異對帳管理 ==================== -->
+        <div id="tab-discrepancy" class="tab-content">
+            <div class="card" style="overflow-x: auto;">
+                <h2>🔍 預定派工班表 vs 現場實際到工 差異比對表</h2>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+                    * 系統比對【預計出勤班表】與回報的【實際出勤】。若有曠工或未排班施工，將自動提供稽核警示並與考評分數、請假單連動。
+                </p>
+                <table id="discrepancy-table">
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>員工姓名</th>
+                            <th>預計派工案場與專案</th>
+                            <th>實際到工案場與專案</th>
+                            <th>回報狀態</th>
+                            <th>對帳結果與行政引導</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ==================== 頁籤 3：預排班表與提醒 ==================== -->
+        <div id="tab-roster" class="tab-content">
+            <div class="dashboard-grid">
+                <!-- 左側：安排派工 -->
+                <div class="card">
+                    <h2>📅 新增派工預排 (預計班表)</h2>
+                    <form id="roster-form" onsubmit="addRoster(event)">
+                        <div class="form-group">
+                            <label for="r-date">派工日期 (施工日)</label>
+                            <input type="date" id="r-date" required value="2026-06-25">
+                        </div>
+                        <div class="form-group">
+                            <label for="r-worker">指派員工</label>
+                            <select id="r-worker" required></select>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="r-site">工作案場</label>
+                                <input type="text" id="r-site" value="台積電F20" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="r-zone">施工分區</label>
+                                <input type="text" id="r-zone" value="軌道安裝A區" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn">新增預排紀錄</button>
+                    </form>
+                </div>
+
+                <!-- 右側：班表與 LINE 通知狀態 -->
+                <div class="card" style="overflow-x: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 10px;">
+                        <h2 style="margin: 0; border: none; padding: 0;">📋 預定派工班表 & LINE 四階段出勤提醒</h2>
+                        <button type="button" class="btn btn-outline" style="max-width: 250px; padding: 0.5rem 1rem; font-size: 0.85rem;" onclick="batchSendReminders()">一鍵發送今日到期通知</button>
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+                        * **規則**：排班後狀態為「待回覆」並發送隔日首通知，員工可點選「接受」或「拒絕派任（請假）」。**接受後才發送後續提醒**。若員工拒絕，系統會**立刻向排班主管發出紅色警報**以利緊急補人。
+                    </p>
+                    <table id="roster-table">
+                        <thead>
+                            <tr>
+                                <th>施工日期</th>
+                                <th>建立/預排</th>
+                                <th>姓名</th>
+                                <th>預定案場與專案</th>
+                                <th>請假狀態</th>
+                                <th>回覆狀態</th>
+                                <th>LINE 四階段提醒狀態 (點擊可手動發送)</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 頁籤 4：請假管理與審核 ==================== -->
+        <div id="tab-leave" class="tab-content">
+            <div class="dashboard-grid">
+                <!-- 左側：登錄請假 -->
+                <div class="card">
+                    <h2>📋 本地端登錄員工請假</h2>
+                    <form id="leave-form" onsubmit="addLeave(event)">
+                        <div class="form-group">
+                            <label for="l-worker">請假員工</label>
+                            <select id="l-worker" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="l-date">請假日期</label>
+                            <input type="date" id="l-date" required value="2026-06-16">
+                        </div>
+                        <div class="form-group">
+                            <label for="l-type">請假假別</label>
+                            <select id="l-type" required onchange="updateLeaveFormHint()">
+                                <option value="一般事假">一般事假 (須3天前，無給薪)</option>
+                                <option value="一般病假">一般病假 (須出勤前，無給薪，附證明)</option>
+                                <option value="派工前一日臨時假">派工前一日臨時假 (無給薪，影響獎金天數)</option>
+                                <option value="派工當日臨時假">派工當日臨時假 (病假，需診斷收據)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="l-reason">請假事由</label>
+                            <input type="text" id="l-reason" placeholder="請輸入請假原因..." required>
+                        </div>
+                        <div class="form-group">
+                            <label for="l-proof">證明文件上傳狀態</label>
+                            <select id="l-proof">
+                                <option value="無">不需要證明 (一般事假)</option>
+                                <option value="未提供證明">未提供證明</option>
+                                <option value="已上傳診斷證明書.jpg">已上傳診斷證明書.jpg</option>
+                                <option value="已提供事故證明.png">已提供事故證明.png</option>
+                            </select>
+                        </div>
+                        <div id="leave-penalty-hint" style="background-color: var(--bg-light); border: 1px solid var(--border); padding: 10px; border-radius: 6px; font-size: 0.8rem; color: var(--danger); margin-bottom: 1rem; line-height: 1.4;">
+                            * 提示：一般事假不計分，但無給薪，且不累計出勤天數。
+                        </div>
+                        <button type="submit" class="btn">新增請假紀錄</button>
+                    </form>
+                </div>
+
+                <!-- 右側：審核看板 -->
+                <div class="card" style="overflow-x: auto;">
+                    <h2>📋 請假申請審核看板 (LINE 同步)</h2>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+                        * 員工透過 LINE 提出的請假申請會即時呈現於此，審核結果自動連動考評與薪資試算。
+                    </p>
+                    <table id="leave-table">
+                        <thead>
+                            <tr>
+                                <th>申請時間</th>
+                                <th>姓名</th>
+                                <th>請假日期</th>
+                                <th>請假假別</th>
+                                <th>事由</th>
+                                <th>證明文件</th>
+                                <th>審核狀態</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 頁籤 5：全員公告與群發 ==================== -->
+        <div id="tab-announcement" class="tab-content">
+            <div class="dashboard-grid">
+                <!-- 左側：發送公告 -->
+                <div class="card">
+                    <h2>📢 撰寫 LINE 官方公告訊息</h2>
+                    <form id="announcement-form" onsubmit="sendAnnouncement(event)">
+                        <div class="form-group">
+                            <label for="a-title">公告主題</label>
+                            <input type="text" id="a-title" placeholder="例如：新版工安安全鞋帽穿戴規範" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="a-target">發送對象</label>
+                            <select id="a-target" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="a-content">公告內容 (LINE 訊息內文)</label>
+                            <textarea id="a-content" rows="6" placeholder="請輸入欲群發至點工 LINE 的訊息內容..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn" style="background-color: #06C755; color: white;">發送 LINE 官方公告</button>
+                    </form>
+                </div>
+
+                <!-- 右側：歷史發送公告 -->
+                <div class="card" style="overflow-x: auto;">
+                    <h2>📜 歷史公告與發送狀態</h2>
+                    <table id="announcement-history-table">
+                        <thead>
+                            <tr>
+                                <th>發送時間</th>
+                                <th>公告主題</th>
+                                <th>接收對象</th>
+                                <th>訊息內容</th>
+                                <th>發送狀態</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 頁籤 6：LINE 互動模擬區 ==================== -->
+        <div id="tab-line-sim" class="tab-content">
+            <div class="dashboard-grid">
+                <!-- 左側：模擬控制台 -->
+                <div>
+                    <div class="card">
+                        <h2>🤖 LINE 員工功能模擬控制台</h2>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                            這裡可以模擬員工在手機 LINE 官方帳號上點擊選單進行「自主查詢」或「線上請假申請」的連動過程。
+                        </p>
+                        
+                        <div class="form-group">
+                            <label for="s-worker">選擇模擬員工身份</label>
+                            <select id="s-worker" required></select>
+                        </div>
+
+                        <div class="card" style="box-shadow: none; border-color: var(--border); margin-bottom: 1rem;">
+                            <h3>📱 1. 模擬員工點擊「出勤薪資查詢」</h3>
+                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                                員工點擊 LINE 選單，查詢當月累計至前一日之薪資與考核明細。
+                            </p>
+                            <button type="button" class="btn btn-outline" onclick="simulateLineQuery()">發送「查詢出勤薪資」</button>
+                        </div>
+
+                        <div class="card" style="box-shadow: none; border-color: var(--border); margin-bottom: 0;" id="sim-leave-card">
+                            <h3>📱 2. 模擬員工在 LINE 提交「請假申請」</h3>
+                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                                員工填寫 LINE 請假單，提交後會自動關聯並更新對應派工狀態。
+                            </p>
+                            <div class="form-group">
+                                <label for="s-l-date">請假日期</label>
+                                <input type="date" id="s-l-date" value="2026-06-16">
+                            </div>
+                            <div class="form-group">
+                                <label for="s-l-type">假別</label>
+                                <select id="s-l-type">
+                                    <option value="一般事假">一般事假</option>
+                                    <option value="一般病假">一般病假</option>
+                                    <option value="派工前一日臨時假">派工前一日臨時假</option>
+                                    <option value="派工當日臨時假">派工當日臨時假 (病假)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="s-l-reason">請假理由</label>
+                                <input type="text" id="s-l-reason" value="家中有急事需處理" placeholder="理由...">
+                            </div>
+                            <div class="form-group">
+                                <label for="s-l-proof">證明上傳</label>
+                                <select id="s-l-proof">
+                                    <option value="無">不需要證明</option>
+                                    <option value="已上傳診斷證明書.jpg">已上傳診斷證明書.jpg</option>
+                                    <option value="未提供證明">未提供證明</option>
+                                </select>
+                            </div>
+                            <button type="button" class="btn btn-outline" onclick="simulateLineLeave()">提交 LINE 請假申請</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右側：手機畫面模擬 -->
+                <div>
+                    <div class="phone-mockup">
+                        <div class="phone-header">
+                            <div class="status-dot"></div>
+                            <span>日森精工 官方對話</span>
+                        </div>
+                        <div class="phone-body" id="phone-chat-body">
+                            <div class="chat-bubble system">
+                                您好！我是日森精工數位管家。請點選下方選單進行「出勤與薪資查詢」或「請假申請」回報。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+        <!-- ==================== 頁籤 9：會計調控中心 ==================== -->
+        <div id="tab-accounting" class="tab-content active">
+
+            <!-- 頂部儀表板摘要 -->
+            <div class="card" style="margin-bottom:1.5rem;">
+                <h2>⚖️ 資產負債模組</h2>
+                <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem;">整合股權治理、財務報表、稅務試算與預測模型，掌握公司完整財務狀況。</p>
+                <div id="acc-dashboard-kpi" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;"></div>
+            </div>
+
+            <!-- 子頁籤列 -->
+            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.5rem;">
+                <button id="atab-company-btn"   class="btn"          onclick="switchAccTab('company')"   style="padding:0.4rem 0.9rem;font-size:0.82rem;">🏢 公司資訊</button>
+                <button id="atab-equity-btn"    class="btn btn-outline" onclick="switchAccTab('equity')"    style="padding:0.4rem 0.9rem;font-size:0.82rem;">👥 股權結構</button>
+                <button id="atab-dividend-btn"  class="btn btn-outline" onclick="switchAccTab('dividend')"  style="padding:0.4rem 0.9rem;font-size:0.82rem;">💰 股利分配</button>
+                <button id="atab-income-btn"    class="btn btn-outline" onclick="switchAccTab('income')"    style="padding:0.4rem 0.9rem;font-size:0.82rem;">📋 損益表</button>
+                <button id="atab-balance-btn"   class="btn btn-outline" onclick="switchAccTab('balance')"   style="padding:0.4rem 0.9rem;font-size:0.82rem;">🏦 資產負債</button>
+                <button id="atab-tax-corp-btn"  class="btn btn-outline" onclick="switchAccTab('tax-corp')"  style="padding:0.4rem 0.9rem;font-size:0.82rem;">🧾 營所稅</button>
+                <button id="atab-forecast-btn"  class="btn btn-outline" onclick="switchAccTab('forecast')"  style="padding:0.4rem 0.9rem;font-size:0.82rem;">🔮 財務預測</button>
+                <button id="atab-charts-btn"    class="btn btn-outline" onclick="switchAccTab('charts')"    style="padding:0.4rem 0.9rem;font-size:0.82rem;">📈 圖表分析</button>
+            </div>
+
+            <!-- ── 公司資訊 ── -->
+            <div id="atab-company" class="atab-content" style="display:none;">
+                <div class="card">
+                    <h3>🏢 公司基本資訊與組織章程</h3>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0.75rem;margin-top:1rem;">
+                        <div class="form-group" style="margin:0;"><label>公司名稱</label><input type="text" id="co-name" placeholder="日森精工有限公司"></div>
+                        <div class="form-group" style="margin:0;"><label>統一編號</label><input type="text" id="co-taxid" placeholder="00000000"></div>
+                        <div class="form-group" style="margin:0;"><label>公司組織形態</label>
+                            <select id="co-type"><option value="ltd">有限公司</option><option value="corp">股份有限公司</option></select>
+                        </div>
+                        <div class="form-group" style="margin:0;"><label>資本額（元）</label><input type="number" id="co-capital" placeholder="500000"></div>
+                        <div class="form-group" style="margin:0;"><label>每股面額（元）</label><input type="number" id="co-par" placeholder="1000"></div>
+                        <div class="form-group" style="margin:0;"><label>已發行股數（股）</label><input type="number" id="co-shares" placeholder="500" oninput="calcCoShares()"></div>
+                        <div class="form-group" style="margin:0;"><label>負責人</label><input type="text" id="co-owner" placeholder="負責人姓名"></div>
+                        <div class="form-group" style="margin:0;"><label>設立日期</label><input type="date" id="co-founded"></div>
+                        <div class="form-group" style="margin:0;"><label>公司地址</label><input type="text" id="co-address" placeholder="公司登記地址"></div>
+                        <div class="form-group" style="margin:0;"><label>會計年度</label>
+                            <select id="co-fiscal"><option value="calendar">日曆年度（1~12月）</option></select>
+                        </div>
+                        <div class="form-group" style="margin:0;grid-column:1/-1;"><label>營業項目</label>
+                            <textarea id="co-business" rows="3" placeholder="如：工業設備安裝、軌道機械維修、派遣承攬..."></textarea>
+                        </div>
+                    </div>
+                    <div style="margin-top:1rem;padding:0.75rem;background:var(--bg);border-radius:8px;font-size:0.82rem;">
+                        <strong>📐 自動計算：</strong> 資本額 = 每股面額 × 已發行股數 = <span id="co-capital-calc" style="color:var(--accent);font-weight:bold;">—</span>
+                    </div>
+                    <button class="btn" style="margin-top:1rem;max-width:150px;" onclick="saveCompanyInfo()">💾 儲存公司資訊</button>
+                </div>
+            </div>
+
+            <!-- ── 股權結構 ── -->
+            <div id="atab-equity" class="atab-content">
+                <div class="card">
+                    <h3>👥 股東名冊與持股結構</h3>
+                    <div class="card" style="box-shadow:none;border-color:var(--border);margin-bottom:1rem;">
+                        <h4 style="margin-bottom:0.75rem;">➕ 新增股東</h4>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.75rem;">
+                            <div class="form-group" style="margin:0;"><label>股東姓名</label><input type="text" id="sh-name" placeholder="姓名"></div>
+                            <div class="form-group" style="margin:0;"><label>持有股數（股）</label><input type="number" id="sh-shares" placeholder="0"></div>
+                            <div class="form-group" style="margin:0;"><label>身分</label>
+                                <select id="sh-type"><option value="person">自然人</option><option value="corp">法人</option></select>
+                            </div>
+                            <div class="form-group" style="margin:0;"><label>身分證/統編</label><input type="text" id="sh-idno" placeholder="身分證字號或統編"></div>
+                        </div>
+                        <button class="btn" style="margin-top:0.75rem;max-width:150px;" onclick="addShareholder()">➕ 新增</button>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table id="shareholder-table">
+                            <thead><tr><th>股東姓名</th><th>身分</th><th>持有股數</th><th>持股比例</th><th>出資金額</th><th>操作</th></tr></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div style="margin-top:1rem;max-width:360px;margin-left:auto;margin-right:auto;">
+                        <canvas id="equity-pie-chart" height="260"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── 股利分配 ── -->
+            <div id="atab-dividend" class="atab-content" style="display:none;">
+                <div class="card">
+                    <h3>💰 股利分配試算</h3>
+                    <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem;">依本期稅後淨利決議股利分配，系統自動計算各股東應分金額。</p>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.75rem;margin-bottom:1rem;">
+                        <div class="form-group" style="margin:0;"><label>分配年度</label><input type="number" id="div-year" value="2026" style="width:100px;"></div>
+                        <div class="form-group" style="margin:0;"><label>本期稅後淨利（元）</label><input type="number" id="div-net-profit" placeholder="從損益表帶入" oninput="calcDividend()"></div>
+                        <div class="form-group" style="margin:0;"><label>法定盈餘公積（10%）</label><input type="number" id="div-reserve" readonly style="background:#f8fafc;"></div>
+                        <div class="form-group" style="margin:0;"><label>可分配盈餘</label><input type="number" id="div-distributable" readonly style="background:#f8fafc;font-weight:bold;"></div>
+                        <div class="form-group" style="margin:0;"><label>擬分配股利（元）</label><input type="number" id="div-total" placeholder="0" oninput="calcDividend()"></div>
+                        <div class="form-group" style="margin:0;"><label>保留為保留盈餘</label><input type="number" id="div-retained" readonly style="background:#f8fafc;"></div>
+                    </div>
+                    <div style="padding:0.75rem;background:var(--bg);border-radius:8px;margin-bottom:1rem;font-size:0.82rem;">
+                        💡 每股股利 = 擬分配股利 ÷ 發行股數 = <strong id="div-per-share" style="color:var(--accent);">$0</strong>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table id="dividend-table">
+                            <thead><tr><th>股東姓名</th><th>持股比例</th><th>應分股利</th><th>扣繳稅(28%)</th><th>實分金額</th></tr></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <p style="font-size:0.75rem;color:var(--text-muted);margin-top:0.5rem;">📌 股利所得適用28%分離課稅（股東可自行選擇合併計稅）</p>
+                </div>
+            </div>
+
+            <!-- ── 損益表 ── -->
+            <div id="atab-income" class="atab-content" style="display:none;">
+                <div class="card">
+                    <h3>📋 損益表</h3>
+                    <div style="display:flex;gap:1rem;margin-bottom:1rem;align-items:flex-end;flex-wrap:wrap;">
+                        <div class="form-group" style="margin:0;"><label>年度</label><input type="number" id="is-year" value="2026" style="width:100px;"></div>
+                        <button class="btn" onclick="buildIncomeStatement()" style="margin-bottom:0;">📊 產生損益表</button>
+                    </div>
+                    <div id="income-statement-result"></div>
+                </div>
+            </div>
+
+            <!-- ── 資產負債表 ── -->
+            <div id="atab-balance" class="atab-content" style="display:none;">
+                <div class="card">
+                    <h3>🏦 資產負債表</h3>
+                    <div style="display:flex;gap:1rem;margin-bottom:1rem;align-items:flex-end;flex-wrap:wrap;">
+                        <div class="form-group" style="margin:0;"><label>日期基準</label><input type="date" id="bs-date" value="2026-12-31"></div>
+                        <button class="btn" onclick="buildBalanceSheet()" style="margin-bottom:0;">📊 產生資產負債表</button>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-bottom:1rem;">
+                        <!-- 資產手動輸入 -->
+                        <div class="card" style="box-shadow:none;border-color:var(--border);margin:0;">
+                            <h4 style="margin-bottom:0.75rem;color:var(--accent);">📦 資產項目（手動輸入）</h4>
+                            <div class="form-group" style="margin-bottom:0.5rem;"><label style="font-size:0.8rem;">現金及約當現金</label><input type="number" id="bs-cash" placeholder="0" oninput="buildBalanceSheet()"></div>
+                            <div class="form-group" style="margin-bottom:0.5rem;"><label style="font-size:0.8rem;">預付款項</label><input type="number" id="bs-prepaid" placeholder="0" oninput="buildBalanceSheet()"></div>
+                            <div class="form-group" style="margin-bottom:0.5rem;"><label style="font-size:0.8rem;">固定資產（設備工具）</label><input type="number" id="bs-fixed" placeholder="0" oninput="buildBalanceSheet()"></div>
+                        </div>
+                        <!-- 負債手動輸入 -->
+                        <div class="card" style="box-shadow:none;border-color:var(--border);margin:0;">
+                            <h4 style="margin-bottom:0.75rem;color:var(--danger);">💳 負債項目（手動輸入）</h4>
+                            <div class="form-group" style="margin-bottom:0.5rem;"><label style="font-size:0.8rem;">應付帳款</label><input type="number" id="bs-ap" placeholder="0" oninput="buildBalanceSheet()"></div>
+                            <div class="form-group" style="margin-bottom:0.5rem;"><label style="font-size:0.8rem;">短期借款</label><input type="number" id="bs-loan" placeholder="0" oninput="buildBalanceSheet()"></div>
+                            <div class="form-group" style="margin-bottom:0.5rem;"><label style="font-size:0.8rem;">其他應付款</label><input type="number" id="bs-other-liab" placeholder="0" oninput="buildBalanceSheet()"></div>
+                        </div>
+                    </div>
+                    <div id="balance-sheet-result"></div>
+
+
+            <!-- 董事會資產負債表核定 -->
+            <div class="card" style="box-shadow:none; border-color:var(--border); margin-top:1.5rem;">
+                <h3>⚖️ 資產負債表會計師報稅核定狀態</h3>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem; padding:1rem; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:8px;">
+                    <div>
+                        <div style="font-size:0.95rem; font-weight:700; color:white;">報稅核定狀態：<span id="board-cpa-status" class="badge">待核定 ⏳</span></div>
+                        <p style="font-size:0.78rem; color:var(--text-muted); margin-top:4px;" id="board-cpa-desc">等候會計師申報完稅核定後，由財務會計模組核定或於此確認鎖定。</p>
+                    </div>
+                    <div id="board-cpa-actions">
+                        <button class="btn btn-primary" style="width:auto; padding:8px 16px;" onclick="boardApproveCpa()">✅ 一鍵確認核定並鎖定資產負債表</button>
+                    </div>
+                </div>
+            </div>
+
+                </div>
+            </div>
+
+            <!-- ── 營所稅試算 ── -->
+            <div id="atab-tax-corp" class="atab-content" style="display:none;">
+                <div class="card">
+                    <h3>🧾 營利事業所得稅試算</h3>
+                    <div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;align-items:flex-end;">
+                        <div class="form-group" style="margin:0;"><label>申報年度</label><input type="number" id="cit-year" value="2026" style="width:100px;"></div>
+                        <button class="btn" onclick="calcCorpTax()" style="margin-bottom:0;">🔢 計算稅額</button>
+                    </div>
+                    <div id="corp-tax-result"></div>
+                    <div style="margin-top:1rem;padding:0.75rem;background:#fef9ec;border-radius:8px;border:1px solid #f6d860;font-size:0.8rem;">
+                        <strong>📌 台灣營所稅規則（2024年）：</strong><br>
+                        • 應稅所得 ≤ $120,000 → <strong>免稅</strong><br>
+                        • 應稅所得 > $120,000 → <strong>稅率 20%</strong>（但最多課到「應稅所得 - $120,000」的半數）<br>
+                        • 最低稅負：基本所得額超過 $600,000 → 額外徵收 <strong>12%</strong>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- 子頁籤 9: 損益平衡分析與試算 -->
+            <div id="atab-breakeven" class="atab-content" style="display:none;">
+                <div style="display:grid; grid-template-columns: 350px 1fr; gap:1.5rem;">
+                    <!-- 試算參數 -->
+                    <div class="card" style="box-shadow:none; border-color:var(--border); margin:0;">
+                        <h3>🧮 損益平衡試算模型</h3>
+                        <div class="form-group" style="margin-top:1rem;">
+                            <label>每月固定成本 (元/月)</label>
+                            <input type="number" id="be-fixed" value="500000" oninput="calcBreakEven()">
+                        </div>
+                        <div class="form-group">
+                            <label>每工日平均收費日薪 (元/天)</label>
+                            <input type="number" id="be-price" value="3000" oninput="calcBreakEven()">
+                        </div>
+                        <div class="form-group">
+                            <label>變動成本費率 (日薪的 %)</label>
+                            <input type="number" id="be-var-rate" value="60" oninput="calcBreakEven()">
+                        </div>
+                        <div style="margin-top:1.5rem; background:rgba(56,189,248,0.08); padding:1rem; border-radius:8px; border:1px dashed var(--border);">
+                            <div style="font-size:0.82rem; color:var(--text-muted);">試算分析結果：</div>
+                            <div style="font-size:1.1rem; font-weight:700; color:white; margin:0.4rem 0;">損益平衡天數：<span id="be-days-result" style="color:var(--accent);">0</span> 天/月</div>
+                            <div style="font-size:0.95rem; font-weight:600; color:var(--text-light);">損益平衡營業額：$<span id="be-rev-result">0</span> 元</div>
+                        </div>
+                    </div>
+
+                    <!-- 損益平衡 SVG 折線分析圖 -->
+                    <div class="card" style="box-shadow:none; border-color:var(--border); margin:0; display:flex; flex-direction:column; justify-content:space-between; height: 100%;">
+                        <h3>📈 損益分析圖表 (預算/成本/盈虧平衡線)</h3>
+                        <div style="flex-grow:1; display:flex; align-items:center; justify-content:center; margin-top:1rem;">
+                            <svg width="450" height="240" style="background:rgba(0,0,0,0.2); border-radius:8px;">
+                                <line x1="50" y1="20" x2="50" y2="200" stroke="#334155" stroke-width="1" />
+                                <line x1="50" y1="200" x2="420" y2="200" stroke="#334155" stroke-width="1" />
+                                
+                                <line x1="50" y1="140" x2="400" y2="140" stroke="var(--warning)" stroke-width="2" stroke-dasharray="4" />
+                                <text x="320" y="132" fill="var(--warning)" font-size="9">固定成本</text>
+                                
+                                <line x1="50" y1="140" x2="400" y2="90" stroke="#fbbf24" stroke-width="2.5" />
+                                <text x="320" y="80" fill="#fbbf24" font-size="9">總成本</text>
+                                
+                                <line x1="50" y1="200" x2="400" y2="40" stroke="var(--accent)" stroke-width="2.5" />
+                                <text x="320" y="48" fill="var(--accent)" font-size="9">總營收</text>
+                                
+                                <circle cx="210" cy="117" r="5" fill="var(--danger)" />
+                                <text x="220" y="122" fill="var(--danger)" font-size="10" font-weight="bold">平衡點 (BEP)</text>
+                                
+                                <text x="400" y="215" fill="var(--text-muted)" font-size="9">出勤工日/月</text>
+                                <text x="15" y="30" fill="var(--text-muted)" font-size="9" transform="rotate(-90 15 30)">金額 (元)</text>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- ── 財務預測 ── -->
+            <div id="atab-forecast" class="atab-content" style="display:none;">
+                <div class="card">
+                    <h3>🔮 財務預測模型</h3>
+                    <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem;">設定假設條件，預測未來3年財務表現（樂觀/基準/悲觀三情境）。</p>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.75rem;margin-bottom:1rem;">
+                        <div class="form-group" style="margin:0;"><label>月均接案金額（未稅）</label><input type="number" id="fc-monthly-rev" placeholder="500000"></div>
+                        <div class="form-group" style="margin:0;"><label>月均人事成本</label><input type="number" id="fc-monthly-payroll" placeholder="300000"></div>
+                        <div class="form-group" style="margin:0;"><label>月均其他費用</label><input type="number" id="fc-monthly-expense" placeholder="50000"></div>
+                        <div class="form-group" style="margin:0;"><label>樂觀情境成長率（%/年）</label><input type="number" id="fc-growth-opt" value="20"></div>
+                        <div class="form-group" style="margin:0;"><label>基準情境成長率（%/年）</label><input type="number" id="fc-growth-base" value="10"></div>
+                        <div class="form-group" style="margin:0;"><label>悲觀情境成長率（%/年）</label><input type="number" id="fc-growth-pes" value="-5"></div>
+                    </div>
+                    <button class="btn" onclick="buildForecast()">🔮 產生預測報表</button>
+                    <div id="forecast-result" style="margin-top:1rem;"></div>
+                    <div style="margin-top:1rem;max-width:600px;">
+                        <canvas id="forecast-chart" height="220"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── 圖表分析 ── -->
+            <div id="atab-charts" class="atab-content" style="display:none;">
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;">
+                    <div class="card">
+                        <h4>📈 月度營收趨勢</h4>
+                        <canvas id="monthly-revenue-chart" height="220"></canvas>
+                    </div>
+                    <div class="card">
+                        <h4>🥧 費用結構分析</h4>
+                        <canvas id="expense-pie-chart" height="220"></canvas>
+                    </div>
+                    <div class="card">
+                        <h4>📊 月度薪資支出</h4>
+                        <canvas id="monthly-payroll-chart" height="220"></canvas>
+                    </div>
+                    <div class="card">
+                        <h4>💹 月度損益</h4>
+                        <canvas id="monthly-profit-chart" height="220"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ==================== 頁籤 7：系統參數與數據管理 ==================== -->
+        <div id="tab-settings" class="tab-content">
+            <div class="card">
+                <h2>⚙️ 系統核心參數設定 (授權管理員配置)</h2>
+                
+                <div class="parameter-grid">
+                    <!-- 加班與假日津貼設定 -->
+                    <div class="card" style="box-shadow: none; border-color: var(--border); margin-bottom: 0;">
+                        <h3>⏱️ 加班與假日費率基準</h3>
+                        <div class="form-group" style="margin-top: 1rem;">
+                            <label for="p-ot-rate">平日/週六加班倍率</label>
+                            <input type="number" id="p-ot-rate" step="0.1" value="1.5" onchange="saveParameters()">
+                        </div>
+                        <div class="form-group">
+                            <label for="p-holiday-allowance">週日例假日加給倍率</label>
+                            <input type="number" id="p-holiday-allowance" step="0.1" value="0.5" onchange="saveParameters()">
+                        </div>
+                    </div>
+
+                    <!-- 平台與領隊津貼設定 -->
+                    <div class="card" style="box-shadow: none; border-color: var(--border); margin-bottom: 0;">
+                        <h3>🏆 平台津貼與獎金基準</h3>
+                        <div class="form-group" style="margin-top: 1rem;">
+                            <label for="p-lead-rate">領隊領導津貼 (元 / 每人每天)</label>
+                            <input type="number" id="p-lead-rate" value="100" onchange="saveParameters()">
+                        </div>
+                        <div class="form-group">
+                            <label for="p-bonus-days">全月出勤獎勵門檻 (天數)</label>
+                            <input type="number" id="p-bonus-days" value="22" onchange="saveParameters()">
+                        </div>
+                        <div class="form-group">
+                            <label for="p-bonus-amount">全月出勤獎勵金額 (元/月)</label>
+                            <input type="number" id="p-bonus-amount" value="3000" onchange="saveParameters()">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 動態工種日薪設定 -->
+                <div class="card" style="box-shadow: none; border-color: var(--border); margin-top: 1.5rem;">
+                    <h3>👷 工種與日薪標準動態配置</h3>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+                        * 變更工種日薪，所有對帳單及員工日薪基準將自動同步調整。
+                    </p>
+                    <table id="trades-settings-table">
+                        <thead>
+                            <tr>
+                                <th>工種名稱</th>
+                                <th>日薪標準 (元)</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                    <button type="button" class="btn btn-outline" style="margin-top: 0.75rem; padding: 0.4rem 1rem; font-size: 0.8rem; max-width: 150px;" onclick="addTrade()">+ 新增工種</button>
+                </div>
+
+                <!-- 員工津貼資料庫 -->
+                <div class="card" style="box-shadow: none; border-color: var(--border); margin-top: 1.5rem;">
+                    <h3>👥 員工基本資料與津貼設定</h3>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+                        * 設定員工專長、個人津貼項目及是否具備現場領隊資格。
+                    </p>
+                    <div style="overflow-x: auto;">
+                        <table id="employees-settings-table">
+                            <thead>
+                                <tr>
+                                    <th>員工姓名</th>
+                                    <th>專長/工種</th>
+                                    <th>交通補貼 (元/月)</th>
+                                    <th>住宿補貼 (元/月)</th>
+                                    <th>專業補貼 (元/月)</th>
+                                    <th>是否擔任領隊</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <button type="button" class="btn btn-outline" style="margin-top: 0.75rem; padding: 0.4rem 1rem; font-size: 0.8rem; max-width: 150px;" onclick="addEmployee()">+ 新增員工</button>
+                </div>
+
+                <!-- Make Webhook 設定 -->
+                <div class="card" style="box-shadow: none; border-color: var(--border); margin-top: 1.5rem;">
+                    <h3>🔗 Make.com Webhook 雲端串接設定</h3>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+                        * 當設定 Webhook 網址後，系統會進行真實雲端推播；若欄位留空，系統將自動啟動本機離線「模擬推播並顯示 Payload 數據」機制。
+                    </p>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="p-webhook-reminder">明日派工提醒 Webhook URL</label>
+                            <input type="url" id="p-webhook-reminder" placeholder="https://hook.us1.make.com/..." onchange="saveWebhookUrls()">
+                        </div>
+                        <div class="form-group">
+                            <label for="p-webhook-announcement">全員公告群發 Webhook URL</label>
+                            <input type="url" id="p-webhook-announcement" placeholder="https://hook.us1.make.com/..." onchange="saveWebhookUrls()">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CSV 數據備份與還原 -->
+                <div class="card" style="box-shadow: none; border-color: var(--border); margin-top: 1.5rem;">
+                    <h3>📂 本地端與雲端資料同步機制 (CSV 備份與還原)</h3>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+                        * **同步策略說明**：系統在雲端部署後，本介面可作為**離線作業、測試沙盒與緊急備份端**。您可以定時將雲端 Google Sheets 匯出的 CSV 檔案匯入此處，或者將本機更新後的資料匯出 CSV 上傳至 Google Sheets，實現兩端雙向同步。
+                    </p>
+                    
+                    <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); text-align: center;">
+                        <!-- 員工 -->
+                        <div class="csv-box">
+                            <div class="csv-title">1. 人員基本資料 (`01_人員基本資料.csv`)</div>
+                            <div class="csv-actions">
+                                <input type="file" id="csv-file-employees" accept=".csv">
+                                <button type="button" class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem; width: auto;" onclick="importCSV('csv-file-employees', 'employees')">匯入</button>
+                            </div>
+                            <button type="button" class="btn" style="padding: 6px; font-size: 0.8rem;" onclick="exportCSV('employees')">下載/匯出 CSV</button>
+                        </div>
+                        
+                        <!-- 班表 -->
+                        <div class="csv-box">
+                            <div class="csv-title">2. 預計出勤班表 (`02_預計出勤班表.csv`)</div>
+                            <div class="csv-actions">
+                                <input type="file" id="csv-file-roster" accept=".csv">
+                                <button type="button" class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem; width: auto;" onclick="importCSV('csv-file-roster', 'roster')">匯入</button>
+                            </div>
+                            <button type="button" class="btn" style="padding: 6px; font-size: 0.8rem;" onclick="exportCSV('roster')">下載/匯出 CSV</button>
+                        </div>
+
+                        <!-- 實際回報 -->
+                        <div class="csv-box">
+                            <div class="csv-title">3. 實際每日出勤 (`03_每日出勤回報.csv`)</div>
+                            <div class="csv-actions">
+                                <input type="file" id="csv-file-attendance" accept=".csv">
+                                <button type="button" class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem; width: auto;" onclick="importCSV('csv-file-attendance', 'attendance')">匯入</button>
+                            </div>
+                            <button type="button" class="btn" style="padding: 6px; font-size: 0.8rem;" onclick="exportCSV('attendance')">下載/匯出 CSV</button>
+                        </div>
+
+                        <!-- 請假紀錄 -->
+                        <div class="csv-box">
+                            <div class="csv-title">4. 請假審核紀錄 (`04_請假審核紀錄.csv`)</div>
+                            <div class="csv-actions">
+                                <input type="file" id="csv-file-leave" accept=".csv">
+                                <button type="button" class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem; width: auto;" onclick="importCSV('csv-file-leave', 'leave')">匯入</button>
+                            </div>
+                            <button type="button" class="btn" style="padding: 6px; font-size: 0.8rem;" onclick="exportCSV('leave')">下載/匯出 CSV</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1.5rem; display: flex; gap: 10px;">
+                    <button type="button" class="btn btn-outline btn-danger" style="max-width: 250px; color: white;" onclick="resetParameters()">重設全系統為預設資料</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 1. 預設系統參數 & 資料庫 ====================
+
+        // ── 共享數據中心資料同步 ──
+        const HimoriDb = window.HimoriDb;
+        let params, tradesDb, employeeDb, rosterDb, attendanceLogs, leaveDb, announcementHistory, webhookReminderUrl, webhookAnnouncementUrl, simulatedDate, alarmState;
+
+        // 向下相容變數以利舊有渲染函式存取
+        let invoices = [];
+        let expenses = [];
+        let payslips = [];
+
+        function syncFromGlobal() {
+            if (!HimoriDb) {
+                console.warn("HimoriDb not found in window!");
+                return;
+            }
+            params = HimoriDb.params;
+            tradesDb = HimoriDb.tradesDb;
+            employeeDb = HimoriDb.employeeDb;
+            rosterDb = HimoriDb.rosterDb;
+            attendanceLogs = HimoriDb.attendanceLogs;
+            leaveDb = HimoriDb.leaveDb;
+            announcementHistory = HimoriDb.announcementHistory;
+            webhookReminderUrl = HimoriDb.webhookReminderUrl;
+            webhookAnnouncementUrl = HimoriDb.webhookAnnouncementUrl;
+            simulatedDate = HimoriDb.simulatedDate;
+            alarmState = HimoriDb.alarmState;
+
+            invoices = HimoriDb.invoicesDb || [];
+            expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+            payslips = JSON.parse(localStorage.getItem("payslips")) || [];
+        }
+
+        // 初始化載入
+        syncFromGlobal();
+
+        // 監聽跨 iframe 資料更新事件
+        window.addEventListener("himori_db_updated", function() {
+            syncFromGlobal();
+            if (typeof renderDashboard === 'function') renderDashboard();
+        });
+ // 存儲主管警報狀態
+
+        // ==================== 2. 時間計算工具 ====================
+        function getTodayDate() {
+            return new Date(simulatedDate);
+        }
+
+        function getDayDiff(d1, d2) {
+            const date1 = new Date(d1);
+            const date2 = new Date(d2);
+            date1.setHours(0,0,0,0);
+            date2.setHours(0,0,0,0);
+            const diffTime = date2 - date1;
+            return Math.round(diffTime / (1000 * 60 * 60 * 24));
+        }
+
+        function updateSimulatedDate() {
+            simulatedDate = document.getElementById("sys-sim-date").value;
+            localStorage.setItem("simulated_date", simulatedDate);
+            renderDashboard();
+        }
+
+        // ==================== 3. 主管警報控制 ====================
+        function triggerGlobalAlert(message) {
+            alarmState = message;
+            localStorage.setItem("alarm_state", alarmState);
+            showAlarmBanner();
+        }
+
+        function showAlarmBanner() {
+            const banner = document.getElementById("global-alert-banner");
+            const text = document.getElementById("global-alert-text");
+            if (banner && text && alarmState) {
+                text.innerHTML = alarmState;
+                banner.style.display = "flex";
+            }
+        }
+
+        function dismissGlobalAlert() {
+            alarmState = "";
+            localStorage.setItem("alarm_state", "");
+            const banner = document.getElementById("global-alert-banner");
+            if (banner) banner.style.display = "none";
+        }
+
+        // ==================== 4. 初始化與 LocalStorage 載入 ====================
+
+        function initApp() {
+            syncFromGlobal();
+            
+            if (document.getElementById("sys-sim-date")) document.getElementById("sys-sim-date").value = simulatedDate;
+            if (alarmState && typeof showAlarmBanner === 'function') showAlarmBanner();
+
+            // 將載入的參數反映到設定畫面輸入框中
+            if (document.getElementById("p-ot-rate")) document.getElementById("p-ot-rate").value = params.otRate;
+            if (document.getElementById("p-holiday-allowance")) document.getElementById("p-holiday-allowance").value = params.holidayRate;
+            if (document.getElementById("p-lead-rate")) document.getElementById("p-lead-rate").value = params.leadRate;
+            if (document.getElementById("p-bonus-days")) document.getElementById("p-bonus-days").value = params.bonusDays;
+            if (document.getElementById("p-bonus-amount")) document.getElementById("p-bonus-amount").value = params.bonusAmount;
+            if (document.getElementById("p-webhook-reminder")) document.getElementById("p-webhook-reminder").value = webhookReminderUrl;
+            if (document.getElementById("p-webhook-announcement")) document.getElementById("p-webhook-announcement").value = webhookAnnouncementUrl;
+
+            // 支援 portal 解析帶頁籤的 URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialTab = urlParams.get('tab');
+            if (initialTab && document.getElementById('tab-' + initialTab)) {
+                switchTab(initialTab);
+            } else {
+                renderDashboard();
+            }
+        }
+
+
+
+        function renderDashboard() {
+            if (typeof loadCompanyInfoToForm === 'function') loadCompanyInfoToForm();
+            if (typeof renderShareholders === 'function') renderShareholders();
+            if (typeof calcDividend === 'function') calcDividend();
+            if (typeof buildIncomeStatement === 'function') buildIncomeStatement();
+            if (typeof loadBalanceSheetInputs === 'function') loadBalanceSheetInputs();
+            if (typeof buildBalanceSheet === 'function') buildBalanceSheet();
+            if (typeof calcCorpTax === 'function') calcCorpTax();
+            if (typeof calcBreakEven === 'function') calcBreakEven();
+            if (typeof renderBoardCpaView === 'function') renderBoardCpaView();
+        }
+    
+
+
+        // ── 損益平衡分析模組 JS ──
+        function calcBreakEven() {
+            const fixed = parseFloat(document.getElementById("be-fixed").value) || 0;
+            const price = parseFloat(document.getElementById("be-price").value) || 0;
+            const varRate = parseFloat(document.getElementById("be-var-rate").value) || 0;
+
+            const varCost = price * (varRate / 100);
+            const margin = price - varCost;
+
+            if (margin <= 0) {
+                document.getElementById("be-days-result").textContent = "∞";
+                document.getElementById("be-rev-result").textContent = "無法達到平衡 (邊際利潤為負)";
+                return;
+            }
+
+            const breakEvenDays = Math.ceil(fixed / margin);
+            const breakEvenRevenue = breakEvenDays * price;
+
+            document.getElementById("be-days-result").textContent = breakEvenDays;
+            document.getElementById("be-rev-result").textContent = breakEvenRevenue.toLocaleString();
+        }
+
+
+
+        // ── 董事會資產負債表核定與鎖定 JS ──
+        function boardApproveCpa() {
+            if (confirm("是否確定核對會計師申報書無誤，並鎖定本期資產負債表？")) {
+                HimoriDb.accData.balanceSheet.status = "已完稅核定 ✅";
+                HimoriDb.save();
+                alert("🎉 資產負債表已核定鎖定！");
+                renderBoardCpaView();
+            }
+        }
+
+        function renderBoardCpaView() {
+            const status = HimoriDb.accData.balanceSheet.status || "待核定";
+            const badge = document.getElementById("board-cpa-status");
+            const desc = document.getElementById("board-cpa-desc");
+            const actions = document.getElementById("board-cpa-actions");
+
+            if (!badge) return;
+
+            if (status === "已完稅核定 ✅") {
+                badge.textContent = "已核定確認 ✅";
+                badge.style.background = "rgba(16,185,129,0.2)";
+                badge.style.color = "var(--success)";
+                desc.textContent = "本期資產負債表已通過會計師報稅核定鎖定。營業稅與營所稅核定數已同步載入。";
+                if (actions) actions.style.display = "none";
+                
+                document.querySelectorAll("#atab-balance input").forEach(input => input.disabled = true);
+                document.querySelectorAll("#atab-balance button").forEach(btn => {
+                    if (btn.textContent.includes("保存")) btn.style.display = "none";
+                });
+            } else {
+                badge.textContent = "待核定 ⏳";
+                badge.style.background = "rgba(245,158,11,0.2)";
+                badge.style.color = "var(--warning)";
+                desc.textContent = "等候會計師申報完稅核定後，由財務會計模組核定或於此確認鎖定。";
+                if (actions) actions.style.display = "block";
+                
+                document.querySelectorAll("#atab-balance input").forEach(input => input.disabled = false);
+            }
+        }
+
+
+        // ==================== 5. 畫面切換 ====================
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            const clickedBtn = Array.from(document.querySelectorAll('.tab-btn')).find(btn => btn.getAttribute('onclick').includes(tabId));
+            if (clickedBtn) clickedBtn.classList.add('active');
+            
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            renderDashboard();
+        }
+
+        // ==================== 6. 出勤與薪資統計 ====================
+        function renderAttendanceTable() {
+            const tbody = document.querySelector("#attendance-table tbody");
+            if (!tbody) return;
+            tbody.innerHTML = "";
+
+            const dailyLeadCount = {};
+            attendanceLogs.forEach(log => {
+                if (log.foreman && log.foreman !== "無") {
+                    if (!dailyLeadCount[log.date]) dailyLeadCount[log.date] = {};
+                    dailyLeadCount[log.date][log.foreman] = (dailyLeadCount[log.date][log.foreman] || 0) + 1;
+                }
+            });
+
+            attendanceLogs.forEach((log, index) => {
+                const emp = employeeDb[log.name];
+                if (!emp) return;
+                const baseWage = tradesDb[emp.specialty] || 0;
+                const otHours = Math.max(0, log.hours - 8);
+                const isSun = isSunday(log.date);
+
+                let otPay = 0;
+                let holidayPay = 0;
+                let leadPay = 0;
+
+                if (otHours > 0) {
+                    otPay = Math.round(otHours * (baseWage / 8) * params.otRate);
+                }
+                if (isSun) {
+                    holidayPay = Math.round(baseWage * params.holidayRate);
+                }
+                if (emp.isLead && dailyLeadCount[log.date]?.[log.name]) {
+                    leadPay = dailyLeadCount[log.date][log.name] * params.leadRate;
+                }
+
+                const dailyTotal = baseWage + otPay + holidayPay + leadPay;
+
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${log.date}</td>
+                    <td><b>${log.name}</b></td>
+                    <td>${log.site} / ${log.zone}</td>
+                    <td>${log.hours} 小時</td>
+                    <td>${otHours > 0 ? `<span class="badge badge-warning">${otHours}小時 (+$${otPay})</span>` : '—'}</td>
+                    <td>${isSun ? `<span class="badge badge-warning">週日加給 (+$${holidayPay})</span>` : '—'}</td>
+                    <td>${log.foreman === '無' ? '—' : log.foreman}${leadPay > 0 ? ` <span class="badge badge-info">帶 ${dailyLeadCount[log.date][log.name]} 人 (+$${leadPay})</span>` : ''}</td>
+                    <td><b>$${dailyTotal}</b></td>
+                    <td><button type="button" class="btn btn-outline btn-danger" style="padding: 2px 6px; font-size: 0.75rem; width: auto; color: white;" onclick="deleteAttendance(${index})">刪除</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderPayrollSummary() {
+            const container = document.getElementById("salary-summary");
+            if (!container) return;
+            container.innerHTML = "";
+
+            const targetDate = getTodayDate();
+            const targetYear = targetDate.getFullYear();
+            const targetMonth = targetDate.getMonth();
+
+            const titleEl = document.getElementById("payroll-summary-title");
+            if (titleEl) {
+                titleEl.textContent = `💵 ${targetYear}年${targetMonth + 1}月 薪資與考核累計對帳單`;
+            }
+
+            const summary = {};
+            Object.keys(employeeDb).forEach(name => {
+                summary[name] = {
+                    workDays: 0,
+                    totalHours: 0,
+                    basePay: 0,
+                    otPay: 0,
+                    holidayPay: 0,
+                    leadPay: 0,
+                    preDayLeaves: 0,
+                    unexcusedAbsences: 0,
+                    deductionDetails: []
+                };
+            });
+
+            const dailyLeadCount = {};
+            attendanceLogs.forEach(log => {
+                const logDate = new Date(log.date);
+                if (logDate.getFullYear() !== targetYear || logDate.getMonth() !== targetMonth) return;
+
+                if (log.foreman && log.foreman !== "無") {
+                    if (!dailyLeadCount[log.date]) dailyLeadCount[log.date] = {};
+                    dailyLeadCount[log.date][log.foreman] = (dailyLeadCount[log.date][log.foreman] || 0) + 1;
+                }
+            });
+
+            attendanceLogs.forEach(log => {
+                const logDate = new Date(log.date);
+                if (logDate.getFullYear() !== targetYear || logDate.getMonth() !== targetMonth) return;
+
+                const emp = employeeDb[log.name];
+                if (!emp) return;
+                const baseWage = tradesDb[emp.specialty] || 0;
+                const otHours = Math.max(0, log.hours - 8);
+                const isSun = isSunday(log.date);
+
+                let otPay = 0;
+                let holidayPay = 0;
+                let leadPay = 0;
+
+                if (otHours > 0) otPay = Math.round(otHours * (baseWage / 8) * params.otRate);
+                if (isSun) holidayPay = Math.round(baseWage * params.holidayRate);
+                if (emp.isLead && dailyLeadCount[log.date]?.[log.name]) {
+                    leadPay = dailyLeadCount[log.date][log.name] * params.leadRate;
+                }
+
+                summary[log.name].workDays += 1;
+                summary[log.name].totalHours += log.hours;
+                summary[log.name].basePay += baseWage;
+                summary[log.name].otPay += otPay;
+                summary[log.name].holidayPay += holidayPay;
+                summary[log.name].leadPay += leadPay;
+            });
+
+            const allKeys = new Set();
+            rosterDb.forEach(r => {
+                const rDate = new Date(r.date);
+                if (rDate.getFullYear() === targetYear && rDate.getMonth() === targetMonth) {
+                    allKeys.add(`${r.date}|${r.name}`);
+                }
+            });
+            attendanceLogs.forEach(a => {
+                const aDate = new Date(a.date);
+                if (aDate.getFullYear() === targetYear && aDate.getMonth() === targetMonth) {
+                    allKeys.add(`${a.date}|${a.name}`);
+                }
+            });
+
+            Array.from(allKeys).forEach(key => {
+                const [date, name] = key.split('|');
+                const roster = rosterDb.find(r => r.date === date && r.name === name);
+                const actual = attendanceLogs.find(a => a.date === date && a.name === name);
+                const approvedLeave = leaveDb.find(lv => lv.date === date && lv.name === name && lv.status === "已核准");
+
+                if (roster && !actual && !approvedLeave) {
+                    if (summary[name]) {
+                        summary[name].unexcusedAbsences += 1;
+                    }
+                }
+            });
+
+            leaveDb.forEach(lv => {
+                const lvDate = new Date(lv.date);
+                if (lvDate.getFullYear() !== targetYear || lvDate.getMonth() !== targetMonth) return;
+                if (lv.status !== "已核准") return;
+                if (!summary[lv.name]) return;
+
+                if (lv.type === "派工前一日臨時假") {
+                    summary[lv.name].preDayLeaves += 1;
+                    if (lv.proof === "未提供證明" || lv.proof === "無") {
+                        summary[lv.name].deductionDetails.push({ reason: `臨時假無證明 (${lv.date})`, pts: 5 });
+                    }
+                }
+            });
+
+            Object.keys(employeeDb).forEach(name => {
+                const emp = employeeDb[name];
+                const data = summary[name];
+
+                let score = 100;
+                let penaltyText = [];
+                
+                if (data.unexcusedAbsences > 0) {
+                    const absPts = data.unexcusedAbsences * 20;
+                    score -= absPts;
+                    penaltyText.push(`無故曠工 -${absPts}分`);
+                }
+                data.deductionDetails.forEach(item => {
+                    score -= item.pts;
+                    penaltyText.push(`${item.reason} -${item.pts}分`);
+                });
+                score = Math.max(0, score);
+
+                let bonus = 0;
+                let bonusDesc = "";
+                const effectiveBonusDays = data.workDays - data.preDayLeaves;
+
+                if (data.unexcusedAbsences > 0) {
+                    bonus = 0;
+                    bonusDesc = `<span class="badge badge-danger">已取消 (因當月有曠工)</span>`;
+                } else if (effectiveBonusDays >= params.bonusDays) {
+                    bonus = params.bonusAmount;
+                    bonusDesc = `<span class="badge badge-success">已達標 (+$${bonus})</span>`;
+                } else {
+                    bonus = 0;
+                    if (data.preDayLeaves > 0) {
+                        bonusDesc = `<span class="badge badge-warning">未達標 (臨請扣至 ${effectiveBonusDays} 天)</span>`;
+                    } else {
+                        bonusDesc = `<span class="badge badge-info">未達標 (目前 ${effectiveBonusDays} 天)</span>`;
+                    }
+                }
+
+                let dispatchStatus = `<span class="badge badge-success">正常派工</span>`;
+                if (data.unexcusedAbsences >= 2 || score < 60) {
+                    dispatchStatus = `<span class="badge badge-danger">停派/註銷工號</span>`;
+                } else if (score < 80) {
+                    dispatchStatus = `<span class="badge badge-warning">輔導/降權</span>`;
+                }
+
+                const fixedAllowance = emp.transAllow + emp.lodgAllow + emp.profAllow;
+                const grandTotal = data.basePay + data.otPay + data.holidayPay + data.leadPay + bonus + fixedAllowance;
+
+                const card = document.createElement("div");
+                card.className = "summary-card";
+                card.innerHTML = `
+                    <div class="name">
+                        <span>${name}</span>
+                        ${dispatchStatus}
+                    </div>
+                    <div class="days">
+                        專長工種：<b>${emp.specialty}</b><br>
+                        出勤天數：<b>${data.workDays}</b> 天 | 累計工時：<b>${data.totalHours}</b> 小時
+                    </div>
+                    <div style="font-size: 0.72rem; color: var(--text-muted); line-height: 1.5; background: #FFF; padding: 8px; border-radius: 6px; margin: 8px 0;">
+                        • 基本日薪計：$${data.basePay}<br>
+                        • 加班費累計：$${data.otPay}<br>
+                        • 週日加給計：$${data.holidayPay}<br>
+                        ${emp.isLead ? `• 領隊加給計：$${data.leadPay}<br>` : ''}
+                        • 全月固定補貼：$${fixedAllowance}<br>
+                        • 出勤獎金：${bonusDesc}
+                    </div>
+                    <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 8px;">
+                        🎯 考核評分：<b>${score}分</b> 
+                        ${penaltyText.length > 0 ? `<span style="color:var(--danger)">(${penaltyText.join('，')})</span>` : '<span style="color:var(--success)">(優良)</span>'}
+                    </div>
+                    <div class="total">
+                        <span>應發實領總計</span>
+                        <span>$${grandTotal}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // ==================== 7. 派工差異對帳 ====================
+        function renderDiscrepancyTable() {
+            const tbody = document.querySelector("#discrepancy-table tbody");
+            if (!tbody) return;
+            tbody.innerHTML = "";
+
+            const allKeys = new Set();
+            rosterDb.forEach(r => allKeys.add(`${r.date}|${r.name}`));
+            attendanceLogs.forEach(a => allKeys.add(`${a.date}|${a.name}`));
+
+            Array.from(allKeys).forEach(key => {
+                const [date, name] = key.split('|');
+                const roster = rosterDb.find(r => r.date === date && r.name === name);
+                const actual = attendanceLogs.find(a => a.date === date && a.name === name);
+                const approvedLeave = leaveDb.find(lv => lv.date === date && lv.name === name && lv.status === "已核准");
+
+                let statusBadge = "";
+                let handleGuide = "";
+                let rosterLoc = roster ? `${roster.site} / ${roster.zone}` : "—";
+                let actualLoc = actual ? `${actual.site} / ${actual.zone}` : "—";
+
+                if (roster && actual) {
+                    statusBadge = `<span class="badge badge-success">✅ 正常出勤</span>`;
+                    handleGuide = "出勤與派工吻合，系統開通薪資計算。";
+                } else if (roster && !actual) {
+                    if (approvedLeave) {
+                        statusBadge = `<span class="badge badge-info">✅ 已請假 (${approvedLeave.type})</span>`;
+                        handleGuide = `已辦理請假審查（假別：${approvedLeave.type}），免列無故曠工，不扣分。`;
+                    } else {
+                        statusBadge = `<span class="badge badge-danger">❌ 缺勤 (未到工)</span>`;
+                        handleGuide = `<strong style="color:var(--danger)">無故曠工！</strong> 預排派工未到且無請假，扣考核分 20 分，直接取消出勤獎金，並確認門禁進出。`;
+                    }
+                } else if (!roster && actual) {
+                    statusBadge = `<span class="badge badge-warning">⚠️ 未預排施工</span>`;
+                    handleGuide = `<strong style="color:var(--warning)">工安警告！</strong> 點工有工作回報但無排班。請確認是否為緊急調度，否則違反晶圓廠承攬工安進出申報規範。`;
+                }
+
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${date}</td>
+                    <td><b>${name}</b></td>
+                    <td>${rosterLoc}</td>
+                    <td>${actualLoc}</td>
+                    <td>${statusBadge}</td>
+                    <td><small>${handleGuide}</small></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // ==================== 8. 預排班表與四階段提醒 ====================
+        function initializeRosterRecord(r) {
+            const today = getTodayDate();
+            if (!r.createdDate) {
+                const rDate = new Date(r.date);
+                const cDate = new Date(rDate);
+                cDate.setDate(cDate.getDate() - 1);
+                r.createdDate = cDate.toISOString().split('T')[0];
+            }
+            if (r.status === undefined) {
+                r.status = "待回覆";
+            }
+            
+            const cDays = getDayDiff(r.createdDate, today);
+            const wDays = getDayDiff(today, r.date);
+            
+            // 隨時間推移，將 "—" 動態轉為 "未通知"
+            if (r.notified_1st === undefined || (r.notified_1st === "—" && cDays >= 1)) {
+                r.notified_1st = (cDays >= 1) ? "未通知" : "—";
+            }
+            // 只有在已接受的情況下，才允許解鎖與發送後續提醒 (5天前、2天前、1天前)
+            if (r.status === "已接受") {
+                if (r.notified_5d === undefined || (r.notified_5d === "—" && wDays <= 5 && wDays > 2)) {
+                    r.notified_5d = (wDays <= 5) ? "未通知" : "—";
+                }
+                if (r.notified_2d === undefined || (r.notified_2d === "—" && wDays <= 2 && wDays > 1)) {
+                    r.notified_2d = (wDays <= 2) ? "未通知" : "—";
+                }
+                if (r.notified_1d === undefined || (r.notified_1d === "—" && wDays <= 1 && wDays >= 0)) {
+                    r.notified_1d = (wDays <= 1) ? "未通知" : "—";
+                }
+            } else {
+                // 如果未接受，後續提醒設為不可用
+                r.notified_5d = "—";
+                r.notified_2d = "—";
+                r.notified_1d = "—";
+            }
+        }
+
+        function getReminderBadgesHTML(r, index) {
+            function getBadgeClass(status) {
+                if (status.includes("已送出") || status.includes("模擬")) return "badge-success";
+                if (status === "未通知") return "badge-warning";
+                return "badge-info"; // Not due yet / disabled (—)
+            }
+
+            return `
+                <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                    <span class="badge ${getBadgeClass(r.notified_1st)}" title="點擊模擬發送派工隔日通知" style="font-size:0.7rem; cursor:pointer;" onclick="sendSingleRosterReminder(${index}, '1st')">隔日: ${r.notified_1st}</span>
+                    <span class="badge ${getBadgeClass(r.notified_5d)}" title="${r.status === '已接受' ? '點擊模擬發送施工5天前通知' : '請等員工先接受派工'}" style="font-size:0.7rem; cursor:pointer;" onclick="${r.status === '已接受' ? `sendSingleRosterReminder(${index}, '5d')` : 'alert(\'⚠️ 同仁尚未接受此派工，無法發送後續提醒！\')'}">5天前: ${r.notified_5d}</span>
+                    <span class="badge ${getBadgeClass(r.notified_2d)}" title="${r.status === '已接受' ? '點擊模擬發送施工2天前通知' : '請等員工先接受派工'}" style="font-size:0.7rem; cursor:pointer;" onclick="${r.status === '已接受' ? `sendSingleRosterReminder(${index}, '2d')` : 'alert(\'⚠️ 同仁尚未接受此派工，無法發送後續提醒！\')'}">2天前: ${r.notified_2d}</span>
+                    <span class="badge ${getBadgeClass(r.notified_1d)}" title="${r.status === '已接受' ? '點擊模擬發送施工1天前通知' : '請等員工先接受派工'}" style="font-size:0.7rem; cursor:pointer;" onclick="${r.status === '已接受' ? `sendSingleRosterReminder(${index}, '1d')` : 'alert(\'⚠️ 同仁尚未接受此派工，無法發送後續提醒！\')'}">1天前: ${r.notified_1d}</span>
+                </div>
+            `;
+        }
+
+        function addRoster(event) {
+            event.preventDefault();
+            const date = document.getElementById("r-date").value;
+            const name = document.getElementById("r-worker").value;
+            const site = document.getElementById("r-site").value;
+            const zone = document.getElementById("r-zone").value;
+            const createdDate = simulatedDate;
+
+            const isOndutyLeave = leaveDb.find(lv => lv.date === date && lv.name === name && lv.status === "已核准");
+            if (isOndutyLeave) {
+                if (!confirm(`⚠️ 警示：${name} 在 ${date} 已有核准的「${isOndutyLeave.type}」假單，是否仍要強制排班？`)) {
+                    return;
+                }
+            }
+
+            const record = {
+                date,
+                createdDate,
+                name,
+                site,
+                zone,
+                status: "待回覆",
+                notified_1st: "—",
+                notified_5d: "—",
+                notified_2d: "—",
+                notified_1d: "—"
+            };
+
+            initializeRosterRecord(record);
+            rosterDb.push(record);
+            saveDatabase();
+            renderDashboard();
+        }
+
+        function deleteRoster(index) {
+            rosterDb.splice(index, 1);
+            saveDatabase();
+            renderDashboard();
+        }
+
+        async function sendSingleRosterReminder(index, stage) {
+            const item = rosterDb[index];
+            const emp = employeeDb[item.name];
+            if (!emp) return;
+
+            let stageName = "";
+            let btnHTML = "";
+            
+            if (stage === '1st') {
+                stageName = "派工隔日首通知";
+                btnHTML = `
+                    <div class="flex-divider"></div>
+                    <div style="font-size:0.75rem; color:#64748b; margin-bottom:6px;">是否接受此派工？</div>
+                    <div style="display:flex; gap:6px;">
+                        <button type="button" class="flex-btn" style="flex:1; background-color:#10b981; color:white; border:none;" onclick="respondToDispatch(${index}, '已接受')">接受派任</button>
+                        <button type="button" class="flex-btn" style="flex:1; background-color:#ef4444; color:white; border:none;" onclick="respondToDispatch(${index}, '已拒絕')">拒絕派任/請假</button>
+                    </div>
+                `;
+            } else {
+                stageName = stage === '5d' ? "施工前5天通知" : (stage === '2d' ? "施工前2天通知" : "施工前1天最後確認");
+                btnHTML = `
+                    <div class="flex-divider"></div>
+                    <div style="display:flex; gap:6px;">
+                        <button type="button" class="flex-btn" style="flex:1; background-color:#3b82f6; color:white; border:none;" onclick="respondToDispatch(${index}, '已接受', '${stage}')">確認知曉</button>
+                        <button type="button" class="flex-btn" style="flex:1; background-color:#ef4444; color:white; border:none;" onclick="respondToDispatch(${index}, '已拒絕')">我要請假</button>
+                    </div>
+                `;
+            }
+
+            const payload = {
+                name: item.name,
+                date: item.date,
+                createdDate: item.createdDate,
+                site: item.site,
+                zone: item.zone,
+                stage: stageName,
+                status: item.status,
+                lead: "李志強"
+            };
+
+            const key = `notified_${stage}`;
+            item[key] = "傳送中...";
+            renderRosterTable();
+
+            // 1. 真實雲端 Webhook 送出
+            if (webhookReminderUrl) {
+                try {
+                    const res = await fetch(webhookReminderUrl, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    });
+                    if (res.ok) {
+                        item[key] = "已送出 ✅";
+                    } else {
+                        item[key] = `失敗 ❌ (HTTP ${res.status})`;
+                    }
+                } catch (err) {
+                    item[key] = "失敗 ❌ (網絡錯誤)";
+                }
+            } else {
+                item[key] = "模擬送出 ⚠️";
+            }
+            saveDatabase();
+            renderDashboard();
+
+            // 2. 將此推播訊息直接發送至 LINE 手機模擬器 (Tab 6)，並切換分頁
+            const flexHTML = `
+                <div class="flex-card">
+                    <div class="flex-card-header">${item.name} ── LINE 派工訊息通知</div>
+                    <div class="flex-card-body">
+                        <div class="flex-row">
+                            <span class="flex-label">通知類型</span>
+                            <span class="flex-value" style="color:#0284c7">${stageName}</span>
+                        </div>
+                        <div class="flex-row">
+                            <span class="flex-label">施工日期</span>
+                            <span class="flex-value">${item.date}</span>
+                        </div>
+                        <div class="flex-row">
+                            <span class="flex-label">施作案場</span>
+                            <span class="flex-value">${item.site}</span>
+                        </div>
+                        <div class="flex-row">
+                            <span class="flex-label">施工分區</span>
+                            <span class="flex-value">${item.zone}</span>
+                        </div>
+                        <div class="flex-row">
+                            <span class="flex-label">帶隊領班</span>
+                            <span class="flex-value">李志強</span>
+                        </div>
+                        ${btnHTML}
+                    </div>
+                </div>
+            `;
+
+            // 設定模擬手機選擇此人
+            document.getElementById("s-worker").value = item.name;
+
+            // 切換至模擬分頁
+            switchTab('line-sim');
+            
+            // 手機上推播
+            appendChatMessage(`📲 收到【${stageName}】`, 'system');
+            appendChatMessage('', 'system', flexHTML);
+        }
+
+        // 員工在 LINE 模擬器點選接受/拒絕派工之連動邏輯
+        function respondToDispatch(index, replyStatus, stage = '') {
+            const item = rosterDb[index];
+            if (!item) return;
+
+            if (replyStatus === "已接受") {
+                appendChatMessage(`我確認接受 ${item.date} 的派工並知曉注意事項。`, `user`);
+                item.status = "已接受";
+                if (stage) {
+                    item[`notified_${stage}`] = "已送出 ✅";
+                } else {
+                    item.notified_1st = "已送出 ✅";
+                }
+                saveDatabase();
+                renderDashboard();
+                setTimeout(() => {
+                    appendChatMessage(`感謝您的回覆！已確認您的出勤，請準時配合領隊進廠。若有臨時變動，請提早辦理請假手續。`, `system`);
+                }, 500);
+            } else if (replyStatus === "已拒絕") {
+                appendChatMessage(`我無法出勤該次派工，需要請假。`, `user`);
+                item.status = "已拒絕/請假";
+                saveDatabase();
+                renderDashboard();
+
+                setTimeout(() => {
+                    appendChatMessage(`好的，因您無法出勤，已為您自動填入「線上請假表單」，請在左側控制台確認資料後點擊「提交 LINE 請假申請」以完成審核程序。`, `system`);
+                    
+                    // 自動填入請假模擬器表單
+                    document.getElementById("s-l-date").value = item.date;
+                    document.getElementById("s-l-type").value = "派工前一日臨時假";
+                    document.getElementById("s-l-reason").value = `因故拒絕 ${item.date} (${item.site}) 的派任`;
+                    
+                    // 高亮並滾動到請假卡片
+                    const card = document.getElementById("sim-leave-card");
+                    if (card) {
+                        card.style.border = "2px solid var(--danger)";
+                        setTimeout(() => card.style.border = "1px solid var(--border)", 2000);
+                    }
+                }, 800);
+            }
+        }
+
+        async function batchSendReminders() {
+            const today = getTodayDate();
+            let count1st = 0, count5d = 0, count2d = 0, count1d = 0;
+            let successCount = 0;
+
+            for (let i = 0; i < rosterDb.length; i++) {
+                const item = rosterDb[i];
+                initializeRosterRecord(item);
+
+                if (item.notified_1st === "未通知") {
+                    await sendRosterStageSilent(item, '1st');
+                    count1st++;
+                    successCount++;
+                }
+                if (item.notified_5d === "未通知") {
+                    await sendRosterStageSilent(item, '5d');
+                    count5d++;
+                    successCount++;
+                }
+                if (item.notified_2d === "未通知") {
+                    await sendRosterStageSilent(item, '2d');
+                    count2d++;
+                    successCount++;
+                }
+                if (item.notified_1d === "未通知") {
+                    await sendRosterStageSilent(item, '1d');
+                    count1d++;
+                    successCount++;
+                }
+            }
+
+            saveDatabase();
+            renderDashboard();
+
+            if (successCount === 0) {
+                alert(`今日 (${simulatedDate}) 沒有到期需要發送的 LINE 提醒！`);
+            } else {
+                alert(`批次處理完成！已成功為今日 (${simulatedDate}) 發送 ${successCount} 筆 LINE 提醒：\n- 派工隔日通知：${count1st} 件\n- 施工前 5 天通知：${count5d} 件\n- 施工前 2 天通知：${count2d} 件\n- 施工前 1 天通知：${count1d} 件\n\n(注意：未「接受派派任」之同仁已自動跳過後續提醒)`);
+            }
+        }
+
+        async function sendRosterStageSilent(item, stage) {
+            let stageName = "";
+            if (stage === '1st') stageName = "派工隔日首通知";
+            else if (stage === '5d') stageName = "施工前5天通知";
+            else if (stage === '2d') stageName = "施工前2天通知";
+            else if (stage === '1d') stageName = "施工前1天最後確認";
+
+            const payload = {
+                name: item.name,
+                date: item.date,
+                createdDate: item.createdDate,
+                site: item.site,
+                zone: item.zone,
+                stage: stageName,
+                status: item.status,
+                lead: "李志強"
+            };
+
+            const key = `notified_${stage}`;
+            if (webhookReminderUrl) {
+                try {
+                    const res = await fetch(webhookReminderUrl, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    });
+                    if (res.ok) {
+                        item[key] = "已送出 ✅";
+                    } else {
+                        item[key] = "失敗 ❌";
+                    }
+                } catch (err) {
+                    item[key] = "失敗 ❌";
+                }
+            } else {
+                item[key] = "模擬送出 ⚠️";
+            }
+        }
+
+        function renderRosterTable() {
+            const tbody = document.querySelector("#roster-table tbody");
+            if (!tbody) return;
+            tbody.innerHTML = "";
+
+            rosterDb.forEach((item, index) => {
+                initializeRosterRecord(item);
+
+                const tr = document.createElement("tr");
+                const hasApprovedLeave_obj = leaveDb.find(lv => lv.date === item.date && lv.name === item.name && lv.status === "已核准");
+                const leaveBadge = hasApprovedLeave_obj ? `<span class="badge badge-danger">請假中 (${hasApprovedLeave_obj.type})</span>` : `<span class="badge badge-success">正常出勤</span>`;
+
+                let statusBadge = "";
+                if (item.status === "待回覆") {
+                    statusBadge = `<span class="badge badge-warning">⏳ 待回覆</span>`;
+                } else if (item.status === "已接受") {
+                    statusBadge = `<span class="badge badge-success">✅ 已接受</span>`;
+                } else {
+                    statusBadge = `<span class="badge badge-danger" style="animation: pulse 2s infinite">🚨 已拒絕/請假</span>`;
+                    tr.className = "row-danger"; // 拒絕出勤時，該列背景以紅色警示，促使主管注意
+                }
+
+                tr.innerHTML = `
+                    <td>${item.date}</td>
+                    <td><small>${item.createdDate}</small></td>
+                    <td><b>${item.name}</b></td>
+                    <td>${item.site} / ${item.zone}</td>
+                    <td>${leaveBadge}</td>
+                    <td>${statusBadge}</td>
+                    <td>${getReminderBadgesHTML(item, index)}</td>
+                    <td>
+                        <button type="button" class="btn btn-outline" style="padding: 2px 6px; font-size: 0.75rem; width: auto; margin-right:4px;" onclick="sendSingleRosterReminder(${index}, '1st')">模擬推送</button>
+                        <button type="button" class="btn btn-outline btn-danger" style="padding: 2px 6px; font-size: 0.75rem; width: auto; color: white;" onclick="deleteRoster(${index})">刪除</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // ==================== 9. 請假管理與審核 ====================
+        function updateLeaveFormHint() {
+            const type = document.getElementById("l-type").value;
+            const hint = document.getElementById("leave-penalty-hint");
+            const proof = document.getElementById("l-proof");
+            
+            if (type === "一般事假") {
+                hint.innerHTML = "* 提示：事假須提前 3 天申請，無給薪，亦不計入出勤累計天數。";
+                proof.value = "無";
+            } else if (type === "一般病假") {
+                hint.innerHTML = "* 提示：病假須於當日派工前告知，無給薪，須檢附醫療看診收據以避免扣考評。";
+                proof.value = "已上傳診斷證明書.jpg";
+            } else if (type === "派工前一日臨時假") {
+                hint.innerHTML = "* 警告：前一日臨時假將<strong>扣減出勤獎勵天數 1 天</strong>。若未提供看診證明或重大緊急理由，考評<strong>扣 5 分</strong>。";
+                proof.value = "未提供證明";
+            } else if (type === "派工當日臨時假") {
+                hint.innerHTML = "* 警告：派工當天病假須在 07:00 前提出，事後須提供急診/就醫收據，否則視同<strong>無故曠工 (扣考評 20 分，且當月出勤獎勵直接取消)</strong>！";
+                proof.value = "已上傳診斷證明書.jpg";
+            }
+        }
+
+        function addLeave(event) {
+            event.preventDefault();
+            const name = document.getElementById("l-worker").value;
+            const date = document.getElementById("l-date").value;
+            const type = document.getElementById("l-type").value;
+            const reason = document.getElementById("l-reason").value;
+            const proof = document.getElementById("l-proof").value;
+
+            const id = "LV-" + Math.random().toString(36).substr(2, 9).toUpperCase();
+            const now = new Date().toLocaleString();
+
+            leaveDb.push({
+                id, date, name, type, reason, proof, status: "已核准", appliedAt: now
+            });
+
+            // 如果該員當日有排班，連動更新排班狀態為「已拒絕/請假」並發出主管警報
+            const rosterIndex = rosterDb.findIndex(r => r.date === date && r.name === name);
+            if (rosterIndex !== -1) {
+                rosterDb[rosterIndex].status = "已拒絕/請假";
+                triggerGlobalAlert(`🚨 派工異常警報：同仁【${name}】已登錄於 ${date} 的請假單，當日派工 (${rosterDb[rosterIndex].site}) 狀態自動轉為「已拒絕/請假」，請排班主管儘速重新調度指派！`);
+            }
+
+            saveDatabase();
+            renderDashboard();
+            document.getElementById("l-reason").value = "";
+            alert(`已成功為 ${name} 登錄 ${date} 的 ${type} 假單（已自動核准生效，並同步更新排班資料）。`);
+        }
+
+        function approveLeave(index) {
+            leaveDb[index].status = "已核准";
+            
+            // 連動更新排班狀態
+            const lv = leaveDb[index];
+            const rosterIndex = rosterDb.findIndex(r => r.date === lv.date && r.name === lv.name);
+            if (rosterIndex !== -1) {
+                rosterDb[rosterIndex].status = "已拒絕/請假";
+                triggerGlobalAlert(`🚨 派工異常警報：同仁【${lv.name}】於 ${lv.date} 的請假單已獲核准，該日派工 (${rosterDb[rosterIndex].site}) 已轉為「已拒絕/請假」，請儘速重新派工！`);
+            }
+
+            saveDatabase();
+            renderDashboard();
+            alert(`已核准該筆請假申請。已即時重新計算薪資與出勤差異對帳。`);
+        }
+
+        function rejectLeave(index) {
+            leaveDb[index].status = "已駁回";
+            saveDatabase();
+            renderDashboard();
+            alert(`已駁回該請假申請。`);
+        }
+
+        function deleteLeave(index) {
+            if (confirm("確認要刪除此筆請假紀錄嗎？")) {
+                leaveDb.splice(index, 1);
+                saveDatabase();
+                renderDashboard();
+            }
+        }
+
+        function renderLeaveTable() {
+            const tbody = document.querySelector("#leave-table tbody");
+            if (!tbody) return;
+            tbody.innerHTML = "";
+
+            leaveDb.forEach((lv, index) => {
+                let statusBadge = `<span class="badge badge-warning">${lv.status}</span>`;
+                if (lv.status === "已核准") statusBadge = `<span class="badge badge-success">已核准</span>`;
+                if (lv.status === "已駁回") statusBadge = `<span class="badge badge-danger">已駁回</span>`;
+
+                let actionBtns = "";
+                if (lv.status === "待審核") {
+                    actionBtns = `
+                        <button type="button" class="btn btn-outline" style="padding: 2px 6px; font-size: 0.75rem; width: auto; background-color:#10b981; color:white; border:none; margin-right:4px;" onclick="approveLeave(${index})">核准</button>
+                        <button type="button" class="btn btn-outline" style="padding: 2px 6px; font-size: 0.75rem; width: auto; background-color:#ef4444; color:white; border:none;" onclick="rejectLeave(${index})">駁回</button>
+                    `;
+                } else {
+                    actionBtns = `<button type="button" class="btn btn-outline btn-danger" style="padding: 2px 6px; font-size: 0.75rem; width: auto; color: white;" onclick="deleteLeave(${index})">刪除</button>`;
+                }
+
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td><small>${lv.appliedAt}</small></td>
+                    <td><b>${lv.name}</b></td>
+                    <td>${lv.date}</td>
+                    <td>${lv.type}</td>
+                    <td>${lv.reason}</td>
+                    <td><span class="badge badge-info">${lv.proof}</span></td>
+                    <td>${statusBadge}</td>
+                    <td>${actionBtns}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // ==================== 10. 全員公告與群發 ====================
+        async function sendAnnouncement(event) {
+            event.preventDefault();
+            const title = document.getElementById("a-title").value;
+            const target = document.getElementById("a-target").value;
+            const content = document.getElementById("a-content").value;
+            const now = new Date().toLocaleString();
+
+            const payload = { title, target, content, timestamp: now };
+
+            if (webhookAnnouncementUrl) {
+                try {
+                    const res = await fetch(webhookAnnouncementUrl, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    });
+                    if (res.ok) {
+                        announcementHistory.unshift({ time: now, title, target, content, status: "已發送 ✅" });
+                    } else {
+                        announcementHistory.unshift({ time: now, title, target, content, status: `失敗 ❌ (HTTP ${res.status})` });
+                    }
+                } catch (err) {
+                    announcementHistory.unshift({ time: now, title, target, content, status: "失敗 ❌ (網路錯誤)" });
+                }
+            } else {
+                alert(`🔌 [離線公告群發模擬]\n━━━━━━━━━━━━━━━━━\n公告主題：${title}\n接收對象：${target}\n公告內文：\n${content}\n━━━━━━━━━━━━━━━━━\n已模擬向所有符合工種之員工 LINE 帳號廣播此公告。`);
+                announcementHistory.unshift({ time: now, title, target, content, status: "模擬發送 ⚠️" });
+            }
+
+            document.getElementById("a-title").value = "";
+            document.getElementById("a-content").value = "";
+            saveDatabase();
+            renderDashboard();
+        }
+
+        function renderAnnouncementHistoryTable() {
+            const tbody = document.querySelector("#announcement-history-table tbody");
+            if (!tbody) return;
+            tbody.innerHTML = "";
+
+            announcementHistory.forEach(item => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td><small>${item.time}</small></td>
+                    <td><b>${item.title}</b></td>
+                    <td><span class="badge badge-info">${item.target}</span></td>
+                    <td><span title="${item.content}">${item.content.length > 20 ? item.content.substr(0, 20) + "..." : item.content}</span></td>
+                    <td><span class="badge ${item.status.includes('已發送') || item.status.includes('模擬') ? 'badge-success' : 'badge-danger'}">${item.status}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // ==================== 11. LINE 互動模擬區 ====================
+        function appendChatMessage(text, sender, flexHTML = '') {
+            const chatBody = document.getElementById("phone-chat-body");
+            if (!chatBody) return;
+
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            if (flexHTML) {
+                const flexDiv = document.createElement("div");
+                flexDiv.style.alignSelf = "flex-start";
+                flexDiv.innerHTML = flexHTML;
+                chatBody.appendChild(flexDiv);
+            } else {
+                const bubble = document.createElement("div");
+                bubble.className = `chat-bubble ${sender}`;
+                bubble.innerHTML = `${text}<div style="font-size:0.6rem; text-align:right; opacity:0.6; margin-top:2px;">${time}</div>`;
+                chatBody.appendChild(bubble);
+            }
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function simulateLineQuery() {
+            const name = document.getElementById("s-worker").value;
+            const emp = employeeDb[name];
+            if (!emp) return;
+
+            appendChatMessage(`查詢出勤與薪資`, `user`);
+
+            setTimeout(() => {
+                appendChatMessage(`正在為您計算本月截至昨日之出勤與薪資，請稍候...`, `system`);
+            }, 500);
+
+            setTimeout(() => {
+                let workDays = 0;
+                let totalHours = 0;
+                let basePay = 0;
+                let otPay = 0;
+                let holidayPay = 0;
+                let leadPay = 0;
+                let preDayLeaves = 0;
+                let unexcusedAbsences = 0;
+                let deductionDetails = [];
+
+                const targetDate = getTodayDate();
+                const targetYear = targetDate.getFullYear();
+                const targetMonth = targetDate.getMonth();
+
+                const dailyLeadCount = {};
+                attendanceLogs.forEach(log => {
+                    const logDate = new Date(log.date);
+                    if (logDate.getFullYear() !== targetYear || logDate.getMonth() !== targetMonth) return;
+
+                    if (log.foreman && log.foreman !== "無") {
+                        if (!dailyLeadCount[log.date]) dailyLeadCount[log.date] = {};
+                        dailyLeadCount[log.date][log.foreman] = (dailyLeadCount[log.date][log.foreman] || 0) + 1;
+                    }
+                });
+
+                attendanceLogs.forEach(log => {
+                    const logDate = new Date(log.date);
+                    if (logDate.getFullYear() !== targetYear || logDate.getMonth() !== targetMonth) return;
+                    if (log.name !== name) return;
+                    
+                    const baseWage = tradesDb[emp.specialty] || 0;
+                    const otHours = Math.max(0, log.hours - 8);
+                    const isSun = isSunday(log.date);
+
+                    if (otHours > 0) otPay += Math.round(otHours * (baseWage / 8) * params.otRate);
+                    if (isSun) holidayPay += Math.round(baseWage * params.holidayRate);
+                    if (emp.isLead && dailyLeadCount[log.date]?.[name]) {
+                        leadPay += dailyLeadCount[log.date][name] * params.leadRate;
+                    }
+
+                    workDays += 1;
+                    totalHours += log.hours;
+                    basePay += baseWage;
+                });
+
+                const allKeys = new Set();
+                rosterDb.forEach(r => {
+                    const rDate = new Date(r.date);
+                    if (rDate.getFullYear() === targetYear && rDate.getMonth() === targetMonth) {
+                        allKeys.add(`${r.date}|${r.name}`);
+                    }
+                });
+                attendanceLogs.forEach(a => {
+                    const aDate = new Date(a.date);
+                    if (aDate.getFullYear() === targetYear && aDate.getMonth() === targetMonth) {
+                        allKeys.add(`${a.date}|${a.name}`);
+                    }
+                });
+
+                Array.from(allKeys).forEach(key => {
+                    const [date, kName] = key.split('|');
+                    if (kName !== name) return;
+                    const hasRoster = rosterDb.find(r => r.date === date && r.name === name);
+                    const hasActual = attendanceLogs.find(a => a.date === date && a.name === name);
+                    const hasApprovedLeave = leaveDb.find(lv => lv.date === date && lv.name === name && lv.status === "已核准");
+
+                    if (hasRoster && !hasActual && !hasApprovedLeave) {
+                        unexcusedAbsences += 1;
+                    }
+                });
+
+                leaveDb.forEach(lv => {
+                    const lvDate = new Date(lv.date);
+                    if (lvDate.getFullYear() !== targetYear || lvDate.getMonth() !== targetMonth) return;
+                    if (lv.name !== name || lv.status !== "已核准") return;
+                    if (lv.type === "派工前一日臨時假") {
+                        preDayLeaves += 1;
+                        if (lv.proof === "未提供證明" || lv.proof === "無") {
+                            deductionDetails.push(5);
+                        }
+                    }
+                });
+
+                let score = 100 - (unexcusedAbsences * 20);
+                deductionDetails.forEach(pts => score -= pts);
+                score = Math.max(0, score);
+
+                let bonus = 0;
+                let bonusStatusStr = "未達門檻";
+                const effectiveBonusDays = workDays - preDayLeaves;
+
+                if (unexcusedAbsences > 0) {
+                    bonus = 0;
+                    bonusStatusStr = "曠工取消";
+                } else if (effectiveBonusDays >= params.bonusDays) {
+                    bonus = params.bonusAmount;
+                    bonusStatusStr = "已發放";
+                } else if (preDayLeaves > 0) {
+                    bonusStatusStr = "扣天數未達";
+                }
+
+                const fixedAllowance = emp.transAllow + emp.lodgAllow + emp.profAllow;
+                const grandTotal = basePay + otPay + holidayPay + leadPay + bonus + fixedAllowance;
+
+                let scoreTag = "優良";
+                if (score < 60) scoreTag = "停派註銷";
+                else if (score < 80) scoreTag = "輔導降權";
+
+                const flexHTML = `
+                    <div class="flex-card">
+                        <div class="flex-card-header">日森精工 | 薪資與出勤對帳單</div>
+                        <div class="flex-card-body">
+                            <div class="flex-row">
+                                <span class="flex-label">查詢同仁</span>
+                                <span class="flex-value" style="color:#0284c7">${name}</span>
+                            </div>
+                            <div class="flex-row">
+                                <span class="flex-label">累計出勤天數</span>
+                                <span class="flex-value">${workDays} 天 (${totalHours} 小時)</span>
+                            </div>
+                            <div class="flex-divider"></div>
+                            <div class="flex-row">
+                                <span class="flex-label">基本日薪累計</span>
+                                <span class="flex-value">$${basePay}</span>
+                            </div>
+                            <div class="flex-row">
+                                <span class="flex-label">加班費累計</span>
+                                <span class="flex-value">$${otPay}</span>
+                            </div>
+                            <div class="flex-row">
+                                <span class="flex-label">週日加給累計</span>
+                                <span class="flex-value">$${holidayPay}</span>
+                            </div>
+                            ${emp.isLead ? `
+                            <div class="flex-row">
+                                <span class="flex-label">領隊津貼累計</span>
+                                <span class="flex-value">$${leadPay}</span>
+                            </div>` : ''}
+                            <div class="flex-row">
+                                <span class="flex-label">固定津貼項目</span>
+                                <span class="flex-value">$${fixedAllowance}</span>
+                            </div>
+                            <div class="flex-row">
+                                <span class="flex-label">出勤獎金</span>
+                                <span class="flex-value">$${bonus} (${bonusStatusStr})</span>
+                            </div>
+                            <div class="flex-divider"></div>
+                            <div class="flex-row">
+                                <span class="flex-label">考評分 / 資格</span>
+                                <span class="flex-value" style="color:${score < 80 ? 'red' : 'green'}">${score}分 (${scoreTag})</span>
+                            </div>
+                            <div class="flex-total">
+                                <span>實領薪資總計</span>
+                                <span>$${grandTotal}</span>
+                            </div>
+                        </div>
+                        <div class="flex-card-footer">
+                            <button type="button" class="flex-btn" onclick="alert('對帳疑義申覆：請於每月3號前，提具出勤手寫紀錄向行政主管申對。')">對帳疑義申覆</button>
+                        </div>
+                    </div>
+                `;
+                appendChatMessage('', 'system', flexHTML);
+            }, 1200);
+        }
+
+        function simulateLineLeave() {
+            const name = document.getElementById("s-worker").value;
+            const date = document.getElementById("s-l-date").value;
+            const type = document.getElementById("s-l-type").value;
+            const reason = document.getElementById("s-l-reason").value;
+            const proof = document.getElementById("s-l-proof").value;
+
+            appendChatMessage(`【請假表單提交】<br>日期：${date}<br>假別：${type}<br>事由：${reason}<br>附件：${proof}`, `user`);
+
+            const id = "LV-" + Math.random().toString(36).substr(2, 9).toUpperCase();
+            const now = new Date().toLocaleString();
+
+            leaveDb.push({
+                id, date, name, type, reason, proof, status: "待審核", appliedAt: now
+            });
+
+            // 連動更新班表為拒絕並觸發主管警報
+            const rosterIndex = rosterDb.findIndex(r => r.date === date && r.name === name);
+            if (rosterIndex !== -1) {
+                rosterDb[rosterIndex].status = "已拒絕/請假";
+                triggerGlobalAlert(`🚨 派工異常警報：同仁【${name}】已於 LINE 提交 ${date} 的請假申請 (待審核)，原定派工 (${rosterDb[rosterIndex].site}) 狀態已重設為「已拒絕/請假」，請主管儘速重新調派他人！`);
+            }
+
+            saveDatabase();
+            renderDashboard();
+
+            setTimeout(() => {
+                appendChatMessage(`收到您的請假申請！資料已成功寫入公司審核系統並通知主管。<br><br>主管已被通報此異常，請等候行政審查結果，您可在 LINE 點選「請假進度」查詢最新狀態。`, `system`);
+            }, 800);
+        }
+
+        // ==================== 12. 系統參數與動態表格管理 ====================
+        function saveParameters() {
+            params.otRate = parseFloat(document.getElementById('p-ot-rate').value) || 1.5;
+            params.holidayRate = parseFloat(document.getElementById('p-holiday-allowance').value) || 0.5;
+            params.leadRate = parseInt(document.getElementById('p-lead-rate').value) || 100;
+            params.bonusDays = parseInt(document.getElementById('p-bonus-days').value) || 22;
+            params.bonusAmount = parseInt(document.getElementById('p-bonus-amount').value) || 3000;
+            saveDatabase();
+            renderDashboard();
+        }
+
+        function saveWebhookUrls() {
+            webhookReminderUrl = document.getElementById("p-webhook-reminder").value.trim();
+            webhookAnnouncementUrl = document.getElementById("p-webhook-announcement").value.trim();
+            saveDatabase();
+        }
+
+
+        function resetParameters() {
+            if (window.HimoriDb) {
+                if (confirm("⚠️ 警告：這會清除所有自訂的人員基本資料、預排班表、實際出勤、請假紀錄，並重設為出廠預設值，是否確定？")) {
+                    HimoriDb.reset();
+                    syncFromGlobal();
+                    renderDashboard();
+                }
+                return;
+            }
+
+            if (confirm("⚠️ 警告：這會清除所有自訂的人員基本資料、預排班表、實際出勤、請假紀錄，並重設為出廠預設值，是否確定？")) {
+                localStorage.clear();
+                params = { otRate: 1.5, holidayRate: 0.5, leadRate: 100, bonusDays: 22, bonusAmount: 3000 };
+                tradesDb = { "拉線工程": 2500, "接線工程": 2800, "軌道安裝": 2200 };
+                employeeDb = {
+                    "張憲明": { specialty: "拉線工程", transAllow: 1000, lodgAllow: 0, profAllow: 500, isLead: false },
+                    "李志強": { specialty: "接線工程", transAllow: 1000, lodgAllow: 2000, profAllow: 1000, isLead: true },
+                    "王大同": { specialty: "軌道安裝", transAllow: 0, lodgAllow: 0, profAllow: 0, isLead: false }
+                };
+                rosterDb = [
+                    { date: "2026-06-15", createdDate: "2026-06-12", name: "張憲明", site: "台積電F20", zone: "6S整理整頓", status: "已接受", notified_1st: "已送出 ✅", notified_5d: "—", notified_2d: "已送出 ✅", notified_1d: "已送出 ✅" },
+                    { date: "2026-06-15", createdDate: "2026-06-12", name: "李志強", site: "台積電F20", zone: "軌道安裝工程", status: "已接受", notified_1st: "已送出 ✅", notified_5d: "—", notified_2d: "已送出 ✅", notified_1d: "已送出 ✅" },
+                    { date: "2026-06-15", createdDate: "2026-06-12", name: "王大同", site: "台積電F20", zone: "軌道安裝工程", status: "已接受", notified_1st: "已送出 ✅", notified_5d: "—", notified_2d: "已送出 ✅", notified_1d: "已送出 ✅" }
+                ];
+                attendanceLogs = [
+                    { date: "2026-06-15", foreman: "李志強", name: "張憲明", site: "台積電F20", zone: "6S整理整頓", hours: 8, note: "準時下班" },
+                    { date: "2026-06-15", foreman: "李志強", name: "李志強", site: "台積電F20", zone: "軌道安裝工程", hours: 10, note: "加班2小時調整軌道" },
+                    { date: "2026-06-15", foreman: "李志強", name: "王大同", site: "台積電F20", zone: "軌道安裝工程", hours: 8, note: "無" }
+                ];
+                leaveDb = [
+                    { id: "LV-001", date: "2026-06-12", name: "張憲明", type: "一般事假", reason: "家中有事請假", proof: "無", status: "已核准", appliedAt: "2026-06-09 10:00:00" },
+                    { id: "LV-002", date: "2026-06-16", name: "王大同", type: "派工前一日臨時假", reason: "感冒發燒看診", proof: "未提供證明", status: "待審核", appliedAt: "2026-06-15 18:22:15" }
+                ];
+                announcementHistory = [
+                    { time: "2026/06/15 17:30", title: "安全防護具宣導", target: "全員", content: "進入廠區請務必配戴新型反光背心及安全帶...", status: "已發送 ✅" }
+                ];
+                webhookReminderUrl = "";
+                webhookAnnouncementUrl = "";
+                simulatedDate = "2026-06-16";
+                alarmState = "";
+                localStorage.setItem("simulated_date", simulatedDate);
+                localStorage.setItem("alarm_state", alarmState);
+                document.getElementById("sys-sim-date").value = simulatedDate;
+                document.getElementById("global-alert-banner").style.display = "none";
+                
+                document.getElementById("p-ot-rate").value = 1.5;
+                document.getElementById("p-holiday-allowance").value = 0.5;
+                document.getElementById("p-lead-rate").value = 100;
+                document.getElementById("p-bonus-days").value = 22;
+                document.getElementById("p-bonus-amount").value = 3000;
+                
+                saveDatabase();
+                renderDashboard();
+                alert("已成功恢復為系統初始預設值！");
+            }
+        }
+
+        // --- 工種設定表格 ---
+        function renderTradesTable() {
+            const tbody = document.querySelector("#trades-settings-table tbody");
+            if (!tbody) return;
+            tbody.innerHTML = "";
+
+            Object.keys(tradesDb).forEach(tradeName => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td><input type="text" value="${tradeName}" onchange="renameTrade('${tradeName}', this.value)" style="padding: 4px 8px; font-size:0.8rem;"></td>
+                    <td><input type="number" value="${tradesDb[tradeName]}" onchange="updateTradeWage('${tradeName}', this.value)" style="padding: 4px 8px; font-size:0.8rem; max-width:120px;"></td>
+                    <td><button type="button" class="btn btn-outline btn-danger" style="padding: 2px 6px; font-size: 0.75rem; width: auto; color: white;" onclick="deleteTrade('${tradeName}')">刪除</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renameTrade(oldName, newName) {
+            if (!newName || oldName === newName) return;
+            if (tradesDb[newName] !== undefined) {
+                alert("該工種名稱已存在！");
+                renderTradesTable();
+                return;
+            }
+            const wage = tradesDb[oldName];
+            delete tradesDb[oldName];
+            tradesDb[newName] = wage;
+
+            Object.keys(employeeDb).forEach(name => {
+                if (employeeDb[name].specialty === oldName) {
+                    employeeDb[name].specialty = newName;
+                }
+            });
+
+            saveDatabase();
+            renderDashboard();
+        }
+
+        function updateTradeWage(tradeName, wage) {
+            tradesDb[tradeName] = parseInt(wage) || 0;
+            saveDatabase();
+            renderDashboard();
+        }
+
+        function addTrade() {
+            let newTrade = "新工種";
+            let idx = 1;
+            while (tradesDb[`${newTrade}${idx}`] !== undefined) { idx++; }
+            tradesDb[`${newTrade}${idx}`] = 2000;
+            saveDatabase();
+            renderDashboard();
+        }
+
+        function deleteTrade(tradeName) {
+            if (confirm(`確定要刪除「${tradeName}」工種嗎？這會導致關聯此工種的同仁日薪計算失效。`)) {
+                delete tradesDb[tradeName];
+                saveDatabase();
+                renderDashboard();
+            }
+        }
+
+        // --- 員工設定表格 ---
+        function renderEmployeesSettingsTable() {
+            const tbody = document.querySelector("#employees-settings-table tbody");
+            if (!tbody) return;
+            tbody.innerHTML = "";
+
+            Object.keys(employeeDb).forEach(name => {
+                const emp = employeeDb[name];
+                const tr = document.createElement("tr");
+
+                let tradeOpts = Object.keys(tradesDb).map(t => {
+                    return `<option value="${t}" ${emp.specialty === t ? 'selected' : ''}>${t}</option>`;
+                }).join('');
+
+                tr.innerHTML = `
+                    <td><input type="text" value="${name}" onchange="renameEmployee('${name}', this.value)" style="padding: 4px 8px; font-size:0.8rem; max-width:110px;"></td>
+                    <td>
+                        <select onchange="updateEmployeeField('${name}', 'specialty', this.value)" style="padding: 4px 8px; font-size:0.8rem; background-color:white; width:auto;">
+                            ${tradeOpts}
+                        </select>
+                    </td>
+                    <td><input type="number" value="${emp.transAllow}" onchange="updateEmployeeField('${name}', 'transAllow', this.value)" style="padding: 4px 8px; font-size:0.8rem; max-width:80px;"></td>
+                    <td><input type="number" value="${emp.lodgAllow}" onchange="updateEmployeeField('${name}', 'lodgAllow', this.value)" style="padding: 4px 8px; font-size:0.8rem; max-width:80px;"></td>
+                    <td><input type="number" value="${emp.profAllow}" onchange="updateEmployeeField('${name}', 'profAllow', this.value)" style="padding: 4px 8px; font-size:0.8rem; max-width:80px;"></td>
+                    <td style="text-align: center;">
+                        <input type="checkbox" ${emp.isLead ? 'checked' : ''} onchange="updateEmployeeField('${name}', 'isLead', this.checked)" style="width:auto; height:auto;">
+                    </td>
+                    <td><button type="button" class="btn btn-outline btn-danger" style="padding: 2px 6px; font-size: 0.75rem; width: auto; color: white;" onclick="deleteEmployee('${name}')">刪除</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renameEmployee(oldName, newName) {
+            if (!newName || oldName === newName) return;
+            if (employeeDb[newName] !== undefined) {
+                alert("該員工姓名已存在！");
+                renderEmployeesSettingsTable();
+                return;
+            }
+
+            const data = employeeDb[oldName];
+            delete employeeDb[oldName];
+            employeeDb[newName] = data;
+
+            attendanceLogs.forEach(log => {
+                if (log.name === oldName) log.name = newName;
+                if (log.foreman === oldName) log.foreman = newName;
+            });
+            rosterDb.forEach(r => {
+                if (r.name === oldName) r.name = newName;
+            });
+            leaveDb.forEach(lv => {
+                if (lv.name === oldName) lv.name = newName;
+            });
+
+            saveDatabase();
+            renderDashboard();
+        }
+
+        function updateEmployeeField(name, field, val) {
+            if (field === 'isLead') {
+                employeeDb[name][field] = val;
+            } else if (field === 'specialty') {
+                employeeDb[name][field] = val;
+            } else {
+                employeeDb[name][field] = parseInt(val) || 0;
+            }
+            saveDatabase();
+            renderDashboard();
+        }
+
+        function addEmployee() {
+            let newName = "新員工";
+            let idx = 1;
+            while (employeeDb[`${newName}${idx}`] !== undefined) { idx++; }
+            
+            const defTrade = Object.keys(tradesDb)[0] || "軌道安裝";
+            employeeDb[`${newName}${idx}`] = {
+                specialty: defTrade, transAllow: 0, lodgAllow: 0, profAllow: 0, isLead: false
+            };
+            saveDatabase();
+            renderDashboard();
+        }
+
+        function deleteEmployee(name) {
+            if (confirm(`確定要將員工「${name}」移除嗎？該員工之歷史出勤、薪資統計將被同步清理。`)) {
+                delete employeeDb[name];
+                
+                rosterDb = rosterDb.filter(r => r.name !== name);
+                attendanceLogs = attendanceLogs.filter(a => a.name !== name);
+                leaveDb = leaveDb.filter(lv => lv.name !== name);
+                
+                saveDatabase();
+                renderDashboard();
+            }
+        }
+
+        function addAttendance(event) {
+            event.preventDefault();
+            const date = document.getElementById("date").value;
+            const name = document.getElementById("worker").value;
+            const hours = parseInt(document.getElementById("hours").value);
+            const foreman = document.getElementById("foreman").value;
+            const site = document.getElementById("site").value;
+            const zone = document.getElementById("zone").value;
+            const note = document.getElementById("note").value;
+
+            if (hours > 12) {
+                alert("⚠️ 工安警告：單日出勤時數不得高於 12 小時。系統已自動限制為 12 小時，超時工資將自動累計。");
+            }
+
+            attendanceLogs.push({
+                date, foreman, name, site, zone, hours: Math.min(hours, 12),
+                note: hours > 12 ? `(工時超標扣減上限) ${note}` : note
+            });
+
+            saveDatabase();
+            renderDashboard();
+            document.getElementById("note").value = "";
+        }
+
+        function deleteAttendance(index) {
+            attendanceLogs.splice(index, 1);
+            saveDatabase();
+            renderDashboard();
+        }
+
+        // ==================== 13. CSV 解析與數據備份 ====================
+        function parseCSV(text) {
+            let lines = text.split(/\r?\n/);
+            return lines.map(line => {
+                let result = [];
+                let current = '';
+                let inQuotes = false;
+                for (let i = 0; i < line.length; i++) {
+                    let char = line[i];
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        result.push(current.trim());
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                result.push(current.trim());
+                return result;
+            }).filter(row => row.length > 0 && row.some(cell => cell !== ''));
+        }
+
+        function arrayToCSV(headers, rows) {
+            let csvContent = headers.join(",") + "\r\n";
+            rows.forEach(row => {
+                csvContent += row.map(val => {
+                    let s = String(val).replace(/"/g, '""');
+                    if (s.includes(",") || s.includes('"') || s.includes("\n")) {
+                        return `"${s}"`;
+                    }
+                    return s;
+                }).join(",") + "\r\n";
+            });
+            return csvContent;
+        }
+
+        function downloadCSV(filename, content) {
+            const blob = new Blob(["\ufeff" + content], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", filename);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
+        function importCSV(fileInputId, type) {
+            const fileInput = document.getElementById(fileInputId);
+            if (!fileInput || !fileInput.files.length) {
+                alert("請先選擇要匯入的 CSV 檔案！");
+                return;
+            }
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                try {
+                    const rows = parseCSV(text);
+                    if (rows.length <= 1) {
+                        alert("匯入失敗：CSV 檔案為空或無有效資料！");
+                        return;
+                    }
+                    const headers = rows[0];
+                    const dataRows = rows.slice(1);
+                    
+                    if (type === 'employees') {
+                        if (!headers.includes("員工姓名") || !headers.includes("工種/專長")) {
+                            alert("匯入失敗：CSV 檔案缺少必填欄位「員工姓名」或「工種/專長」！");
+                            return;
+                        }
+                        employeeDb = {};
+                        tradesDb = {};
+                        
+                        dataRows.forEach(row => {
+                            const name = row[headers.indexOf("員工姓名")];
+                            const specialty = row[headers.indexOf("工種/專長")];
+                            const wage = parseInt(row[headers.indexOf("日薪(元)")]) || 2200;
+                            const trans = parseInt(row[headers.indexOf("交通津貼(元/月)")]) || 0;
+                            const lodg = parseInt(row[headers.indexOf("住宿津貼(元/月)")]) || 0;
+                            const prof = parseInt(row[headers.indexOf("專業津貼(元/月)")]) || 0;
+                            const isLead = row[headers.indexOf("是否為領班(是/否)")] === '是';
+                            
+                            if (name && specialty) {
+                                employeeDb[name] = { specialty, transAllow: trans, lodgAllow: lodg, profAllow: prof, isLead };
+                                tradesDb[specialty] = wage;
+                            }
+                        });
+                    } else if (type === 'roster') {
+                        if (!headers.includes("日期") || !headers.includes("員工姓名")) {
+                            alert("匯入失敗：CSV 檔案缺少「日期」或「員工姓名」！");
+                            return;
+                        }
+                        rosterDb = [];
+                        dataRows.forEach(row => {
+                            let date = row[headers.indexOf("日期")];
+                            if (date) date = date.replace(/\//g, '-');
+                            
+                            let createdDate = row[headers.indexOf("建立日期")];
+                            if (createdDate) {
+                                createdDate = createdDate.replace(/\//g, '-');
+                            } else {
+                                createdDate = simulatedDate;
+                            }
+
+                            const name = row[headers.indexOf("員工姓名")];
+                            const site = row[headers.indexOf("預計案場")] || "台積電F20";
+                            const zone = row[headers.indexOf("預計案名")] || "一般派工";
+                            
+                            const status = row[headers.indexOf("回覆狀態")] || "待回覆";
+                            const notified_1st = row[headers.indexOf("派工隔日通知")] || "—";
+                            const notified_5d = row[headers.indexOf("5天前通知")] || "—";
+                            const notified_2d = row[headers.indexOf("2天前通知")] || "—";
+                            const notified_1d = row[headers.indexOf("1天前通知")] || "—";
+
+                            if (name && date) {
+                                rosterDb.push({
+                                    date, createdDate, name, site, zone, status,
+                                    notified_1st, notified_5d, notified_2d, notified_1d
+                                });
+                            }
+                        });
+                    } else if (type === 'attendance') {
+                        if (!headers.includes("日期") || !headers.includes("員工姓名")) {
+                            alert("匯入失敗：CSV 檔案缺少「日期」或「員工姓名」！");
+                            return;
+                        }
+                        attendanceLogs = [];
+                        dataRows.forEach(row => {
+                            let date = row[headers.indexOf("日期")];
+                            if (date) date = date.replace(/\//g, '-');
+                            const foreman = row[headers.indexOf("回報領班")] || "無";
+                            const name = row[headers.indexOf("員工姓名")];
+                            const site = row[headers.indexOf("案場名稱")] || "台積電F20";
+                            const zone = row[headers.indexOf("案名")] || "一般派工";
+                            const hours = parseInt(row[headers.indexOf("實際工作時數(小時)")]) || 8;
+                            const note = row[headers.indexOf("備註")] || "";
+                            
+                            if (name && date) {
+                                attendanceLogs.push({ date, foreman, name, site, zone, hours, note });
+                            }
+                        });
+                    } else if (type === 'leave') {
+                        if (!headers.includes("請假日期") || !headers.includes("員工姓名")) {
+                            alert("匯入失敗：CSV 檔案缺少「請假日期」或「員工姓名」！");
+                            return;
+                        }
+                        leaveDb = [];
+                        dataRows.forEach(row => {
+                            const appliedAt = row[headers.indexOf("申請時間")] || new Date().toLocaleString();
+                            const name = row[headers.indexOf("員工姓名")];
+                            let date = row[headers.indexOf("請假日期")];
+                            if (date) date = date.replace(/\//g, '-');
+                            const type = row[headers.indexOf("請假假別")] || "一般事假";
+                            const reason = row[headers.indexOf("請假事由")] || "個人事宜";
+                            const proof = row[headers.indexOf("證明文件")] || "無";
+                            const status = row[headers.indexOf("審核狀態")] || "已核准";
+                            const id = "LV-" + Math.random().toString(36).substr(2, 9).toUpperCase();
+                            
+                            if (name && date) {
+                                leaveDb.push({ id, date, name, type, reason, proof, status, appliedAt });
+                            }
+                        });
+                    }
+                    
+                    saveDatabase();
+                    renderDashboard();
+                    alert("CSV 數據成功匯入！已即時更新本地資料庫。");
+                    fileInput.value = "";
+                } catch (err) {
+                    alert("匯入出錯，請檢查檔案編碼是否為 UTF-8 且欄位完整！");
+                    console.error(err);
+                }
+            };
+            reader.readAsText(file, "UTF-8");
+        }
+
+        function exportCSV(type) {
+            let headers = [];
+            let rows = [];
+            let filename = "";
+
+            if (type === 'employees') {
+                headers = ["員工姓名", "工種/專長", "日薪(元)", "交通津貼(元/月)", "住宿津貼(元/月)", "專業津貼(元/月)", "是否為領班(是/否)"];
+                Object.keys(employeeDb).forEach(name => {
+                    const emp = employeeDb[name];
+                    const wage = tradesDb[emp.specialty] || 0;
+                    rows.push([
+                        name, emp.specialty, wage, emp.transAllow, emp.lodgAllow, emp.profAllow, emp.isLead ? "是" : "否"
+                    ]);
+                });
+                filename = "01_人員基本資料.csv";
+            } else if (type === 'roster') {
+                headers = ["日期", "員工姓名", "預計案場", "預計案名", "建立日期", "回覆狀態", "派工隔日通知", "5天前通知", "2天前通知", "1天前通知"];
+                rosterDb.forEach(r => {
+                    rows.push([
+                        r.date.replace(/-/g, '/'),
+                        r.name,
+                        r.site,
+                        r.zone,
+                        r.createdDate ? r.createdDate.replace(/-/g, '/') : "",
+                        r.status || "待回覆",
+                        r.notified_1st || "—",
+                        r.notified_5d || "—",
+                        r.notified_2d || "—",
+                        r.notified_1d || "—"
+                    ]);
+                });
+                filename = "02_預計出勤班表.csv";
+            } else if (type === 'attendance') {
+                headers = ["日期", "回報領班", "員工姓名", "案場名稱", "案名", "實際工作時數(小時)", "是否加班(是/否)", "加班時數", "備註"];
+                attendanceLogs.forEach(log => {
+                    const otHours = Math.max(0, log.hours - 8);
+                    rows.push([
+                        log.date.replace(/-/g, '/'), log.foreman, log.name, log.site, log.zone, log.hours,
+                        otHours > 0 ? "是" : "否", otHours, log.note
+                    ]);
+                });
+                filename = "03_每日出勤回報.csv";
+            } else if (type === 'leave') {
+                headers = ["申請時間", "員工姓名", "請假日期", "請假假別", "請假事由", "證明文件", "審核狀態"];
+                leaveDb.forEach(lv => {
+                    rows.push([lv.appliedAt, lv.name, lv.date.replace(/-/g, '/'), lv.type, lv.reason, lv.proof, lv.status]);
+                });
+                filename = "04_請假審核紀錄.csv";
+            }
+
+            const csvContent = arrayToCSV(headers, rows);
+            downloadCSV(filename, csvContent);
+        }
+
+        // ==================== 14. 初始化呼叫 ====================
+        window.onload = initApp;
+
+        // ==================== 16. 會計調控中心模組 ====================
+
+        // ── 資料儲存 ──
+        let accData = JSON.parse(localStorage.getItem('acc_data') || JSON.stringify({
+            company: { name:'日森精工有限公司', taxId:'', type:'ltd', capital:500000, par:1000, shares:500, owner:'', founded:'', address:'', business:'' },
+            shareholders: [
+                { name: '法人股東', shares: 255, type: 'corp', idno: '法人統編' },
+                { name: '自然人股東', shares: 245, type: 'person', idno: '自然人身分證' }
+            ],
+            balanceSheet: { cash:0, prepaid:0, fixed:0, ap:0, loan:0, otherLiab:0 }
+        }));
+        let equityPieChart = null, forecastChart = null;
+        let monthlyRevChart = null, expensePieChart = null, monthlyPayrollChart = null, monthlyProfitChart = null;
+
+        function saveAccData() { localStorage.setItem('acc_data', JSON.stringify(accData)); }
+
+        // ── 子頁籤切換 ──
+        function switchAccTab(name) {
+            document.querySelectorAll('.atab-content').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('[id^="atab-"][id$="-btn"]').forEach(btn => btn.className = 'btn btn-outline');
+            const el = document.getElementById('atab-' + name);
+            if (el) el.style.display = '';
+            const btn = document.getElementById('atab-' + name + '-btn');
+            if (btn) btn.className = 'btn';
+            renderAccDashboard();
+            if (name === 'equity')    { loadCompanyInfoToForm(); renderShareholders(); }
+            if (name === 'company')   loadCompanyInfoToForm();
+            if (name === 'dividend')  calcDividend();
+            if (name === 'income')    buildIncomeStatement();
+            if (name === 'balance')   { loadBalanceSheetInputs(); buildBalanceSheet(); }
+            if (name === 'tax-corp')  calcCorpTax();
+            if (name === 'charts')    setTimeout(buildAllCharts, 100);
+        }
+
+        // ── 儀表板 KPI ──
+        function renderAccDashboard() {
+            const year = new Date().getFullYear().toString();
+            const totalRev  = invoices.filter(i => i.issueDate && i.issueDate.startsWith(year)).reduce((s,i) => s+i.amount, 0);
+            const totalPaid = payslips.filter(p => p.month && p.month.startsWith(year) && p.status==='已匯款').reduce((s,p) => s+p.gross, 0);
+            const totalExp  = expenses.filter(e => e.date && e.date.startsWith(year)).reduce((s,e) => s+e.amount, 0);
+            const ebit      = totalRev - totalPaid - totalExp;
+            const tax       = ebit > 120000 ? Math.min(ebit * 0.2, (ebit - 120000) * 0.5 + 120000 * 0) : 0;
+            const netProfit = Math.max(0, ebit - calcCorpTaxAmount(ebit));
+            const totalShares = accData.shareholders.reduce((s,sh) => s+sh.shares, 0) || accData.company.shares || 1;
+            const eps = totalShares > 0 ? (netProfit / totalShares) : 0;
+            const ar  = invoices.filter(i => i.status !== '已收款').reduce((s,i) => s+i.total, 0);
+            const el  = document.getElementById('acc-dashboard-kpi');
+            if (!el) return;
+            const kpis = [
+                { label:`${year} 年度營收`, val: '$'+totalRev.toLocaleString(), color:'var(--accent)' },
+                { label:`${year} 稅後淨利`, val: '$'+netProfit.toLocaleString(), color: netProfit>=0?'var(--success)':'var(--danger)' },
+                { label:'毛利率', val: totalRev>0 ? (ebit/totalRev*100).toFixed(1)+'%' : '—', color:'var(--warning)' },
+                { label:'應收未收', val: '$'+ar.toLocaleString(), color: ar>0?'var(--danger)':'var(--success)' },
+                { label:`EPS（每股盈餘）`, val: '$'+eps.toFixed(1), color:'#7c3aed' },
+                { label:'股東人數', val: accData.shareholders.length+'人', color:'var(--text-muted)' },
+            ];
+            el.innerHTML = kpis.map(k => `<div class="card" style="margin:0;text-align:center;border-color:var(--border);">
+                <div style="font-size:0.78rem;color:var(--text-muted)">${k.label}</div>
+                <div style="font-size:1.5rem;font-weight:700;color:${k.color}">${k.val}</div>
+            </div>`).join('');
+        }
+
+        function calcCorpTaxAmount(pretax) {
+            if (pretax <= 0) return 0;
+            if (pretax <= 120000) return 0;
+            // 不超過應稅所得減除12萬元後金額的1/2
+            return Math.min(pretax * 0.2, (pretax - 120000) / 2 + pretax * 0.2 - pretax * 0.2);
+            // 簡化：直接20%，但最多到(pretax - 120000)*0.5
+            // 正確：tax = min(pretax*0.2, (pretax-120000)*0.5) when 120000 < pretax <= 240000
+        }
+
+        // 修正公式
+        function calcCorpTaxAmountCorrect(pretax) {
+            if (pretax <= 0) return 0;
+            if (pretax <= 120000) return 0;
+            const tax20 = pretax * 0.2;
+            const taxCap = (pretax - 120000) * 0.5; // 超過12萬的部分最多只課一半
+            return pretax <= 240000 ? Math.min(tax20, taxCap) : tax20;
+        }
+
+        // ── 公司資訊 ──
+        function loadCompanyInfoToForm() {
+            const c = accData.company;
+            const fields = { 'co-name':c.name,'co-taxid':c.taxId,'co-type':c.type,'co-capital':c.capital,
+                'co-par':c.par,'co-shares':c.shares,'co-owner':c.owner,'co-founded':c.founded,
+                'co-address':c.address,'co-business':c.business };
+            Object.entries(fields).forEach(([id,val]) => { const el=document.getElementById(id); if(el) el.value=val||''; });
+            calcCoShares();
+        }
+
+        function calcCoShares() {
+            const par = parseFloat(document.getElementById('co-par')?.value)||0;
+            const shares = parseFloat(document.getElementById('co-shares')?.value)||0;
+            const el = document.getElementById('co-capital-calc');
+            if (el) el.textContent = par && shares ? '$' + (par*shares).toLocaleString() : '—';
+        }
+
+        function saveCompanyInfo() {
+            accData.company = {
+                name:    document.getElementById('co-name').value,
+                taxId:   document.getElementById('co-taxid').value,
+                type:    document.getElementById('co-type').value,
+                capital: parseFloat(document.getElementById('co-capital').value)||0,
+                par:     parseFloat(document.getElementById('co-par').value)||0,
+                shares:  parseFloat(document.getElementById('co-shares').value)||0,
+                owner:   document.getElementById('co-owner').value,
+                founded: document.getElementById('co-founded').value,
+                address: document.getElementById('co-address').value,
+                business:document.getElementById('co-business').value,
+            };
+            saveAccData();
+            alert('✅ 公司資訊已儲存！');
+            renderAccDashboard();
+        }
+
+        // ── 股東名冊 ──
+        function addShareholder() {
+            const name   = document.getElementById('sh-name').value.trim();
+            const shares = parseFloat(document.getElementById('sh-shares').value)||0;
+            const type   = document.getElementById('sh-type').value;
+            const idno   = document.getElementById('sh-idno').value.trim();
+            if (!name || !shares) { alert('請填寫股東姓名與持股數'); return; }
+            accData.shareholders.push({ name, shares, type, idno });
+            saveAccData();
+            ['sh-name','sh-shares','sh-idno'].forEach(id => document.getElementById(id).value='');
+            renderShareholders();
+        }
+
+        function deleteShareholder(idx) {
+            if (!confirm('確定移除此股東？')) return;
+            accData.shareholders.splice(idx,1);
+            saveAccData();
+            renderShareholders();
+        }
+
+        function renderShareholders() {
+            const totalShares = accData.shareholders.reduce((s,sh) => s+sh.shares, 0) || 1;
+            const par = accData.company.par || 1000;
+            const tbody = document.querySelector('#shareholder-table tbody');
+            if (!tbody) return;
+            tbody.innerHTML = accData.shareholders.length === 0
+                ? '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:1.5rem;">尚無股東資料</td></tr>'
+                : accData.shareholders.map((sh,i) => {
+                    const pct = (sh.shares / totalShares * 100).toFixed(2);
+                    const amt = sh.shares * par;
+                    return `<tr>
+                        <td>${sh.name}</td>
+                        <td>${sh.type==='person'?'自然人':'法人'}</td>
+                        <td style="text-align:right">${sh.shares.toLocaleString()} 股</td>
+                        <td style="text-align:right;font-weight:bold;color:var(--accent)">${pct}%</td>
+                        <td style="text-align:right">$${amt.toLocaleString()}</td>
+                        <td><button class="btn btn-outline btn-danger" style="padding:2px 8px;font-size:0.75rem;color:var(--danger)" onclick="deleteShareholder(${i})">🗑</button></td>
+                    </tr>`;
+                }).join('');
+
+            // 圓餅圖
+            const labels = accData.shareholders.map(sh => sh.name);
+            const data   = accData.shareholders.map(sh => sh.shares);
+            const colors = ['#6366f1','#22c55e','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#f97316','#ec4899'];
+            const ctx = document.getElementById('equity-pie-chart');
+            if (!ctx) return;
+            if (equityPieChart) equityPieChart.destroy();
+            if (data.length > 0) {
+                equityPieChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: { labels, datasets: [{ data, backgroundColor: colors.slice(0,data.length), borderWidth:2 }] },
+                    options: { plugins:{ legend:{ position:'bottom' } }, cutout:'60%' }
+                });
+            }
+        }
+
+        // ── 股利分配 ──
+        function calcDividend() {
+            const netProfit = parseFloat(document.getElementById('div-net-profit')?.value)||0;
+            const reserve   = Math.round(netProfit * 0.1);
+            const distrib   = netProfit - reserve;
+            const divTotal  = Math.min(parseFloat(document.getElementById('div-total')?.value)||0, distrib);
+            const retained  = distrib - divTotal;
+            const totalShares = accData.shareholders.reduce((s,sh)=>s+sh.shares,0) || accData.company.shares || 1;
+            const perShare  = totalShares > 0 ? divTotal / totalShares : 0;
+
+            const setVal = (id,v) => { const el=document.getElementById(id); if(el) el.value=Math.round(v); };
+            setVal('div-reserve', reserve);
+            setVal('div-distributable', distrib);
+            setVal('div-retained', retained);
+            const el = document.getElementById('div-per-share');
+            if (el) el.textContent = '$' + perShare.toFixed(2);
+
+            // 各股東股利
+            const tbody = document.querySelector('#dividend-table tbody');
+            if (!tbody) return;
+            if (accData.shareholders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:1rem;">請先至「股權結構」新增股東</td></tr>';
+                return;
+            }
+            tbody.innerHTML = accData.shareholders.map(sh => {
+                const pct = sh.shares / totalShares;
+                const divAmt = Math.round(divTotal * pct);
+                const tax    = Math.round(divAmt * 0.28);
+                const net    = divAmt - tax;
+                return `<tr>
+                    <td>${sh.name}</td>
+                    <td style="text-align:center">${(pct*100).toFixed(2)}%</td>
+                    <td style="text-align:right">$${divAmt.toLocaleString()}</td>
+                    <td style="text-align:right;color:var(--danger)">$${tax.toLocaleString()}</td>
+                    <td style="text-align:right;font-weight:bold">$${net.toLocaleString()}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        // ── 損益表 ──
+
+        function buildIncomeStatement() {
+            const year = document.getElementById('is-year')?.value || '2026';
+            const el   = document.getElementById('income-statement-result');
+            if (!el) return;
+
+            // 相容 i.issueDate 與 i.date 欄位，且僅採納 valid (正常開立) 發票
+            const revenue    = invoices.filter(i => ((i.issueDate || i.date)?.startsWith(year)) && i.status === 'valid').reduce((s,i)=>s+i.amount,0);
+            const outputTax  = invoices.filter(i => ((i.issueDate || i.date)?.startsWith(year)) && i.status === 'valid').reduce((s,i)=>s+i.tax,0);
+            const payrollCost= payslips.filter(p => p.month?.startsWith(year) && p.status==='已匯款').reduce((s,p)=>s+p.gross,0);
+            const otherExpense= expenses.filter(e => e.date?.startsWith(year)).reduce((s,e)=>s+e.amount,0);
+            
+            const ebit       = revenue - payrollCost - otherExpense;
+            const corpTax    = calcCorpTaxAmountCorrect(ebit);
+            const netProfit  = ebit - corpTax;
+            const totalShares= accData.shareholders.reduce((s,sh)=>s+sh.shares,0) || accData.company.shares || 1;
+            const eps        = totalShares > 0 ? netProfit / totalShares : 0;
+
+            const inputTax = HimoriDb.vouchersDb.filter(v => v.type === '進項發票' && v.date?.startsWith(year)).reduce((s,v) => s + Math.round(v.amount * 0.05), 0);
+            const vatPayable = outputTax - inputTax;
+
+            if (document.getElementById('tax-calc-output-tax')) {
+                document.getElementById('tax-calc-output-tax').textContent = '$' + outputTax.toLocaleString();
+                document.getElementById('tax-calc-input-tax').textContent = '$' + inputTax.toLocaleString();
+                document.getElementById('tax-calc-vat-payable').textContent = '$' + vatPayable.toLocaleString();
+            }
+
+            const row = (label, amt, indent=false, bold=false, color='') =>
+                `<tr>
+                    <td style="padding:6px 8px;${indent?'padding-left:1.5rem;':''}${bold?'font-weight:bold;':''}">${label}</td>
+                    <td style="text-align:right;padding:6px 8px;${bold?'font-weight:bold;':''}${color?'color:'+color+';':''}">${amt >= 0 ? '$'+Math.abs(Math.round(amt)).toLocaleString() : '-$'+Math.abs(Math.round(amt)).toLocaleString()}</td>
+                </tr>`;
+
+            el.innerHTML = `
+            <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+                <thead><tr style="background:var(--bg);">
+                    <th style="text-align:left;padding:8px;">損益表項目 (${year}年度)</th>
+                    <th style="text-align:right;padding:8px;">金額（元）</th>
+                </tr></thead>
+                <tbody>
+                    ${row('一、營業收入（未稅）', revenue, false, true, 'var(--accent)')}
+                    ${row('  銷項營業稅（5%）（-）', -outputTax, true)}
+                    <tr><td colspan="2" style="height:1px;background:var(--border);padding:0;"></td></tr>
+                    ${row('二、直接成本', payrollCost, false, true)}
+                    ${row('  現場人事薪資費用（-）', -payrollCost, true)}
+                    <tr><td colspan="2" style="height:1px;background:var(--border);padding:0;"></td></tr>
+                    ${row('三、其他費用', otherExpense, false, true)}
+                    ${row('  進項憑證與各項支出（-）', -otherExpense, true)}
+                    <tr><td colspan="2" style="height:2px;background:var(--accent);padding:0;"></td></tr>
+                    ${row('四、營業利益（EBIT）', ebit, false, true, ebit>=0?'var(--success)':'var(--danger)')}
+                    ${row('  營所稅估算 (20%)（-）', -corpTax, true)}
+                    <tr><td colspan="2" style="height:2px;background:var(--accent);padding:0;"></td></tr>
+                    ${row('五、本期稅後淨利', netProfit, false, true, netProfit>=0?'var(--success)':'var(--danger)')}
+                    <tr><td colspan="2" style="height:1px;background:var(--border);padding:0;"></td></tr>
+                    ${row('EPS（每股盈餘）', eps.toFixed(2)+' 元/股', false, false, '#7c3aed')}
+                </tbody>
+            </table>
+            <div style="margin-top:0.75rem;padding:0.75rem;background:var(--bg);border-radius:8px;font-size:0.8rem;display:flex;gap:1.5rem;flex-wrap:wrap;">
+                <span>毛利率：<strong>${revenue>0?(ebit/revenue*100).toFixed(1):'0'}%</strong></span>
+                <span>淨利率：<strong>${revenue>0?(netProfit/revenue*100).toFixed(1):'0'}%</strong></span>
+                <span>EPS：<strong>$${eps.toFixed(2)}</strong></span>
+            </div>`;
+
+            const npInput = document.getElementById('div-net-profit');
+            if (npInput && !npInput.value) { npInput.value = Math.max(0, Math.round(netProfit)); }
+        }
+        // ── 資產負債表 ──
+        function loadBalanceSheetInputs() {
+            const bs = accData.balanceSheet;
+            const map = { 'bs-cash':bs.cash,'bs-prepaid':bs.prepaid,'bs-fixed':bs.fixed,'bs-ap':bs.ap,'bs-loan':bs.loan,'bs-other-liab':bs.otherLiab };
+            Object.entries(map).forEach(([id,v]) => { const el=document.getElementById(id); if(el) el.value=v||''; });
+        }
+
+        function buildBalanceSheet() {
+            const g = id => parseFloat(document.getElementById(id)?.value)||0;
+            const cash=g('bs-cash'), prepaid=g('bs-prepaid'), fixed=g('bs-fixed');
+            const ap=g('bs-ap'), loan=g('bs-loan'), otherLiab=g('bs-other-liab');
+
+            // 自動從模組帶入
+            const ar     = invoices.filter(i => i.status !== '已收款').reduce((s,i) => s+i.total, 0);
+            const accrued= payslips.filter(p => p.status === '待發薪').reduce((s,p) => s+p.netPay, 0);
+
+            const totalAssets = cash + ar + prepaid + fixed;
+            const totalLiab   = ap + accrued + loan + otherLiab;
+
+            const year   = new Date().getFullYear().toString();
+            const revenue= invoices.filter(i => i.issueDate?.startsWith(year)).reduce((s,i)=>s+i.amount,0);
+            const payrollCost= payslips.filter(p => p.month?.startsWith(year) && p.status==='已匯款').reduce((s,p)=>s+p.gross,0);
+            const otherExp= expenses.filter(e => e.date?.startsWith(year)).reduce((s,e)=>s+e.amount,0);
+            const netProfit= Math.max(0, revenue - payrollCost - otherExp - calcCorpTaxAmountCorrect(revenue - payrollCost - otherExp));
+
+            const paidInCap = accData.company.capital || 0;
+            const equity    = totalAssets - totalLiab;
+
+            // 儲存手動輸入
+            accData.balanceSheet = { cash, prepaid, fixed, ap, loan, otherLiab };
+            saveAccData();
+
+            const el = document.getElementById('balance-sheet-result');
+            if (!el) return;
+            const bsRow = (label, val, bold=false, indent=false, color='') =>
+                `<tr>
+                    <td style="padding:5px 8px;${indent?'padding-left:1.5rem;':''}${bold?'font-weight:bold;':''}">${label}</td>
+                    <td style="text-align:right;padding:5px 8px;${bold?'font-weight:bold;':''}${color?'color:'+color+';':''}">$${Math.round(val).toLocaleString()}</td>
+                </tr>`;
+
+            el.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+                <thead><tr style="background:var(--bg);">
+                    <th style="text-align:left;padding:8px;">資產負債表項目（截至 ${document.getElementById('bs-date')?.value||'今日'}）</th>
+                    <th style="text-align:right;padding:8px;">金額（元）</th>
+                </tr></thead>
+                <tbody>
+                    ${bsRow('【資產】', '', true, false, 'var(--accent)')}
+                    ${bsRow('現金及約當現金', cash, false, true)}
+                    ${bsRow('應收帳款（自請款模組）', ar, false, true)}
+                    ${bsRow('預付款項', prepaid, false, true)}
+                    ${bsRow('固定資產', fixed, false, true)}
+                    ${bsRow('資產合計', totalAssets, true, false, 'var(--accent)')}
+                    <tr><td colspan="2" style="height:2px;background:var(--border);padding:0;"></td></tr>
+                    ${bsRow('【負債】', '', true, false, 'var(--danger)')}
+                    ${bsRow('應付帳款', ap, false, true)}
+                    ${bsRow('應付薪資（待發薪）', accrued, false, true)}
+                    ${bsRow('短期借款', loan, false, true)}
+                    ${bsRow('其他應付款', otherLiab, false, true)}
+                    ${bsRow('負債合計', totalLiab, true, false, 'var(--danger)')}
+                    <tr><td colspan="2" style="height:2px;background:var(--border);padding:0;"></td></tr>
+                    ${bsRow('【股東權益】', '', true, false, '#7c3aed')}
+                    ${bsRow('實收資本額', paidInCap, false, true)}
+                    ${bsRow('本年度保留盈餘', Math.max(0,equity - paidInCap), false, true)}
+                    ${bsRow('股東權益合計', equity, true, false, equity>=0?'var(--success)':'var(--danger)')}
+                    <tr><td colspan="2" style="height:2px;background:var(--accent);padding:0;"></td></tr>
+                    ${bsRow('負債 + 股東權益', totalLiab + equity, true, false, Math.abs(totalLiab + equity - totalAssets) < 10 ? 'var(--success)':'var(--danger)')}
+                </tbody></table>`;
+        }
+
+        // ── 營所稅 ──
+        function calcCorpTax() {
+            const year = document.getElementById('cit-year')?.value || '2026';
+            const revenue    = invoices.filter(i => i.issueDate?.startsWith(year)).reduce((s,i)=>s+i.amount,0);
+            const payrollCost= payslips.filter(p => p.month?.startsWith(year) && p.status==='已匯款').reduce((s,p)=>s+p.gross,0);
+            const otherExp   = expenses.filter(e => e.date?.startsWith(year)).reduce((s,e)=>s+e.amount,0);
+            const pretax     = revenue - payrollCost - otherExp;
+            const tax        = calcCorpTaxAmountCorrect(pretax);
+            const netProfit  = pretax - tax;
+            const el = document.getElementById('corp-tax-result');
+            if (!el) return;
+
+            const color = pretax > 0 ? 'var(--success)' : 'var(--danger)';
+            el.innerHTML = `
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1rem;">
+                <div class="card" style="margin:0;text-align:center;border-color:var(--border);">
+                    <div style="font-size:0.8rem;color:var(--text-muted)">稅前利益</div>
+                    <div style="font-size:1.6rem;font-weight:700;color:${color}">$${Math.round(pretax).toLocaleString()}</div>
+                </div>
+                <div class="card" style="margin:0;text-align:center;border-color:var(--border);">
+                    <div style="font-size:0.8rem;color:var(--text-muted)">應納所得稅</div>
+                    <div style="font-size:1.6rem;font-weight:700;color:var(--danger)">$${Math.round(tax).toLocaleString()}</div>
+                </div>
+                <div class="card" style="margin:0;text-align:center;border-color:var(--border);">
+                    <div style="font-size:0.8rem;color:var(--text-muted)">稅後淨利</div>
+                    <div style="font-size:1.6rem;font-weight:700;color:${netProfit>=0?'var(--success)':'var(--danger)'}">$${Math.round(netProfit).toLocaleString()}</div>
+                </div>
+            </div>
+            <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+                <tbody>
+                    <tr style="background:var(--bg);"><td style="padding:6px 8px;font-weight:bold;">計算明細</td><td style="text-align:right;padding:6px 8px;font-weight:bold;">金額</td></tr>
+                    <tr><td style="padding:5px 8px;">當年度收入</td><td style="text-align:right;padding:5px 8px;">$${revenue.toLocaleString()}</td></tr>
+                    <tr><td style="padding:5px 8px;">薪資費用（-）</td><td style="text-align:right;padding:5px 8px;color:var(--danger)">-$${payrollCost.toLocaleString()}</td></tr>
+                    <tr><td style="padding:5px 8px;">其他費用（-）</td><td style="text-align:right;padding:5px 8px;color:var(--danger)">-$${otherExp.toLocaleString()}</td></tr>
+                    <tr style="border-top:2px solid var(--accent);"><td style="padding:5px 8px;font-weight:bold;">稅前利益</td><td style="text-align:right;padding:5px 8px;font-weight:bold;color:${color}">$${Math.round(pretax).toLocaleString()}</td></tr>
+                    <tr><td style="padding:5px 8px;">適用稅率</td><td style="text-align:right;padding:5px 8px;">${pretax <= 0 ? '免稅（虧損）' : pretax <= 120000 ? '免稅（未達起徵額）' : '20%'}</td></tr>
+                    <tr><td style="padding:5px 8px;">應納稅額</td><td style="text-align:right;padding:5px 8px;color:var(--danger)">$${Math.round(tax).toLocaleString()}</td></tr>
+                    <tr style="border-top:2px solid var(--accent);"><td style="padding:5px 8px;font-weight:bold;">稅後淨利</td><td style="text-align:right;padding:5px 8px;font-weight:bold;color:${netProfit>=0?'var(--success)':'var(--danger)'}">$${Math.round(netProfit).toLocaleString()}</td></tr>
+                </tbody>
+            </table>`;
+        }
+
+        // ── 財務預測 ──
+        function buildForecast() {
+            const monthRev  = parseFloat(document.getElementById('fc-monthly-rev')?.value)||0;
+            const monthPay  = parseFloat(document.getElementById('fc-monthly-payroll')?.value)||0;
+            const monthExp  = parseFloat(document.getElementById('fc-monthly-expense')?.value)||0;
+            const gOpt  = parseFloat(document.getElementById('fc-growth-opt')?.value)/100 || 0.2;
+            const gBase = parseFloat(document.getElementById('fc-growth-base')?.value)/100 || 0.1;
+            const gPes  = parseFloat(document.getElementById('fc-growth-pes')?.value)/100 || -0.05;
+
+            const yr = new Date().getFullYear();
+            const scenarios = [
+                { label:'樂觀', g:gOpt, color:'#22c55e' },
+                { label:'基準', g:gBase, color:'#6366f1' },
+                { label:'悲觀', g:gPes, color:'#ef4444' },
+            ];
+
+            const results = scenarios.map(sc => {
+                const years = [yr, yr+1, yr+2];
+                return {
+                    ...sc,
+                    data: years.map((y,i) => {
+                        const factor = Math.pow(1+sc.g, i);
+                        const rev  = monthRev * 12 * factor;
+                        const cost = (monthPay + monthExp) * 12 * Math.pow(1 + sc.g * 0.7, i);
+                        const ebit = rev - cost;
+                        const tax  = calcCorpTaxAmountCorrect(ebit);
+                        return { year:y, rev:Math.round(rev), cost:Math.round(cost), ebit:Math.round(ebit), tax:Math.round(tax), net:Math.round(ebit-tax) };
+                    })
+                };
+            });
+
+            const el = document.getElementById('forecast-result');
+            if (el) {
+                el.innerHTML = `<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+                    <thead><tr style="background:var(--bg);">
+                        <th>情境</th><th>年度</th><th>預估營收</th><th>預估成本</th><th>稅前利益</th><th>所得稅</th><th>稅後淨利</th>
+                    </tr></thead>
+                    <tbody>
+                    ${results.map(sc => sc.data.map((d,i) => `<tr style="border-left:3px solid ${sc.color}">
+                        <td style="font-weight:bold;color:${sc.color}">${i===0?sc.label:'↳'}</td>
+                        <td>${d.year}</td>
+                        <td style="text-align:right">$${d.rev.toLocaleString()}</td>
+                        <td style="text-align:right;color:var(--danger)">$${d.cost.toLocaleString()}</td>
+                        <td style="text-align:right;color:${d.ebit>=0?'var(--success)':'var(--danger)'}">$${d.ebit.toLocaleString()}</td>
+                        <td style="text-align:right">$${d.tax.toLocaleString()}</td>
+                        <td style="text-align:right;font-weight:bold;color:${d.net>=0?'var(--success)':'var(--danger)'}">$${d.net.toLocaleString()}</td>
+                    </tr>`).join('')).join('')}
+                    </tbody></table></div>`;
+            }
+
+            // 圖表
+            const ctx = document.getElementById('forecast-chart');
+            if (!ctx) return;
+            if (forecastChart) forecastChart.destroy();
+            const years = [yr, yr+1, yr+2];
+            forecastChart = new Chart(ctx, {
+                type:'line',
+                data: {
+                    labels: years,
+                    datasets: results.map(sc => ({
+                        label: sc.label + ' 稅後淨利',
+                        data: sc.data.map(d => d.net),
+                        borderColor: sc.color,
+                        backgroundColor: sc.color + '20',
+                        tension: 0.4,
+                        fill: true,
+                        borderWidth: 2,
+                        pointRadius: 5
+                    }))
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend:{ position:'top' }, title:{ display:true, text:'三情境稅後淨利預測' } },
+                    scales: { y:{ ticks:{ callback: v => '$'+v.toLocaleString() } } }
+                }
+            });
+        }
+
+        // ── 圖表分析 ──
+        function buildAllCharts() {
+            const months = ['01','02','03','04','05','06','07','08','09','10','11','12'];
+            const yr = new Date().getFullYear().toString();
+            const monthLabels = months.map(m => yr+'/'+m);
+
+            const revData     = months.map(m => invoices.filter(i=>i.issueDate?.startsWith(yr+'-'+m)).reduce((s,i)=>s+i.amount,0));
+            const payrollData = months.map(m => payslips.filter(p=>p.month===yr+'-'+m&&p.status==='已匯款').reduce((s,p)=>s+p.gross,0));
+            const expData     = months.map(m => expenses.filter(e=>e.date?.startsWith(yr+'-'+m)).reduce((s,e)=>s+e.amount,0));
+            const profitData  = months.map((_,i) => revData[i] - payrollData[i] - expData[i]);
+
+            // 費用結構圓餅
+            const expByCategory = {};
+            expenses.filter(e=>e.date?.startsWith(yr)).forEach(e => { expByCategory[e.category]=(expByCategory[e.category]||0)+e.amount; });
+
+            const pieColors = ['#6366f1','#22c55e','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#f97316'];
+            const makeChart = (id, existing, type, data, opts={}) => {
+                const ctx = document.getElementById(id);
+                if (!ctx) return null;
+                if (existing) existing.destroy();
+                return new Chart(ctx, { type, data, options:{ responsive:true, ...opts } });
+            };
+
+            monthlyRevChart = makeChart('monthly-revenue-chart', monthlyRevChart, 'bar',
+                { labels: monthLabels.map(l=>l.slice(5)+'/月'), datasets:[{ label:'月度營收', data:revData, backgroundColor:'#6366f180', borderColor:'#6366f1', borderWidth:1 }] },
+                { plugins:{ legend:{display:false} }, scales:{ y:{ ticks:{ callback:v=>'$'+v.toLocaleString() } } } }
+            );
+
+            expensePieChart = makeChart('expense-pie-chart', expensePieChart, 'doughnut',
+                { labels: Object.keys(expByCategory), datasets:[{ data: Object.values(expByCategory), backgroundColor: pieColors, borderWidth:2 }] },
+                { plugins:{ legend:{ position:'bottom' } }, cutout:'55%' }
+            );
+
+            monthlyPayrollChart = makeChart('monthly-payroll-chart', monthlyPayrollChart, 'bar',
+                { labels: monthLabels.map(l=>l.slice(5)+'/月'), datasets:[{ label:'薪資支出', data:payrollData, backgroundColor:'#ef444480', borderColor:'#ef4444', borderWidth:1 }] },
+                { plugins:{ legend:{display:false} }, scales:{ y:{ ticks:{ callback:v=>'$'+v.toLocaleString() } } } }
+            );
+
+            monthlyProfitChart = makeChart('monthly-profit-chart', monthlyProfitChart, 'line',
+                { labels: monthLabels.map(l=>l.slice(5)+'/月'), datasets:[{
+                    label:'月損益', data:profitData,
+                    borderColor:'#22c55e', backgroundColor: profitData.map(v=>v>=0?'#22c55e30':'#ef444430'),
+                    tension:0.3, fill:true, pointRadius:4,
+                    segment:{ borderColor: ctx => ctx.p0.parsed.y >= 0 ? '#22c55e' : '#ef4444' }
+                }] },
+                { plugins:{ legend:{display:false} }, scales:{ y:{ ticks:{ callback:v=>'$'+v.toLocaleString() } } } }
+            );
+        }
+
+        // ── 初始化：進入頁籤時載入公司資訊 ──
+        (function initAccounting() {
+            // 延遲等待 DOM 就緒
+            setTimeout(() => {
+                loadCompanyInfoToForm();
+                renderAccDashboard();
+            }, 500);
+        })();
+
+    </script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- 頁尾開發商版權宣告 -->
+    <div style="font-size: 0.7rem; color: var(--text-muted, #64748B); text-align: center; margin: 3rem 0 1.5rem 0; padding-top: 1.5rem; border-top: 1px solid var(--border, rgba(255,255,255,0.08)); width: 100%; letter-spacing: 0.5px;">
+        © 2026 映向行銷. Powered by Image Marketing
+    </div>
+</body>
+</html>

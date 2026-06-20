@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日森精工 | 🧾 電子發票模組</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- 🌐 共享數據中心 -->
+    <script src="../../../global_shared.js"></script>
+
+    <style>
+        :root {
+            --primary: #0F172A;
+            --primary-light: #1E293B;
+            --accent: #38BDF8;
+            --accent-glow: rgba(56, 189, 248, 0.2);
+            --bg-dark: #090D1A;
+            --card-bg: rgba(30, 41, 59, 0.4);
+            --text-light: #F8FAFC;
+            --text-muted: #94A3B8;
+            --border: rgba(255, 255, 255, 0.08);
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+        }
+
+        body {
+            background: url('../../../01_企業識別與設計/底色.png') center center / cover no-repeat fixed;
+            color: var(--text-light);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1050px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #FFF, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* 頁籤切換 */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 0.6rem 1.25rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.88rem;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            color: white;
+            background: rgba(56, 189, 248, 0.08);
+            border-color: rgba(56, 189, 248, 0.2);
+        }
+
+        .tab-btn.active {
+            color: white;
+            background: rgba(56, 189, 248, 0.15);
+            border-color: var(--accent);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 布局 */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.8rem;
+            backdrop-filter: blur(10px);
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h2 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 1.2rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.75rem;
+        }
+
+        /* 表單 */
+        .form-group {
+            margin-bottom: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .form-group label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.7rem;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: white;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* 發票預覽樣式 */
+        .receipt-card {
+            background: white;
+            color: #1e293b;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            font-family: 'Noto Sans TC', sans-serif;
+            position: relative;
+        }
+
+        .receipt-card h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: 2px;
+            color: #0f172a;
+            margin-bottom: 0.2rem;
+        }
+
+        .receipt-subtitle {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #64748b;
+            margin-bottom: 1.2rem;
+        }
+
+        .receipt-meta {
+            border-bottom: 1px dashed #cbd5e1;
+            padding-bottom: 0.85rem;
+            margin-bottom: 0.85rem;
+            font-size: 0.8rem;
+            line-height: 1.6;
+        }
+
+        .receipt-item-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .receipt-total {
+            border-top: 1px dashed #cbd5e1;
+            padding-top: 0.85rem;
+            margin-top: 0.85rem;
+            text-align: right;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        /* 表格 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+        }
+
+        th {
+            font-weight: 600;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .badge {
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+
+        .badge-valid { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .badge-voided { background: rgba(239, 68, 68, 0.1); color: #f87171; }
+        .badge-allowance { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+
+        .btn {
+            padding: 0.65rem 1.25rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.72rem;
+        }
+
+        .btn-danger:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.72rem;
+        }
+
+        .btn-warning:hover {
+            background: var(--warning);
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        #toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--success);
+            color: white;
+            padding: 0.85rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 10000;
+        }
+
+        #toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; width: 100%;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 8px; flex-wrap: wrap;">
+                    <img src="../../../01_企業識別與設計/橫式logo.png" alt="Logo" style="height: 57px; width: auto; filter: drop-shadow(0 0 4px rgba(255,255,255,0.05));">
+                    <h1 style="font-size: 1.45rem; border-left: 2px solid var(--border); padding-left: 16px; font-weight: 700; color: #FFFFFF; margin: 0; display: flex; align-items: center; gap: 8px;">🧾 電子發票模組 <span style="font-size: 0.68rem; font-weight: normal; color: var(--text-muted, #64748B); margin-left: 8px; vertical-align: middle; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.08); letter-spacing: 0.5px;">v1.0.0</span></h1>
+                </div>
+                <p class="subtitle" style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">模擬B2B電子發票開立、銷項稅額計算、折讓退回與作廢發票明細控管</p>
+            </div>
+            
+        </div>
+    </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" id="tab-btn-create" onclick="switchTab('create')">✍️ 開立電子發票</button>
+            <button class="tab-btn" id="tab-btn-history" onclick="switchTab('history')">📜 發票開立歷史明細</button>
+        </div>
+
+        <!-- 分頁 1: 開立發票 -->
+        <div class="tab-content active" id="content-create">
+            <div class="grid-layout">
+                <!-- 左側開立表單 -->
+                <div class="card">
+                    <h2>📝 發票開立填單</h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>買受人名稱 (客戶名稱)</label>
+                            <input type="text" id="inv-customer" value="台積電股份有限公司" oninput="updateReceiptPreview()">
+                        </div>
+                        <div class="form-group">
+                            <label>統一編號 (統編)</label>
+                            <input type="text" id="inv-taxid" value="24436181" oninput="updateReceiptPreview()">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>發票品目項目</label>
+                            <input type="text" id="inv-item" value="廠區拉線與施工工程款" oninput="updateReceiptPreview()">
+                        </div>
+                        <div class="form-group">
+                            <label>發票金額 (未稅元)</label>
+                            <input type="number" id="inv-amount" value="100000" oninput="updateReceiptPreview()">
+                        </div>
+                    </div>
+
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>發票期別</label>
+                            <select id="inv-period" onchange="updateReceiptPreview()">
+                                <option value="115年 05-06月">115年 05-06月</option>
+                                <option value="115年 07-08月">115年 07-08月</option>
+                                <option value="115年 09-10月">115年 09-10月</option>
+                                <option value="115年 11-12月">115年 11-12月</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>課稅別</label>
+                            <select id="inv-tax-type" onchange="updateReceiptPreview()">
+                                <option value="taxable">應稅 (5%)</option>
+                                <option value="zero-rate">零稅率 (0%)</option>
+                                <option value="exempt">免稅</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>發票格式</label>
+                            <select id="inv-format" onchange="updateReceiptPreview()">
+                                <option value="three-way">三聯式電子發票 (B2B)</option>
+                                <option value="two-way">二聯式電子發票 (B2C)</option>
+                            </select>
+                        </div>
+                    </div>
+
+
+                    <div style="margin-top: 1.5rem;">
+                        <button class="btn btn-primary" onclick="createInvoice()">⚡ 安全開立電子發票</button>
+                    </div>
+                </div>
+
+                <!-- 右側發票收執聯預覽 -->
+                <div>
+                    <div class="receipt-card">
+                        <h3>日森精工有限公司</h3>
+                        <div class="receipt-subtitle">電子發票證明聯 (模擬)</div>
+                        
+                        <div class="receipt-meta">
+                            <div style="display:flex; justify-content:space-between;">
+                                <strong>發票號碼：<span id="preview-no" style="color:var(--danger);">AB-12345678</span></strong>
+                                <strong><span id="preview-format-txt">格式：三聯式 | 應稅 | 115年 05-06月</span></strong>
+                            </div>
+                            <div>開立日期：<span id="preview-date">2026/06/17</span></div>
+                            <div>銷方統編：83592039 (日森精工)</div>
+                            <div>買方統編：<span id="preview-buyer-taxid">24436181</span></div>
+                            <div>買受人：<span id="preview-buyer-name">台積電</span></div>
+                        </div>
+
+                        <div class="receipt-item-row" style="font-weight:bold; border-bottom:1px solid #cbd5e1; padding-bottom:0.2rem; margin-bottom:0.4rem;">
+                            <span>品目/規格</span>
+                            <span>金額 (元)</span>
+                        </div>
+                        <div class="receipt-item-row">
+                            <span id="preview-item-name">工程款</span>
+                            <span id="preview-item-price">$100,000</span>
+                        </div>
+
+                        <div class="receipt-total">
+                            <div>銷售額 (未稅)：<span id="preview-subtotal">$100,000</span></div>
+                            <div>營業稅 (5% 固定)：<span id="preview-tax">$5,000</span></div>
+                            <div style="font-size:1.05rem; font-weight:700; color:#0f172a; margin-top:0.2rem;">
+                                總計 (含稅)：<span id="preview-total">$105,000</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 分頁 2: 歷史列表 -->
+        <div class="tab-content" id="content-history">
+            <div class="card">
+                <h2>📜 電子發票開立明細表</h2>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>發票號碼</th>
+                                <th>開立日期</th>
+                                <th>買受人 (統編)</th>
+                                <th>項目說明</th>
+                                <th>銷售額 (未稅)</th>
+                                <th>營業稅 (5%)</th>
+                                <th>總計 (含稅)</th>
+                                <th>發票狀態</th>
+                                <th style="text-align: right; width: 180px;">發票管理</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body">
+                            <!-- 動態加載 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 提示區 -->
+    <div id="toast">✅ 電子發票開立成功！</div>
+
+    <script>
+        let invoices = [];
+        let activeTab = 'create';
+
+        // 初始化
+        function init() {
+            invoices = HimoriDb.invoicesDb || [];
+            updateReceiptPreview();
+            renderHistoryTable();
+        }
+
+        // 頁籤切換
+        function switchTab(tabId) {
+            activeTab = tabId;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            document.getElementById(`tab-btn-${tabId}`).classList.add('active');
+            document.getElementById(`content-${tabId}`).classList.add('active');
+        }
+
+        // 更新發票預覽
+
+        function updateReceiptPreview() {
+            const customer = document.getElementById("inv-customer").value.trim() || "顧客名稱";
+            const taxId = document.getElementById("inv-taxid").value.trim() || "—";
+            const item = document.getElementById("inv-item").value.trim() || "品目項目";
+            const amount = parseFloat(document.getElementById("inv-amount").value) || 0;
+
+            const period = document.getElementById("inv-period").value;
+            const taxType = document.getElementById("inv-tax-type").value;
+            const format = document.getElementById("inv-format").value;
+
+            let tax = Math.round(amount * 0.05);
+            if (taxType === 'zero-rate' || taxType === 'exempt') {
+                tax = 0;
+            }
+            const total = amount + tax;
+
+            const today = HimoriDb.simulatedDate || new Date().toISOString().split('T')[0];
+
+            document.getElementById("preview-buyer-name").textContent = customer;
+            document.getElementById("preview-buyer-taxid").textContent = taxId;
+            document.getElementById("preview-item-name").textContent = item;
+            document.getElementById("preview-item-price").textContent = "$" + amount.toLocaleString();
+            document.getElementById("preview-subtotal").textContent = "$" + amount.toLocaleString();
+            document.getElementById("preview-tax").textContent = "$" + tax.toLocaleString();
+            document.getElementById("preview-total").textContent = "$" + total.toLocaleString();
+            document.getElementById("preview-date").textContent = today.replace(/-/g, '/');
+
+            // 更新預覽上的格式文字
+            const formatLabel = format === 'three-way' ? '三聯式 (25)' : '二聯式 (21)';
+            const taxTypeLabel = taxType === 'taxable' ? '應稅' : (taxType === 'zero-rate' ? '零稅率' : '免稅');
+            document.getElementById("preview-format-txt").textContent = "格式：" + formatLabel + " | " + taxTypeLabel + " | 期別：" + period;
+
+            if (document.getElementById("preview-no").textContent === "AB-12345678") {
+                generateRandomNo();
+            }
+        }
+        function generateRandomNo() {
+            const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const randLetters = letters.charAt(Math.floor(Math.random() * 26)) + letters.charAt(Math.floor(Math.random() * 26));
+            const randNum = Math.floor(10000000 + Math.random() * 90000000);
+            document.getElementById("preview-no").textContent = `${randLetters}-${randNum}`;
+        }
+
+        // 開立發票
+
+        function createInvoice() {
+            const customer = document.getElementById("inv-customer").value.trim();
+            const taxId = document.getElementById("inv-taxid").value.trim();
+            const item = document.getElementById("inv-item").value.trim();
+            const amount = parseFloat(document.getElementById("inv-amount").value);
+            const invoiceNo = document.getElementById("preview-no").textContent;
+
+            const period = document.getElementById("inv-period").value;
+            const taxType = document.getElementById("inv-tax-type").value;
+            const format = document.getElementById("inv-format").value;
+
+            if (!customer || !taxId || !item || isNaN(amount) || amount <= 0) {
+                alert("❌ 請完整填寫正確的買受人、統編、品目與未稅金額！");
+                return;
+            }
+
+            let tax = Math.round(amount * 0.05);
+            if (taxType === 'zero-rate' || taxType === 'exempt') {
+                tax = 0;
+            }
+
+            const today = HimoriDb.simulatedDate || new Date().toISOString().split('T')[0];
+
+            const newInv = {
+                invoiceNo,
+                date: today,
+                customerName: customer,
+                taxId,
+                amount,
+                tax,
+                status: 'valid',
+                period: period,
+                taxType: taxType,
+                format: format,
+                items: [{ name: item, price: amount, qty: 1 }]
+            };
+
+            invoices.unshift(newInv);
+            HimoriDb.invoicesDb = invoices;
+            HimoriDb.save();
+
+            showToast("✅ 電子發票開立成功！期別: " + period + "，已存入政府發票申報庫。");
+            
+            renderHistoryTable();
+            generateRandomNo();
+            updateReceiptPreview();
+
+            switchTab('history');
+        }
+        // 顯示歷史列表
+
+        function renderHistoryTable() {
+            const tbody = document.getElementById("history-table-body");
+            tbody.innerHTML = "";
+
+            if (invoices.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:var(--text-muted);">目前無已開立之電子發票明細</td></tr>`;
+                return;
+            }
+
+            invoices.forEach((inv, index) => {
+                const tr = document.createElement("tr");
+
+                let badgeHTML = '';
+                if (inv.status === 'valid') {
+                    badgeHTML = '<span class="badge badge-valid">✅ 正常開立</span>';
+                } else if (inv.status === 'voided') {
+                    badgeHTML = '<span class="badge badge-voided">❌ 已作廢</span>';
+                } else if (inv.status === 'allowanced') {
+                    badgeHTML = '<span class="badge badge-allowance">⚠️ 已折讓</span>';
+                }
+
+                let actions = '';
+                if (inv.status === 'valid') {
+                    actions = `
+                        <button class="btn btn-warning" onclick="applyAllowance(${index})">折讓</button>
+                        <button class="btn btn-danger" onclick="applyVoid(${index})">作廢</button>
+                    `;
+                } else {
+                    actions = `<span style="font-size:0.75rem; color:var(--text-muted);">結案</span>`;
+                }
+
+                const total = inv.amount + inv.tax;
+                const itemDesc = inv.items && inv.items.length > 0 ? inv.items[0].name : '項目';
+
+                // 標示格式與期別
+                const formatLabel = inv.format === 'three-way' ? '三聯' : '二聯';
+                const taxTypeLabel = inv.taxType === 'taxable' ? '應稅' : (inv.taxType === 'zero-rate' ? '零稅' : '免稅');
+
+                tr.innerHTML = `
+                    <td><strong>${inv.invoiceNo}</strong><br><span style="font-size:0.72rem; color:var(--text-muted);">${formatLabel} | ${taxTypeLabel} | ${inv.period || '—'}</span></td>
+                    <td>${inv.date}</td>
+                    <td>${inv.customerName}<br><span style="font-size:0.75rem; color:var(--text-muted);">統編: ${inv.taxId}</span></td>
+                    <td>${itemDesc}</td>
+                    <td>$${inv.amount.toLocaleString()}</td>
+                    <td>$${inv.tax.toLocaleString()}</td>
+                    <td><strong>$${total.toLocaleString()}</strong></td>
+                    <td>${badgeHTML}</td>
+                    <td style="text-align: right; display:flex; justify-content:flex-end; gap:0.4rem;">${actions}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        // 作廢發票
+        function applyVoid(index) {
+            const inv = invoices[index];
+            if (confirm(`⚠️ 確定要作廢發票 [${inv.invoiceNo}] 嗎？作廢後不可復原且銷項稅額將歸零。`)) {
+                invoices[index].status = 'voided';
+                HimoriDb.invoicesDb = invoices;
+                HimoriDb.save();
+                
+                showToast("🗑️ 電子發票已完成作廢申報！");
+                renderHistoryTable();
+            }
+        }
+
+        // 折讓發票
+        function applyAllowance(index) {
+            const inv = invoices[index];
+            if (confirm(`⚠️ 確定要為發票 [${inv.invoiceNo}] 辦理折讓退回嗎？`)) {
+                invoices[index].status = 'allowanced';
+                HimoriDb.invoicesDb = invoices;
+                HimoriDb.save();
+
+                showToast("⚖️ 營業稅折讓單已開立申報！");
+                renderHistoryTable();
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById("toast");
+            toast.textContent = msg;
+            toast.className = "show";
+            setTimeout(() => {
+                toast.className = "";
+            }, 3000);
+        }
+
+        // 監聽
+        window.addEventListener("himori_db_updated", function() {
+            invoices = HimoriDb.invoicesDb || [];
+            renderHistoryTable();
+        });
+
+        window.addEventListener("DOMContentLoaded", init);
+    </script>
+
+    <!-- 頁尾開發商版權宣告 -->
+    <div style="font-size: 0.7rem; color: var(--text-muted, #64748B); text-align: center; margin: 3rem 0 1.5rem 0; padding-top: 1.5rem; border-top: 1px solid var(--border, rgba(255,255,255,0.08)); width: 100%; letter-spacing: 0.5px;">
+        © 2026 映向行銷. Powered by Image Marketing
+    </div>
+</body>
+</html>

@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日森精工 | ⚙️ 權限訂閱模組</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- 🌐 共享數據中心 -->
+    <script src="../../../global_shared.js"></script>
+
+    <style>
+        :root {
+            --primary: #0F172A;
+            --primary-light: #1E293B;
+            --accent: #38BDF8;
+            --accent-glow: rgba(56, 189, 248, 0.2);
+            --bg-dark: #090D1A;
+            --card-bg: rgba(30, 41, 59, 0.4);
+            --text-light: #F8FAFC;
+            --text-muted: #94A3B8;
+            --border: rgba(255, 255, 255, 0.08);
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+        }
+
+        body {
+            background: url('../../../01_企業識別與設計/底色.png') center center / cover no-repeat fixed;
+            color: var(--text-light);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #FFF, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 2rem;
+        }
+
+        /* ════════════════════ 左側列表 ════════════════════ */
+        .list-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            height: 600px;
+        }
+
+        .list-header {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-light);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-list {
+            overflow-y: auto;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .user-item {
+            padding: 0.85rem 1rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-item:hover {
+            background: rgba(56, 189, 248, 0.05);
+            border-color: rgba(56, 189, 248, 0.2);
+        }
+
+        .user-item.active {
+            background: rgba(56, 189, 248, 0.12);
+            border-color: var(--accent);
+        }
+
+        .user-item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
+        .user-item-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .user-item-id {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .user-item-badge {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            color: var(--text-muted);
+        }
+
+        .user-item.active .user-item-badge {
+            background: var(--accent);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* ════════════════════ 右側設定 ════════════════════ */
+        .config-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            height: 600px;
+            overflow-y: auto;
+        }
+
+        .placeholder-text {
+            color: var(--text-muted);
+            text-align: center;
+            margin: auto;
+            font-size: 0.95rem;
+        }
+
+        .config-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        .config-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: white;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        .form-group input[readonly] {
+            background: rgba(255,255,255,0.02);
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        /* 權限勾選網格 */
+        .permissions-section {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .permissions-section h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-bottom: 1px dashed var(--border);
+            padding-bottom: 0.5rem;
+        }
+
+        .modules-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .module-checkbox-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.85rem 1rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .module-checkbox-card:hover {
+            background: rgba(56, 189, 248, 0.03);
+            border-color: rgba(56, 189, 248, 0.2);
+        }
+
+        .module-checkbox-card input[type="checkbox"] {
+            margin-top: 0.2rem;
+            width: 16px;
+            height: 16px;
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+
+        .module-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+        }
+
+        .module-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .module-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* 按鈕區 */
+        .actions-row {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: auto;
+            border-top: 1px solid var(--border);
+            padding-top: 1.2rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-light);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--text-muted);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+
+        .btn-danger:hover {
+            background: var(--danger);
+            color: white;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        /* Toast 提示 */
+        #toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #10B981;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        #toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; width: 100%;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 8px; flex-wrap: wrap;">
+                    <img src="../../../01_企業識別與設計/橫式logo.png" alt="Logo" style="height: 57px; width: auto; filter: drop-shadow(0 0 4px rgba(255,255,255,0.05));">
+                    <h1 style="font-size: 1.45rem; border-left: 2px solid var(--border); padding-left: 16px; font-weight: 700; color: #FFFFFF; margin: 0; display: flex; align-items: center; gap: 8px;">⚙️ 權限訂閱模組 <span style="font-size: 0.68rem; font-weight: normal; color: var(--text-muted, #64748B); margin-left: 8px; vertical-align: middle; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.08); letter-spacing: 0.5px;">v1.0.0</span></h1>
+                </div>
+                <p class="subtitle" style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">主管設定專屬工作項目，職員離調即時變更，物理模組熱插拔管理</p>
+            </div>
+            <div><button class="btn btn-outline" onclick="syncWithEmployees()">🔄 自員工清單同步未註冊同仁</button></div>
+        </div>
+    </header>
+
+        <!-- 🏢 分頁切換 Tab -->
+        <div class="tabs-container" style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 2px solid var(--border); padding-bottom: 0.5rem;">
+            <div class="tab-item active" id="tab-permissions" onclick="switchTab('permissions')" style="padding: 0.5rem 1.5rem; font-weight: 600; cursor: pointer; border-bottom: 3px solid var(--accent); transition: all 0.3s; color: white;">⚙️ 帳號權限管理</div>
+            <div class="tab-item" id="tab-saas" onclick="switchTab('saas')" style="padding: 0.5rem 1.5rem; font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.3s; color: var(--text-muted);">🏢 SaaS 營運與白牌控制台</div>
+        </div>
+
+        <!-- 分頁一：帳號與權限管理內容 -->
+        <div id="panel-permissions-content">
+            <div class="main-layout">
+                <!-- 左側列表 -->
+                <div class="list-card">
+                    <div class="list-header">
+                        <span>👥 營運中心帳號清單</span>
+                        <button class="btn btn-primary" style="padding: 4px 10px; font-size: 0.75rem; width: auto;" onclick="addNewAccount()">
+                            ➕ 新增帳號
+                        </button>
+                    </div>
+                    <div class="user-list" id="account-list-container">
+                        <!-- 動態渲染 -->
+                    </div>
+                </div>
+
+                <!-- 右側設定面版 -->
+                <div class="config-card" id="config-panel">
+                    <div class="placeholder-text" id="config-placeholder" style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%; gap:1.5rem; padding: 2rem;">
+                        <div style="font-size: 1rem; color: var(--text-muted); text-align:center;">👈 請從左側點選人員以進行帳號管理與模組權限對應</div>
+                        
+                        <!-- 數據備份與正式上線模組 -->
+                        <div style="width: 100%; max-width: 480px; text-align: left; background: rgba(30, 41, 59, 0.5); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-top: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                            <h3 style="color: var(--accent); font-size: 1.05rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">💾 數位中心數據備份與上線控管</h3>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1.2rem;">
+                                本系統運行於瀏覽器本地資料庫 (LocalStorage)。為防瀏覽器快取清理或機器轉移導致資料遺失，請定期備份。您也可在此一鍵清空測試數據以正式上線。
+                            </p>
+                            
+                            <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+                                <!-- 匯出與匯入 -->
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem;">
+                                    <button class="btn btn-outline" style="font-size:0.8rem; padding:8px;" onclick="exportDatabase()">📤 匯出資料庫備份</button>
+                                    <button class="btn btn-outline" style="font-size:0.8rem; padding:8px;" onclick="document.getElementById('import-file').click()">📥 匯入備份還原</button>
+                                    <input type="file" id="import-file" style="display:none;" accept=".json" onchange="importDatabase(event)">
+                                </div>
+                                
+                                <!-- 進入正式上線 -->
+                                <button class="btn" style="font-size:0.8rem; padding:10px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; width:100%; font-weight:600;" onclick="clearTestDataAndGoLive()">🚨 一鍵清空測試數據 (正式上線)</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 以下區塊預設隱藏 -->
+                    <div id="config-form" style="display: none; height: 100%; flex-direction: column; gap: 1.5rem;">
+                        <div class="config-header">
+                            <div class="config-title" id="panel-title">編輯權限</div>
+                            <div class="user-item-badge" id="panel-badge">主管</div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>同仁姓名</label>
+                                <input type="text" id="edit-name" placeholder="輸入同仁姓名">
+                            </div>
+                            <div class="form-group">
+                                <label>員工編號 (登入帳號)</label>
+                                <input type="text" id="edit-empid" placeholder="例如: emp104">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>登入密碼</label>
+                                <input type="text" id="edit-password" placeholder="輸入登入密碼">
+                            </div>
+                            <div class="form-group">
+                                <label>系統顯示角色</label>
+                                <select id="edit-role">
+                                    <option value="現場同仁 / 領隊">現場同仁 / 領隊</option>
+                                    <option value="會計財務">會計財務</option>
+                                    <option value="系統管理員 / 主管">系統管理員 / 主管</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="permissions-section">
+                            <h3>🔑 開放之工作項目模組</h3>
+                            <div class="modules-grid" id="modules-checkbox-grid">
+                                <!-- 依訂閱狀態動態生成Checkbox卡片 -->
+                            </div>
+                        </div>
+
+                        <div class="actions-row">
+                            <button class="btn btn-danger" style="margin-right: auto;" id="btn-delete-acc" onclick="deleteCurrentAccount()">
+                                🗑️ 刪除帳號
+                            </button>
+                            <button class="btn btn-outline" onclick="cancelEdit()">
+                                取消
+                            </button>
+                            <button class="btn btn-primary" onclick="saveCurrentAccount()">
+                                💾 儲存權限設定
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 分頁二：SaaS 營運控制台內容 -->
+        <div id="panel-saas-content" style="display: none;">
+            <div class="main-layout" style="grid-template-columns: 1fr 1fr;">
+                <!-- 左側：品牌設定區 -->
+                <div class="config-card" style="height: auto;">
+                    <div class="config-header">
+                        <div class="config-title">🎨 品牌與企業客製化設定</div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 1.2rem;">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>公司中文名稱</label>
+                                <input type="text" id="brand-name" placeholder="例如: 日森精工有限公司">
+                            </div>
+                            <div class="form-group">
+                                <label>公司英文名稱</label>
+                                <input type="text" id="brand-eng-name" placeholder="例如: HIMORI SEIKO Co., Ltd.">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>企業 Slogan (口號)</label>
+                                <input type="text" id="brand-slogan" placeholder="例如: 安全・合規・韌性・精密">
+                            </div>
+                            <div class="form-group">
+                                <label>企業統一編號 (統編)</label>
+                                <input type="text" id="brand-tax-id" placeholder="例如: 88888888">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>公司登記地址</label>
+                                <input type="text" id="brand-address" placeholder="例如: 台北市大安區信義路四段1號2樓">
+                            </div>
+                            <div class="form-group">
+                                <label>聯絡電子信箱</label>
+                                <input type="text" id="brand-email" placeholder="例如: admin@himori-seiko.com">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>橫式 LOGO 圖片路徑 (亦可使用下方上傳 Base64)</label>
+                                <input type="text" id="brand-logo-horizontal" placeholder="預設: 01_企業識別與設計/橫式logo.png">
+                            </div>
+                            <div class="form-group">
+                                <label>直式 LOGO 圖片路徑</label>
+                                <input type="text" id="brand-logo-vertical" placeholder="預設: 01_企業識別與設計/直式logo.png">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>背景圖 backgroundImg 路徑</label>
+                                <input type="text" id="brand-bg-img" placeholder="預設: 01_企業識別與設計/底色.png">
+                            </div>
+                            <div class="form-group">
+                                <label>企業詳細介紹 (官網 Description)</label>
+                                <input type="text" id="brand-desc" placeholder="輸入企業核心願景描述...">
+                            </div>
+                        </div>
+                        
+                        <!-- Logo 上傳與 Base64 轉換器 -->
+                        <div style="background: rgba(255,255,255,0.02); border: 1px dashed var(--border); border-radius: 8px; padding: 1rem;">
+                            <label style="font-size:0.82rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:0.5rem;">📤 本機圖片一鍵白牌 Logo 轉碼上傳</label>
+                            <div style="display:flex; gap:1rem; align-items:center;">
+                                <input type="file" id="logo-file-picker" accept="image/*" style="display:none;" onchange="convertLogoToBase64(event)">
+                                <button class="btn btn-outline" style="padding:6px 12px; font-size:0.78rem;" onclick="document.getElementById('logo-file-picker').click()">📁 選擇圖片檔案</button>
+                                <span style="font-size:0.75rem; color:var(--text-muted);" id="logo-upload-status">未選擇任何檔案</span>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1rem; border-top: 1px solid var(--border); padding-top: 1.2rem;">
+                            <button class="btn btn-outline" onclick="resetBrandToDefault()">重設為預設品牌</button>
+                            <button class="btn btn-primary" onclick="saveBrandConfig()">💾 儲存並套用品牌設定</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右側：模組加購與訂閱模擬區 -->
+                <div class="config-card" style="height: auto;">
+                    <div class="config-header">
+                        <div class="config-title">🛒 SaaS 模組訂閱加購模擬 (熱插拔控制)</div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.5rem;">
+                            主管在此模擬 SaaS 客戶訂閱訂購不同的功能模組。點擊「訂閱」後，該模組將立即在側邊選單與員工授權勾選項目中出現；「退訂」則瞬間隱藏，且退訂時會自動執行依賴項安全檢查。
+                        </p>
+                        
+                        <!-- 訂閱卡片清單 -->
+                        <div style="display: flex; flex-direction: column; gap: 0.85rem;" id="saas-subscription-container">
+                            <!-- 由 JS 動態生成 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 提示區 -->
+    <div id="toast">✅ 儲存成功，權限已即時生效！</div>
+
+    <script>
+        let accounts = [];
+        let selectedEmpId = null;
+
+        // 初始化
+        function init() {
+            // 從 HimoriDb 載入
+            accounts = HimoriDb.accountsDb || [];
+            renderAccountList();
+            renderModulesGrid();
+            
+            // 如果是在 SaaS 頁面，重新加載
+            const tabPerm = document.getElementById("tab-permissions");
+            if (tabPerm && !tabPerm.classList.contains("active")) {
+                loadBrandConfigInputs();
+                renderSaasSubscriptionCards();
+            }
+        }
+
+        // Tab 切換
+        function switchTab(tabName) {
+            const tabPerm = document.getElementById("tab-permissions");
+            const tabSaas = document.getElementById("tab-saas");
+            const contentPerm = document.getElementById("panel-permissions-content");
+            const contentSaas = document.getElementById("panel-saas-content");
+            
+            if (tabName === 'permissions') {
+                tabPerm.classList.add("active");
+                tabPerm.style.borderBottomColor = "var(--accent)";
+                tabPerm.style.color = "white";
+                
+                tabSaas.classList.remove("active");
+                tabSaas.style.borderBottomColor = "transparent";
+                tabSaas.style.color = "var(--text-muted)";
+                
+                contentPerm.style.display = "block";
+                contentSaas.style.display = "none";
+                
+                renderModulesGrid();
+            } else {
+                tabSaas.classList.add("active");
+                tabSaas.style.borderBottomColor = "var(--accent)";
+                tabSaas.style.color = "white";
+                
+                tabPerm.classList.remove("active");
+                tabPerm.style.borderBottomColor = "transparent";
+                tabPerm.style.color = "var(--text-muted)";
+                
+                contentPerm.style.display = "none";
+                contentSaas.style.display = "block";
+                
+                // 載入品牌設定與訂閱狀態
+                loadBrandConfigInputs();
+                renderSaasSubscriptionCards();
+            }
+        }
+
+        // 載入品牌欄位
+        function loadBrandConfigInputs() {
+            HimoriDb.load();
+            const config = HimoriDb.companyConfig || {};
+            document.getElementById("brand-name").value = config.name || "";
+            document.getElementById("brand-eng-name").value = config.engName || "";
+            document.getElementById("brand-slogan").value = config.slogan || "";
+            document.getElementById("brand-tax-id").value = config.taxId || "";
+            document.getElementById("brand-address").value = config.address || "";
+            document.getElementById("brand-email").value = config.email || "";
+            document.getElementById("brand-logo-horizontal").value = config.logoHorizontal || "";
+            document.getElementById("brand-logo-vertical").value = config.logoVertical || "";
+            document.getElementById("brand-bg-img").value = config.backgroundImg || "";
+            document.getElementById("brand-desc").value = config.description || "";
+            document.getElementById("logo-upload-status").textContent = "未選擇任何檔案 (轉換後將儲存於橫式 Logo)";
+        }
+
+        // 儲存 brandConfig 設定
+        function saveBrandConfig() {
+            HimoriDb.load();
+            HimoriDb.companyConfig = {
+                name: document.getElementById("brand-name").value.trim(),
+                engName: document.getElementById("brand-eng-name").value.trim(),
+                slogan: document.getElementById("brand-slogan").value.trim(),
+                taxId: document.getElementById("brand-tax-id").value.trim(),
+                address: document.getElementById("brand-address").value.trim(),
+                email: document.getElementById("brand-email").value.trim(),
+                logoHorizontal: document.getElementById("brand-logo-horizontal").value.trim(),
+                logoVertical: document.getElementById("brand-logo-vertical").value.trim(),
+                backgroundImg: document.getElementById("brand-bg-img").value.trim(),
+                description: document.getElementById("brand-desc").value.trim()
+            };
+            HimoriDb.save();
+            showToast("🎨 品牌設定已儲存，數位中心與官網首頁已同步套用！");
+        }
+
+        // 重設品牌設定
+        function resetBrandToDefault() {
+            if (confirm("確定要將 brandConfig 還原為預設嗎？")) {
+                HimoriDb.load();
+                localStorage.removeItem("companyConfig");
+                HimoriDb.load();
+                loadBrandConfigInputs();
+                HimoriDb.save();
+                showToast("🔄 品牌已重設為『日森精工』預設配置！");
+            }
+        }
+
+        // Logo 轉換 Base64
+        function convertLogoToBase64(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const statusSpan = document.getElementById("logo-upload-status");
+            statusSpan.textContent = "正在轉換中...";
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Str = e.target.result;
+                document.getElementById("brand-logo-horizontal").value = base64Str;
+                statusSpan.textContent = `✅ 轉換完成 (${Math.round(base64Str.length / 1024)} KB)，已載入橫式 Logo。`;
+            };
+            reader.onerror = function() {
+                statusSpan.textContent = "❌ 轉換失敗，請換一張圖片再試！";
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // 渲染 SaaS 加購卡片
+        function renderSaasSubscriptionCards() {
+            const container = document.getElementById("saas-subscription-container");
+            container.innerHTML = "";
+            
+            HimoriDb.load();
+            const subscribed = HimoriDb.subscribedModules || [];
+            
+            Object.keys(HimoriModules).forEach(modId => {
+                const mod = HimoriModules[modId];
+                if (mod.category === 'base') return; // 基礎模組免訂閱
+                
+                const isSubscribed = subscribed.includes(modId);
+                
+                const card = document.createElement("div");
+                card.style.background = isSubscribed ? "rgba(16, 185, 129, 0.06)" : "rgba(255, 255, 255, 0.01)";
+                card.style.border = `1px solid ${isSubscribed ? 'rgba(16, 185, 129, 0.3)' : 'var(--border)'}`;
+                card.style.borderRadius = "8px";
+                card.style.padding = "0.85rem 1rem";
+                card.style.display = "flex";
+                card.style.justifyContent = "space-between";
+                card.style.alignItems = "center";
+                card.style.gap = "1rem";
+                
+                let depText = "";
+                if (mod.dependencies && mod.dependencies.length > 0) {
+                    const depNames = mod.dependencies.map(dId => HimoriModules[dId] ? HimoriModules[dId].name : dId).join(", ");
+                    depText = `<div style="font-size:0.7rem; color:var(--warning); margin-top:0.2rem;">⚠️ 依賴模組: ${depNames}</div>`;
+                }
+                
+                card.innerHTML = `
+                    <div style="flex-grow:1;">
+                        <div style="font-size:0.88rem; font-weight:600; display:flex; align-items:center; gap:0.5rem;">
+                            <span>${mod.name}</span><span style="font-size:0.65rem; color:var(--text-muted); opacity:0.8; font-weight:normal; margin-left:4px;">v${mod.version || '1.0.0'}</span>
+                            <span style="font-size:0.68rem; padding:1px 5px; border-radius:4px; font-weight:normal; ${isSubscribed ? 'background:#10B981; color:#0F172A;' : 'background:rgba(255,255,255,0.08); color:var(--text-muted);'}">
+                                ${isSubscribed ? '已啟用' : '未加購'}
+                            </span>
+                        </div>
+                        <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">${mod.desc}</div>
+                        ${depText}
+                    </div>
+                    <div>
+                        <button class="btn" style="padding:6px 12px; font-size:0.78rem; width:auto; ${isSubscribed ? 'background:rgba(239, 68, 68, 0.15); border:1px solid rgba(239, 68, 68, 0.3); color:#f87171;' : 'background:linear-gradient(135deg, #0284c7, #0369a1); color:white;'}" 
+                                onclick="toggleModuleSubscription('${modId}', ${isSubscribed})">
+                            ${isSubscribed ? '❌ 退訂' : '🛒 加購訂閱'}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // 切換模組訂閱狀態
+        function toggleModuleSubscription(modId, isSubscribed) {
+            HimoriDb.load();
+            let subscribed = HimoriDb.subscribedModules || [];
+            
+            if (isSubscribed) {
+                // 退訂安全檢查
+                const dependentMods = [];
+                subscribed.forEach(subId => {
+                    const m = HimoriModules[subId];
+                    if (m && m.dependencies && m.dependencies.includes(modId)) {
+                        dependentMods.push(m.name);
+                    }
+                });
+                
+                if (dependentMods.length > 0) {
+                    alert(`❌ 無法退訂！目前有其他已加購模組依賴此功能：\n【${dependentMods.join("、")}】\n請先退訂上述模組後，再退訂此功能。`);
+                    return;
+                }
+                
+                if (confirm(`是否確定要退訂「${HimoriModules[modId].name}」？此功能將立即在所有員工選單中消失。`)) {
+                    subscribed = subscribed.filter(id => id !== modId);
+                    HimoriDb.subscribedModules = subscribed;
+                    HimoriDb.save();
+                    showToast(`❌ 已成功退訂 ${HimoriModules[modId].name}！`);
+                    renderSaasSubscriptionCards();
+                }
+            } else {
+                // 訂閱依賴項檢查
+                const missingDeps = [];
+                const mod = HimoriModules[modId];
+                if (mod && mod.dependencies) {
+                    mod.dependencies.forEach(depId => {
+                        if (!subscribed.includes(depId)) {
+                            missingDeps.push(depId);
+                        }
+                    });
+                }
+                
+                if (missingDeps.length > 0) {
+                    const depNames = missingDeps.map(dId => HimoriModules[dId] ? HimoriModules[dId].name : dId).join("、");
+                    if (confirm(`💡 該模組依賴【${depNames}】基礎系統，是否一併加購訂閱依賴模組？`)) {
+                        missingDeps.forEach(depId => {
+                            if (!subscribed.includes(depId)) subscribed.push(depId);
+                        });
+                        subscribed.push(modId);
+                        HimoriDb.subscribedModules = subscribed;
+                        HimoriDb.save();
+                        showToast(`🛒 已成功加購 ${mod.name} 及其依賴系統！`);
+                        renderSaasSubscriptionCards();
+                    }
+                    return;
+                }
+                
+                subscribed.push(modId);
+                HimoriDb.subscribedModules = subscribed;
+                HimoriDb.save();
+                showToast(`🛒 已成功訂閱加購 ${mod.name}！`);
+                renderSaasSubscriptionCards();
+            }
+        }
+
+        // 渲染模組勾選網格
+        function renderModulesGrid() {
+            const grid = document.getElementById("modules-checkbox-grid");
+            grid.innerHTML = "";
+            
+            HimoriDb.load();
+            const subscribed = HimoriDb.subscribedModules || [];
+
+            Object.keys(HimoriModules).forEach(modId => {
+                const mod = HimoriModules[modId];
+                // 只有訂閱的模組或者是基礎模組，才允許在此分配給員工
+                if (mod.category === 'base' || subscribed.includes(modId)) {
+                    const card = document.createElement("label");
+                    card.className = "module-checkbox-card";
+                    card.innerHTML = `
+                        <input type="checkbox" name="module-auth" value="${modId}">
+                        <div class="module-info">
+                            <span class="module-name">${mod.name}</span>
+                            <span class="module-desc">${mod.desc}</span>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                }
+            });
+        }
+
+        // 渲染左側帳號列表
+        function renderAccountList() {
+            const container = document.getElementById("account-list-container");
+            container.innerHTML = "";
+            
+            accounts.forEach(acc => {
+                const item = document.createElement("div");
+                item.className = `user-item ${selectedEmpId === acc.empId ? 'active' : ''}`;
+                item.onclick = () => selectAccount(acc.empId);
+                
+                const roleShort = acc.role.includes("主管") ? "主管" : acc.role.includes("會計") ? "會計" : "同仁";
+
+                item.innerHTML = `
+                    <div class="user-item-info">
+                        <span class="user-item-name">${acc.name}</span>
+                        <span class="user-item-id">編號: ${acc.empId}</span>
+                    </div>
+                    <span class="user-item-badge">${roleShort}</span>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // 點選某個帳號
+        function selectAccount(empId) {
+            selectedEmpId = empId;
+            renderAccountList();
+
+            const user = accounts.find(acc => acc.empId === empId);
+            if (!user) return;
+
+            document.getElementById("config-placeholder").style.display = "none";
+            document.getElementById("config-form").style.display = "flex";
+
+            // 填寫欄位
+            document.getElementById("panel-title").textContent = `帳號管理: ${user.name}`;
+            document.getElementById("panel-badge").textContent = user.role;
+            document.getElementById("edit-name").value = user.name;
+            document.getElementById("edit-empid").value = user.empId;
+            document.getElementById("edit-password").value = user.password;
+            document.getElementById("edit-role").value = user.role;
+
+            // 重新渲染勾選網格，只顯示當前已訂閱的
+            renderModulesGrid();
+
+            // 勾選對應的模組
+            const checkboxes = document.querySelectorAll('input[name="module-auth"]');
+            checkboxes.forEach(cb => {
+                cb.checked = user.authorizedModules.includes(cb.value);
+            });
+
+            // 員工編號 admin 不能修改編號或刪除以保安全
+            if (user.empId === "admin") {
+                document.getElementById("edit-empid").setAttribute("readonly", "true");
+                document.getElementById("btn-delete-acc").style.display = "none";
+            } else {
+                document.getElementById("edit-empid").removeAttribute("readonly");
+                document.getElementById("btn-delete-acc").style.display = "block";
+            }
+        }
+
+        // 新增空白帳號
+        function addNewAccount() {
+            selectedEmpId = "new_" + Date.now();
+            
+            document.getElementById("config-placeholder").style.display = "none";
+            document.getElementById("config-form").style.display = "flex";
+
+            document.getElementById("panel-title").textContent = "新增全新帳號";
+            document.getElementById("panel-badge").textContent = "自訂";
+            document.getElementById("edit-name").value = "";
+            document.getElementById("edit-empid").value = "";
+            document.getElementById("edit-password").value = "123456";
+            document.getElementById("edit-role").value = "現場同仁 / 領隊";
+            document.getElementById("edit-empid").removeAttribute("readonly");
+            document.getElementById("btn-delete-acc").style.display = "none";
+
+            // 重新渲染勾選網格，只顯示當前已訂閱的
+            renderModulesGrid();
+
+            // 預設勾選基礎模組
+            const checkboxes = document.querySelectorAll('input[name="module-auth"]');
+            checkboxes.forEach(cb => {
+                cb.checked = (cb.value === "base_hr" || cb.value === "func_line_hub");
+            });
+        }
+
+        // 儲存帳號設定
+        function saveCurrentAccount() {
+            const name = document.getElementById("edit-name").value.trim();
+            const empId = document.getElementById("edit-empid").value.trim().toLowerCase();
+            const password = document.getElementById("edit-password").value.trim();
+            const role = document.getElementById("edit-role").value;
+
+            if (!name || !empId || !password) {
+                alert("❌ 所有欄位均為必填！");
+                return;
+            }
+
+            // 收集勾選的模組
+            const authorizedModules = [];
+            const checkboxes = document.querySelectorAll('input[name="module-auth"]');
+            checkboxes.forEach(cb => {
+                if (cb.checked) authorizedModules.push(cb.value);
+            });
+
+            // 檢查是編輯還是新增
+            if (selectedEmpId.startsWith("new_")) {
+                if (accounts.some(acc => acc.empId === empId)) {
+                    alert("❌ 員工編號已存在，請使用其他編號！");
+                    return;
+                }
+                const newAcc = { empId, name, password, role, authorizedModules };
+                accounts.push(newAcc);
+                selectedEmpId = empId;
+            } else {
+                const userIndex = accounts.findIndex(acc => acc.empId === selectedEmpId);
+                if (userIndex !== -1) {
+                    if (selectedEmpId !== empId && accounts.some(acc => acc.empId === empId)) {
+                        alert("❌ 新員工編號已被佔用！");
+                        return;
+                    }
+                    accounts[userIndex] = {
+                        empId,
+                        name,
+                        password,
+                        role,
+                        authorizedModules
+                    };
+                    selectedEmpId = empId;
+                }
+            }
+
+            // 寫入並儲存
+            HimoriDb.accountsDb = accounts;
+            HimoriDb.save();
+
+            showToast("✅ 儲存成功，帳號權限已即時生效！");
+            renderAccountList();
+            selectAccount(selectedEmpId);
+        }
+
+        // 刪除帳號
+        function deleteCurrentAccount() {
+            if (selectedEmpId === "admin") {
+                alert("❌ 不能刪除最高管理員帳號！");
+                return;
+            }
+
+            if (confirm(`⚠️ 確定要刪除 [${document.getElementById("edit-name").value}] 的登入帳號嗎？`)) {
+                accounts = accounts.filter(acc => acc.empId !== selectedEmpId);
+                HimoriDb.accountsDb = accounts;
+                HimoriDb.save();
+
+                selectedEmpId = null;
+                renderAccountList();
+                cancelEdit();
+                showToast("🗑️ 帳號已刪除！");
+            }
+        }
+
+        // 取消編輯
+        function cancelEdit() {
+            selectedEmpId = null;
+            renderAccountList();
+            document.getElementById("config-form").style.display = "none";
+            document.getElementById("config-placeholder").style.display = "block";
+        }
+
+        // 同步未建立帳號的同仁
+        function syncWithEmployees() {
+            const employees = HimoriDb.employeeDb || {};
+            let addedCount = 0;
+
+            Object.keys(employees).forEach((empName, index) => {
+                if (!accounts.some(acc => acc.name === empName)) {
+                    const empId = `emp10${4 + index}`; // 自動配號
+                    const role = "現場同仁 / 領隊";
+                    
+                    accounts.push({
+                        empId,
+                        name: empName,
+                        password: "emp123",
+                        role,
+                        authorizedModules: ["base_hr", "func_line_hub"]
+                    });
+                    addedCount++;
+                }
+            });
+
+            if (addedCount > 0) {
+                HimoriDb.accountsDb = accounts;
+                HimoriDb.save();
+                renderAccountList();
+                showToast(`🔄 已成功同步 ${addedCount} 位新同仁帳號！`);
+            } else {
+                alert("💡 所有同仁均已建立對應帳號，無須同步。");
+            }
+        }
+
+        // 顯示 Toast 訊息
+        function showToast(msg = "儲存成功，權限已即時生效！") {
+            const toast = document.getElementById("toast");
+            toast.textContent = msg;
+            toast.className = "show";
+            setTimeout(() => {
+                toast.className = "";
+            }, 3000);
+        }
+
+        // 📤 匯出資料庫備份
+        function exportDatabase() {
+            const data = {};
+            const keys = ["params", "tradesDb", "employeeDb", "rosterDb", "attendanceLogs", "leaveDb", "announcementHistory", "acc_data", "accountsDb", "cardsDb", "insurancesDb", "invoicesDb", "intentDb", "qaDb", "vouchersDb", "simulated_date", "alarm_state", "webhook_reminder_url", "webhook_announcement_url", "adHistoryDb", "unresolvedQaList", "subscribedModules", "companyConfig"];
+            
+            keys.forEach(key => {
+                const val = localStorage.getItem(key);
+                if (val) {
+                    data[key] = val;
+                }
+            });
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            const today = HimoriDb.simulatedDate || new Date().toISOString().split('T')[0];
+            a.href = url;
+            a.download = `himori_db_backup_${today}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast("📤 資料庫備份導出成功！");
+        }
+
+        // 📥 還原資料庫
+        function importDatabase(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (confirm("⚠️ 確定要還原此備份嗎？這將會覆蓋您目前瀏覽器的所有數據，還原後系統將重新載入。")) {
+                        Object.keys(data).forEach(key => {
+                            localStorage.setItem(key, data[key]);
+                        });
+                        localStorage.setItem("森精工_db_initialized", "true");
+                        showToast("📥 資料庫還原成功，正在重新載入...");
+                        setTimeout(() => {
+                            window.location.reload();
+                            if (window.parent && window.parent !== window) {
+                                window.parent.location.reload();
+                            }
+                        }, 1500);
+                    }
+                } catch (err) {
+                    alert("❌ 還原失敗：備份檔案格式錯誤！" + err.message);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = "";
+        }
+
+        // 🚨 一鍵清空測試數據 (正式上線)
+        function clearTestDataAndGoLive() {
+            if (confirm("⚠️ 警告：此操作將清除所有測試用的排班、打卡紀錄、請假單、歷史公告、憑證、發票及招募增員紀錄！\n\n系統將只保留目前的「員工帳號與權限設定」與「參數/Webhook設定」。確定要進入正式生產上線狀態嗎？")) {
+                const accounts = localStorage.getItem("accountsDb") || JSON.stringify(HimoriDb.accountsDb);
+                const params = localStorage.getItem("params") || JSON.stringify(HimoriDb.params);
+                const webhook_rem = localStorage.getItem("webhook_reminder_url") || "";
+                const webhook_ann = localStorage.getItem("webhook_announcement_url") || "";
+                const subModules = localStorage.getItem("subscribedModules") || JSON.stringify(HimoriDb.subscribedModules);
+                const compConfig = localStorage.getItem("companyConfig") || JSON.stringify(HimoriDb.companyConfig);
+                
+                localStorage.clear();
+                
+                localStorage.setItem("accountsDb", accounts);
+                localStorage.setItem("params", params);
+                localStorage.setItem("webhook_reminder_url", webhook_rem);
+                localStorage.setItem("webhook_announcement_url", webhook_ann);
+                localStorage.setItem("subscribedModules", subModules);
+                localStorage.setItem("companyConfig", compConfig);
+                
+                localStorage.setItem("employeeDb", JSON.stringify({}));
+                localStorage.setItem("rosterDb", JSON.stringify([]));
+                localStorage.setItem("attendanceLogs", JSON.stringify([]));
+                localStorage.setItem("leaveDb", JSON.stringify([]));
+                localStorage.setItem("announcementHistory", JSON.stringify([]));
+                localStorage.setItem("acc_data", JSON.stringify({
+                    company: { name:'日森精工有限公司', taxId:'', type:'ltd', capital:500000, par:1000, shares:500, owner:'', founded:'', address:'', business:'' },
+                    shareholders: [],
+                    balanceSheet: { cash:0, prepaid:0, fixed:0, ap:0, loan:0, otherLiab:0, status: "未核定" }
+                }));
+                localStorage.setItem("cardsDb", JSON.stringify({}));
+                localStorage.setItem("insurancesDb", JSON.stringify({}));
+                localStorage.setItem("invoicesDb", JSON.stringify([]));
+                localStorage.setItem("intentDb", JSON.stringify([]));
+                localStorage.setItem("qaDb", JSON.stringify([
+                    { question: "請假手續與考評扣除規定", keyword: "請假", answer: "請假規定：同仁請假應提前於一日前下午18:00前，由LINE或系統提交假單；若臨時生病/突發狀況需於當天早上07:30前告知。未提供合格證明之請假，將扣除當月考評分數及全勤津貼累計天數。" },
+                    { question: "現場同仁基本薪資與加班計費", keyword: "薪資", answer: "計薪說明：本公司依工日核薪。平日正常工時8小時。平日延长工時(超時)以1.5倍計算超時津貼。擔任現場領隊者，每日額外發放領導加給。當月出勤達22天以上且無缺勤紀錄者，發放全勤津貼3,000元。" },
+                    { question: "安全防護具與防墜設施規定", keyword: "安全帽", answer: "安全規定：進入工地廠區必須全程正確佩戴符合CNS國家標準之安全帽、防滑工作鞋及高能見度反光背心。高處作業(2公尺以上)必須確實掛妥雙掛勾安全帶，違規者將面臨罰款與停工處分。" },
+                    { question: "出勤打卡與無故曠工處分", keyword: "出勤", answer: "出勤規定：每日早上08:00前需於LINE模擬器或打卡處完成打卡。無故不按時出勤且未請假者，視為曠工；曠工一天扣除三天考評分數，連續曠工達三日者終止承攬關係。" }
+                ]));
+                localStorage.setItem("vouchersDb", JSON.stringify([]));
+                localStorage.setItem("adHistoryDb", JSON.stringify([]));
+                localStorage.setItem("unresolvedQaList", JSON.stringify([]));
+                
+                const todayStr = new Date().toISOString().split('T')[0];
+                localStorage.setItem("simulated_date", todayStr);
+                localStorage.setItem("森精工_db_initialized", "true");
+                
+                alert("🎉 系統已成功清空所有測試資料！\n已保留您目前的管理帳號權限與 Webhook 設定，系統即將重新載入進入正式生產上線狀態。");
+                
+                window.location.reload();
+                if (window.parent && window.parent !== window) {
+                    window.parent.location.reload();
+                }
+            }
+        }
+
+        // 監聽跨 iframe 資料更新
+        window.addEventListener("himori_db_updated", function() {
+            accounts = HimoriDb.accountsDb || [];
+            renderAccountList();
+            if (selectedEmpId && !selectedEmpId.startsWith("new_")) {
+                selectAccount(selectedEmpId);
+            }
+            
+            // 如果是在 SaaS 頁面，重新加載
+            const tabPerm = document.getElementById("tab-permissions");
+            if (tabPerm && !tabPerm.classList.contains("active")) {
+                loadBrandConfigInputs();
+                renderSaasSubscriptionCards();
+            }
+        });
+
+        // 頁面載入執行
+        window.addEventListener("DOMContentLoaded", init);
+    </script>
+
+    <!-- 頁尾開發商版權宣告 -->
+    <div style="font-size: 0.7rem; color: var(--text-muted, #64748B); text-align: center; margin: 3rem 0 1.5rem 0; padding-top: 1.5rem; border-top: 1px solid var(--border, rgba(255,255,255,0.08)); width: 100%; letter-spacing: 0.5px;">
+        © 2026 映向行銷. Powered by Image Marketing
+    </div>
+</body>
+</html>
