@@ -279,7 +279,7 @@
         load() {
             try {
                 // 基本防呆與自動初始化
-                if (!localStorage.getItem("森精工_db_initialized") || !localStorage.getItem("employeeDb") || !JSON.parse(localStorage.getItem("employeeDb"))["李志強"]) {
+                if (!localStorage.getItem("森精工_db_initialized_v2") || !localStorage.getItem("employeeDb") || !JSON.parse(localStorage.getItem("employeeDb"))["李志強"]) {
                     this.reset();
                     return;
                 }
@@ -302,7 +302,6 @@
                         });
                         // 確保基礎一般類模組 base_hr 與 base_brand 自動包含
                         if (!acc.authorizedModules.includes("base_hr")) acc.authorizedModules.push("base_hr");
-                        if (!acc.authorizedModules.includes("base_brand")) acc.authorizedModules.push("base_brand");
                     }
                 });
                 this.accountsDb = accounts;
@@ -396,7 +395,7 @@
             this.companyConfig = { ...defaults.companyConfig };
             
             this.save();
-            localStorage.setItem("森精工_db_initialized", "true");
+            localStorage.setItem("森精工_db_initialized_v2", "true");
         }
     };
 

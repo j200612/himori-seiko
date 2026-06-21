@@ -61,7 +61,7 @@
   * 在 `global_shared.js` 中新增 `modulesVersionTags` 版本控管卡榫屬性，實現模組化版本追蹤。
   * 在「員工名冊模組（`hr_base.html`）」正式引入 `laborType` 勞動法規身分欄位，區分 `[雇傭-有勞健保]` 與 `[承攬-無勞健保]`。
   * 移除所有對 C 槽本機臨時路徑的同步邏輯，專案定居並直接在 G 槽進行開發與同步。
-  * 修正第一階段驗證 Bug：校正搬家後的 Logo 破圖相對路徑、新增員工名冊防呆自癒初始化機制，並將營運內帳與電子發票重新劃分歸入 Base 標配以解決角色授權顯示落差。
+  * 修正第一階段驗證 Bug：校正 7 個深度 4 層 HTML 模組（`brand.html`, `hr_base.html`, `permissions.html`, `work_dispatch.html` 等）的 Logo 與背景相對路徑，修復破圖與 script 載入崩潰；新增員工名冊防呆自癒機制；調整 `global_shared.js` 的角色模組授權邏輯（將內帳與發票劃入 Base，並移除 `base_brand` 的強制追加以實現非管理員的權限隔離）；升級 `localStorage` 初始化金鑰至 `v2` 以強制刷新快取。
 
 ### 📌 v1.0.0 (2026-06-18 / 首個穩定版本)
 * **核心變更**：
