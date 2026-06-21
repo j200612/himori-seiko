@@ -91,7 +91,7 @@
             dependencies: ['base_hr']
         },
         func_internal_acc: {
-            category: 'functional',
+            category: 'base',
             name: '📊 營運內帳模組',
             version: '1.0.0',
             src: 'modules/01_Core_Base/internal_acc/internal_accounting.html',
@@ -107,7 +107,7 @@
             dependencies: ['func_internal_acc']
         },
         func_e_invoicing: {
-            category: 'functional',
+            category: 'base',
             name: '🧾 電子發票模組',
             version: '1.0.0',
             src: 'modules/01_Core_Base/e_invoicing/e_invoicing.html',
