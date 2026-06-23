@@ -203,7 +203,8 @@
             { question: "請假手續與考評扣除規定", keyword: "請假", answer: "請假規定：同仁請假應提前於一日前下午18:00前，由LINE或系統提交假單；若臨時生病/突發狀況需於當天早上07:30前告知。未提供合格證明之請假，將扣除當月考評分數及全勤津貼累計天數。" },
             { question: "現場同仁基本薪資與加班計費", keyword: "薪資", answer: "計薪說明：本公司依工日核薪。平日正常工時8小時。平日延長工時(超時)以1.5倍計算超時津貼。擔任現場領隊者，每日額外發放領導加給。當月出勤達22天以上且無缺勤紀錄者，發放全勤津貼3,000元。" },
             { question: "安全防護具與防墜設施規定", keyword: "安全帽", answer: "安全規定：進入工地廠區必須全程正確佩戴符合CNS國家標準之安全帽、防滑工作鞋及高能見度反光背心。高處作業(2公尺以上)必須確實掛妥雙掛勾安全帶，違規者將面臨罰款與停工處分。" },
-            { question: "出勤打卡與無故曠工處分", keyword: "出勤", answer: "出勤規定：每日早上08:00前需於LINE模擬器或打卡處完成打卡。無故不按時出勤且未請假者，視為曠工；曠工一天扣除三天考評分數，連續曠工達三日者終止承攬關係。" }
+            { question: "出勤打卡與無故曠工處分", keyword: "出勤", answer: "出勤規定：每日早上08:00前需於LINE模擬器或打卡處完成打卡。無故不按時出勤且未請假者，視為曠工；曠工一天扣除三天考評分數，連續曠工達三日者終止承攬關係。" },
+            { question: "外包承攬同仁加保與工會投保指引", keyword: "加保", answer: "🤖 日森精工 | 外包承攬同仁加保指引\n\n親愛的 {使用者名稱} 您好：\n\n感謝您加入「日森精工」數位營運系統！本平台專為高科技無塵室運維與精密天車軌道工程打造，提供全方位的數位支援。\n\n您已成功開通跨裝置行動辦公室，目前系統已為您初始化專屬的數位模組。請點擊下方選單或直接輸入關鍵字，開始體驗高效運作：\n\n📊 【核心數位模組功能】\n查詢/回報最新進度（輸入：進度）\n查看今日廠房排班（輸入：排班）\n填寫假勤出勤紀錄（輸入：請假）\n\n🌐 【官方數位後台網址】\nhttps://himori-portal-650268834354.asia-east1.run.app\n(提示：您可以在網頁版與 LINE 同步測試，資料皆為獨立沙盒，請放心操作。)\n\n💡 系統維護中，如有任何系統操作疑問，請隨時於此對話框留訊息，系統管理員將會為您即時處理。\n\n安全・合規・韌性・精密 — 日森精工，與您共創卓越。" }
         ],
         vouchersDb: [
             { id: "VOU-001", type: "進項發票", no: "XY-98765432", desc: "工地購置接線端子與管線材料", amount: 12500, date: "2026-06-14", status: "已核銷", invoiceLink: "AB-87654321", verified: true, imageUrl: "" },
@@ -279,7 +280,7 @@
         load() {
             try {
                 // 基本防呆與自動初始化
-                if (!localStorage.getItem("森精工_db_initialized_v2") || !localStorage.getItem("employeeDb") || !JSON.parse(localStorage.getItem("employeeDb"))["李志強"]) {
+                if (!localStorage.getItem("森精工_db_initialized_v3") || !localStorage.getItem("employeeDb") || !JSON.parse(localStorage.getItem("employeeDb"))["李志強"]) {
                     this.reset();
                     return;
                 }
@@ -395,7 +396,7 @@
             this.companyConfig = { ...defaults.companyConfig };
             
             this.save();
-            localStorage.setItem("森精工_db_initialized_v2", "true");
+            localStorage.setItem("森精工_db_initialized_v3", "true");
         }
     };
 

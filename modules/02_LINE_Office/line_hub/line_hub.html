@@ -1374,6 +1374,28 @@ https://himori-portal-650268834354.asia-east1.run.app
             if (qaTitleName) qaTitleName.textContent = csStaffGlobal.name;
 
             renderDashboard();
+            checkUrlParamsForSampleForm();
+        }
+
+        function checkUrlParamsForSampleForm() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('viewSampleForm') === 'true') {
+                showSampleFormModal();
+            }
+        }
+
+        function showSampleFormModal() {
+            const modal = document.getElementById("sample-form-modal");
+            if (modal) {
+                modal.style.display = "flex";
+            }
+        }
+
+        function closeSampleFormModal() {
+            const modal = document.getElementById("sample-form-modal");
+            if (modal) {
+                modal.style.display = "none";
+            }
         }
 
 
@@ -3618,6 +3640,70 @@ https://himori-portal-650268834354.asia-east1.run.app
 
     </script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- 📄 1:1 勞動力工會入會申請書擬真範本 Modal -->
+    <div id="sample-form-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px); z-index: 20000; justify-content: center; align-items: center; padding: 20px;">
+        <div style="background: #ffffff; color: #1e293b; width: 100%; max-width: 650px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); overflow: hidden; display: flex; flex-direction: column; max-height: 90vh;">
+            <!-- Modal Header -->
+            <div style="background: #0f172a; color: #ffffff; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0284c7;">
+                <h3 style="margin: 0; font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px;">📄 中華民國勞動力工會 入會申請書 (貼心填寫範例)</h3>
+                <button onclick="closeSampleFormModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer; line-height: 1; outline: none; transition: color 0.2s;" onmouseover="this.style.color='#f87171'" onmouseout="this.style.color='#94a3b8'">×</button>
+            </div>
+            <!-- Modal Body -->
+            <div style="padding: 1.5rem; overflow-y: auto; font-family: 'Noto Sans TC', sans-serif;">
+                <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 1rem; line-height: 1.4;">
+                    💡 提示：本範本以 1:1 還原紙本申請書結構，紅字標記為<b>外包承攬同仁加保</b>之核心填寫範例，請對照填寫。
+                </p>
+                
+                <!-- PDF Table Structure -->
+                <div style="border: 2px solid #334155; border-radius: 4px; overflow: hidden; background: #fff; font-size: 0.88rem; width: 100%;">
+                    <!-- Row 1 -->
+                    <div style="display: flex; border-bottom: 1px solid #334155;">
+                        <div style="width: 15%; background: #f1f5f9; padding: 10px; font-weight: bold; border-right: 1px solid #334155; display: flex; align-items: center; justify-content: center;">申 請 人</div>
+                        <div style="width: 35%; padding: 10px; border-right: 1px solid #334155; color: #ef4444; font-weight: 600; font-size: 1rem;">王大同</div>
+                        <div style="width: 15%; background: #f1f5f9; padding: 10px; font-weight: bold; border-right: 1px solid #334155; display: flex; align-items: center; justify-content: center;">出生日期</div>
+                        <div style="width: 35%; padding: 10px; color: #ef4444; font-weight: 600;">民國 75 年 08 月 15 日</div>
+                    </div>
+                    <!-- Row 2 -->
+                    <div style="display: flex; border-bottom: 1px solid #334155;">
+                        <div style="width: 15%; background: #f1f5f9; padding: 10px; font-weight: bold; border-right: 1px solid #334155; display: flex; align-items: center; justify-content: center;">身分證號</div>
+                        <div style="width: 35%; padding: 10px; border-right: 1px solid #334155; color: #ef4444; letter-spacing: 1px;">C123456789</div>
+                        <div style="width: 15%; background: #f1f5f9; padding: 10px; font-weight: bold; border-right: 1px solid #334155; display: flex; align-items: center; justify-content: center;">聯絡電話</div>
+                        <div style="width: 35%; padding: 10px; color: #ef4444;">0934-567-890</div>
+                    </div>
+                    <!-- Row 3 -->
+                    <div style="display: flex; border-bottom: 1px solid #334155;">
+                        <div style="width: 15%; background: #f1f5f9; padding: 10px; font-weight: bold; border-right: 1px solid #334155; display: flex; align-items: center; justify-content: center;">工作性質</div>
+                        <div style="width: 35%; padding: 10px; border-right: 1px solid #334155; color: #ef4444; font-weight: 600;">☑ 自營作業 (承攬人員)</div>
+                        <div style="width: 15%; background: #f1f5f9; padding: 10px; font-weight: bold; border-right: 1px solid #334155; display: flex; align-items: center; justify-content: center;">投保薪資</div>
+                        <div style="width: 35%; padding: 10px; color: #ef4444; font-weight: 600;">基本 29,500 元</div>
+                    </div>
+                    <!-- Row 4 -->
+                    <div style="display: flex; border-bottom: 1px solid #334155;">
+                        <div style="width: 15%; background: #f1f5f9; padding: 10px; font-weight: bold; border-right: 1px solid #334155; display: flex; align-items: center; justify-content: center;">續期帳單</div>
+                        <div style="width: 85%; padding: 10px; color: #ef4444; font-weight: 600;">☑ 手機簡訊通知 (免寄紙本，環保便利)</div>
+                    </div>
+                    <!-- Row 5 -->
+                    <div style="display: flex; border-bottom: 1px solid #334155;">
+                        <div style="width: 15%; background: #f1f5f9; padding: 10px; font-weight: bold; border-right: 1px solid #334155; display: flex; align-items: center; justify-content: center;">通訊地址</div>
+                        <div style="width: 85%; padding: 10px; color: #ef4444;">台北市大安區信義路四段 1 號 2 樓</div>
+                    </div>
+                    <!-- Row 6 (Signature) -->
+                    <div style="display: flex; height: 100px;">
+                        <div style="width: 15%; background: #f1f5f9; padding: 10px; font-weight: bold; border-right: 1px solid #334155; display: flex; align-items: center; justify-content: center;">親筆簽名</div>
+                        <div style="width: 85%; padding: 15px; display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-family: 'Georgia', 'Cursive', serif; font-style: italic; font-size: 1.8rem; color: #0284c7; letter-spacing: 2px; font-weight: bold; border-bottom: 1px solid #94a3b8; padding-bottom: 4px;">王大同</span>
+                            <span style="font-size: 0.75rem; color: #94a3b8;">申請日期：民國 115 年 06 月 23 日</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal Footer -->
+            <div style="background: #f8fafc; padding: 1rem 1.5rem; display: flex; justify-content: flex-end; border-top: 1px solid #e2e8f0;">
+                <button onclick="closeSampleFormModal()" style="background: #0f172a; color: white; border: none; padding: 8px 20px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#0284c7'" onmouseout="this.style.background='#0f172a'">關閉預覽</button>
+            </div>
+        </div>
+    </div>
 
     <!-- 頁尾開發商版權宣告 -->
     <div style="font-size: 0.7rem; color: var(--text-muted, #64748B); text-align: center; margin: 3rem 0 1.5rem 0; padding-top: 1.5rem; border-top: 1px solid var(--border, rgba(255,255,255,0.08)); width: 100%; letter-spacing: 0.5px;">
