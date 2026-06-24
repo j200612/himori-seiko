@@ -175,6 +175,8 @@
         /* 側邊欄 */
         sidebar {
             width: 260px;
+            height: 100vh;
+            box-sizing: border-box;
             background: rgba(15, 23, 42, 0.75);
             border-right: 1px solid var(--border);
             backdrop-filter: blur(15px);
@@ -293,6 +295,22 @@
             gap: 0.5rem;
             flex-grow: 1;
             overflow-y: auto;
+            scrollbar-width: thin;
+        }
+
+        /* 優化滾動條樣式，避免擠壓抖動 */
+        .nav-menu::-webkit-scrollbar {
+            width: 4px;
+        }
+        .nav-menu::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .nav-menu::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+        }
+        .nav-menu::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
         }
 
         .nav-item {
@@ -357,87 +375,66 @@
         .user-block {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            justify-content: center;
             padding: 1rem 0;
             border-top: 1px solid var(--border);
             margin-top: auto;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
         }
 
         sidebar.collapsed .user-block {
-            flex-direction: column-reverse;
-            gap: 0.8rem;
+            padding: 1rem 0;
             justify-content: center;
             align-items: center;
-            padding: 1rem 0;
         }
 
         .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent), #0369a1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 0.95rem;
-            color: white;
-            box-shadow: 0 0 8px var(--accent-glow);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: none !important;
         }
 
         .user-info {
-            flex-grow: 1;
-            min-width: 0;
-            transition: opacity 0.2s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            opacity: 1;
-            max-width: 150px;
-            overflow: hidden;
-        }
-
-        sidebar.collapsed .user-info {
-            opacity: 0;
-            max-width: 0;
-            display: none;
-        }
-
-        .user-name {
-            font-size: 0.88rem;
-            font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .user-role {
-            font-size: 0.72rem;
-            color: var(--text-muted);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            display: none !important;
         }
 
         .btn-logout {
-            background: none;
-            border: none;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
             color: var(--text-muted);
             cursor: pointer;
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
+            width: 100%;
+            height: 42px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 0.5rem;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             outline: none;
             flex-shrink: 0;
+            padding: 0 1rem;
+        }
+
+        .logout-text {
+            font-size: 0.85rem;
+            font-weight: 600;
+            opacity: 1;
+            transition: opacity 0.2s;
+            white-space: nowrap;
         }
 
         sidebar.collapsed .btn-logout {
             width: 38px;
             height: 38px;
             border-radius: 50%;
+            padding: 0;
+            margin: 0 auto;
+            background: none;
+            border: none;
+        }
+
+        sidebar.collapsed .logout-text {
+            display: none;
         }
 
         .btn-logout:hover {
@@ -445,6 +442,7 @@
             transform: scale(1.05);
             background-color: rgba(239, 68, 68, 0.15);
             filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.2));
+            border-color: rgba(239, 68, 68, 0.2);
         }
 
         /* 側邊欄版權宣告 */
@@ -550,8 +548,8 @@
 
             <!-- 使用者狀態與登出 -->
             <div class="user-block">
-                <div class="user-avatar" id="avatar-char">林</div>
-                <div class="user-info">
+                <div class="user-avatar" id="avatar-char" style="display:none;">林</div>
+                <div class="user-info" style="display:none;">
                     <div class="user-name" id="display-name">林總經理</div>
                     <div class="user-role" id="display-role">系統管理員 / 主管</div>
                 </div>
@@ -561,6 +559,7 @@
                         <polyline points="16 17 21 12 16 7"/>
                         <line x1="21" y1="12" x2="9" y2="12"/>
                     </svg>
+                    <span class="logout-text">安全登出</span>
                 </button>
             </div>
             <div class="sidebar-copyright">
