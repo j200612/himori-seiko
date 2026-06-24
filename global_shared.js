@@ -129,6 +129,14 @@
             src: 'modules/02_LINE_Office/line_hub/line_hub.html',
             desc: '對外 LINE 客服問答回覆、公告發佈與打卡請假對帳模擬',
             dependencies: ['base_hr']
+        },
+        func_union_redirect: {
+            category: 'functional',
+            name: '🔗 工會導流配置',
+            version: '1.0.0',
+            src: 'modules/02_LINE_Office/union_redirect/union_redirect.html',
+            desc: '建立動態工會導流配置與 LINE 客服前端預覽',
+            dependencies: ['base_hr']
         }
     };
 
@@ -167,7 +175,7 @@
             balanceSheet: { cash:0, prepaid:0, fixed:0, ap:0, loan:0, otherLiab:0, status: "未核定" }
         },
         accountsDb: [
-            { empId: "admin", name: "林總經理", password: "admin123", role: "系統管理員 / 主管", authorizedModules: ["base_brand", "base_hr", "func_employee_cards", "func_work_dispatch", "func_attendance", "func_group_insurance", "func_internal_acc", "func_external_acc", "func_e_invoicing", "func_board_meeting", "func_line_hub", "base_permissions"] },
+            { empId: "admin", name: "林總經理", password: "admin123", role: "系統管理員 / 主管", authorizedModules: ["base_brand", "base_hr", "func_employee_cards", "func_work_dispatch", "func_attendance", "func_group_insurance", "func_internal_acc", "func_external_acc", "func_e_invoicing", "func_board_meeting", "func_line_hub", "func_union_redirect", "base_permissions"] },
             { empId: "accountant", name: "會計淑芬", password: "acc123", role: "會計財務", authorizedModules: ["base_hr", "func_work_dispatch", "func_attendance", "func_internal_acc", "func_external_acc", "func_e_invoicing"] },
             { empId: "emp101", name: "李志強", password: "emp123", role: "現場同仁 / 領隊", authorizedModules: ["base_hr", "func_attendance", "func_line_hub"] },
             { empId: "emp102", name: "張憲明", password: "emp123", role: "現場同仁 / 領隊", authorizedModules: ["base_hr", "func_attendance", "func_line_hub"] },
@@ -223,9 +231,33 @@
             "func_e_invoicing",
             "func_board_meeting",
             "func_line_hub",
+            "func_union_redirect",
             "base_permissions"
         ],
-        companyConfig: { ...defaultCompanyConfig }
+        companyConfig: { ...defaultCompanyConfig },
+        unionConfig: {
+            unionName: "桃園市勞動力援助職業工會",
+            jobDescription: "依據法規與雙方簽訂之承攬契約，外包承攬同仁依法不具備公司投保勞健保身分，需透過職業工會以「自營作業者」身分進行加保，以確保您的個人權益與現場工安保障。",
+            fees: [
+                { item: "入會費", amount: 1000, cycle: "一次性" },
+                { item: "經常會費", amount: 200, cycle: "每月" },
+                { item: "繳費週期", amount: "按季", cycle: "季繳" }
+            ],
+            formula: {
+                basicSalary: 29500,
+                laborRate: 11,
+                healthRate: 6,
+                laborShare: 60,
+                healthShare: 60
+            },
+            portals: {
+                website: "https://www.yes3391699.tw/page/26",
+                blankPdf: "https://himori-portal-650268834354.asia-east1.run.app/勞動力工會-入會申請書11501.pdf",
+                lineLink: "https://line.me/R/ti/p/%40yes3391699",
+                lineId: "@yes3391699"
+            },
+            sampleDocUrl: "https://himori-portal-650268834354.asia-east1.run.app/勞動力工會-入會申請書11501_範例.pdf"
+        }
     };
 
     // 舊模組 ID 升級字典 (對舊 LocalStorage 資料進行向上相容)
@@ -275,12 +307,13 @@
         webhookAnnouncementUrl: "",
         subscribedModules: [],
         companyConfig: {},
+        unionConfig: {},
 
         // 載入資料庫
         load() {
             try {
                 // 基本防呆與自動初始化
-                if (!localStorage.getItem("森精工_db_initialized_v3") || !localStorage.getItem("employeeDb") || !JSON.parse(localStorage.getItem("employeeDb"))["李志強"]) {
+                if (!localStorage.getItem("森精工_db_initialized_v4") || !localStorage.getItem("employeeDb") || !JSON.parse(localStorage.getItem("employeeDb"))["李志強"]) {
                     this.reset();
                     return;
                 }
@@ -327,6 +360,7 @@
                 if (this.companyConfig && !this.companyConfig.modulesVersionTags) {
                     this.companyConfig.modulesVersionTags = { ...defaults.companyConfig.modulesVersionTags };
                 }
+                this.unionConfig = JSON.parse(localStorage.getItem("unionConfig")) || defaults.unionConfig;
 
             } catch (e) {
                 console.error("載入資料庫失敗，自動重設...", e);
@@ -359,6 +393,7 @@
             // 儲存訂閱模組與公司配置
             localStorage.setItem("subscribedModules", JSON.stringify(this.subscribedModules));
             localStorage.setItem("companyConfig", JSON.stringify(this.companyConfig));
+            localStorage.setItem("unionConfig", JSON.stringify(this.unionConfig));
             
             // 觸發自訂事件，讓同視窗的其他 iframe 得知更新
             const event = new CustomEvent("himori_db_updated");
@@ -394,9 +429,10 @@
             // 訂閱與公司配置重設
             this.subscribedModules = [ ...defaults.subscribedModules ];
             this.companyConfig = { ...defaults.companyConfig };
+            this.unionConfig = { ...defaults.unionConfig };
             
             this.save();
-            localStorage.setItem("森精工_db_initialized_v3", "true");
+            localStorage.setItem("森精工_db_initialized_v4", "true");
         }
     };
 

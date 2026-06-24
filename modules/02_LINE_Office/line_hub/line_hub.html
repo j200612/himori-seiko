@@ -848,6 +848,14 @@
                             </p>
                             <button type="button" class="btn btn-outline" onclick="simulateLineCardQuery()">發送「查詢我的名片」</button>
                         </div>
+
+                        <div class="card" style="box-shadow: none; border-color: var(--border); margin-top: 1rem; margin-bottom: 0;">
+                            <h3>📱 4. 模擬員工點擊「加保指引」</h3>
+                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                                員工在 LINE 詢問或點選工會加保，自動回覆動態渲染的圖文指引。
+                            </p>
+                            <button type="button" class="btn btn-outline" onclick="simulateLineUnionQuery()">發送「查詢加保指引」</button>
+                        </div>
                     </div>
                 </div>
 
@@ -2353,6 +2361,98 @@ https://himori-portal-650268834354.asia-east1.run.app
                 chatBody.appendChild(bubble);
             }
             chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function simulateLineUnionQuery() {
+            const name = document.getElementById("s-worker").value;
+            if (!name) return;
+
+            appendChatMessage(`加保`, `user`);
+
+            setTimeout(() => {
+                HimoriDb.load();
+                const config = HimoriDb.unionConfig || {};
+                
+                // 動態變數渲染
+                const unionName = config.unionName || "工會";
+                const jobDesc = config.jobDescription || "";
+                
+                // 收費項目
+                let feesText = "";
+                if (config.fees && config.fees.length > 0) {
+                    config.fees.forEach(fee => {
+                        feesText += `• ${fee.item}：$${fee.amount} (${fee.cycle})\n`;
+                    });
+                }
+                
+                // 公式
+                const f = config.formula || { basicSalary: 29500, laborRate: 11, healthRate: 6, laborShare: 60, healthShare: 60 };
+                const laborFee = Math.round(f.basicSalary * (f.laborRate / 100) * (f.laborShare / 100));
+                const healthFee = Math.round(f.basicSalary * (f.healthRate / 100) * (f.healthShare / 100));
+                
+                let regularFee = 0;
+                if (config.fees) {
+                    config.fees.forEach(fee => {
+                        if (fee.item.includes("經常會費") || fee.item.includes("會費")) {
+                            regularFee = parseFloat(fee.amount) || 0;
+                        }
+                    });
+                }
+                const quarterlyTotal = (laborFee + healthFee + regularFee) * 3;
+                
+                // 連結
+                const p = config.portals || { website: "#", blankPdf: "#", lineLink: "#", lineId: "@" };
+                const sampleDoc = config.sampleDocUrl || "#";
+                
+                const companyName = (HimoriDb.companyConfig && HimoriDb.companyConfig.name) || "日森精工";
+                
+                const msg = `🤖 ${companyName} | 外包承攬同仁加保指引
+
+親愛的 ${name} 您好：
+
+【工作屬性符合說明】
+${jobDesc}
+
+【${unionName} 收費方式與投保說明】
+${feesText}基本保費計費公式如下：
+• 勞保費/月 = 投保薪資 × ${f.laborRate}% × ${f.laborShare}%
+• 健保費/月 = 投保薪資 × ${f.healthRate}% × ${f.healthShare}%
+
+【每期應繳金額試算】
+若以最低投保薪資 ${f.basicSalary.toLocaleString()} 元計算：
+• 勞保費：約 $${laborFee.toLocaleString()} / 月
+• 健保費：約 $${healthFee.toLocaleString()} / 月
+• 季繳合計 (3個月)：預估約 $${quarterlyTotal.toLocaleString()} 起 (內含經常會費)
+
+【輕鬆加入工會 3 步驟】
+1️⃣ 下載並填寫
+請下載空白入會申請書並填妥資訊。
+👉【貼心填寫範例對照】(PDF)
+${sampleDoc}
+
+2️⃣ 準備資料與拍照
+準備身分證正反面影本、存摺封面影本，並與填妥的申請書一同拍照。
+
+3️⃣ LINE 線上送件
+將照片傳送至工會官方 LINE 帳號，即有專人為您辦理入會與加保。
+
+──────────────────────
+【工會黃金導流傳送門】
+──────────────────────
+🌐 工會官方主網頁
+${p.website}
+
+📄 空白入會申請書下載 (PDF)
+${p.blankPdf}
+
+💬 工會官方 LINE 平台 (ID: ${p.lineId})
+${p.lineLink}
+
+如有任何投保疑義，請隨時於此對話框留訊息，系統管理員將會為您即時處理。
+${companyName} 關心您！`;
+
+                appendChatMessage(msg, `system`);
+            }, 600);
         }
 
         function simulateLineCardQuery() {
