@@ -124,10 +124,10 @@
         },
         func_line_hub: {
             category: 'functional',
-            name: '💬 公告客服模組',
+            name: '💬 LINE 智能客服與人機協同平台',
             version: '1.0.0',
             src: 'modules/02_LINE_Office/line_hub/line_hub.html',
-            desc: '對外 LINE 客服問答回覆、公告發佈與打卡請假對帳模擬',
+            desc: '白牌 LINE 自動客服、人機協同聊天室、多媒體收件匣與 Rich Menu 動態配置平台',
             dependencies: ['base_hr']
         },
         func_union_redirect: {
