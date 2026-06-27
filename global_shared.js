@@ -124,18 +124,10 @@
         },
         func_line_hub: {
             category: 'functional',
-            name: '💬 LINE 智能客服與人機協同平台',
+            name: '💬 LINE 智能客服',
             version: '1.0.0',
             src: 'modules/02_LINE_Office/line_hub/line_hub.html',
             desc: '白牌 LINE 自動客服、人機協同聊天室、多媒體收件匣與 Rich Menu 動態配置平台',
-            dependencies: ['base_hr']
-        },
-        func_union_redirect: {
-            category: 'functional',
-            name: '🔗 工會導流配置',
-            version: '1.0.0',
-            src: 'modules/02_LINE_Office/union_redirect/union_redirect.html',
-            desc: '建立動態工會導流配置與 LINE 客服前端預覽',
             dependencies: ['base_hr']
         }
     };
@@ -175,7 +167,7 @@
             balanceSheet: { cash:0, prepaid:0, fixed:0, ap:0, loan:0, otherLiab:0, status: "未核定" }
         },
         accountsDb: [
-            { empId: "admin", name: "林總經理", password: "admin123", role: "系統管理員 / 主管", authorizedModules: ["base_brand", "base_hr", "func_employee_cards", "func_work_dispatch", "func_attendance", "func_group_insurance", "func_internal_acc", "func_external_acc", "func_e_invoicing", "func_board_meeting", "func_line_hub", "func_union_redirect", "base_permissions"] },
+            { empId: "admin", name: "林總經理", password: "admin123", role: "系統管理員 / 主管", authorizedModules: ["base_brand", "base_hr", "func_employee_cards", "func_work_dispatch", "func_attendance", "func_group_insurance", "func_internal_acc", "func_external_acc", "func_e_invoicing", "func_board_meeting", "func_line_hub", "base_permissions"] },
             { empId: "accountant", name: "會計淑芬", password: "acc123", role: "會計財務", authorizedModules: ["base_hr", "func_work_dispatch", "func_attendance", "func_internal_acc", "func_external_acc", "func_e_invoicing"] },
             { empId: "emp101", name: "李志強", password: "emp123", role: "現場同仁 / 領隊", authorizedModules: ["base_hr", "func_attendance", "func_line_hub"] },
             { empId: "emp102", name: "張憲明", password: "emp123", role: "現場同仁 / 領隊", authorizedModules: ["base_hr", "func_attendance", "func_line_hub"] },
@@ -231,7 +223,6 @@
             "func_e_invoicing",
             "func_board_meeting",
             "func_line_hub",
-            "func_union_redirect",
             "base_permissions"
         ],
         companyConfig: { ...defaultCompanyConfig },

@@ -4,7 +4,7 @@
     <script src="../../../global_shared.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>日森精工 | 🤖 LINE 智能客服與人機協同平台</title>
+    <title>日森精工 | 💬 LINE 智能客服</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,7 +36,7 @@
 
         body {
             font-family: 'Outfit', 'Noto Sans TC', sans-serif;
-            background: #0f172a url('../../../01_企業識別與設計/底色.png') center center / cover no-repeat fixed;
+            background: #0f172a url('../../../01_%E4%BC%81%E6%A5%AD%E8%AD%98%E5%88%A5%E8%88%87%E8%A8%AD%E8%A8%88/%E5%BA%95%E8%89%B2.png') center center / cover no-repeat fixed;
             color: var(--text);
             min-height: 100vh;
             display: flex;
@@ -125,7 +125,7 @@
             box-shadow: var(--card-shadow);
             display: flex;
             flex-direction: column;
-            min-height: 720px;
+            height: 760px; /* Lock height to match phone previews */
             overflow: hidden;
         }
 
@@ -175,12 +175,15 @@
             flex-grow: 1;
             display: flex;
             flex-direction: column;
+            overflow: hidden; /* Prevent overall overflow */
         }
 
         .tab-content {
             display: none;
             animation: fadeIn 0.4s ease;
             flex-grow: 1;
+            overflow-y: auto; /* Enable safe internal scrolling */
+            padding-right: 6px;
         }
 
         .tab-content.active {
@@ -942,9 +945,11 @@
 
     <header>
         <div class="header-brand">
-            <img src="../../../01_企業識別與設計/橫式logo.png" alt="Logo">
+            <img src="../../../01_%E4%BC%81%E6%A5%AD%E8%AD%98%E5%88%A5%E8%88%87%E8%A8%AD%E8%A8%88/%E6%A8%AA%E5%BC%8Flogo.png" 
+                 onerror="this.src='/01_%E4%BC%81%E6%A5%AD%E8%AD%98%E5%88%A5%E8%88%87%E8%A8%AD%E8%A8%88/%E6%A8%AA%E5%BC%8Flogo.png'; this.onerror=function(){ this.src='../../../01_企業識別與設計/橫式logo.png'; };" 
+                 alt="Logo">
             <div class="header-title-box">
-                <h1 class="header-title">💬 LINE 智能客服與人機協同平台 <span class="badge-version">v2.0.0</span></h1>
+                <h1 class="header-title">💬 LINE 智能客服 <span class="badge-version">v2.0.0</span></h1>
                 <p class="header-subtitle">白牌雙向行動驗證、Rich Menu 動態渲染、人機轉接與 AI 大腦知識沉澱中控</p>
             </div>
         </div>
@@ -1092,7 +1097,10 @@
                     <div class="card" style="margin-bottom: 0; display:flex; flex-direction:column; flex-grow: 1;">
                         <div class="card-header">
                             <div class="card-title">📬 收到的 LINE 臨時文件與證照審核區</div>
-                            <button class="btn btn-outline btn-sm" onclick="clearInbox()">一鍵清除收件匣</button>
+                            <div style="display:flex; gap:6px;">
+                                <button class="btn btn-primary btn-sm" onclick="adminAddInboxFile()">➕ 手動新增文件</button>
+                                <button class="btn btn-outline btn-sm" onclick="clearInbox()">一鍵清除收件匣</button>
+                            </div>
                         </div>
                         <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.75rem;">
                             同仁在手機 LINE 模擬器上傳的照片（如：身分證正反面、存摺封面、填妥之入會申請書等）會即時匯入此匣，由主管審查核准歸檔。
@@ -1346,7 +1354,10 @@
                         <!-- 手機號碼 SMS 認證網頁 -->
                         <div class="auth-container" id="web-auth-view" style="display:none;">
                             <div class="auth-card">
-                                <img src="../../../01_企業識別與設計/橫式logo.png" class="auth-logo" alt="Logo">
+                                <img src="../../../01_%E4%BC%81%E6%A5%AD%E8%AD%98%E5%88%A5%E8%88%87%E8%A8%AD%E8%A8%88/%E6%A8%AA%E5%BC%8Flogo.png" 
+                                     onerror="this.src='/01_%E4%BC%81%E6%A5%AD%E8%AD%98%E5%88%A5%E8%88%87%E8%A8%AD%E8%A8%88/%E6%A8%AA%E5%BC%8Flogo.png'; this.onerror=function(){ this.src='../../../01_企業識別與設計/橫式logo.png'; };" 
+                                     class="auth-logo" 
+                                     alt="Logo">
                                 <h2 class="auth-title">同仁行動身分認證</h2>
                                 <p class="auth-desc">請輸入您在後台名冊登記之手機號碼</p>
                                 
@@ -1381,6 +1392,27 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        <!-- 行動上傳與歷史紀錄網頁 -->
+                        <div class="auth-container" id="web-upload-view" style="display:none; flex-direction:column; justify-content:flex-start; padding:12px; overflow-y:auto; height:100%; box-sizing:border-box;">
+                            <div class="auth-card" style="width:100%; box-sizing:border-box; margin:0; padding:12px;">
+                                <h3 style="font-size:0.85rem; color:#f8fafc; margin-bottom:8px; display:flex; align-items:center; gap:6px;">📤 同仁行動文件上傳中心</h3>
+                                <p style="font-size:0.68rem; color:#94a3b8; line-height:1.4; margin-bottom:12px; text-align:left;">
+                                    您可在此上傳您的身分證件、存摺或填寫妥當之工會入會申請書。
+                                </p>
+                                <button class="auth-btn" style="padding:8px; font-size:0.7rem; display:flex; justify-content:center; align-items:center; gap:6px; cursor:pointer;" onclick="triggerMobileDocUpload()">
+                                    <span>➕ 選擇並上傳新文件</span>
+                                </button>
+                            </div>
+                            
+                            <!-- 歷史紀錄 (Log) 區塊 -->
+                            <div class="auth-card" style="width:100%; box-sizing:border-box; margin-top:10px; flex-grow:1; display:flex; flex-direction:column; padding:12px; text-align:left;">
+                                <h4 style="font-size:0.75rem; color:#f8fafc; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:4px;">📋 上傳歷史紀錄 (Log)</h4>
+                                <div id="mobile-upload-logs" style="flex-grow:1; overflow-y:auto; font-size:0.68rem; display:flex; flex-direction:column; gap:6px;">
+                                    <!-- 動態渲染上傳歷史紀錄 -->
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1396,6 +1428,7 @@
         let unresolvedQaList = [];
         let richMenuConfigs = {};
         let aiConfig = {};
+        let inboxMediaList = [];
 
         // 初始化資料庫
         function initDatabase() {
@@ -1407,6 +1440,9 @@
                 { name: "勞動力工會-入會申請書11501.pdf", size: "482.6 KB", path: "勞動力工會-入會申請書11501.pdf" },
                 { name: "勞動力工會-入會申請書11501_範例.pdf", size: "587.0 KB", path: "勞動力工會-入會申請書11501_範例.pdf" }
             ];
+
+            // 載入多媒體收件匣
+            inboxMediaList = JSON.parse(localStorage.getItem("himori_inbox_media")) || [];
 
             // 媒體文件收件匣 (LINE 同步)
             unresolvedChats = JSON.parse(localStorage.getItem("himori_unresolved_chats")) || [
@@ -1444,7 +1480,7 @@
                 ],
                 contractor: [
                     { title: "🌐 官網主頁", type: "URL", value: "https://himori-portal-650268834354.asia-east1.run.app" },
-                    { title: "📄 工會加保", type: "Keyword", value: "加保" },
+                    { title: "📤 上傳文件", type: "Upload", value: "upload" },
                     { title: "📅 今日排班", type: "Keyword", value: "今日排班" },
                     { title: "📝 請假回報", type: "Keyword", value: "請假" },
                     { title: "📇 我的名片", type: "Keyword", value: "查詢我的名片" },
@@ -1453,8 +1489,8 @@
                 regular: [
                     { title: "🌐 官網主頁", type: "URL", value: "https://himori-portal-650268834354.asia-east1.run.app" },
                     { title: "🏗️ 今日排班", type: "Keyword", value: "今日排班" },
+                    { title: "📤 上傳文件", type: "Upload", value: "upload" },
                     { title: "🤒 假勤申請", type: "Keyword", value: "請假" },
-                    { title: "📊 出勤薪資", type: "Keyword", value: "查詢薪資" },
                     { title: "📇 我的名片", type: "Keyword", value: "查詢我的名片" },
                     { title: "🔓 解除綁定", type: "Keyword", value: "解綁" }
                 ],
@@ -1478,6 +1514,7 @@
             localStorage.setItem("himori_unresolved_chats", JSON.stringify(unresolvedChats));
             localStorage.setItem("himori_ai_config", JSON.stringify(aiConfig));
             localStorage.setItem("himori_rich_menu_config", JSON.stringify(richMenuConfigs));
+            localStorage.setItem("himori_inbox_media", JSON.stringify(inboxMediaList));
         }
 
         // ── 2. 切換分頁 ──
@@ -1767,17 +1804,12 @@
         }
 
         // ── 5. Tab 3: 多媒體與證照收件匣 ──
-        let inboxMediaList = [];
-
         function renderInboxMedia() {
             const grid = document.getElementById("inbox-media-grid");
             if (!grid) return;
             grid.innerHTML = "";
 
-            inboxMediaList = JSON.parse(localStorage.getItem("himori_inbox_media")) || [
-                { id: 1, sender: "李志強", phone: "0923-456-789", type: "存摺封面.jpg", time: "2026-06-25 10:12", status: "pending", icon: "🏦" },
-                { id: 2, sender: "王大同", phone: "0934-567-890", type: "身分證正面.png", time: "2026-06-25 11:45", status: "pending", icon: "🪪" }
-            ];
+            inboxMediaList = JSON.parse(localStorage.getItem("himori_inbox_media")) || [];
 
             if (inboxMediaList.length === 0) {
                 grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; color:var(--text-muted); font-size:0.8rem; padding:2rem 0;">📬 目前收件匣無臨時文件照片</div>`;
@@ -1787,29 +1819,53 @@
             inboxMediaList.forEach(item => {
                 const card = document.createElement("div");
                 card.className = "media-card";
+                
+                let dispatchBox = "";
+                let actionButtons = "";
+                
+                if (item.status === 'pending') {
+                    dispatchBox = `
+                        <div class="ai-dispatch-box" style="margin-top: 8px; padding: 6px; background: rgba(2, 132, 199, 0.08); border: 1px dashed rgba(2, 132, 199, 0.4); border-radius: 6px; text-align: left;">
+                            <div style="font-size: 0.65rem; color: #38bdf8; font-weight: bold; margin-bottom: 4px;">🤖 AI 智慧分流建議：</div>
+                            <select style="font-size: 0.65rem; padding: 2px; height: 22px; width: 100%; background: #0f172a; border: 1px solid var(--border); color: var(--text); border-radius: 4px; margin-bottom: 4px;" id="dispatch-target-${item.id}">
+                                <option value="base_hr" ${item.type.includes("存摺") || item.type.includes("申請書") ? "selected" : ""}>📋 歸檔至：人事名冊系統</option>
+                                <option value="cards" ${item.type.includes("名片") || item.type.includes("身分證") ? "selected" : ""}>🪪 歸檔至：員工識別卡庫 (cardsDb)</option>
+                                <option value="insurance" ${item.type.includes("保險") || item.type.includes("團保") ? "selected" : ""}>🏥 歸檔至：團體保險名冊 (insurancesDb)</option>
+                            </select>
+                        </div>
+                    `;
+                    actionButtons = `
+                        <button class="btn btn-sm" style="flex:1; padding:4px;" onclick="approveInboxMedia(${item.id})">核准歸檔</button>
+                        <button class="btn btn-sm btn-danger" style="flex:1; padding:4px;" onclick="rejectInboxMedia(${item.id})">駁回</button>
+                    `;
+                } else {
+                    dispatchBox = "";
+                    actionButtons = `
+                        <button class="btn btn-sm btn-outline" style="width:100%; padding:4px;" onclick="deleteInboxMedia(${item.id})">🗑️ 刪除紀錄</button>
+                    `;
+                }
+
+                const dispLabel = item.dispatchedTo ? ` (分流至: ${getModuleName(item.dispatchedTo)})` : "";
+
                 card.innerHTML = `
-                    <div class="media-preview">
+                    <div class="media-preview" style="position:relative;">
                         <span style="font-size:3rem;">${item.icon}</span>
                         ${item.status === 'approved' ? '<span style="position:absolute; top:4px; right:4px; font-size:0.9rem;">✅</span>' : ''}
                         ${item.status === 'rejected' ? '<span style="position:absolute; top:4px; right:4px; font-size:0.9rem;">❌</span>' : ''}
                     </div>
                     <div class="media-body">
-                        <div class="media-title">${escapeHtml(item.type)}</div>
+                        <div class="media-title" style="font-weight:600; color:#fff;">${escapeHtml(item.type)}</div>
                         <div class="media-info">傳送人: <b>${escapeHtml(item.sender)}</b></div>
                         <div class="media-info">電話: ${item.phone}</div>
                         <div class="media-info">上傳時間: ${item.time}</div>
                         <div class="media-status">
                             <span class="status-badge ${item.status === 'pending' ? 'status-pending' : (item.status === 'approved' ? 'status-approved' : 'status-rejected')}">
-                                ${item.status === 'pending' ? '待核決' : (item.status === 'approved' ? '已核准歸檔' : '已駁回')}
+                                ${item.status === 'pending' ? '待核決' : '已核准歸檔' + dispLabel}
                             </span>
                         </div>
-                        <div style="display:flex; gap:4px; margin-top:6px;">
-                            ${item.status === 'pending' ? `
-                                <button class="btn btn-sm" style="flex:1; padding:2px;" onclick="approveInboxMedia(${item.id})">核准</button>
-                                <button class="btn btn-sm btn-danger" style="flex:1; padding:2px;" onclick="rejectInboxMedia(${item.id})">駁回</button>
-                            ` : `
-                                <button class="btn btn-sm btn-outline" style="width:100%; padding:2px;" onclick="deleteInboxMedia(${item.id})">刪除紀錄</button>
-                            `}
+                        ${dispatchBox}
+                        <div style="display:flex; gap:4px; margin-top:6px; width:100%;">
+                            ${actionButtons}
                         </div>
                     </div>
                 `;
@@ -1817,21 +1873,44 @@
             });
         }
 
+        function getModuleName(modId) {
+            if (modId === "base_hr") return "人事名冊";
+            if (modId === "cards") return "員工識別卡";
+            if (modId === "insurance") return "團體保險";
+            return "系統";
+        }
+
         function approveInboxMedia(id) {
+            const selectEl = document.getElementById(`dispatch-target-${id}`);
+            const targetModule = selectEl ? selectEl.value : "base_hr";
+
             inboxMediaList.forEach(item => {
-                if (item.id === id) item.status = "approved";
+                if (item.id === id) {
+                    item.status = "approved";
+                    item.dispatchedTo = targetModule;
+                }
             });
             localStorage.setItem("himori_inbox_media", JSON.stringify(inboxMediaList));
             renderInboxMedia();
-            alert("✅ 證件文件已審核通過並歸檔至人事系統。");
+            renderMobileUploadLogs();
+
+            let targetName = "";
+            if (targetModule === "base_hr") targetName = "📋 人事名冊系統";
+            else if (targetModule === "cards") targetName = "🪪 員工識別卡庫 (cardsDb)";
+            else if (targetModule === "insurance") targetName = "🏥 團體保險名冊 (insurancesDb)";
+
+            alert(`✅ 證件文件已審核通過，並由 AI 智慧分流歸檔至【${targetName}】！`);
         }
 
         function rejectInboxMedia(id) {
             inboxMediaList.forEach(item => {
-                if (item.id === id) item.status = "rejected";
+                if (item.id === id) {
+                    item.status = "rejected";
+                }
             });
             localStorage.setItem("himori_inbox_media", JSON.stringify(inboxMediaList));
             renderInboxMedia();
+            renderMobileUploadLogs();
             alert("❌ 已駁回該上傳資料，同仁將會收到補件通知。");
         }
 
@@ -1839,6 +1918,7 @@
             inboxMediaList = inboxMediaList.filter(item => item.id !== id);
             localStorage.setItem("himori_inbox_media", JSON.stringify(inboxMediaList));
             renderInboxMedia();
+            renderMobileUploadLogs();
         }
 
         function clearInbox() {
@@ -1846,7 +1926,35 @@
                 inboxMediaList = [];
                 localStorage.setItem("himori_inbox_media", JSON.stringify(inboxMediaList));
                 renderInboxMedia();
+                renderMobileUploadLogs();
             }
+        }
+
+        // 管理員手動新增上傳文件
+        function adminAddInboxFile() {
+            const sender = prompt("請輸入上傳員工姓名：", "張憲明");
+            if (!sender) return;
+            const phone = prompt("請輸入員工手機號碼：", "0912-345-678");
+            if (!phone) return;
+            const type = prompt("請輸入文件名稱 (例如: 團保申請書.pdf)：", "團保申請書.pdf");
+            if (!type) return;
+
+            const list = JSON.parse(localStorage.getItem("himori_inbox_media")) || [];
+            const newId = list.length > 0 ? Math.max(...list.map(i => i.id)) + 1 : 1;
+            
+            list.unshift({
+                id: newId,
+                sender: sender,
+                phone: phone,
+                type: type,
+                time: new Date().toISOString().replace('T', ' ').substring(0, 16),
+                status: "pending",
+                icon: type.endsWith(".pdf") ? "📄" : "🪪"
+            });
+
+            localStorage.setItem("himori_inbox_media", JSON.stringify(list));
+            renderInboxMedia();
+            alert("✅ 成功手動新增外部上傳文件！");
         }
 
         // ── 6. Tab 4: Rich Menu 動態配置功能 ──
@@ -2049,6 +2157,7 @@
                 else if (btn.title.includes("認證") || btn.title.includes("開通")) icon = "🔐";
                 else if (btn.title.includes("諮詢") || btn.title.includes("真人")) icon = "💬";
                 else if (btn.title.includes("Q&A") || btn.title.includes("常用")) icon = "❓";
+                else if (btn.title.includes("上傳") || btn.title.includes("文件")) icon = "📤";
 
                 btnEl.innerHTML = `
                     <span class="rich-icon">${icon}</span>
@@ -2064,6 +2173,9 @@
             if (btn.type === 'Verify') {
                 // 打開認證頁面在模擬器二中
                 openWebPage("verification");
+            } else if (btn.type === 'Upload') {
+                // 打開上傳頁面在模擬器二中
+                openWebPage("upload");
             } else if (btn.type === 'URL') {
                 if (btn.value.endsWith('.pdf')) {
                     simulateWebPdfViewer(btn.title + " (下載路徑)", btn.value);
@@ -2264,6 +2376,7 @@
             if (document.getElementById("tab-inbox-media").classList.contains("active")) {
                 renderInboxMedia();
             }
+            renderMobileUploadLogs();
 
             setTimeout(() => {
                 appendLineMessage("🤖 已收到您傳送的檔案！已提交給主管進行認證審查。", "system");
@@ -2315,27 +2428,125 @@
 
             // 網頁模擬器重設
             closePdfPreview();
+
+            // 重新渲染上傳歷史紀錄
+            renderMobileUploadLogs();
         }
 
 
         // ── 10. 模擬器二：行動網頁 & PDF 預覽器功能 ──
+        let currentWebPage = 'welcome';
+
         function openWebPage(type) {
             const urlDisplay = document.getElementById("web-url-display");
             const welcomeView = document.getElementById("web-welcome-view");
             const authView = document.getElementById("web-auth-view");
             const pdfView = document.getElementById("web-pdf-view");
+            const uploadView = document.getElementById("web-upload-view");
+
+            currentWebPage = type;
 
             welcomeView.style.display = "none";
             authView.style.display = "none";
             pdfView.style.display = "none";
+            if (uploadView) uploadView.style.display = "none";
 
             if (type === 'verification') {
                 urlDisplay.textContent = "https://himori.com/auth/verification";
                 authView.style.display = "flex";
+            } else if (type === 'upload') {
+                urlDisplay.textContent = "https://himori.com/mobile-upload";
+                if (uploadView) {
+                    uploadView.style.display = "flex";
+                    renderMobileUploadLogs();
+                }
             } else {
                 urlDisplay.textContent = type;
                 welcomeView.style.display = "flex";
             }
+        }
+
+        // 渲染行動端上傳歷史紀錄
+        function renderMobileUploadLogs() {
+            const logsContainer = document.getElementById("mobile-upload-logs");
+            if (!logsContainer) return;
+            logsContainer.innerHTML = "";
+
+            const activeSimUser = document.getElementById("sim-identity-select").value;
+            const name = activeSimUser === 'guest' ? '訪客同仁' : (activeSimUser === 'regular' ? '李志強' : '張憲明');
+            
+            const list = JSON.parse(localStorage.getItem("himori_inbox_media")) || [];
+            const myFiles = list.filter(item => item.sender === name);
+
+            if (myFiles.length === 0) {
+                logsContainer.innerHTML = `<div style="text-align:center; color:#64748b; padding:1.5rem 0;">無上傳紀錄</div>`;
+                return;
+            }
+
+            myFiles.forEach(item => {
+                const logItem = document.createElement("div");
+                logItem.style.background = "rgba(255,255,255,0.03)";
+                logItem.style.border = "1px solid rgba(255,255,255,0.05)";
+                logItem.style.padding = "6px 8px";
+                logItem.style.borderRadius = "6px";
+                logItem.style.display = "flex";
+                logItem.style.justifyContent = "space-between";
+                logItem.style.alignItems = "center";
+                logItem.style.marginBottom = "4px";
+
+                let statusBadge = '';
+                if (item.status === 'pending') {
+                    statusBadge = `<span style="color:#fbbf24; font-size:0.6rem; background:rgba(251,191,36,0.1); padding:2px 6px; border-radius:4px;">待審核</span>`;
+                } else if (item.status === 'approved') {
+                    statusBadge = `<span style="color:#34d399; font-size:0.6rem; background:rgba(52,211,153,0.1); padding:2px 6px; border-radius:4px;">已核准</span>`;
+                } else {
+                    statusBadge = `<span style="color:#f87171; font-size:0.6rem; background:rgba(248,113,113,0.1); padding:2px 6px; border-radius:4px;">已駁回</span>`;
+                }
+
+                logItem.innerHTML = `
+                    <div style="display:flex; flex-direction:column; gap:2px; max-width:70%; text-align:left;">
+                        <span style="font-weight:600; color:#e2e8f0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:0.68rem;">${escapeHtml(item.type)}</span>
+                        <span style="color:#64748b; font-size:0.58rem;">${item.time}</span>
+                    </div>
+                    <div>${statusBadge}</div>
+                `;
+                logsContainer.appendChild(logItem);
+            });
+        }
+
+        // 同仁行動端模擬選擇並上傳文件
+        function triggerMobileDocUpload() {
+            const activeSimUser = document.getElementById("sim-identity-select").value;
+            const name = activeSimUser === 'guest' ? '訪客同仁' : (activeSimUser === 'regular' ? '李志強' : '張憲明');
+            const phone = activeSimUser === 'guest' ? '—' : (activeSimUser === 'regular' ? '0923-456-789' : '0912-345-678');
+
+            const fileName = prompt("請輸入欲上傳的文件或照片名稱：", "工會入會申請書_填寫版.pdf");
+            if (!fileName) return;
+
+            const list = JSON.parse(localStorage.getItem("himori_inbox_media")) || [];
+            const newId = list.length > 0 ? Math.max(...list.map(i => i.id)) + 1 : 1;
+            
+            list.unshift({
+                id: newId,
+                sender: name,
+                phone: phone,
+                type: fileName,
+                time: new Date().toISOString().replace('T', ' ').substring(0, 16),
+                status: "pending",
+                icon: fileName.endsWith(".pdf") ? "📄" : "🪪"
+            });
+
+            localStorage.setItem("himori_inbox_media", JSON.stringify(list));
+            
+            if (document.getElementById("tab-inbox-media").classList.contains("active")) {
+                renderInboxMedia();
+            }
+            renderMobileUploadLogs();
+
+            appendLineMessage(`📤 上傳了文件: ${fileName}`, "user");
+            setTimeout(() => {
+                appendLineMessage("🤖 已收到您傳送的檔案！已提交給主管進行認證審查。", "system");
+            }, 600);
         }
 
         // 模擬簡訊驗證碼
@@ -2465,9 +2676,7 @@
 
         function closePdfPreview() {
             document.getElementById("web-pdf-view").style.display = "none";
-            document.getElementById("web-auth-view").style.display = "none";
-            document.getElementById("web-welcome-view").style.display = "flex";
-            document.getElementById("web-url-display").textContent = "https://himori.com/welcome";
+            openWebPage(currentWebPage);
         }
 
 
