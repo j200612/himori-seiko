@@ -112,7 +112,7 @@
 
         @media (min-width: 1200px) {
             .app-grid {
-                grid-template-columns: 1fr 740px; /* 左側控制台 ＋ 右側雙手機 */
+                grid-template-columns: 1fr 345px; /* 右側雙手機上下堆疊 (單手機寬度)，左側舒展 */
             }
         }
 
@@ -127,6 +127,12 @@
             flex-direction: column;
             height: 760px; /* Lock height to match phone previews */
             overflow: hidden;
+        }
+
+        @media (min-width: 1200px) {
+            .admin-panel {
+                height: 1304px; /* 與右側上下堆疊之雙手機高度完美對齊 (640px * 2 + 24px) */
+            }
         }
 
         /* 內部分頁導航 */
@@ -155,6 +161,10 @@
             border-bottom: 3px solid transparent;
             display: flex;
             align-items: center;
+            justify-content: center;
+            flex: 1;
+            flex-shrink: 0;
+            white-space: nowrap;
             gap: 6px;
         }
 
@@ -371,13 +381,6 @@
             flex-direction: column;
             gap: 1.5rem;
             align-items: center;
-        }
-
-        @media (min-width: 768px) {
-            .preview-pane {
-                flex-direction: row;
-                justify-content: center;
-            }
         }
 
         /* 手機外殼 */
