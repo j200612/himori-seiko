@@ -18,7 +18,7 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/server.js ./
 # Copy static assets (HTML, CSS, JS)
 COPY --from=builder /app/*.html ./
-COPY --from=builder /app/**/*.css ./
-COPY --from=builder /app/**/*.js ./
+# Copy remaining assets (CSS, JS, etc.)
+COPY --from=builder /app/ ./
 EXPOSE 8080
 CMD ["node", "server.js"]
