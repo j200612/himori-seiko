@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>登入 - 日森精工</title>
+    <style>
+        :root {
+            --primary-blue: #0F172A;
+            --primary-light: #1E293B;
+            --safety-teal: #0D9488;
+            --accent-blue: #0284C7;
+            --accent-blue-glow: rgba(2, 132, 199, 0.3);
+            --cleanroom-white: #FFFFFF;
+            --bg-light: #F8FAFC;
+            --text-main: #0F172A;
+            --text-muted: #475569;
+            --border: #E2E8F0;
+            --success-line: #06C755;
+            --danger: #EF4444;
+            --transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .gatekeeper-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(6, 35, 64, 0.7);
+            backdrop-filter: blur(8px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 2000;
+        }
+        .gatekeeper-card {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(6, 35, 64, 0.1);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 420px;
+            padding: 2rem;
+            box-shadow: 0 20px 50px rgba(6, 35, 64, 0.3);
+        }
+        .gatekeeper-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; border-bottom: 1px solid rgba(6, 35, 64, 0.08); padding-bottom: 0.8rem; }
+        .gatekeeper-header h3 { margin:0; color:#062340; font-size:1.2rem; font-weight:700; }
+        .gatekeeper-close { background:none; border:none; font-size:1.8rem; color:#062340; cursor:pointer; opacity:0.5; transition:0.2s; line-height:1; }
+        .gatekeeper-close:hover { opacity:1; }
+        .gatekeeper-body p { font-size:0.82rem; color:#64748b; margin-bottom:1.5rem; line-height:1.5; }
+        .gatekeeper-form-group { margin-bottom:1.2rem; }
+        .gatekeeper-form-group label { display:block; font-size:0.8rem; font-weight:600; color:#062340; margin-bottom:0.4rem; }
+        .gatekeeper-form-group input { width:100%; padding:0.75rem 1rem; border-radius:8px; border:1px solid rgba(6,35,64,0.15); font-size:0.9rem; background:#fff; color:#062340; }
+        .gatekeeper-form-group input:focus { outline:none; border-color:var(--safety-teal); box-shadow:0 0 0 3px rgba(13,148,136,0.15); }
+        .gatekeeper-error-msg { color:#ef4444; font-size:0.8rem; margin-bottom:1rem; font-weight:600; }
+        .btn-gatekeeper-submit { width:100%; background:linear-gradient(135deg, var(--safety-teal) 0%, #0b7a6f 100%); color:white; padding:0.8rem; border:none; border-radius:8px; cursor:pointer; font-weight:600; }
+        .btn-gatekeeper-submit:hover { transform:translateY(-1px); }
+    </style>
+</head>
+<body>
+    <div class="gatekeeper-overlay">
+        <div class="gatekeeper-card">
+            <div class="gatekeeper-header">
+                <h3>🔐 數位營運中心安全門禁</h3>
+                <button class="gatekeeper-close" onclick="window.close()">&times;</button>
+            </div>
+            <div class="gatekeeper-body">
+                <p>本系統為【日森精工】專屬營運中控台。非授權人員禁止進入，所有登入嘗試皆會被安全紀錄。</p>
+                <div class="gatekeeper-form-group">
+                    <label for="gatekeeper-username">員工帳號 / 編號</label>
+                    <input type="text" id="gatekeeper-username" placeholder="請輸入帳號 (例如: admin)" />
+                </div>
+                <div class="gatekeeper-form-group">
+                    <label for="gatekeeper-password">安全驗證密碼</label>
+                    <input type="password" id="gatekeeper-password" placeholder="請輸入密碼" />
+                </div>
+                <div id="gatekeeper-error" class="gatekeeper-error-msg" style="display:none;"></div>
+                <button class="btn-gatekeeper-submit" onclick="submitGatekeeperLogin()">安全身分認證</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const accounts = [
+            { empId: "admin", name: "林總經理", password: "admin123", role: "系統管理員 / 主管", authorizedModules: [] },
+            { empId: "accountant", name: "會計淑芬", password: "acc123", role: "會計財務", authorizedModules: [] },
+            { empId: "emp101", name: "李志強", password: "emp123", role: "現場同仁 / 領隊", authorizedModules: [] },
+            { empId: "emp102", name: "張憲明", password: "emp123", role: "現場同仁 / 領隊", authorizedModules: [] },
+            { empId: "emp103", name: "王大同", password: "emp123", role: "現場同仁 / 領隊", authorizedModules: [] }
+        ];
+        function submitGatekeeperLogin(){
+            const username = document.getElementById('gatekeeper-username').value.trim();
+            const password = document.getElementById('gatekeeper-password').value.trim();
+            const errEl = document.getElementById('gatekeeper-error');
+            if(!username || !password){
+                errEl.textContent = '❌ 請輸入帳號與密碼！';
+                errEl.style.display = 'block';
+                return;
+            }
+            const user = accounts.find(u=>u.empId===username && u.password===password);
+            if(user){
+                const currentUser = {empId:user.empId, name:user.name, role:user.role, avatar:user.name.charAt(0), authorizedModules:user.authorizedModules};
+                if(window.opener){
+                    try { window.opener.sessionStorage.setItem('himori_user', JSON.stringify(currentUser)); } catch(e){}
+                    window.opener.location.href = 'portal.html';
+                }
+                window.close();
+            } else {
+                errEl.textContent = '❌ 帳號或密碼錯誤，拒絕登入！';
+                errEl.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
