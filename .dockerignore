@@ -3,6 +3,7 @@
 .gitignore
 .gcloudignore
 .dockerignore
+node_modules
 Dockerfile
 nginx.conf
 verify_all_syntax.js

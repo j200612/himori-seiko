@@ -3,5 +3,6 @@
 .gitignore
 .gcloudignore
 .dockerignore
+node_modules
 verify_all_syntax.js
 fix_bugs_v2.js

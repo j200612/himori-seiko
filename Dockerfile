@@ -1,7 +1,24 @@
-FROM node:18-alpine
+# Builder stage
+FROM node:18 AS builder
 WORKDIR /app
-COPY package*.json ./
+
+# Install production dependencies
+COPY package.json ./
 RUN npm install --production
-COPY . .
+
+# Copy source code (excluding node_modules via .dockerignore)
+COPY . ./
+
+# Runtime stage (minimal)
+FROM node:18-slim
+WORKDIR /app
+# Copy only needed artifacts from builder
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/server.js ./
+# Copy static assets (HTML, CSS, JS)
+COPY --from=builder /app/*.html ./
+COPY --from=builder /app/**/*.css ./
+COPY --from=builder /app/**/*.js ./
 EXPOSE 8080
 CMD ["node", "server.js"]
