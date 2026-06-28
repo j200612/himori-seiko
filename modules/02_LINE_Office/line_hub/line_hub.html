@@ -1403,6 +1403,7 @@
                                 <p style="font-size:0.68rem; color:#94a3b8; line-height:1.4; margin-bottom:12px; text-align:left;">
                                     您可在此上傳您的身分證件、存摺或填寫妥當之工會入會申請書。
                                 </p>
+                                <input type="file" id="mobile-file-input" style="display:none" onchange="handleMobileFileSelected(this)">
                                 <button class="auth-btn" style="padding:8px; font-size:0.7rem; display:flex; justify-content:center; align-items:center; gap:6px; cursor:pointer;" onclick="triggerMobileDocUpload()">
                                     <span>➕ 選擇並上傳新文件</span>
                                 </button>
@@ -1432,6 +1433,73 @@
         let richMenuConfigs = {};
         let aiConfig = {};
         let inboxMediaList = [];
+
+        // ── 0. API 通訊與 Fallback 機制 ──
+        async function apiRequest(method, endpoint, data = null) {
+            try {
+                const options = {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' }
+                };
+                if (data && (method === 'POST' || method === 'PUT')) {
+                    options.body = JSON.stringify(data);
+                }
+                const res = await fetch(endpoint, options);
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                return await res.json();
+            } catch (e) {
+                console.warn(`API Request to ${endpoint} failed, falling back to LocalStorage:`, e);
+                return null;
+            }
+        }
+
+        async function apiUploadFile(file) {
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                const res = await fetch('/api/storage/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                if (!res.ok) throw new Error(`Upload failed! status: ${res.status}`);
+                return await res.json();
+            } catch (e) {
+                console.warn('API Upload failed, falling back to local simulation:', e);
+                return null;
+            }
+        }
+
+        async function loadDatabaseFromServer() {
+            // FAQ 庫
+            const qas = await apiRequest('GET', '/api/firestore/qa');
+            if (qas) qaDb = qas;
+
+            // 載入多媒體收件匣
+            const media = await apiRequest('GET', '/api/inbox-media');
+            if (media) inboxMediaList = media;
+
+            // 對話紀錄
+            const chats = await apiRequest('GET', '/api/line/chats');
+            if (chats) unresolvedChats = chats;
+
+            // 員工對照
+            const roles = await apiRequest('GET', '/api/firestore/user-roles');
+            if (roles) {
+                employeePhoneList = roles;
+            }
+
+            // 重新整理 UI
+            renderQaTable();
+            renderInboxMedia();
+            if (document.getElementById("tab-live-chat").classList.contains("active")) {
+                renderChatUserList();
+                renderChatHistory();
+            }
+            if (document.getElementById("tab-mobile-permission").classList.contains("active")) {
+                renderMobileVerificationList();
+            }
+            renderMobileUploadLogs();
+        }
 
         // 初始化資料庫
         function initDatabase() {
@@ -1556,7 +1624,7 @@
 
             const query = document.getElementById("qa-search").value.trim().toLowerCase();
             const filtered = qaDb.filter(item => 
-                item.keyword.toLowerCase().includes(query) || 
+                (item.keyword || item.keywords || "").toLowerCase().includes(query) || 
                 item.question.toLowerCase().includes(query) || 
                 item.answer.toLowerCase().includes(query)
             );
@@ -1569,7 +1637,7 @@
             filtered.forEach((item, index) => {
                 const tr = document.createElement("tr");
                 tr.innerHTML = `
-                    <td><strong>[${escapeHtml(item.keyword)}]</strong></td>
+                    <td><strong>[${escapeHtml(item.keyword || item.keywords || "")}]</strong></td>
                     <td>${escapeHtml(item.question)}</td>
                     <td><span title="${escapeHtml(item.answer)}">${escapeHtml(item.answer.length > 30 ? item.answer.substr(0, 30) + '...' : item.answer)}</span></td>
                     <td>
@@ -1580,7 +1648,7 @@
             });
         }
 
-        function saveNewQa() {
+        async function saveNewQa() {
             const kw = document.getElementById("new-qa-kw").value.trim();
             const q = document.getElementById("new-qa-q").value.trim();
             const a = document.getElementById("new-qa-a").value.trim();
@@ -1590,9 +1658,17 @@
                 return;
             }
 
-            qaDb.push({ keyword: kw, question: q, answer: a });
-            saveDatabase();
-            renderQaTable();
+            const newId = 'qa_' + Date.now();
+            const newItem = { id: newId, keyword: kw, question: q, answer: a, category: '自訂問答' };
+
+            const res = await apiRequest('POST', '/api/firestore/qa', newItem);
+            if (res) {
+                await loadDatabaseFromServer();
+            } else {
+                qaDb.push(newItem);
+                saveDatabase();
+                renderQaTable();
+            }
 
             // 清空輸入欄
             document.getElementById("new-qa-kw").value = "";
@@ -1602,8 +1678,16 @@
             alert("✅ 問答條目已成功儲存！");
         }
 
-        function deleteQa(index) {
+        async function deleteQa(index) {
             if (confirm("是否確定刪除此問答條目？")) {
+                const item = qaDb[index];
+                if (item && item.id) {
+                    const res = await apiRequest('DELETE', `/api/firestore/qa/${item.id}`);
+                    if (res) {
+                        await loadDatabaseFromServer();
+                        return;
+                    }
+                }
                 qaDb.splice(index, 1);
                 saveDatabase();
                 renderQaTable();
@@ -1758,34 +1842,48 @@
             }
         }
 
-        function sendAgentMessage() {
+        async function sendAgentMessage() {
             const input = document.getElementById("agent-chat-input");
             const text = input.value.trim();
             if (!text || !activeChatId) return;
 
-            const chat = unresolvedChats.find(c => c.id === activeChatId);
-            if (chat) {
-                // 真人回覆，自動將接管狀態改為「已解決」
-                chat.history.push({ sender: "agent", text: text });
-                chat.status = "已由真人回覆";
-                saveDatabase();
-                renderChatHistory();
-                renderChatUserList();
+            input.value = "";
 
-                // 同步發送至 LINE 模擬器
+            const res = await apiRequest('POST', '/api/line/reply', { chatId: activeChatId, text });
+            if (res && res.chat) {
+                unresolvedChats = unresolvedChats.map(c => c.id === activeChatId ? res.chat : c);
+                saveDatabase();
+                renderChatUserList();
+                renderChatHistory();
+                
                 const activeSimUser = document.getElementById("sim-identity-select").value;
                 if ((activeSimUser === 'contractor' && activeChatId === 'emp102') ||
                     (activeSimUser === 'regular' && activeChatId === 'emp101') ||
                     (activeSimUser === 'guest' && activeChatId === 'guest_123')) {
                     appendLineMessage(text, "system");
                 }
+            } else {
+                // Local fallback
+                const chat = unresolvedChats.find(c => c.id === activeChatId);
+                if (chat) {
+                    chat.history.push({ sender: "agent", text: text });
+                    chat.status = "已由真人回覆";
+                    saveDatabase();
+                    renderChatHistory();
+                    renderChatUserList();
 
-                input.value = "";
+                    const activeSimUser = document.getElementById("sim-identity-select").value;
+                    if ((activeSimUser === 'contractor' && activeChatId === 'emp102') ||
+                        (activeSimUser === 'regular' && activeChatId === 'emp101') ||
+                        (activeSimUser === 'guest' && activeChatId === 'guest_123')) {
+                        appendLineMessage(text, "system");
+                    }
+                }
             }
         }
 
         // 沉澱至知識庫飛輪
-        function syncMsgToKnowledge(msgIdx) {
+        async function syncMsgToKnowledge(msgIdx) {
             const chat = unresolvedChats.find(c => c.id === activeChatId);
             if (!chat) return;
 
@@ -1796,14 +1894,29 @@
             const answerText = msg.text;
 
             const keyword = prompt("請輸入觸發此答覆的「關鍵字」：", questionText ? questionText.substring(0, 4) : "薪資");
-            if (keyword === null) return; // 取消
+            if (keyword === null) return; // 取防取消
             
-            const questionTitle = prompt("請確認此問題的名稱標題：", questionText || "薪資試算相關");
-            if (!questionTitle) return;
+            const category = prompt("請輸入此知識類別：", "自訂問答");
+            if (category === null) return;
 
-            qaDb.push({ keyword: keyword, question: questionTitle, answer: answerText });
-            saveDatabase();
-            alert("🎉 一鍵加入成功！問答已沉澱至 AI 客服知識庫，機器人將於下一次自動答覆。");
+            const newId = 'qa_' + Date.now();
+            const newQa = {
+                id: newId,
+                category: category,
+                question: questionText || "使用者提問",
+                answer: answerText,
+                keyword: keyword
+            };
+
+            const res = await apiRequest('POST', '/api/firestore/qa', newQa);
+            if (res) {
+                await loadDatabaseFromServer();
+            } else {
+                qaDb.push(newQa);
+                saveDatabase();
+                renderQaTable();
+            }
+            alert("💡 知識大腦已成功沉澱並完成訓練！");
         }
 
         // ── 5. Tab 3: 多媒體與證照收件匣 ──
@@ -1812,9 +1925,11 @@
             if (!grid) return;
             grid.innerHTML = "";
 
-            inboxMediaList = JSON.parse(localStorage.getItem("himori_inbox_media")) || [];
+            if ((!inboxMediaList || inboxMediaList.length === 0) && localStorage.getItem("himori_inbox_media")) {
+                inboxMediaList = JSON.parse(localStorage.getItem("himori_inbox_media")) || [];
+            }
 
-            if (inboxMediaList.length === 0) {
+            if (!inboxMediaList || inboxMediaList.length === 0) {
                 grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; color:var(--text-muted); font-size:0.8rem; padding:2rem 0;">📬 目前收件匣無臨時文件照片</div>`;
                 return;
             }
@@ -1838,17 +1953,23 @@
                         </div>
                     `;
                     actionButtons = `
-                        <button class="btn btn-sm" style="flex:1; padding:4px;" onclick="approveInboxMedia(${item.id})">核准歸檔</button>
-                        <button class="btn btn-sm btn-danger" style="flex:1; padding:4px;" onclick="rejectInboxMedia(${item.id})">駁回</button>
+                        <button class="btn btn-sm" style="flex:1; padding:4px;" onclick="approveInboxMedia('${item.id}')">核准歸檔</button>
+                        <button class="btn btn-sm btn-danger" style="flex:1; padding:4px;" onclick="rejectInboxMedia('${item.id}')">駁回</button>
                     `;
                 } else {
                     dispatchBox = "";
                     actionButtons = `
-                        <button class="btn btn-sm btn-outline" style="width:100%; padding:4px;" onclick="deleteInboxMedia(${item.id})">🗑️ 刪除紀錄</button>
+                        <button class="btn btn-sm btn-outline" style="width:100%; padding:4px;" onclick="deleteInboxMedia('${item.id}')">🗑️ 刪除紀錄</button>
                     `;
                 }
 
                 const dispLabel = item.dispatchedTo ? ` (分流至: ${getModuleName(item.dispatchedTo)})` : "";
+                
+                // 檢查是否是真實 GCS 連結
+                let fileLinkHtml = `<b>${escapeHtml(item.type)}</b>`;
+                if (item.fileUrl && item.fileUrl !== '#') {
+                    fileLinkHtml = `<a href="${item.fileUrl}" target="_blank" style="color:#38bdf8; text-decoration:underline; font-weight:600;">${escapeHtml(item.type)}</a>`;
+                }
 
                 card.innerHTML = `
                     <div class="media-preview" style="position:relative;">
@@ -1857,7 +1978,7 @@
                         ${item.status === 'rejected' ? '<span style="position:absolute; top:4px; right:4px; font-size:0.9rem;">❌</span>' : ''}
                     </div>
                     <div class="media-body">
-                        <div class="media-title" style="font-weight:600; color:#fff;">${escapeHtml(item.type)}</div>
+                        <div class="media-title" style="font-weight:600; color:#fff;">${fileLinkHtml}</div>
                         <div class="media-info">傳送人: <b>${escapeHtml(item.sender)}</b></div>
                         <div class="media-info">電話: ${item.phone}</div>
                         <div class="media-info">上傳時間: ${item.time}</div>
@@ -1883,58 +2004,74 @@
             return "系統";
         }
 
-        function approveInboxMedia(id) {
+        async function approveInboxMedia(id) {
             const selectEl = document.getElementById(`dispatch-target-${id}`);
             const targetModule = selectEl ? selectEl.value : "base_hr";
 
-            inboxMediaList.forEach(item => {
-                if (item.id === id) {
-                    item.status = "approved";
-                    item.dispatchedTo = targetModule;
-                }
-            });
-            localStorage.setItem("himori_inbox_media", JSON.stringify(inboxMediaList));
-            renderInboxMedia();
-            renderMobileUploadLogs();
-
-            let targetName = "";
-            if (targetModule === "base_hr") targetName = "📋 人事名冊系統";
-            else if (targetModule === "cards") targetName = "🪪 員工識別卡庫 (cardsDb)";
-            else if (targetModule === "insurance") targetName = "🏥 團體保險名冊 (insurancesDb)";
-
-            alert(`✅ 證件文件已審核通過，並由 AI 智慧分流歸檔至【${targetName}】！`);
+            const res = await apiRequest('POST', '/api/inbox-media/approve', { id, targetModule });
+            if (res) {
+                await loadDatabaseFromServer();
+                let targetName = getModuleName(targetModule);
+                alert(`✅ 證件文件已審核通過，並由 AI 智慧分流歸檔至【${targetName}】！\n(GCS 檔案連結與時間戳記已寫入 Firestore log)`);
+            } else {
+                inboxMediaList.forEach(item => {
+                    if (String(item.id) === String(id)) {
+                        item.status = "approved";
+                        item.dispatchedTo = targetModule;
+                    }
+                });
+                localStorage.setItem("himori_inbox_media", JSON.stringify(inboxMediaList));
+                renderInboxMedia();
+                renderMobileUploadLogs();
+                alert(`✅ [測試模式] 已核准並分流至：${getModuleName(targetModule)}`);
+            }
         }
 
-        function rejectInboxMedia(id) {
-            inboxMediaList.forEach(item => {
-                if (item.id === id) {
-                    item.status = "rejected";
-                }
-            });
-            localStorage.setItem("himori_inbox_media", JSON.stringify(inboxMediaList));
-            renderInboxMedia();
-            renderMobileUploadLogs();
-            alert("❌ 已駁回該上傳資料，同仁將會收到補件通知。");
+        async function rejectInboxMedia(id) {
+            const res = await apiRequest('POST', '/api/inbox-media/reject', { id });
+            if (res) {
+                await loadDatabaseFromServer();
+                alert("❌ 已駁回該上傳資料，同仁將會收到補件通知。");
+            } else {
+                inboxMediaList.forEach(item => {
+                    if (String(item.id) === String(id)) {
+                        item.status = "rejected";
+                    }
+                });
+                localStorage.setItem("himori_inbox_media", JSON.stringify(inboxMediaList));
+                renderInboxMedia();
+                renderMobileUploadLogs();
+                alert("❌ [測試模式] 已駁回該上傳資料。");
+            }
         }
 
-        function deleteInboxMedia(id) {
-            inboxMediaList = inboxMediaList.filter(item => item.id !== id);
-            localStorage.setItem("himori_inbox_media", JSON.stringify(inboxMediaList));
-            renderInboxMedia();
-            renderMobileUploadLogs();
-        }
-
-        function clearInbox() {
-            if (confirm("是否清空多媒體收件匣的所有紀錄？")) {
-                inboxMediaList = [];
+        async function deleteInboxMedia(id) {
+            const res = await apiRequest('POST', '/api/inbox-media/delete', { id });
+            if (res) {
+                await loadDatabaseFromServer();
+            } else {
+                inboxMediaList = inboxMediaList.filter(item => String(item.id) !== String(id));
                 localStorage.setItem("himori_inbox_media", JSON.stringify(inboxMediaList));
                 renderInboxMedia();
                 renderMobileUploadLogs();
             }
         }
 
-        // 管理員手動新增上傳文件
-        function adminAddInboxFile() {
+        async function clearInbox() {
+            if (confirm("是否清空多媒體收件匣的所有紀錄？")) {
+                const res = await apiRequest('POST', '/api/inbox-media/clear');
+                if (res) {
+                    await loadDatabaseFromServer();
+                } else {
+                    inboxMediaList = [];
+                    localStorage.setItem("himori_inbox_media", JSON.stringify(inboxMediaList));
+                    renderInboxMedia();
+                    renderMobileUploadLogs();
+                }
+            }
+        }
+
+        async function adminAddInboxFile() {
             const sender = prompt("請輸入上傳員工姓名：", "張憲明");
             if (!sender) return;
             const phone = prompt("請輸入員工手機號碼：", "0912-345-678");
@@ -1942,21 +2079,33 @@
             const type = prompt("請輸入文件名稱 (例如: 團保申請書.pdf)：", "團保申請書.pdf");
             if (!type) return;
 
-            const list = JSON.parse(localStorage.getItem("himori_inbox_media")) || [];
-            const newId = list.length > 0 ? Math.max(...list.map(i => i.id)) + 1 : 1;
-            
-            list.unshift({
-                id: newId,
+            const icon = type.endsWith(".pdf") ? "📄" : "🪪";
+            const payload = {
                 sender: sender,
                 phone: phone,
                 type: type,
-                time: new Date().toISOString().replace('T', ' ').substring(0, 16),
-                status: "pending",
-                icon: type.endsWith(".pdf") ? "📄" : "🪪"
-            });
+                icon: icon,
+                fileUrl: '#'
+            };
 
-            localStorage.setItem("himori_inbox_media", JSON.stringify(list));
-            renderInboxMedia();
+            const res = await apiRequest('POST', '/api/inbox-media/add', payload);
+            if (res) {
+                await loadDatabaseFromServer();
+            } else {
+                const list = JSON.parse(localStorage.getItem("himori_inbox_media")) || [];
+                const newId = list.length > 0 ? Math.max(...list.map(i => i.id)) + 1 : 1;
+                list.unshift({
+                    id: newId,
+                    sender: sender,
+                    phone: phone,
+                    type: type,
+                    time: new Date().toISOString().replace('T', ' ').substring(0, 16),
+                    status: "pending",
+                    icon: icon
+                });
+                localStorage.setItem("himori_inbox_media", JSON.stringify(list));
+                renderInboxMedia();
+            }
             alert("✅ 成功手動新增外部上傳文件！");
         }
 
@@ -2082,18 +2231,20 @@
             if (!body) return;
             body.innerHTML = "";
 
-            // 整合後台名冊資訊
-            employeePhoneList = [
-                { name: "李志強", title: "工程主任 / 領隊", phone: "0923-456-789", verified: true, role: "regular" },
-                { name: "張憲明", title: "拉線組長", phone: "0912-345-678", verified: false, role: "contractor" },
-                { name: "王大同", title: "技術專員", phone: "0934-567-890", verified: false, role: "contractor" }
-            ];
+            if (!employeePhoneList || employeePhoneList.length === 0) {
+                employeePhoneList = [
+                    { name: "李志強", title: "工程主任 / 領隊", phone: "0923-456-789", verified: true, role: "regular" },
+                    { name: "張憲明", title: "拉線組長", phone: "0912-345-678", verified: false, role: "contractor" },
+                    { name: "王大同", title: "技術專員", phone: "0934-567-890", verified: false, role: "contractor" }
+                ];
+            }
 
-            // 從 localStorage 還原綁定狀態
             const verifiedStore = JSON.parse(localStorage.getItem("himori_verified_phones")) || { "0923-456-789": true };
             
             employeePhoneList.forEach(emp => {
-                emp.verified = !!verifiedStore[emp.phone];
+                if (emp.verified === undefined) {
+                    emp.verified = !!verifiedStore[emp.phone];
+                }
                 
                 const tr = document.createElement("tr");
                 tr.innerHTML = `
@@ -2120,20 +2271,35 @@
             });
         }
 
-        function toggleEmpVerification(phone) {
+        async function toggleEmpVerification(phone) {
             const verifiedStore = JSON.parse(localStorage.getItem("himori_verified_phones")) || { "0923-456-789": true };
+            const willVerify = !verifiedStore[phone];
+            
             if (verifiedStore[phone]) {
                 delete verifiedStore[phone];
-                alert("🔓 已解除該手機之綁定狀態！");
             } else {
                 verifiedStore[phone] = true;
-                alert("🔐 已手動開通該同仁手機認證權限！");
             }
             localStorage.setItem("himori_verified_phones", JSON.stringify(verifiedStore));
-            renderMobileVerificationList();
 
-            // 如果目前手機為該身份，重新整理模擬器
-            const currentSim = document.getElementById("sim-identity-select").value;
+            const res = await apiRequest('POST', '/api/firestore/user-roles/verify', { phone, verified: willVerify });
+            if (res) {
+                await loadDatabaseFromServer();
+            } else {
+                employeePhoneList.forEach(emp => {
+                    if (emp.phone === phone) {
+                        emp.verified = willVerify;
+                    }
+                });
+                renderMobileVerificationList();
+            }
+
+            if (willVerify) {
+                alert("🔐 已手動開通該同仁手機認證權限！");
+            } else {
+                alert("🔓 已解除該手機之綁定狀態！");
+            }
+
             handleSimIdentityChange();
         }
 
@@ -2207,13 +2373,32 @@
             sendLineUserKeyword(text);
         }
 
-        function sendLineUserKeyword(text) {
+        async function sendLineUserKeyword(text) {
             appendLineMessage(text, "user");
+            
+            const activeSimUser = document.getElementById("sim-identity-select").value;
+            let chatId = "guest_123";
+            if (activeSimUser === 'contractor') chatId = "emp102";
+            else if (activeSimUser === 'regular') chatId = "emp101";
 
-            // 模擬 AI 大腦匹配或呼叫真人
-            setTimeout(() => {
-                handleLineAiResponse(text);
-            }, 600);
+            const res = await apiRequest('POST', '/api/line/message', { chatId, text });
+            if (res && res.chat) {
+                unresolvedChats = unresolvedChats.map(c => c.id === chatId ? res.chat : c);
+                saveDatabase();
+                
+                const lastMsg = res.chat.history[res.chat.history.length - 1];
+                if (lastMsg && lastMsg.sender === 'system') {
+                    appendLineMessage(lastMsg.text, "system");
+                }
+                
+                renderChatUserList();
+                renderChatHistory();
+            } else {
+                // Local fallback
+                setTimeout(() => {
+                    handleLineAiResponse(text);
+                }, 600);
+            }
         }
 
         function appendLineMessage(text, sender) {
@@ -2519,34 +2704,57 @@
 
         // 同仁行動端模擬選擇並上傳文件
         function triggerMobileDocUpload() {
+            document.getElementById("mobile-file-input").click();
+        }
+
+        async function handleMobileFileSelected(inputEl) {
+            const file = inputEl.files[0];
+            if (!file) return;
+
             const activeSimUser = document.getElementById("sim-identity-select").value;
             const name = activeSimUser === 'guest' ? '訪客同仁' : (activeSimUser === 'regular' ? '李志強' : '張憲明');
             const phone = activeSimUser === 'guest' ? '—' : (activeSimUser === 'regular' ? '0923-456-789' : '0912-345-678');
 
-            const fileName = prompt("請輸入欲上傳的文件或照片名稱：", "工會入會申請書_填寫版.pdf");
-            if (!fileName) return;
+            appendLineMessage(`📤 上傳了文件: ${file.name} (GCS 上傳中...)`, "user");
 
-            const list = JSON.parse(localStorage.getItem("himori_inbox_media")) || [];
-            const newId = list.length > 0 ? Math.max(...list.map(i => i.id)) + 1 : 1;
-            
-            list.unshift({
-                id: newId,
+            const uploadRes = await apiUploadFile(file);
+            let fileUrl = '#';
+            let fileName = file.name;
+
+            if (uploadRes && uploadRes.url) {
+                fileUrl = uploadRes.url;
+                fileName = uploadRes.fileName;
+            }
+
+            const icon = fileName.endsWith(".pdf") ? "📄" : (fileName.includes("存") ? "🏦" : "🪪");
+            const payload = {
                 sender: name,
                 phone: phone,
                 type: fileName,
-                time: new Date().toISOString().replace('T', ' ').substring(0, 16),
-                status: "pending",
-                icon: fileName.endsWith(".pdf") ? "📄" : "🪪"
-            });
+                fileUrl: fileUrl,
+                icon: icon
+            };
 
-            localStorage.setItem("himori_inbox_media", JSON.stringify(list));
-            
-            if (document.getElementById("tab-inbox-media").classList.contains("active")) {
+            const res = await apiRequest('POST', '/api/inbox-media/add', payload);
+            if (res) {
+                await loadDatabaseFromServer();
+            } else {
+                const list = JSON.parse(localStorage.getItem("himori_inbox_media")) || [];
+                const newId = list.length > 0 ? Math.max(...list.map(i => i.id)) + 1 : 1;
+                list.unshift({
+                    id: newId,
+                    sender: name,
+                    phone: phone,
+                    type: fileName,
+                    time: new Date().toISOString().replace('T', ' ').substring(0, 16),
+                    status: "pending",
+                    icon: icon
+                });
+                localStorage.setItem("himori_inbox_media", JSON.stringify(list));
                 renderInboxMedia();
+                renderMobileUploadLogs();
             }
-            renderMobileUploadLogs();
 
-            appendLineMessage(`📤 上傳了文件: ${fileName}`, "user");
             setTimeout(() => {
                 appendLineMessage("🤖 已收到您傳送的檔案！已提交給主管進行認證審查。", "system");
             }, 600);
@@ -2707,6 +2915,9 @@
             // 預設渲染知識庫
             renderQaTable();
             renderUploadedFiles();
+
+            // 從實體資料庫載入
+            loadDatabaseFromServer();
         });
 
     </script>
