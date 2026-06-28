@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <script src="../../../global_shared.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日森精工 | 🪪 招募渠道與二階通關審查</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0b0f19;
+            --panel-bg: rgba(22, 31, 48, 0.85);
+            --primary: #8b5cf6;
+            --primary-hover: #7c3aed;
+            --accent: #06b6d4;
+            --accent-hover: #0891b2;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.15);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            background: #0f172a url('../../../01_企業識別與設計/底色.png') center center / cover no-repeat fixed;
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background: var(--panel-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            backdrop-filter: blur(15px);
+            margin-bottom: 1.5rem;
+            box-shadow: var(--card-shadow);
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-title-box {
+            border-left: 2px solid var(--border);
+            padding-left: 1rem;
+        }
+
+        .header-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .badge-version {
+            font-size: 0.65rem;
+            font-weight: normal;
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--primary);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+
+        /* Dashboard Overview Cards */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-stat {
+            background: var(--panel-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-stat::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary);
+        }
+
+        .card-stat.accent::before {
+            background: var(--accent);
+        }
+
+        .card-stat.success::before {
+            background: var(--success);
+        }
+
+        .card-stat.warning::before {
+            background: var(--warning);
+        }
+
+        .card-stat:hover {
+            transform: translateY(-2px);
+            border-color: var(--border-hover);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .stat-trend {
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Layout Main Containers */
+        .workspace {
+            display: flex;
+            gap: 1.5rem;
+            flex-grow: 1;
+            align-items: stretch;
+        }
+
+        .main-panel {
+            flex-grow: 1;
+            background: var(--panel-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            backdrop-filter: blur(15px);
+            box-shadow: var(--card-shadow);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            min-height: 500px;
+        }
+
+        /* Navigation Tabs */
+        .tabs-header {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            gap: 1rem;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border-bottom: 2px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            color: #ffffff;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+            flex-direction: column;
+            gap: 1.5rem;
+            flex-grow: 1;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        /* Forms */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        input, select, textarea {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: #ffffff;
+            padding: 0.6rem 0.8rem;
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+        }
+
+        /* Buttons */
+        .btn {
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn.accent {
+            background: var(--accent);
+        }
+
+        .btn.accent:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn.success {
+            background: var(--success);
+        }
+
+        .btn.success:hover {
+            background: #059669;
+        }
+
+        .btn.warning {
+            background: var(--warning);
+        }
+
+        .btn.warning:hover {
+            background: #d97706;
+        }
+
+        .btn.secondary {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border);
+        }
+
+        .btn.secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Tables */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: rgba(15, 23, 42, 0.3);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.88rem;
+        }
+
+        th, td {
+            padding: 0.85rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: rgba(15, 23, 42, 0.7);
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Badge Status */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge.stage1 {
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--accent);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+        }
+
+        .badge.stage2 {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .badge.stage3 {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        /* Sidebar console details */
+        .detail-panel {
+            width: 380px;
+            background: var(--panel-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            backdrop-filter: blur(15px);
+            box-shadow: var(--card-shadow);
+            padding: 1.5rem;
+            display: none;
+            flex-direction: column;
+            gap: 1.25rem;
+            animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .detail-header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .detail-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .detail-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .detail-close:hover {
+            color: #ffffff;
+        }
+
+        /* File Preview Box */
+        .preview-box {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            min-height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 0.5rem;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .preview-box img {
+            max-width: 100%;
+            max-height: 180px;
+            object-fit: contain;
+        }
+
+        .preview-box iframe {
+            width: 100%;
+            height: 180px;
+            border: none;
+        }
+
+        .preview-placeholder {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        /* Progress Steps */
+        .step-timeline {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .step-timeline::before {
+            content: '';
+            position: absolute;
+            top: 12px;
+            left: 10%;
+            width: 80%;
+            height: 2px;
+            background: var(--border);
+            z-index: 1;
+        }
+
+        .step-node {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #1e293b;
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            z-index: 2;
+            transition: var(--transition);
+        }
+
+        .step-node.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: #ffffff;
+            box-shadow: 0 0 8px rgba(139, 92, 246, 0.5);
+        }
+
+        .step-node.completed {
+            border-color: var(--success);
+            background: var(--success);
+            color: #ffffff;
+        }
+
+        /* Referral Link Box */
+        .link-output-box {
+            background: rgba(139, 92, 246, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .link-url {
+            font-family: monospace;
+            font-size: 0.82rem;
+            color: var(--accent);
+            word-break: break-all;
+            background: rgba(15, 23, 42, 0.8);
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: var(--transition);
+            z-index: 100;
+            pointer-events: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 頂部 Header -->
+    <header>
+        <div class="header-brand">
+            <img src="../../../01_企業識別與設計/日森logo.png" alt="日森精工 Logo" style="height: 38px;">
+            <div class="header-title-box">
+                <div class="header-title">
+                    招募渠道與二階通關審查主控台
+                    <span class="badge-version">v1.1</span>
+                </div>
+                <div class="header-subtitle">HIMORI SEIKO Co., Ltd. —— 高科技無塵室工務卓越合作夥伴</div>
+            </div>
+        </div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
+            <span style="display:inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--success);"></span>
+            HR Manager Console (Logged in)
+        </div>
+    </header>
+
+    <!-- 儀表板關鍵指標 -->
+    <div class="overview-grid">
+        <div class="card-stat">
+            <span class="stat-label">渠道總推介流量</span>
+            <div class="stat-value" id="stat-clicks">0</div>
+            <div class="stat-trend">⚡ 實時點擊流量監控</div>
+        </div>
+        <div class="card-stat accent">
+            <span class="stat-label">一階待審新同仁</span>
+            <div class="stat-value" id="stat-stage1">0</div>
+            <div class="stat-trend">⌛ 送交科技廠審查中</div>
+        </div>
+        <div class="card-stat warning">
+            <span class="stat-label">二階開通補件中</span>
+            <div class="stat-value" id="stat-stage2">0</div>
+            <div class="stat-trend">🏦 薪資存摺與證照補件</div>
+        </div>
+        <div class="card-stat success">
+            <span class="stat-label">正式核准生效</span>
+            <div class="stat-value" id="stat-stage3">0</div>
+            <div class="stat-trend">✅ 隨時可配對出工名冊</div>
+        </div>
+    </div>
+
+    <!-- 主工作區 -->
+    <div class="workspace">
+        <!-- 左側主面板 -->
+        <div class="main-panel">
+            <div class="tabs-header">
+                <button class="tab-btn active" onclick="switchTab('tab-campaigns')">📢 招募宣傳與渠道追蹤</button>
+                <button class="tab-btn" onclick="switchTab('tab-onboarding')">🪪 兩階段新同仁通關審查</button>
+            </div>
+
+            <!-- 分頁一：招募宣傳與渠道追蹤 -->
+            <div id="tab-campaigns" class="tab-content active">
+                <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+                    <!-- 渠道推廣網址產生器 -->
+                    <div style="flex: 1; min-width: 300px; display: flex; flex-direction: column; gap: 1rem;">
+                        <h3 style="font-size: 1.05rem; font-weight: 700;">🔗 渠道連結生成器</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="campaign-title">專案廣告名稱</label>
+                                <input type="text" id="campaign-title" value="2026台積電F20無塵室大募集" oninput="updateLinkPreview()">
+                            </div>
+                            <div class="form-group">
+                                <label for="campaign-factory">對接目標工廠</label>
+                                <select id="campaign-factory" onchange="updateLinkPreview()">
+                                    <option value="TSMC_F20">台積電 竹科 F20 廠</option>
+                                    <option value="UMC_12A">聯電 南科 12A 廠</option>
+                                    <option value="MICRON_A3">美光 中科 A3 廠</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="campaign-source">UTM 來源 (utm_source)</label>
+                                <input type="text" id="campaign-source" value="line_ads" oninput="updateLinkPreview()">
+                            </div>
+                            <div class="form-group">
+                                <label for="campaign-medium">UTM 媒介 (utm_medium)</label>
+                                <input type="text" id="campaign-medium" value="social_post" oninput="updateLinkPreview()">
+                            </div>
+                        </div>
+                        <div class="link-output-box">
+                            <label>👇 生成之渠道專屬 LINE 加好友/官網跳轉連結</label>
+                            <div class="link-url" id="link-preview-box">Generating...</div>
+                            <div style="display: flex; gap: 0.5rem; margin-top: 0.25rem;">
+                                <button class="btn accent" onclick="copyReferralLink()">📋 複製連結</button>
+                                <button class="btn secondary" onclick="saveNewCampaign()">💾 存檔並啟用渠道</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 招募宣傳列表 -->
+                <div>
+                    <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.75rem;">📊 招募渠道轉換分析 Roster</h3>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>渠道廣告名稱</th>
+                                    <th>對接工廠</th>
+                                    <th>推廣來源</th>
+                                    <th>累計點擊數 (Clicks)</th>
+                                    <th>完成認證 (Leads)</th>
+                                    <th>轉換率 (CVR)</th>
+                                    <th>狀態</th>
+                                </tr>
+                            </thead>
+                            <tbody id="campaign-table-body">
+                                <!-- 動態填入 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 分頁二：兩階段新同仁通關審查 -->
+            <div id="tab-onboarding" class="tab-content">
+                <div>
+                    <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.75rem;">🕵️ 新同仁審查清單</h3>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>同仁姓名</th>
+                                    <th>聯絡電話</th>
+                                    <th>系統身分</th>
+                                    <th>二階證照補件</th>
+                                    <th>認證狀態</th>
+                                    <th>審查階段</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="roster-table-body">
+                                <!-- 動態載入 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右側審查控制台（選取同仁後顯示） -->
+        <div class="detail-panel" id="detail-panel">
+            <div class="detail-header">
+                <div class="detail-title" id="detail-candidate-name">同仁審查控制台</div>
+                <button class="detail-close" onclick="closeDetails()">✕</button>
+            </div>
+
+            <!-- 階段指示器 -->
+            <div>
+                <label style="margin-bottom: 0.5rem; display: block;">當前通關進度</label>
+                <div class="step-timeline">
+                    <div class="step-node" id="step-1" title="一階：送審中">1</div>
+                    <div class="step-node" id="step-2" title="二階：補件開通">2</div>
+                    <div class="step-node" id="step-3" title="三階：審核通過">3</div>
+                </div>
+                <div style="display:flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-muted);">
+                    <span>送審中</span>
+                    <span>二階補件</span>
+                    <span>審核完成</span>
+                </div>
+            </div>
+
+            <!-- 詳情列表 -->
+            <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.85rem;">
+                <div style="display:flex; justify-content: space-between;">
+                    <span style="color:var(--text-muted);">電話號碼：</span>
+                    <span id="detail-phone" style="font-weight: 600;">—</span>
+                </div>
+                <div style="display:flex; justify-content: space-between;">
+                    <span style="color:var(--text-muted);">申請職稱：</span>
+                    <span id="detail-title" style="font-weight: 600;">—</span>
+                </div>
+                <div style="display:flex; justify-content: space-between;">
+                    <span style="color:var(--text-muted);">LINE 狀態：</span>
+                    <span id="detail-line-status" style="font-weight: 600;">—</span>
+                </div>
+            </div>
+
+            <!-- 上傳證照安全預覽區 -->
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label>🔏 兩階段上傳文件安全簽章預覽</label>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn secondary" style="flex:1; padding: 0.4rem;" onclick="previewDoc('id_front')">🪪 身分證正</button>
+                    <button class="btn secondary" style="flex:1; padding: 0.4rem;" onclick="previewDoc('bank_book')">🏦 存摺封面</button>
+                    <button class="btn secondary" style="flex:1; padding: 0.4rem;" onclick="previewDoc('license')">📜 專業證照</button>
+                </div>
+                <div class="preview-box" id="preview-box">
+                    <div class="preview-placeholder">請點選上方文件按鈕載入 HMAC-SHA256 簽章安全預覽</div>
+                </div>
+            </div>
+
+            <!-- 審理決策按鈕 -->
+            <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: auto;">
+                <button class="btn success" id="btn-approve" onclick="approveCandidate()">一階通過，核准開通補件 ➔</button>
+                <button class="btn accent" id="btn-finalize" onclick="finalizeCandidate()">核准通過，簽發正式員工 ➔</button>
+                <button class="btn warning" onclick="sendLineReminder()">💬 LINE 一鍵催辦補件</button>
+                <div style="display:flex; gap: 0.5rem;">
+                    <button class="btn secondary" style="flex:1;" onclick="exportCandidateData()">📥 打包匯出</button>
+                    <button class="btn secondary" style="flex:1;" onclick="toggleCandidateLock()">🔒 身份變更</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">✅ 連結已成功複製至剪貼簿！</div>
+
+    <!-- Scripts -->
+    <script>
+        let currentTab = 'tab-campaigns';
+        let campaigns = [];
+        let roster = [];
+        let selectedCandidate = null;
+
+        // API Helper
+        async function apiRequest(method, url, data = null) {
+            try {
+                const options = {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' }
+                };
+                if (data) options.body = JSON.stringify(data);
+                const res = await fetch(url, options);
+                if (!res.ok) throw new Error(await res.text());
+                return await res.json();
+            } catch (e) {
+                console.error(`API Error: ${method} ${url}`, e);
+                return null;
+            }
+        }
+
+        // Switching Tabs
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            // Find button matching tabId
+            let targetBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
+            if (targetBtn) targetBtn.classList.add('active');
+            
+            document.getElementById(tabId).classList.add('active');
+            currentTab = tabId;
+            closeDetails();
+        }
+
+        // UTM Link Generator
+        function updateLinkPreview() {
+            const factory = document.getElementById('campaign-factory').value;
+            const source = document.getElementById('campaign-source').value.trim();
+            const campaign = document.getElementById('campaign-title').value.trim();
+            
+            const baseUrl = 'https://himori-portal-650268834354.asia-east1.run.app/';
+            const url = `${baseUrl}?utm_source=${encodeURIComponent(source)}&utm_campaign=${encodeURIComponent(campaign)}&factory=${encodeURIComponent(factory)}`;
+            
+            document.getElementById('link-preview-box').textContent = url;
+        }
+
+        // Copy referral link
+        function copyReferralLink() {
+            const url = document.getElementById('link-preview-box').textContent;
+            navigator.clipboard.writeText(url).then(() => {
+                showToast("✅ 渠道推介連結已複製至剪貼簿！");
+            });
+        }
+
+        // Save Campaign
+        async function saveNewCampaign() {
+            const title = document.getElementById('campaign-title').value.trim();
+            const factory = document.getElementById('campaign-factory').value;
+            const source = document.getElementById('campaign-source').value.trim();
+            
+            if (!title) {
+                alert("請填寫廣告名稱！");
+                return;
+            }
+
+            const newCamp = {
+                id: 'camp_' + Date.now(),
+                title: title,
+                factory: factory,
+                source: source,
+                clicks: Math.floor(Math.random() * 40) + 10,
+                leads: Math.floor(Math.random() * 5),
+                status: '已啟用'
+            };
+
+            // Save campaign details mock database inside localstorage for simulation
+            campaigns.unshift(newCamp);
+            localStorage.setItem('himori_campaigns', JSON.stringify(campaigns));
+            
+            renderCampaigns();
+            updateDashboardStats();
+            showToast("✅ 渠道推廣專案已成功建立並儲存！");
+        }
+
+        // Render campaigns
+        function renderCampaigns() {
+            const body = document.getElementById('campaign-table-body');
+            body.innerHTML = '';
+            
+            campaigns.forEach(c => {
+                const cvr = c.clicks > 0 ? ((c.leads / c.clicks) * 100).toFixed(1) + '%' : '0.0%';
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight:600;">${c.title}</td>
+                    <td>${c.factory}</td>
+                    <td><span class="badge stage1">${c.source}</span></td>
+                    <td style="font-weight:700; color:var(--accent);">${c.clicks}</td>
+                    <td style="font-weight:700; color:var(--success);">${c.leads}</td>
+                    <td style="font-weight:700;">${cvr}</td>
+                    <td><span class="badge stage3">${c.status}</span></td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+
+        // Toast
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
+        // Onboarding Console - Load Candidates
+        async function loadOnboardingRoster() {
+            // Load from user_roles API
+            const list = await apiRequest('GET', '/api/firestore/user-roles');
+            if (list) {
+                roster = list;
+            } else {
+                roster = [
+                    { name: '林小新', phone: '0987-654-321', title: '準同仁 / 線上會員', role: 'member', verified: false, stage: 1, id_front: 'sample_id.jpg', bank_book: 'sample_bank.jpg', license: 'cert.jpg' },
+                    { name: '張憲明', phone: '0912-345-678', title: '拉線組長', role: 'contractor', verified: false, stage: 2, id_front: 'id_zhang.jpg', bank_book: 'bank_zhang.jpg' }
+                ];
+            }
+            
+            renderRoster();
+            updateDashboardStats();
+        }
+
+        // Render Candidates
+        function renderRoster() {
+            const body = document.getElementById('roster-table-body');
+            body.innerHTML = '';
+
+            roster.forEach((item, idx) => {
+                // Determine stage text
+                let stageText = '一階：送審中';
+                let stageBadge = 'stage1';
+                if (item.stage === 2) {
+                    stageText = '二階：開通補件';
+                    stageBadge = 'stage2';
+                } else if (item.stage === 3 || item.verified) {
+                    stageText = '三階：正式生效';
+                    stageBadge = 'stage3';
+                }
+
+                // Verify status
+                const verText = item.verified ? '✅ 審核通過' : '⏳ 等待核准';
+                const verBadge = item.verified ? 'stage3' : 'stage2';
+
+                // Check missing certificates status
+                const certStatus = item.stage >= 2 ? '✅ 已填補' : '🔒 尚未開通';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight:700;">${item.name}</td>
+                    <td>${item.phone}</td>
+                    <td><span class="badge stage1">${item.role === 'member' ? '準同仁 (Member)' : '承攬商 (Contractor)'}</span></td>
+                    <td style="font-weight:600;">${certStatus}</td>
+                    <td><span class="badge ${verBadge}">${verText}</span></td>
+                    <td><span class="badge ${stageBadge}">${stageText}</span></td>
+                    <td>
+                        <button class="btn secondary" style="padding: 0.35rem 0.7rem; font-size:0.75rem;" onclick="showCandidateDetails(${idx})">🔍 審查</button>
+                    </td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+
+        // Close sidebar
+        function closeDetails() {
+            document.getElementById('detail-panel').style.display = 'none';
+            selectedCandidate = null;
+        }
+
+        // Show details sidebar
+        function showCandidateDetails(idx) {
+            selectedCandidate = roster[idx];
+            
+            document.getElementById('detail-candidate-name').textContent = `審查同仁：${selectedCandidate.name}`;
+            document.getElementById('detail-phone').textContent = selectedCandidate.phone;
+            document.getElementById('detail-title').textContent = selectedCandidate.title || '工務同仁';
+            
+            const verifiedLabel = selectedCandidate.verified ? '已綁定實體手機 ✅' : '等待手機認證 🔒';
+            document.getElementById('detail-line-status').textContent = verifiedLabel;
+
+            // Reset preview
+            document.getElementById('preview-box').innerHTML = `
+                <div class="preview-placeholder">請點選上方文件按鈕載入 HMAC-SHA256 簽章安全預覽</div>
+            `;
+
+            // Render Timeline nodes
+            const st = selectedCandidate.stage || 1;
+            document.querySelectorAll('.step-node').forEach(node => {
+                node.className = 'step-node';
+                const nodeId = parseInt(node.textContent);
+                if (nodeId < st) {
+                    node.classList.add('completed');
+                } else if (nodeId === st) {
+                    node.classList.add('active');
+                }
+            });
+
+            // Adjust button states
+            const btnApprove = document.getElementById('btn-approve');
+            const btnFinalize = document.getElementById('btn-finalize');
+            
+            if (st === 1) {
+                btnApprove.style.display = 'block';
+                btnFinalize.style.display = 'none';
+            } else if (st === 2) {
+                btnApprove.style.display = 'none';
+                btnFinalize.style.display = 'block';
+            } else {
+                btnApprove.style.display = 'none';
+                btnFinalize.style.display = 'none';
+            }
+
+            document.getElementById('detail-panel').style.display = 'flex';
+        }
+
+        // Preview document using HMAC
+        async function previewDoc(type) {
+            if (!selectedCandidate) return;
+            
+            let fileField = '';
+            if (type === 'id_front') fileField = selectedCandidate.id_front || 'sample_id.jpg';
+            else if (type === 'bank_book') fileField = selectedCandidate.bank_book || 'sample_bank.jpg';
+            else if (type === 'license') fileField = selectedCandidate.license || 'sample_license.jpg';
+
+            const previewBox = document.getElementById('preview-box');
+            previewBox.innerHTML = '<div class="preview-placeholder">正在向彰化機房申請 HMAC 安全簽章預覽連結...</div>';
+
+            try {
+                // Request HMAC signed URL from backend
+                const signRes = await apiRequest('GET', `/api/storage/sign?file=${encodeURIComponent(fileField)}`);
+                if (signRes && signRes.url) {
+                    const viewUrl = signRes.url;
+                    if (viewUrl.endsWith('.pdf')) {
+                        previewBox.innerHTML = `<iframe src="${viewUrl}"></iframe>`;
+                    } else {
+                        previewBox.innerHTML = `<img src="${viewUrl}" alt="證件安全簽章預覽">`;
+                    }
+                } else {
+                    previewBox.innerHTML = '<div class="preview-placeholder" style="color:var(--danger);">⚠️ 該同仁尚未上傳此檔案，或機房連線異常。</div>';
+                }
+            } catch (err) {
+                previewBox.innerHTML = '<div class="preview-placeholder" style="color:var(--danger);">⚠️ 載入簽章失敗。</div>';
+            }
+        }
+
+        // Approve Candidate to Stage 2
+        async function approveCandidate() {
+            if (!selectedCandidate) return;
+            
+            if (!confirm(`確定核准 ${selectedCandidate.name} 的第一階段審查，並發送 LINE 簡訊開通二階補件？`)) {
+                return;
+            }
+
+            selectedCandidate.stage = 2;
+            
+            // Save to server
+            await apiRequest('POST', '/api/firestore/user-roles/update', selectedCandidate);
+            
+            // Trigger automatic LINE push notify
+            await apiRequest('POST', '/api/line/push-notify', {
+                phone: selectedCandidate.phone,
+                text: `🤖 日森精工通知：同仁【${selectedCandidate.name}】，您的第一階段科技廠審核已核准通過！請立刻點選選單「📤 上傳證件」補齊您的薪資存摺封面與專業證照，以利為您簽發識別證。`
+            });
+
+            await loadOnboardingRoster();
+            showCandidateDetails(roster.findIndex(c => c.phone === selectedCandidate.phone));
+            showToast("✅ 一階審查通過！已核發 LINE 補件提示。");
+        }
+
+        // Finalize Candidate to Stage 3
+        async function finalizeCandidate() {
+            if (!selectedCandidate) return;
+
+            if (!confirm(`確定將 ${selectedCandidate.name} 簽發核准為正式出工同仁，並設定身分為 verified？`)) {
+                return;
+            }
+
+            selectedCandidate.stage = 3;
+            selectedCandidate.verified = true;
+
+            // Save to server
+            await apiRequest('POST', '/api/firestore/user-roles/update', selectedCandidate);
+            
+            // Trigger verify link logic to update LINE Rich Menu to MEMBER (via backend logic)
+            await apiRequest('POST', '/api/firestore/user-roles/verify', {
+                phone: selectedCandidate.phone,
+                verified: true
+            });
+
+            // Trigger LINE notification
+            await apiRequest('POST', '/api/line/push-notify', {
+                phone: selectedCandidate.phone,
+                text: `🤖 恭喜！同仁【${selectedCandidate.name}】，您已正式通過日森精工所有入職通關審核！您的手機常駐選單已開通為「正式同仁選單」，請注意明早之指定案場班表。`
+            });
+
+            await loadOnboardingRoster();
+            showCandidateDetails(roster.findIndex(c => c.phone === selectedCandidate.phone));
+            showToast("✅ 已成功簽發正式員工！常駐選單已動態對齊交換。");
+        }
+
+        // Send LINE Reminder manually
+        async function sendLineReminder() {
+            if (!selectedCandidate) return;
+            
+            let remindText = '';
+            if (selectedCandidate.stage === 1) {
+                remindText = `🤖 日森通知：同仁【${selectedCandidate.name}】，您的第一階段審查正在科技廠送審中，請稍候。`;
+            } else if (selectedCandidate.stage === 2) {
+                remindText = `🤖 日森精工催辦通知：同仁【${selectedCandidate.name}】，您目前尚欠缺薪資存摺與專業證照。請立刻打開 LINE 官方帳號點點「📤 上傳證件」完成補件，否則將影響您的出工權益。`;
+            } else {
+                remindText = `🤖 日森精工通知：同仁【${selectedCandidate.name}】，您已完成所有通關手續，明日請準時出工。`;
+            }
+
+            const res = await apiRequest('POST', '/api/line/push-notify', {
+                phone: selectedCandidate.phone,
+                text: remindText
+            });
+
+            if (res && res.success) {
+                showToast("💬 LINE 催辦訊息發送成功！");
+            } else {
+                alert("❌ 推播發送失敗，該同仁 LINE 帳號未連結或 API 異常。");
+            }
+        }
+
+        // Export Candidate Onboarding Package
+        function exportCandidateData() {
+            if (!selectedCandidate) return;
+            
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(selectedCandidate, null, 4));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", `日森精工_入職核准資料_${selectedCandidate.name}.json`);
+            dlAnchorElem.click();
+            showToast("📥 JSON 資料封包打包導出成功！");
+        }
+
+        // Toggle candidate lock/role
+        async function toggleCandidateLock() {
+            if (!selectedCandidate) return;
+            const newRole = selectedCandidate.role === 'member' ? 'contractor' : 'member';
+            if (confirm(`確定將同仁的系統身分調整為：${newRole === 'member' ? '準同仁' : '承攬商'}？`)) {
+                selectedCandidate.role = newRole;
+                await apiRequest('POST', '/api/firestore/user-roles/update', selectedCandidate);
+                await loadOnboardingRoster();
+                showCandidateDetails(roster.findIndex(c => c.phone === selectedCandidate.phone));
+                showToast("🔒 同仁身份變更成功！");
+            }
+        }
+
+        // Dashboard Stats
+        function updateDashboardStats() {
+            // Clicks sum
+            const clicksSum = campaigns.reduce((sum, c) => sum + c.clicks, 0);
+            document.getElementById('stat-clicks').textContent = clicksSum;
+
+            // Stages counts
+            const s1 = roster.filter(item => item.stage === 1).length;
+            const s2 = roster.filter(item => item.stage === 2).length;
+            const s3 = roster.filter(item => item.stage === 3 || item.verified).length;
+
+            document.getElementById('stat-stage1').textContent = s1;
+            document.getElementById('stat-stage2').textContent = s2;
+            document.getElementById('stat-stage3').textContent = s3;
+        }
+
+        // Init
+        window.onload = async () => {
+            // Load Campaigns
+            const localCamps = localStorage.getItem('himori_campaigns');
+            if (localCamps) {
+                campaigns = JSON.parse(localCamps);
+            } else {
+                campaigns = [
+                    { id: 'c1', title: '2026台積電F20無塵室大募集', factory: 'TSMC_F20', source: 'line_ads', clicks: 238, leads: 12, status: '已啟用' },
+                    { id: 'c2', title: '聯電南科12A配管工程招募', factory: 'UMC_12A', source: 'facebook', clicks: 94, leads: 3, status: '已啟用' }
+                ];
+                localStorage.setItem('himori_campaigns', JSON.stringify(campaigns));
+            }
+
+            updateLinkPreview();
+            renderCampaigns();
+            
+            // Load Candidates
+            await loadOnboardingRoster();
+        };
+    </script>
+</body>
+</html>

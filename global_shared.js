@@ -129,6 +129,14 @@
             src: 'modules/02_LINE_Office/line_hub/line_hub.html',
             desc: '白牌 LINE 自動客服、人機協同聊天室、多媒體收件匣與 Rich Menu 動態配置平台',
             dependencies: ['base_hr']
+        },
+        func_recruitment: {
+            category: 'functional',
+            name: '⏳ 準員工招募與通關模組',
+            version: '1.0.0',
+            src: 'modules/02_LINE_Office/recruitment/recruitment.html',
+            desc: '準員工招募廣告渠道追蹤、入職兩階段文件審查、科技廠識別證開通與進度控制中心',
+            dependencies: ['base_hr']
         }
     };
 
@@ -167,7 +175,7 @@
             balanceSheet: { cash:0, prepaid:0, fixed:0, ap:0, loan:0, otherLiab:0, status: "未核定" }
         },
         accountsDb: [
-            { empId: "admin", name: "林總經理", password: "admin123", role: "系統管理員 / 主管", authorizedModules: ["base_brand", "base_hr", "func_employee_cards", "func_work_dispatch", "func_attendance", "func_group_insurance", "func_internal_acc", "func_external_acc", "func_e_invoicing", "func_board_meeting", "func_line_hub", "base_permissions"] },
+            { empId: "admin", name: "林總經理", password: "admin123", role: "系統管理員 / 主管", authorizedModules: ["base_brand", "base_hr", "func_employee_cards", "func_work_dispatch", "func_attendance", "func_group_insurance", "func_internal_acc", "func_external_acc", "func_e_invoicing", "func_board_meeting", "func_line_hub", "base_permissions", "func_recruitment"] },
             { empId: "accountant", name: "會計淑芬", password: "acc123", role: "會計財務", authorizedModules: ["base_hr", "func_work_dispatch", "func_attendance", "func_internal_acc", "func_external_acc", "func_e_invoicing"] },
             { empId: "emp101", name: "李志強", password: "emp123", role: "現場同仁 / 領隊", authorizedModules: ["base_hr", "func_attendance", "func_line_hub"] },
             { empId: "emp102", name: "張憲明", password: "emp123", role: "現場同仁 / 領隊", authorizedModules: ["base_hr", "func_attendance", "func_line_hub"] },
@@ -223,7 +231,8 @@
             "func_e_invoicing",
             "func_board_meeting",
             "func_line_hub",
-            "base_permissions"
+            "base_permissions",
+            "func_recruitment"
         ],
         companyConfig: { ...defaultCompanyConfig },
         unionConfig: {
@@ -304,7 +313,7 @@
         load() {
             try {
                 // 基本防呆與自動初始化
-                if (!localStorage.getItem("森精工_db_initialized_v5") || !localStorage.getItem("employeeDb") || !JSON.parse(localStorage.getItem("employeeDb"))["李志強"]) {
+                if (!localStorage.getItem("森精工_db_initialized_v6") || !localStorage.getItem("employeeDb") || !JSON.parse(localStorage.getItem("employeeDb"))["李志強"]) {
                     this.reset();
                     return;
                 }
@@ -423,7 +432,7 @@
             this.unionConfig = { ...defaults.unionConfig };
             
             this.save();
-            localStorage.setItem("森精工_db_initialized_v5", "true");
+            localStorage.setItem("森精工_db_initialized_v6", "true");
         }
     };
 

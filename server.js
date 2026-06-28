@@ -159,6 +159,21 @@ app.post('/api/firestore/user-roles/verify', async (req, res) => {
 });
 
 
+// 員工權限名冊更新
+app.post('/api/firestore/user-roles/update', async (req, res) => {
+    try {
+        const item = req.body;
+        if (!item.phone) {
+            return res.status(400).json({ error: 'Missing phone parameter' });
+        }
+        await firestore.collection('user_roles').doc(item.phone).set(item, { merge: true });
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+
 // ── 3. Google Cloud Storage 上傳 API ──
 app.post('/api/storage/upload', upload.single('file'), async (req, res) => {
     try {

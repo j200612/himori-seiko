@@ -519,7 +519,7 @@
             border-top: 1px solid rgba(255,255,255,0.05);
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            grid-template-rows: repeat(2, 54px);
+            grid-template-rows: 108px;
             gap: 1px;
             padding: 1px;
         }
@@ -1351,47 +1351,43 @@
                         <!-- 動態六宮格 -->
                     </div>
 
-                    <!-- 訪客專屬 Rich Menu 容器 (3格大版面) -->
+                    <!-- 訪客專屬 Rich Menu 容器 (2格大版面) -->
                     <div id="menu-visitor" class="visitor-menu-grid d-none">
-                        <button class="rich-btn visitor-long-btn" onclick="handleVisitorMenuClick('🔑 綁定手機 ✖ 註冊日森會員（入職領證通道）')">
-                            <span class="rich-icon">🔑</span>
-                            <span>綁定手機 ✖ 註冊日森會員（入職領證通道）</span>
+                        <button class="rich-btn" onclick="handleVisitorMenuClick('🏢 官方網站')">
+                            <span class="rich-icon" style="font-size: 1.5rem; margin-bottom: 4px;">🏢</span>
+                            <span style="font-size: 0.85rem;">官方網站</span>
                         </button>
-                        <button class="rich-btn" onclick="handleVisitorMenuClick('🏢 日森精工 官方網站')">
-                            <span class="rich-icon">🏢</span>
-                            <span>日森精工 官方網站</span>
-                        </button>
-                        <button class="rich-btn" onclick="handleVisitorMenuClick('💬 聯絡真人 雲端客服')">
-                            <span class="rich-icon">💬</span>
-                            <span>聯絡真人 雲端客服</span>
+                        <button class="rich-btn" onclick="handleVisitorMenuClick('🔒 員工身分認證')">
+                            <span class="rich-icon" style="font-size: 1.5rem; margin-bottom: 4px;">🔒</span>
+                            <span style="font-size: 0.85rem;">員工身分認證</span>
                         </button>
                     </div>
 
-                    <!-- 會員專屬 Rich Menu 容器 -->
+                    <!-- 會員專屬 Rich Menu 容器 (準員工6格) -->
                     <div id="menu-member" class="rich-menu-grid d-none">
-                        <button class="rich-btn" onclick="handleMemberMenuClick('✍️ 填寫基本資料')">
-                            <span class="rich-icon">✍️</span>
-                            <span>填寫基本資料</span>
-                        </button>
-                        <button class="rich-btn" onclick="handleMemberMenuClick('📜 簽署工作意向書')">
-                            <span class="rich-icon">📜</span>
-                            <span>簽署工作意向書</span>
-                        </button>
-                        <button class="rich-btn" onclick="handleMemberMenuClick('🌐 引導申辦職業工會')">
+                        <button class="rich-btn" onclick="handleMemberMenuClick('🌐 官方網站')">
                             <span class="rich-icon">🌐</span>
-                            <span>引導申辦職業工會</span>
+                            <span>官方網站</span>
                         </button>
-                        <button class="rich-btn" onclick="handleMemberMenuClick('🪪 上傳第一階段身分證')">
-                            <span class="rich-icon">🪪</span>
-                            <span>上傳第一階段身分證</span>
+                        <button class="rich-btn" onclick="handleMemberMenuClick('🚪 登出返回')">
+                            <span class="rich-icon">🚪</span>
+                            <span>登出返回</span>
                         </button>
-                        <button class="rich-btn" onclick="handleMemberMenuClick('🏦 上傳薪資存摺封面')">
-                            <span class="rich-icon">🏦</span>
-                            <span>上傳薪資存摺封面</span>
+                        <button class="rich-btn" onclick="handleMemberMenuClick('📜 員工攻略')">
+                            <span class="rich-icon">📜</span>
+                            <span>員工攻略</span>
                         </button>
-                        <button class="rich-btn" onclick="handleMemberMenuClick('⏳ 審核進度 Timeline')">
+                        <button class="rich-btn" onclick="handleMemberMenuClick('📥 文件下載')">
+                            <span class="rich-icon">📥</span>
+                            <span>文件下載</span>
+                        </button>
+                        <button class="rich-btn" onclick="handleMemberMenuClick('📤 上傳證件')">
+                            <span class="rich-icon">📤</span>
+                            <span>上傳證件</span>
+                        </button>
+                        <button class="rich-btn" onclick="handleMemberMenuClick('⏳ 入職進度')">
                             <span class="rich-icon">⏳</span>
-                            <span>審核進度 Timeline</span>
+                            <span>入職進度</span>
                         </button>
                     </div>
 
@@ -1549,6 +1545,13 @@
             // FAQ 庫
             const qas = await apiRequest('GET', '/api/firestore/qa');
             if (qas) qaDb = qas;
+
+            // AI 參數設定
+            const config = await apiRequest('GET', '/api/firestore/ai-config');
+            if (config) {
+                aiConfig = config;
+                localStorage.setItem("himori_ai_config", JSON.stringify(aiConfig));
+            }
 
             // 載入多媒體收件匣
             const media = await apiRequest('GET', '/api/inbox-media');
@@ -2377,17 +2380,21 @@
             document.getElementById("ai-welcome").value = aiConfig.welcome;
         }
 
-        function saveAiConfig() {
+        async function saveAiConfig() {
             aiConfig.prompt = document.getElementById("ai-prompt").value.trim();
             aiConfig.confidence = parseInt(document.getElementById("ai-confidence").value);
             aiConfig.welcome = document.getElementById("ai-welcome").value.trim();
 
             saveDatabase();
+            await apiRequest('POST', '/api/firestore/ai-config', aiConfig);
 
             // 更新歡迎詞氣泡
-            document.getElementById("line-welcome-bubble").innerHTML = aiConfig.welcome.replace(/\n/g, '<br>') + `<div class="msg-time">下午 12:00</div>`;
+            const bubble = document.getElementById("line-welcome-bubble");
+            if (bubble) {
+                bubble.innerHTML = aiConfig.welcome.replace(/\n/g, '<br>') + `<div class="msg-time">下午 12:00</div>`;
+            }
 
-            alert("✅ AI 大腦參數設定已成功儲存！");
+            alert("✅ AI 大腦參數設定已成功儲存與雙向同步！");
         }
 
         // ── 8. Tab 6: 手機認證權限對齊功能 ──
@@ -2602,34 +2609,33 @@
         // 會員專屬 Rich Menu 點擊事件處理
         function handleMemberMenuClick(title) {
             appendLineMessage(`[點選選單] ${title}`, "user");
-            if (title.includes("上傳")) {
-                openWebPage("upload");
-                appendLineMessage("🤖 已為您開啟行動上傳中心，請選擇對應證件或照片上傳。", "system");
-            } else if (title.includes("意向書")) {
-                simulateWebPdfViewer("工作意向書.pdf", "https://storage.googleapis.com/himori-seiko-2006-media/sample_intent.pdf");
-                appendLineMessage("🤖 請在右側預覽器簽署工作意向書 PDF。", "system");
-            } else if (title.includes("工會")) {
-                simulateWebPdfViewer("桃市工會入會申請書.pdf", "https://storage.googleapis.com/himori-seiko-2006-media/%E6%A1%83%E5%B8%82%E5%B7%A5%E6%9C%83%E5%85%A5%E6%9C%83%E7%94%B3%E8%AB%8B%E6%9B%B8.pdf");
-                appendLineMessage("🤖 已為您打開桃園市勞動力工會入會申請預覽。", "system");
-            } else if (title.includes("Timeline")) {
-                openWebPage("upload");
-                appendLineMessage("🤖 已開啟您的入職闖關 Timeline 審核歷史紀錄。", "system");
+            if (title.includes("官方網站")) {
+                openWebPage("https://himori-portal-650268834354.asia-east1.run.app");
+                appendLineMessage("🤖 已為您開啟日森精工官方網站首頁。", "system");
+            } else if (title.includes("登出返回")) {
+                sendLineUserKeyword("解綁");
+            } else if (title.includes("員工攻略")) {
+                sendLineUserKeyword("攻略");
+            } else if (title.includes("文件下載")) {
+                sendLineUserKeyword("下載");
+            } else if (title.includes("上傳證件")) {
+                sendLineUserKeyword("上傳");
+            } else if (title.includes("入職進度")) {
+                sendLineUserKeyword("進度");
             } else {
-                appendLineMessage(`🤖 已收到您的【${title}】申請，正通知幹部對接服務！`, "system");
+                sendLineUserKeyword(title);
             }
         }
 
         // 訪客專屬 Rich Menu 點擊事件處理
         function handleVisitorMenuClick(title) {
             appendLineMessage(`[點選選單] ${title}`, "user");
-            if (title.includes("綁定手機") || title.includes("註冊會員")) {
+            if (title.includes("員工身分認證")) {
                 openWebPage("verification");
                 appendLineMessage("🤖 已為您開啟行動手機認證與會員註冊通道，請在右側進行雙因素驗證。", "system");
             } else if (title.includes("官方網站")) {
                 openWebPage("https://himori-portal-650268834354.asia-east1.run.app");
                 appendLineMessage("🤖 已為您開啟日森精工官方網站首頁。", "system");
-            } else if (title.includes("聯絡真人")) {
-                sendLineUserKeyword("真人接管");
             }
         }
 
