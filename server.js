@@ -405,20 +405,117 @@ app.post('/api/inbox-media/delete', async (req, res) => {
     }
 });
 
-// 模擬或手動新增多媒體上傳
+// 模擬或手動新增多媒體上傳 (整合 Gemini AI 智慧摘要與歸檔模組建議)
 app.post('/api/inbox-media/add', async (req, res) => {
     try {
         const item = req.body;
         if (!item.id) item.id = String(Date.now());
         item.time = new Date().toISOString().replace('T', ' ').substring(0, 16);
         item.status = 'pending';
-        
+
+        // 串接 Gemini 實體大腦做影像/語意內容提取
+        const apiKey = process.env.GEMINI_API_KEY;
+        let aiSummary = '';
+        let suggestedModule = '人事名冊'; // 預設歸檔模組
+
+        const promptText = `
+你是一個專門為日森精工 (Himori Seiko) 設計的後台 AI 助理大腦，負責自動辨識與分析同仁上傳的文件、圖片或純文字說明。
+請分析以下傳入內容，為主管撰寫一份 50 字以內的【AI 智慧摘要】（繁體中文，提及姓名與重要內容欄位）。
+同時，你需要對其進行智慧分類建議，推薦最適合歸檔的模組類型，必須「精確且只能」為【人事名冊】、【識別卡】或【團體保險】其中之一。
+
+請嚴格回傳 JSON 格式，不要包含任何 markdown 標記（如 \`\`\`json）：
+{
+  "summary": "AI 智慧摘要內文...",
+  "suggestedModule": "人事名冊" | "識別卡" | "團體保險"
+}
+
+【同仁傳入之元數據】：
+- 傳送人：${item.sender || '未知同仁'}
+- 傳送人電話：${item.phone || '無'}
+- 上傳檔案名稱/類型：${item.type || '無'}
+- 純文字備忘內容：${item.textMemo || '無'}
+`;
+
+        if (apiKey) {
+            try {
+                const genAI = new GoogleGenerativeAI(apiKey);
+                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+                
+                const parts = [promptText];
+
+                // 嘗試處理實體 GCS 圖片或 PDF
+                const mimeType = getMimeType(item.type || '');
+                if (item.fileUrl && item.fileUrl !== '#' && mimeType) {
+                    try {
+                        const fileRes = await fetch(item.fileUrl);
+                        const arrayBuffer = await fileRes.arrayBuffer();
+                        const base64 = Buffer.from(arrayBuffer).toString('base64');
+                        parts.push({
+                            inlineData: {
+                                data: base64,
+                                mimeType: mimeType
+                            }
+                        });
+                    } catch (fileErr) {
+                        console.warn('GCS file fetch failed for Gemini, using metadata instead:', fileErr);
+                    }
+                }
+
+                const result = await model.generateContent(parts);
+                const replyText = result.response.text().trim();
+                
+                // 解析 JSON
+                try {
+                    const cleanJson = replyText.replace(/```json/g, '').replace(/```/g, '').trim();
+                    const parsed = JSON.parse(cleanJson);
+                    aiSummary = parsed.summary || '辨識完成，未能產生摘要。';
+                    suggestedModule = parsed.suggestedModule || '人事名冊';
+                } catch (jsonErr) {
+                    console.error('Failed to parse Gemini JSON:', replyText, jsonErr);
+                    aiSummary = replyText.substring(0, 100);
+                }
+            } catch (err) {
+                console.error('Gemini API call failed for media analysis:', err);
+                aiSummary = `[API 呼叫失敗] 同仁上傳 ${item.type || '文字'}。`;
+            }
+        }
+
+        // Fallback 模擬邏輯 (無金鑰或失敗時)
+        if (!aiSummary) {
+            const searchSource = ((item.type || '') + ' ' + (item.textMemo || '')).toLowerCase();
+            if (searchSource.includes("身分證") || searchSource.includes("申請書") || searchSource.includes("入會") || searchSource.includes("大同")) {
+                aiSummary = `[模擬 AI 辨識] 偵測為同仁身分證或入會加保申請書，已識別出同仁姓名個資與通訊電話。`;
+                suggestedModule = '人事名冊';
+            } else if (searchSource.includes("識別卡") || searchSource.includes("識別證") || searchSource.includes("證照") || searchSource.includes("天車")) {
+                aiSummary = `[模擬 AI 辨識] 偵測為員工工作識別證或拉線、天車專業證照，已自動識別卡號與有效期限。`;
+                suggestedModule = '識別卡';
+            } else if (searchSource.includes("保險") || searchSource.includes("保單") || searchSource.includes("團保") || searchSource.includes("健保")) {
+                aiSummary = `[模擬 AI 辨識] 偵測為團體保險加保憑據或扣費帳單，已辨識生效日期與扣繳薪資級距。`;
+                suggestedModule = '團體保險';
+            } else {
+                aiSummary = `[模擬 AI 辨識] 同仁傳送文字："${item.textMemo || item.type}"。主動提取關鍵字並推薦分流。`;
+                suggestedModule = '人事名冊';
+            }
+        }
+
+        item.aiSummary = aiSummary;
+        item.suggestedModule = suggestedModule;
+
         await firestore.collection('inbox_media').doc(item.id).set(item);
         res.json({ success: true, item });
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
 });
+
+// Helper: 取得 Mime Type
+function getMimeType(fileName) {
+    const ext = path.extname(fileName).toLowerCase();
+    if (ext === '.pdf') return 'application/pdf';
+    if (ext === '.jpg' || ext === '.jpeg') return 'image/jpeg';
+    if (ext === '.png') return 'image/png';
+    return null;
+}
 
 // 清空收件匣
 app.post('/api/inbox-media/clear', async (req, res) => {

@@ -1126,7 +1126,7 @@
                             <select id="config-menu-role" onchange="loadRichMenuConfig()">
                                 <option value="guest">訪客 (Guest)</option>
                                 <option value="contractor">外包同仁 (Contractor)</option>
-                                <option value="regular">正職同仁 (Regular)</option>
+                                <option value="regular">幹部同仁 (Regular)</option>
                                 <option value="manager">系統主管 (Manager)</option>
                             </select>
                         </div>
@@ -1280,7 +1280,7 @@
                                     </tr>
                                     <tr>
                                         <td>工程主任、現場領隊</td>
-                                        <td><span class="badge" style="background:rgba(16,185,129,0.2); color:#6ee7b7;">正職同仁 (Regular)</span></td>
+                                        <td><span class="badge" style="background:rgba(16,185,129,0.2); color:#6ee7b7;">幹部同仁 (Regular)</span></td>
                                     </tr>
                                     <tr>
                                         <td>技術同仁、外包人員、點工</td>
@@ -1311,7 +1311,7 @@
                         <select id="sim-identity-select" style="width:110px; font-size:0.68rem; padding:1px 4px; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.15);" onchange="handleSimIdentityChange()">
                             <option value="guest">訪客身分</option>
                             <option value="contractor">外包：張憲明</option>
-                            <option value="regular">正職/領隊：李志強</option>
+                            <option value="regular">幹部/領隊：李志強</option>
                         </select>
                     </div>
 
@@ -1411,6 +1411,12 @@
                                 <button class="auth-btn" style="padding:8px; font-size:0.7rem; display:flex; justify-content:center; align-items:center; gap:6px; cursor:pointer;" onclick="triggerMobileDocUpload()">
                                     <span>➕ 選擇並上傳新文件</span>
                                 </button>
+                                <div style="margin-top: 10px; display: flex; gap: 6px;">
+                                    <input type="text" id="mobile-text-input" placeholder="或在此輸入純文字說明..." style="font-size:0.68rem; padding:6px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:4px; flex-grow:1; color:#fff;">
+                                    <button class="auth-btn" style="padding:6px 12px; font-size:0.68rem; cursor:pointer; width:auto; flex-shrink:0;" onclick="submitMobileTextNote()">
+                                        <span>傳送</span>
+                                    </button>
+                                </div>
                             </div>
                             
                             <!-- 歷史紀錄 (Log) 區塊 -->
@@ -1480,7 +1486,10 @@
 
             // 載入多媒體收件匣
             const media = await apiRequest('GET', '/api/inbox-media');
-            if (media) inboxMediaList = media;
+            if (media) {
+                inboxMediaList = media;
+                localStorage.setItem("himori_inbox_media", JSON.stringify(inboxMediaList));
+            }
 
             // 對話紀錄
             const chats = await apiRequest('GET', '/api/line/chats');
@@ -1495,14 +1504,12 @@
             // 重新整理 UI
             renderQaTable();
             renderInboxMedia();
+            renderMobileUploadLogs();
             if (document.getElementById("tab-live-chat").classList.contains("active")) {
                 renderChatUserList();
                 renderChatHistory();
             }
-            if (document.getElementById("tab-mobile-permission").classList.contains("active")) {
-                renderMobileVerificationList();
-            }
-            renderMobileUploadLogs();
+            renderMobileVerificationList();
         }
 
         // 初始化資料庫
@@ -1851,7 +1858,7 @@
 
             document.getElementById("active-chat-name").textContent = chat.name;
             const badge = document.getElementById("active-chat-role-badge");
-            badge.textContent = chat.role === 'guest' ? '訪客' : (chat.role === 'regular' ? '正職' : '外包');
+            badge.textContent = chat.role === 'guest' ? '訪客' : (chat.role === 'regular' ? '幹部' : '外包');
             badge.style.display = "inline-block";
             document.getElementById("active-chat-status").textContent = chat.status;
             
@@ -1977,6 +1984,9 @@
                 return;
             }
 
+            // 按時間戳記由新到舊嚴格排序 (Timeline Log)
+            inboxMediaList.sort((a, b) => b.time.localeCompare(a.time));
+
             inboxMediaList.forEach(item => {
                 const card = document.createElement("div");
                 card.className = "media-card";
@@ -1989,9 +1999,9 @@
                         <div class="ai-dispatch-box" style="margin-top: 8px; padding: 6px; background: rgba(2, 132, 199, 0.08); border: 1px dashed rgba(2, 132, 199, 0.4); border-radius: 6px; text-align: left;">
                             <div style="font-size: 0.65rem; color: #38bdf8; font-weight: bold; margin-bottom: 4px;">🤖 AI 智慧分流建議：</div>
                             <select style="font-size: 0.65rem; padding: 2px; height: 22px; width: 100%; background: #0f172a; border: 1px solid var(--border); color: var(--text); border-radius: 4px; margin-bottom: 4px;" id="dispatch-target-${item.id}">
-                                <option value="base_hr" ${item.type.includes("存摺") || item.type.includes("申請書") ? "selected" : ""}>📋 歸檔至：人事名冊系統</option>
-                                <option value="cards" ${item.type.includes("名片") || item.type.includes("身分證") ? "selected" : ""}>🪪 歸檔至：員工識別卡庫 (cardsDb)</option>
-                                <option value="insurance" ${item.type.includes("保險") || item.type.includes("團保") ? "selected" : ""}>🏥 歸檔至：團體保險名冊 (insurancesDb)</option>
+                                <option value="base_hr" ${item.suggestedModule === "人事名冊" || item.type.includes("申請書") ? "selected" : ""}>📋 歸檔至：人事名冊系統</option>
+                                <option value="cards" ${item.suggestedModule === "識別卡" || item.type.includes("身分證") ? "selected" : ""}>🪪 歸檔至：員工識別卡庫 (cardsDb)</option>
+                                <option value="insurance" ${item.suggestedModule === "團體保險" || item.type.includes("保險") ? "selected" : ""}>🏥 歸檔至：團體保險名冊 (insurancesDb)</option>
                             </select>
                         </div>
                     `;
@@ -2006,13 +2016,40 @@
                     `;
                 }
 
-                const dispLabel = item.dispatchedTo ? ` (分流至: ${getModuleName(item.dispatchedTo)})` : "";
+                const dispLabel = item.dispatchedTo ? ` (已歸入: ${getModuleName(item.dispatchedTo)})` : "";
                 
                 // 檢查是否是真實 GCS 連結
                 let fileLinkHtml = `<b>${escapeHtml(item.type)}</b>`;
                 if (item.fileUrl && item.fileUrl !== '#') {
                     fileLinkHtml = `<a href="${item.fileUrl}" target="_blank" style="color:#38bdf8; text-decoration:underline; font-weight:600;">${escapeHtml(item.type)}</a>`;
                 }
+
+                // 文字說明顯示
+                let textMemoHtml = "";
+                if (item.textMemo) {
+                    textMemoHtml = `
+                        <div class="media-info" style="font-size: 0.7rem; color: #a5b4fc; background: rgba(99, 102, 241, 0.1); padding: 4px 6px; border-radius: 4px; margin-top: 4px; text-align: left;">
+                            📝 說明：${escapeHtml(item.textMemo)}
+                        </div>
+                    `;
+                }
+
+                // AI 智慧摘要
+                const aiSummaryHtml = `
+                    <div class="media-info" style="margin-top: 6px; padding: 6px; background: rgba(255,255,255,0.03); border-radius: 4px; border: 1px solid rgba(255,255,255,0.05); font-size: 0.7rem; color: #cbd5e1; text-align: left;">
+                        <span style="font-weight: bold; color: #38bdf8; display: block; margin-bottom: 2px;">🧠 AI 智慧摘要：</span>
+                        ${escapeHtml(item.aiSummary || "辨識中...")}
+                    </div>
+                `;
+
+                // 實時追蹤狀態列
+                const trackerStatusHtml = `
+                    <div class="media-status" style="margin-top: 6px; text-align: left;">
+                        <span class="status-badge ${item.status === 'pending' ? 'status-pending' : (item.status === 'approved' ? 'status-approved' : 'status-rejected')}" style="font-size: 0.65rem;">
+                            ${item.status === 'pending' ? '⏳ 待審核/AI 辨識中' : (item.status === 'approved' ? `✅ 已正確歸入【${getModuleName(item.dispatchedTo)}】模組` : '❌ 已駁回')}
+                        </span>
+                    </div>
+                `;
 
                 card.innerHTML = `
                     <div class="media-preview" style="position:relative;">
@@ -2022,14 +2059,11 @@
                     </div>
                     <div class="media-body">
                         <div class="media-title" style="font-weight:600; color:#fff;">${fileLinkHtml}</div>
-                        <div class="media-info">傳送人: <b>${escapeHtml(item.sender)}</b></div>
-                        <div class="media-info">電話: ${item.phone}</div>
-                        <div class="media-info">上傳時間: ${item.time}</div>
-                        <div class="media-status">
-                            <span class="status-badge ${item.status === 'pending' ? 'status-pending' : (item.status === 'approved' ? 'status-approved' : 'status-rejected')}">
-                                ${item.status === 'pending' ? '待核決' : '已核准歸檔' + dispLabel}
-                            </span>
-                        </div>
+                        ${textMemoHtml}
+                        <div class="media-info">傳送人: <b>${escapeHtml(item.sender)}</b> (${item.phone})</div>
+                        <div class="media-info">時間: ${item.time}</div>
+                        ${aiSummaryHtml}
+                        ${trackerStatusHtml}
                         ${dispatchBox}
                         <div style="display:flex; gap:4px; margin-top:6px; width:100%;">
                             ${actionButtons}
@@ -2047,22 +2081,40 @@
             return "系統";
         }
 
+        function mapModuleName(name) {
+            if (!name) return "base_hr";
+            if (name.includes("人事") || name.includes("hr") || name === "base_hr") return "base_hr";
+            if (name.includes("識別") || name.includes("card") || name === "cards") return "cards";
+            if (name.includes("保險") || name.includes("insurance")) return "insurance";
+            return "base_hr";
+        }
+
         async function approveInboxMedia(id) {
+            const item = inboxMediaList.find(i => String(i.id) === String(id));
+            if (!item) return;
+
             const selectEl = document.getElementById(`dispatch-target-${id}`);
-            const targetModule = selectEl ? selectEl.value : "base_hr";
+            let targetModule = selectEl ? selectEl.value : "base_hr";
+            
+            const recommended = item.suggestedModule || "人事名冊";
+            const recKey = mapModuleName(recommended);
+            const recName = getModuleName(recKey);
+
+            const agree = confirm(`🤖 [AI 智慧歸檔引導]\n本項目 AI 辨識建議歸類至：【${recName}】\n\n是否同意此智慧引導分流建議？\n（選「確定」將立刻歸入 ${recName}；選「取消」將依您手動選取的模組歸檔）`);
+
+            if (agree) {
+                targetModule = recKey;
+            }
 
             const res = await apiRequest('POST', '/api/inbox-media/approve', { id, targetModule });
             if (res) {
                 await loadDatabaseFromServer();
                 let targetName = getModuleName(targetModule);
-                alert(`✅ 證件文件已審核通過，並由 AI 智慧分流歸檔至【${targetName}】！\n(GCS 檔案連結與時間戳記已寫入 Firestore log)`);
+                alert(`✅ 證件文件已審核通過，並正確歸入【${targetName}】！\n(GCS 檔案連結與時間戳記已寫入 Firestore log)`);
             } else {
-                inboxMediaList.forEach(item => {
-                    if (String(item.id) === String(id)) {
-                        item.status = "approved";
-                        item.dispatchedTo = targetModule;
-                    }
-                });
+                // Local fallback
+                item.status = "approved";
+                item.dispatchedTo = targetModule;
                 localStorage.setItem("himori_inbox_media", JSON.stringify(inboxMediaList));
                 renderInboxMedia();
                 renderMobileUploadLogs();
@@ -2241,7 +2293,7 @@
         function getRoleNameZh(role) {
             if (role === 'guest') return '訪客';
             if (role === 'contractor') return '外包同仁';
-            if (role === 'regular') return '正職同仁';
+            if (role === 'regular') return '幹部同仁';
             return '系統主管';
         }
 
@@ -2301,7 +2353,7 @@
                     </td>
                     <td>
                         <span class="badge" style="background:rgba(255,255,255,0.05); color:#ffffff;">
-                            ${emp.verified ? (emp.role === 'regular' ? '正職選單' : '外包選單') : '訪客選單'}
+                            ${emp.verified ? (emp.role === 'regular' ? '幹部選單' : '外包選單') : '訪客選單'}
                         </span>
                     </td>
                     <td>
@@ -2578,7 +2630,7 @@
         }
 
         // 手動模擬上傳證照/照片
-        function triggerMockPhotoUpload() {
+        async function triggerMockPhotoUpload() {
             const activeSimUser = document.getElementById("sim-identity-select").value;
             const name = activeSimUser === 'guest' ? '訪客同仁' : (activeSimUser === 'regular' ? '李志強' : '張憲明');
             const phone = activeSimUser === 'guest' ? '—' : (activeSimUser === 'regular' ? '0923-456-789' : '0912-345-678');
@@ -2588,26 +2640,34 @@
 
             appendLineMessage(`傳送了圖片: ${fileName}`, "user");
 
-            // 自動匯入 Tab 3 多媒體收件匣
-            const list = JSON.parse(localStorage.getItem("himori_inbox_media")) || [];
-            const newId = list.length > 0 ? Math.max(...list.map(i => i.id)) + 1 : 1;
-            
-            list.unshift({
-                id: newId,
+            const icon = fileName.includes("存") ? "🏦" : "🪪";
+            const payload = {
                 sender: name,
                 phone: phone,
                 type: fileName,
-                time: new Date().toISOString().replace('T', ' ').substring(0, 16),
-                status: "pending",
-                icon: fileName.includes("存") ? "🏦" : "🪪"
-            });
+                fileUrl: '#',
+                icon: icon
+            };
 
-            localStorage.setItem("himori_inbox_media", JSON.stringify(list));
-            
-            if (document.getElementById("tab-inbox-media").classList.contains("active")) {
+            const res = await apiRequest('POST', '/api/inbox-media/add', payload);
+            if (res) {
+                await loadDatabaseFromServer();
+            } else {
+                const list = JSON.parse(localStorage.getItem("himori_inbox_media")) || [];
+                const newId = list.length > 0 ? Math.max(...list.map(i => i.id)) + 1 : 1;
+                list.unshift({
+                    id: newId,
+                    sender: name,
+                    phone: phone,
+                    type: fileName,
+                    time: new Date().toISOString().replace('T', ' ').substring(0, 16),
+                    status: "pending",
+                    icon: icon
+                });
+                localStorage.setItem("himori_inbox_media", JSON.stringify(list));
                 renderInboxMedia();
+                renderMobileUploadLogs();
             }
-            renderMobileUploadLogs();
 
             setTimeout(() => {
                 appendLineMessage("🤖 已收到您傳送的檔案！已提交給主管進行認證審查。", "system");
@@ -2714,6 +2774,9 @@
                 return;
             }
 
+            // 按時間戳記由新到舊嚴格排序 (Timeline Log)
+            myFiles.sort((a, b) => b.time.localeCompare(a.time));
+
             myFiles.forEach(item => {
                 const logItem = document.createElement("div");
                 logItem.style.background = "rgba(255,255,255,0.03)";
@@ -2727,19 +2790,23 @@
 
                 let statusBadge = '';
                 if (item.status === 'pending') {
-                    statusBadge = `<span style="color:#fbbf24; font-size:0.6rem; background:rgba(251,191,36,0.1); padding:2px 6px; border-radius:4px;">待審核</span>`;
+                    statusBadge = `<span style="color:#fbbf24; font-size:0.6rem; background:rgba(251,191,36,0.1); padding:2px 6px; border-radius:4px;">⏳ 待審核/AI 辨識中</span>`;
                 } else if (item.status === 'approved') {
-                    statusBadge = `<span style="color:#34d399; font-size:0.6rem; background:rgba(52,211,153,0.1); padding:2px 6px; border-radius:4px;">已核准</span>`;
+                    const modName = getModuleName(item.dispatchedTo);
+                    statusBadge = `<span style="color:#34d399; font-size:0.6rem; background:rgba(52,211,153,0.1); padding:2px 6px; border-radius:4px;">已正確歸入 ${modName}</span>`;
                 } else {
                     statusBadge = `<span style="color:#f87171; font-size:0.6rem; background:rgba(248,113,113,0.1); padding:2px 6px; border-radius:4px;">已駁回</span>`;
                 }
 
+                // 若是純文字，顯示文字前綴
+                const displayName = item.type === "純文字說明" && item.textMemo ? `📝 ${item.textMemo}` : item.type;
+
                 logItem.innerHTML = `
-                    <div style="display:flex; flex-direction:column; gap:2px; max-width:70%; text-align:left;">
-                        <span style="font-weight:600; color:#e2e8f0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:0.68rem;">${escapeHtml(item.type)}</span>
+                    <div style="display:flex; flex-direction:column; gap:2px; max-width:60%; text-align:left;">
+                        <span style="font-weight:600; color:#e2e8f0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:0.68rem;" title="${escapeHtml(displayName)}">${escapeHtml(displayName)}</span>
                         <span style="color:#64748b; font-size:0.58rem;">${item.time}</span>
                     </div>
-                    <div>${statusBadge}</div>
+                    <div style="text-align:right;">${statusBadge}</div>
                 `;
                 logsContainer.appendChild(logItem);
             });
@@ -2800,6 +2867,54 @@
 
             setTimeout(() => {
                 appendLineMessage("🤖 已收到您傳送的檔案！已提交給主管進行認證審查。", "system");
+            }, 600);
+        }
+
+        // 行動端純文字說明說明送出
+        async function submitMobileTextNote() {
+            const input = document.getElementById("mobile-text-input");
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = "";
+
+            const activeSimUser = document.getElementById("sim-identity-select").value;
+            const name = activeSimUser === 'guest' ? '訪客同仁' : (activeSimUser === 'regular' ? '李志強' : '張憲明');
+            const phone = activeSimUser === 'guest' ? '—' : (activeSimUser === 'regular' ? '0923-456-789' : '0912-345-678');
+
+            appendLineMessage(`📤 傳送說明: ${text}`, "user");
+
+            const payload = {
+                sender: name,
+                phone: phone,
+                type: "純文字說明",
+                textMemo: text,
+                fileUrl: '#',
+                icon: "📝"
+            };
+
+            const res = await apiRequest('POST', '/api/inbox-media/add', payload);
+            if (res) {
+                await loadDatabaseFromServer();
+            } else {
+                const list = JSON.parse(localStorage.getItem("himori_inbox_media")) || [];
+                const newId = list.length > 0 ? Math.max(...list.map(i => i.id)) + 1 : 1;
+                list.unshift({
+                    id: newId,
+                    sender: name,
+                    phone: phone,
+                    type: "純文字說明",
+                    textMemo: text,
+                    time: new Date().toISOString().replace('T', ' ').substring(0, 16),
+                    status: "pending",
+                    icon: "📝"
+                });
+                localStorage.setItem("himori_inbox_media", JSON.stringify(list));
+                renderInboxMedia();
+                renderMobileUploadLogs();
+            }
+
+            setTimeout(() => {
+                appendLineMessage("🤖 已收到您傳送的說明！已提交給主管進行審查。", "system");
             }, 600);
         }
 
