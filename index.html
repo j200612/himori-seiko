@@ -1068,6 +1068,223 @@
                 padding: 8rem 1.5rem 5rem 1.5rem;
             }
         }
+
+        /* ════════════════════ 營運中控門禁 Modal ════════════════════ */
+        .gatekeeper-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(6, 35, 64, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .gatekeeper-card {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(6, 35, 64, 0.1);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: 0 20px 50px rgba(6, 35, 64, 0.3);
+            padding: 2rem;
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .gatekeeper-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+            border-bottom: 1px solid rgba(6, 35, 64, 0.08);
+            padding-bottom: 0.8rem;
+        }
+
+        .gatekeeper-header h3 {
+            margin: 0;
+            color: #062340;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .gatekeeper-close {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            color: #062340;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: 0.2s;
+            line-height: 1;
+        }
+
+        .gatekeeper-close:hover {
+            opacity: 1;
+        }
+
+        .gatekeeper-body p {
+            font-size: 0.82rem;
+            color: #64748b;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+            text-align: left;
+        }
+
+        .gatekeeper-form-group {
+            margin-bottom: 1.2rem;
+            text-align: left;
+        }
+
+        .gatekeeper-form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #062340;
+            margin-bottom: 0.4rem;
+        }
+
+        .gatekeeper-form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(6, 35, 64, 0.15);
+            font-size: 0.9rem;
+            background-color: #ffffff;
+            transition: 0.2s;
+            color: #062340;
+            box-sizing: border-box;
+        }
+
+        .gatekeeper-form-group input:focus {
+            outline: none;
+            border-color: var(--safety-teal);
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+        }
+
+        .gatekeeper-error-msg {
+            color: #ef4444;
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            text-align: left;
+        }
+
+        .btn-gatekeeper-submit {
+            width: 100%;
+            background: linear-gradient(135deg, var(--safety-teal) 0%, #0b7a6f 100%);
+            color: white;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.2);
+            transition: 0.2s;
+        }
+
+        .btn-gatekeeper-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(13, 148, 136, 0.35);
+        }
+
+        /* ════════════════════ 質感版單一頁尾 ════════════════════ */
+        .modern-footer {
+            background-color: #062340;
+            color: #94a3b8;
+            padding: 4rem 1.5rem;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.9rem;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .footer-brand-text {
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+        }
+
+        .footer-spirit {
+            color: var(--safety-teal);
+            font-size: 1.05rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin: 0.2rem 0;
+            text-shadow: 0 0 20px rgba(13, 148, 136, 0.15);
+        }
+
+        .footer-line-section {
+            margin: 0.5rem 0;
+        }
+
+        .btn-footer-line {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #06c755 0%, #05a044 100%);
+            color: #ffffff !important;
+            padding: 0.6rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(6, 199, 85, 0.25);
+            transition: all 0.3s ease;
+        }
+
+        .btn-footer-line:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(6, 199, 85, 0.45);
+        }
+
+        .footer-copyright {
+            font-size: 0.78rem;
+            color: #475569;
+            letter-spacing: 0.5px;
+            margin-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 1.2rem;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* 手機端自適應排列 */
+        @media (max-width: 768px) {
+            .footer-container {
+                gap: 1.2rem;
+            }
+            
+            .footer-spirit {
+                font-size: 0.95rem;
+                padding: 0 1rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1097,11 +1314,11 @@
                     <li><a href="#partners">合作夥伴</a></li>
                     <li><a href="#contact">聯絡我們</a></li>
                 </ul>
-                <a href="portal.html" class="btn-portal">
+                <a href="javascript:void(0)" class="btn-portal" onclick="triggerGatekeeperLogin()">
                     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"></path>
                     </svg>
-                    員工專區
+                    數位營運中心
                 </a>
             </nav>
         </div>
@@ -1115,7 +1332,7 @@
             <p id="hero-desc">傳承日系職人精密細緻的工藝精神，致力為國際半導體大廠及高科技無塵室廠區，提供最安全、最合規、最高品質的軌道安裝、機電整合與 6S 維護管理服務。</p>
             <div class="hero-btns">
                 <a href="#contact" class="btn-action-primary">洽談業務與工作</a>
-                <a href="portal.html" class="btn-action-secondary">登入數位營運中心 ➡️</a>
+                <a href="javascript:void(0)" class="btn-action-secondary" onclick="triggerGatekeeperLogin()">登入數位營運中心 ➡️</a>
             </div>
         </div>
         <!-- 底部波浪裝飾 -->
@@ -1397,13 +1614,51 @@
     </section>
 
     <!-- 頁尾 (Footer) -->
-    <footer>
-        <div class="brand" id="footer-brand">日森精工有限公司</div>
-        <p id="footer-slogan">安全・合規・韌性・精密</p>
-        <p style="font-size: 0.75rem; color: #475569; margin-top: 1.5rem; letter-spacing: 0.5px;">
-            © 2026 映向行銷. Powered by Image Marketing (v1.0.0)
-        </p>
+    <footer class="modern-footer">
+        <div class="footer-container">
+            <div class="footer-logo">
+                <span id="footer-brand" class="footer-brand-text">日森精工有限公司</span>
+            </div>
+            <div class="footer-spirit">
+                「與日森精工有限公司並肩同行」
+            </div>
+            <div class="footer-line-section">
+                <a href="javascript:void(0)" onclick="showModal('line')" class="btn-footer-line">
+                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M24 10.3c0-5.2-5.4-9.3-12-9.3S0 5.1 0 10.3c0 4.6 4.3 8.5 10.1 9.2.4.1.9.3 1 .7l.3 2.1c0 .2.2.4.4.4.2 0 .3-.1.4-.2l2.6-2.6c1.7-.6 3.1-1.6 4.1-2.9 3.2-1.8 5.1-4.2 5.1-6.7zM7.5 13H5.8c-.3 0-.5-.2-.5-.5v-4c0-.3.2-.5.5-.5h.5c.3 0 .5.2.5.5v3h.7c.3 0 .5.2.5.5V12.5c0 .3-.2.5-.5.5zm3.8 0h-.5c-.3 0-.5-.2-.5-.5v-4c0-.3.2-.5.5-.5h.5c.3 0 .5.2.5.5v4c0 .3-.2.5-.5.5zm5.5 0h-2.1c-.3 0-.5-.2-.5-.5v-4c0-.3.2-.5.5-.5h2.1c.3 0 .5.2.5.5v.5c0 .3-.2.5-.5.5H15v.7h1.4c.3 0 .5.2.5.5v.5c0 .3-.2.5-.5.5H15v.8h1.8c.3 0 .5.2.5.5v.5c0 .3-.2.5-.5.5zM21.5 13h-2.1c-.3 0-.5-.2-.5-.5v-4c0-.3.2-.5.5-.5h2.1c.3 0 .5.2.5.5v.5c0 .3-.2.5-.5.5h-1.6v.7h1.4c.3 0 .5.2.5.5v.5c0 .3-.2.5-.5.5h-1.4v.8h1.8c.3 0 .5.2.5.5v.5c0 .3-.2.5-.5.5z"/>
+                    </svg>
+                    <span>正式啟用：LINE 官方線上客服</span>
+                </a>
+            </div>
+            <div id="footer-slogan" style="display:none;"></div>
+            <div class="footer-copyright">
+                系統製作：映向行銷（版權所有） | © 2026 HIMORI SEIKO. All Rights Reserved.
+            </div>
+        </div>
     </footer>
+
+    <!-- 🔐 營運中心門禁驗證 Modal -->
+    <div id="gatekeeper-modal" class="gatekeeper-overlay" style="display:none;">
+        <div class="gatekeeper-card">
+            <div class="gatekeeper-header">
+                <h3>🔐 數位營運中心安全門禁</h3>
+                <button class="gatekeeper-close" onclick="closeGatekeeper()">&times;</button>
+            </div>
+            <div class="gatekeeper-body">
+                <p>本系統為【日森精工】專屬營運中控台。非授權人員禁止進入，所有登入嘗試皆會被安全紀錄。</p>
+                <div class="gatekeeper-form-group">
+                    <label for="gatekeeper-username">員工帳號 / 編號</label>
+                    <input type="text" id="gatekeeper-username" placeholder="請輸入帳號 (例如: admin)">
+                </div>
+                <div class="gatekeeper-form-group">
+                    <label for="gatekeeper-password">安全驗證密碼</label>
+                    <input type="password" id="gatekeeper-password" placeholder="請輸入密碼">
+                </div>
+                <div id="gatekeeper-error" class="gatekeeper-error-msg" style="display:none;"></div>
+                <button class="btn-gatekeeper-submit" onclick="submitGatekeeperLogin()">安全身分認證</button>
+            </div>
+        </div>
+    </div>
 
     <!-- JavaScript 互動效果控制 -->
     <script>
@@ -1605,6 +1860,89 @@
                 }
             }
         }
+
+        // 🔐 營運中心門禁驗證
+        function triggerGatekeeperLogin() {
+            const modal = document.getElementById("gatekeeper-modal");
+            const err = document.getElementById("gatekeeper-error");
+            if (modal) {
+                modal.style.display = "flex";
+                document.getElementById("gatekeeper-username").value = "";
+                document.getElementById("gatekeeper-password").value = "";
+                if (err) err.style.display = "none";
+            }
+        }
+
+        function closeGatekeeper() {
+            const modal = document.getElementById("gatekeeper-modal");
+            if (modal) modal.style.display = "none";
+        }
+
+        function submitGatekeeperLogin() {
+            const usernameInput = document.getElementById("gatekeeper-username").value.trim();
+            const passwordInput = document.getElementById("gatekeeper-password").value.trim();
+            const err = document.getElementById("gatekeeper-error");
+
+            if (!usernameInput || !passwordInput) {
+                if (err) {
+                    err.textContent = "❌ 請輸入帳號與密碼！";
+                    err.style.display = "block";
+                }
+                return;
+            }
+
+            // 讀取 accountsDb (SaaS 帳密中心)
+            const accounts = JSON.parse(localStorage.getItem("accountsDb")) || [
+                { empId: "admin", name: "林總經理", password: "admin123", role: "系統管理員 / 主管", authorizedModules: ["base_brand", "base_hr", "func_employee_cards", "func_work_dispatch", "func_attendance", "func_group_insurance", "func_internal_acc", "func_external_acc", "func_e_invoicing", "func_board_meeting", "func_line_hub", "base_permissions"] },
+                { empId: "accountant", name: "會計淑芬", password: "acc123", role: "會計財務", authorizedModules: ["base_hr", "func_work_dispatch", "func_attendance", "func_internal_acc", "func_external_acc", "func_e_invoicing"] },
+                { empId: "emp101", name: "李志強", password: "emp123", role: "現場同仁 / 領隊", authorizedModules: ["base_hr", "func_attendance", "func_line_hub"] },
+                { empId: "emp102", name: "張憲明", password: "emp123", role: "現場同仁 / 領隊", authorizedModules: ["base_hr", "func_attendance", "func_line_hub"] },
+                { empId: "emp103", name: "王大同", password: "emp123", role: "現場同仁 / 領隊", authorizedModules: ["base_hr", "func_attendance", "func_line_hub"] }
+            ];
+
+            const user = accounts.find(acc => acc.empId === usernameInput && acc.password === passwordInput);
+
+            if (user) {
+                // 成功登入，將使用者資訊存入 sessionStorage，方便 portal.html 直接跳過登入頁面
+                const currentUser = {
+                    empId: user.empId,
+                    name: user.name,
+                    role: user.role,
+                    avatar: user.name.charAt(0),
+                    authorizedModules: user.authorizedModules || []
+                };
+                sessionStorage.setItem("himori_user", JSON.stringify(currentUser));
+                
+                // 關閉門禁並跳轉
+                closeGatekeeper();
+                window.location.href = "portal.html";
+            } else {
+                if (err) {
+                    err.textContent = "❌ 帳號或密碼錯誤，拒絕登入！";
+                    err.style.display = "block";
+                }
+            }
+        }
+
+        // 綁定鍵盤事件以支援 Enter 鍵快速操作
+        setTimeout(() => {
+            const userInp = document.getElementById("gatekeeper-username");
+            const passInp = document.getElementById("gatekeeper-password");
+            if (userInp) {
+                userInp.addEventListener("keydown", function(e) {
+                    if (e.key === "Enter") {
+                        if (passInp) passInp.focus();
+                    }
+                });
+            }
+            if (passInp) {
+                passInp.addEventListener("keydown", function(e) {
+                    if (e.key === "Enter") {
+                        submitGatekeeperLogin();
+                    }
+                });
+            }
+        }, 100);
 
         // 初始化渲染
         window.addEventListener("DOMContentLoaded", () => {
