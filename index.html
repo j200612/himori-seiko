@@ -1213,11 +1213,30 @@
             gap: 1.5rem;
         }
 
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
         .footer-brand-text {
             color: #ffffff;
             font-weight: 700;
             font-size: 1.2rem;
             letter-spacing: 2px;
+        }
+
+        .footer-tax-id {
+            font-size: 0.82rem;
+            color: var(--safety-teal);
+            font-weight: 600;
+            padding: 2px 8px;
+            background: rgba(13, 148, 136, 0.1);
+            border-radius: 4px;
+            border: 1px solid rgba(13, 148, 136, 0.25);
+            letter-spacing: 0.5px;
         }
 
         .footer-spirit {
@@ -1227,30 +1246,6 @@
             letter-spacing: 1px;
             margin: 0.2rem 0;
             text-shadow: 0 0 20px rgba(13, 148, 136, 0.15);
-        }
-
-        .footer-line-section {
-            margin: 0.5rem 0;
-        }
-
-        .btn-footer-line {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: linear-gradient(135deg, #06c755 0%, #05a044 100%);
-            color: #ffffff !important;
-            padding: 0.6rem 1.5rem;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            text-decoration: none;
-            box-shadow: 0 4px 15px rgba(6, 199, 85, 0.25);
-            transition: all 0.3s ease;
-        }
-
-        .btn-footer-line:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(6, 199, 85, 0.45);
         }
 
         .footer-copyright {
@@ -1314,12 +1309,6 @@
                     <li><a href="#partners">合作夥伴</a></li>
                     <li><a href="#contact">聯絡我們</a></li>
                 </ul>
-                <a href="javascript:void(0)" class="btn-portal" onclick="triggerGatekeeperLogin()">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"></path>
-                    </svg>
-                    數位營運中心
-                </a>
             </nav>
         </div>
     </header>
@@ -1618,17 +1607,10 @@
         <div class="footer-container">
             <div class="footer-logo">
                 <span id="footer-brand" class="footer-brand-text">日森精工有限公司</span>
+                <span class="footer-tax-id">統一編號：62097937</span>
             </div>
             <div class="footer-spirit">
                 「與日森精工有限公司並肩同行」
-            </div>
-            <div class="footer-line-section">
-                <a href="javascript:void(0)" onclick="showModal('line')" class="btn-footer-line">
-                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M24 10.3c0-5.2-5.4-9.3-12-9.3S0 5.1 0 10.3c0 4.6 4.3 8.5 10.1 9.2.4.1.9.3 1 .7l.3 2.1c0 .2.2.4.4.4.2 0 .3-.1.4-.2l2.6-2.6c1.7-.6 3.1-1.6 4.1-2.9 3.2-1.8 5.1-4.2 5.1-6.7zM7.5 13H5.8c-.3 0-.5-.2-.5-.5v-4c0-.3.2-.5.5-.5h.5c.3 0 .5.2.5.5v3h.7c.3 0 .5.2.5.5V12.5c0 .3-.2.5-.5.5zm3.8 0h-.5c-.3 0-.5-.2-.5-.5v-4c0-.3.2-.5.5-.5h.5c.3 0 .5.2.5.5v4c0 .3-.2.5-.5.5zm5.5 0h-2.1c-.3 0-.5-.2-.5-.5v-4c0-.3.2-.5.5-.5h2.1c.3 0 .5.2.5.5v.5c0 .3-.2.5-.5.5H15v.7h1.4c.3 0 .5.2.5.5v.5c0 .3-.2.5-.5.5H15v.8h1.8c.3 0 .5.2.5.5v.5c0 .3-.2.5-.5.5zM21.5 13h-2.1c-.3 0-.5-.2-.5-.5v-4c0-.3.2-.5.5-.5h2.1c.3 0 .5.2.5.5v.5c0 .3-.2.5-.5.5h-1.6v.7h1.4c.3 0 .5.2.5.5v.5c0 .3-.2.5-.5.5h-1.4v.8h1.8c.3 0 .5.2.5.5v.5c0 .3-.2.5-.5.5z"/>
-                    </svg>
-                    <span>正式啟用：LINE 官方線上客服</span>
-                </a>
             </div>
             <div id="footer-slogan" style="display:none;"></div>
             <div class="footer-copyright">
