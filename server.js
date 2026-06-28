@@ -42,49 +42,17 @@ const upload = multer({
 // ── 1. 自動注入 Seed Data ──
 async function seedDatabase() {
     try {
-        // A. 注入 Q&A 知識庫
+        // A. 清空 Q&A 知識庫 (回歸乾淨空白狀態)
         const qaCol = firestore.collection('qa_database');
-        const qaSnap = await qaCol.limit(1).get();
-        if (qaSnap.empty) {
-            console.log('🌱 Firestore qa_database 為空，開始注入 Seed Data...');
-            const seedQa = [
-                {
-                    id: 'seed_qa_1',
-                    category: '一般制度',
-                    question: '試用期間多長？',
-                    answer: '日森精工同仁基本試用期間為一個月，考核通過後轉為正式正職同仁。',
-                    keywords: '試用期,試用期間,考核',
-                    time: new Date().toISOString().substring(0, 10)
-                },
-                {
-                    id: 'seed_qa_2',
-                    category: '薪資福利',
-                    question: '薪資中是否有伙食津貼？',
-                    answer: '本公司薪資結構中固定內含 3,000 元伙食津貼，依法免稅。',
-                    keywords: '伙食津貼,伙食費,津貼',
-                    time: new Date().toISOString().substring(0, 10)
-                },
-                {
-                    id: 'seed_qa_3',
-                    category: '薪資福利',
-                    question: '發薪日是哪一天？',
-                    answer: '公司薪資固定於每月 15 日發放，若遇例假日則順延或提前發放。',
-                    keywords: '發薪,發薪日,領薪水,薪水,發放薪資',
-                    time: new Date().toISOString().substring(0, 10)
-                },
-                {
-                    id: 'seed_qa_4',
-                    category: '工會行政',
-                    question: '工會加保表單與申請書下載？',
-                    answer: '工會入會申請書下載路徑為：勞動力工會-入會申請書11501.pdf。王大同 A4 填寫範例對照下載路徑為：勞動力工會-入會申請書11501_範例.pdf。',
-                    keywords: '工會申請書,加保表單,空白申請書,範例',
-                    time: new Date().toISOString().substring(0, 10)
-                }
-            ];
-            for (const item of seedQa) {
-                await qaCol.doc(item.id).set(item);
-            }
-            console.log('✅ qa_database Seed Data 注入成功！');
+        const qaSnap = await qaCol.get();
+        if (!qaSnap.empty) {
+            console.log('🧹 偵測到舊 FAQ 條目，開始徹底抹除大谷保代資料，恢復空白狀態...');
+            const batch = firestore.batch();
+            qaSnap.forEach(doc => batch.delete(doc.ref));
+            await batch.commit();
+            console.log('✅ Firestore qa_database 已完全清空洗淨！');
+        } else {
+            console.log('🌱 Firestore qa_database 已是乾淨空白狀態。');
         }
 
         // B. 注入員工權限名冊 (user_roles)
@@ -141,6 +109,19 @@ app.post('/api/firestore/qa', async (req, res) => {
 app.delete('/api/firestore/qa/:id', async (req, res) => {
     try {
         await firestore.collection('qa_database').doc(req.params.id).delete();
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// FAQ 一鍵清空 API
+app.post('/api/firestore/qa/clear', async (req, res) => {
+    try {
+        const snap = await firestore.collection('qa_database').get();
+        const batch = firestore.batch();
+        snap.forEach(doc => batch.delete(doc.ref));
+        await batch.commit();
         res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: e.message });
