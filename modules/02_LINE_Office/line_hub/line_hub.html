@@ -514,6 +514,20 @@
             padding: 1px;
         }
 
+        .visitor-menu-grid {
+            background: #1e293b;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 54px);
+            gap: 1px;
+            padding: 1px;
+        }
+
+        .visitor-long-btn {
+            grid-column: span 2;
+        }
+
         .rich-btn {
             background: #0f172a;
             border: none;
@@ -1276,19 +1290,23 @@
                                 <tbody>
                                     <tr>
                                         <td>系統管理員 / 主管、總經理</td>
-                                        <td><span class="badge" style="background:rgba(99,102,241,0.2); color:#a5b4fc;">系統主管 (Manager)</span></td>
+                                        <td><span class="badge" style="background:rgba(99,102,241,0.2); color:#a5b4fc;">系統主管 (Manager) — 全權限</span></td>
                                     </tr>
                                     <tr>
                                         <td>工程主任、現場領隊</td>
-                                        <td><span class="badge" style="background:rgba(16,185,129,0.2); color:#6ee7b7;">幹部同仁 (Regular)</span></td>
+                                        <td><span class="badge" style="background:rgba(16,185,129,0.2); color:#6ee7b7;">幹部同仁 (Regular) — 看板與時間線審核</span></td>
                                     </tr>
                                     <tr>
                                         <td>技術同仁、外包人員、點工</td>
-                                        <td><span class="badge" style="background:rgba(2,132,199,0.2); color:#7dd3fc;">外包同仁 (Contractor)</span></td>
+                                        <td><span class="badge" style="background:rgba(2,132,199,0.2); color:#7dd3fc;">外包同仁 (Contractor) — 施工多媒體</span></td>
+                                    </tr>
+                                    <tr style="background: rgba(14, 165, 233, 0.15); border: 1px solid rgba(14, 165, 233, 0.4);">
+                                        <td>⏳ 準同仁 / 線上會員 (進行入職關卡中)</td>
+                                        <td><span class="badge" style="background:rgba(14,165,233,0.2); color:#38bdf8; font-weight: bold;">⏳ 準同仁 / 線上會員 (Member) — 入職闖關 6 功能</span></td>
                                     </tr>
                                     <tr>
-                                        <td>未在名冊上之非正式同仁</td>
-                                        <td><span class="badge" style="background:rgba(245,158,11,0.2); color:#fde047;">訪客 (Guest)</span></td>
+                                        <td>外部訪客、未在名冊上之非正式同仁</td>
+                                        <td><span class="badge" style="background:rgba(245,158,11,0.2); color:#fde047;">訪客 (Guest) — 僅限認證與 FAQ</span></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1331,6 +1349,22 @@
                     <!-- Rich Menu 授權選單 -->
                     <div class="line-rich-menu" id="line-rich-menu-panel">
                         <!-- 動態六宮格 -->
+                    </div>
+
+                    <!-- 訪客專屬 Rich Menu 容器 (3格大版面) -->
+                    <div id="menu-visitor" class="visitor-menu-grid d-none">
+                        <button class="rich-btn visitor-long-btn" onclick="handleVisitorMenuClick('🔑 綁定手機 ✖ 註冊日森會員（入職領證通道）')">
+                            <span class="rich-icon">🔑</span>
+                            <span>綁定手機 ✖ 註冊日森會員（入職領證通道）</span>
+                        </button>
+                        <button class="rich-btn" onclick="handleVisitorMenuClick('🏢 日森精工 官方網站')">
+                            <span class="rich-icon">🏢</span>
+                            <span>日森精工 官方網站</span>
+                        </button>
+                        <button class="rich-btn" onclick="handleVisitorMenuClick('💬 聯絡真人 雲端客服')">
+                            <span class="rich-icon">💬</span>
+                            <span>聯絡真人 雲端客服</span>
+                        </button>
                     </div>
 
                     <!-- 會員專屬 Rich Menu 容器 -->
@@ -1572,6 +1606,9 @@
                     { sender: "system", text: "您好，張憲明 同仁！請問需要什麼協助？" },
                     { sender: "user", text: "今日排班" },
                     { sender: "system", text: "🤖 日森精工 | 今日排班資訊：\n工作案場：台積電F20\n施工分區：6S整理整頓\n領隊：李志強\n出勤日期：2026-06-15" }
+                ]},
+                { id: "emp104", name: "林小新", phone: "0987-654-321", status: "AI 自動回覆中", role: "member", history: [
+                    { sender: "system", text: "歡迎加入日森精工林小新！您目前是【線上會員】，正在進行入職闖關。" }
                 ]}
             ];
 
@@ -2326,6 +2363,7 @@
 
         function getRoleNameZh(role) {
             if (role === 'guest') return '訪客';
+            if (role === 'member') return '準同仁';
             if (role === 'contractor') return '外包同仁';
             if (role === 'regular') return '幹部同仁';
             return '系統主管';
@@ -2364,7 +2402,8 @@
                 employeePhoneList = [
                     { name: "李志強", title: "工程主任 / 領隊", phone: "0923-456-789", verified: true, role: "regular" },
                     { name: "張憲明", title: "拉線組長", phone: "0912-345-678", verified: false, role: "contractor" },
-                    { name: "王大同", title: "技術專員", phone: "0934-567-890", verified: false, role: "contractor" }
+                    { name: "王大同", title: "技術專員", phone: "0934-567-890", verified: false, role: "contractor" },
+                    { name: "林小新", title: "準同仁 / 線上會員", phone: "0987-654-321", verified: false, role: "member" }
                 ];
             }
 
@@ -2387,7 +2426,7 @@
                     </td>
                     <td>
                         <span class="badge" style="background:rgba(255,255,255,0.05); color:#ffffff;">
-                            ${emp.verified ? (emp.role === 'regular' ? '幹部選單' : '外包選單') : '訪客選單'}
+                            ${emp.verified ? (emp.role === 'regular' ? '幹部選單' : (emp.role === 'member' ? '會員選單' : '外包選單')) : '訪客選單'}
                         </span>
                     </td>
                     <td>
@@ -2580,11 +2619,28 @@
             }
         }
 
+        // 訪客專屬 Rich Menu 點擊事件處理
+        function handleVisitorMenuClick(title) {
+            appendLineMessage(`[點選選單] ${title}`, "user");
+            if (title.includes("綁定手機") || title.includes("註冊會員")) {
+                openWebPage("verification");
+                appendLineMessage("🤖 已為您開啟行動手機認證與會員註冊通道，請在右側進行雙因素驗證。", "system");
+            } else if (title.includes("官方網站")) {
+                openWebPage("https://himori-portal-650268834354.asia-east1.run.app");
+                appendLineMessage("🤖 已為您開啟日森精工官方網站首頁。", "system");
+            } else if (title.includes("聯絡真人")) {
+                sendLineUserKeyword("真人接管");
+            }
+        }
+
         // 實體多角色身分切換與面板控制
         function switchMockUser(role) {
-            // 在最前面加入對 menu-member 的隱藏控制
+            // 在最前面加入對 menu-member 與 menu-visitor 的隱藏控制
             const memberMenu = document.getElementById("menu-member");
             if (memberMenu) memberMenu.classList.add('d-none');
+
+            const visitorMenu = document.getElementById("menu-visitor");
+            if (visitorMenu) visitorMenu.classList.add('d-none');
 
             const panel = document.getElementById("line-rich-menu-panel");
             if (panel) panel.classList.remove('d-none');
@@ -2624,8 +2680,14 @@
                 finalRole = verifiedStore["0912-345-678"] ? 'contractor' : 'guest';
             }
 
-            // 重新渲染 Rich Menu
-            renderLineRichMenu(finalRole);
+            // 如果是訪客，隱藏動態選單，顯示 3 格靜態選單
+            if (finalRole === 'guest') {
+                if (panel) panel.classList.add('d-none');
+                if (visitorMenu) visitorMenu.classList.remove('d-none');
+            } else {
+                // 重新渲染 Rich Menu
+                renderLineRichMenu(finalRole);
+            }
             
             // 清除對話紀錄並重製為當前使用者的歷史
             const chatHistory = document.getElementById("line-chat-history");
