@@ -304,7 +304,7 @@
         load() {
             try {
                 // 基本防呆與自動初始化
-                if (!localStorage.getItem("森精工_db_initialized_v4") || !localStorage.getItem("employeeDb") || !JSON.parse(localStorage.getItem("employeeDb"))["李志強"]) {
+                if (!localStorage.getItem("森精工_db_initialized_v5") || !localStorage.getItem("employeeDb") || !JSON.parse(localStorage.getItem("employeeDb"))["李志強"]) {
                     this.reset();
                     return;
                 }
@@ -423,7 +423,7 @@
             this.unionConfig = { ...defaults.unionConfig };
             
             this.save();
-            localStorage.setItem("森精工_db_initialized_v4", "true");
+            localStorage.setItem("森精工_db_initialized_v5", "true");
         }
     };
 

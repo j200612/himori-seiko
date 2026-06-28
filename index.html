@@ -1470,12 +1470,12 @@
     <!-- 與日森精工並肩同行 (CTA / Footer) -->
     <section class="cta-section">
         <div class="cta-container">
-            <h2 id="cta-title" style="font-size: clamp(1.4rem, 3.5vw, 2.2rem); font-weight: 700; letter-spacing: 1.5px; margin-bottom: 2rem; line-height: 1.6;">與日森精工有限公司並肩同行 ｜ HIMORI SEIKO Co., Ltd. —— 安全・合規・韌性・精密</h2>
-            <div class="footer-copyright" style="font-size: 0.8rem; color: #94A3B8; letter-spacing: 0.5px; margin-top: 3rem; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 1.5rem; width: 100%; text-align: center;">
+            <h2 id="cta-title" style="font-size: clamp(1.6rem, 4vw, 2.6rem); font-weight: 700; letter-spacing: 2px; margin-bottom: 0.8rem; line-height: 1.4;">與日森精工有限公司並肩同行</h2>
+            <p id="cta-slogan" style="font-size: clamp(0.95rem, 2vw, 1.15rem); color: #94A3B8; letter-spacing: 1px; margin-bottom: 3.5rem;">HIMORI SEIKO Co., Ltd. —— 安全・合規・韌性・精密</p>
+            <div class="footer-copyright" style="font-size: 0.8rem; color: #64748B; letter-spacing: 0.5px; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 1.5rem; width: 100%; text-align: center;">
                 系統製作：映向行銷（版權所有） | © 2026 HIMORI SEIKO. All Rights Reserved.
             </div>
-            <!-- 隱藏原有的 slogan 與 brand 元素，維持 applyDynamicBranding 動態載入安全 -->
-            <div id="cta-slogan" style="display:none;"></div>
+            <!-- 隱藏原有的 brand 元素，維持 applyDynamicBranding 動態載入安全 -->
             <div id="footer-brand" style="display:none;"></div>
             <div id="footer-slogan" style="display:none;"></div>
         </div>
@@ -1665,9 +1665,12 @@
 
                 // CTA / Footer
                 const ctaTitle = document.getElementById("cta-title");
-                if (ctaTitle) ctaTitle.textContent = `與${HimoriCompanyConfig.name}並肩同行 ｜ ${HimoriCompanyConfig.engName} —— ${HimoriCompanyConfig.slogan}`;
+                if (ctaTitle) ctaTitle.textContent = `與${HimoriCompanyConfig.name}並肩同行`;
                 const ctaSlogan = document.getElementById("cta-slogan");
-                if (ctaSlogan) ctaSlogan.style.display = "none";
+                if (ctaSlogan) {
+                    ctaSlogan.style.display = "block";
+                    ctaSlogan.textContent = `${HimoriCompanyConfig.engName} —— ${HimoriCompanyConfig.slogan}`;
+                }
 
                 // Footer (已移入 cta-section)
                 const footerBrand = document.getElementById("footer-brand");
