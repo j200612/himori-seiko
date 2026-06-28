@@ -13,7 +13,7 @@
         description: "日森精工專注於半導體晶圓廠區、高科技無塵室之6S廠務維護、精密天車軌道安裝校正、機電整合工程與工安合規管理，提供高彈性與高韌性的廠房後勤支援。",
         email: "admin@himori-seiko.com",
         address: "台北市大安區信義路四段1號2樓",
-        taxId: "日森精工有限公司 (統編核准中)",
+        taxId: "日森精工有限公司 62097937",
         cardFront: "modules/02_LINE_Office/employee_cards/card_front.png",
         cardBack: "modules/02_LINE_Office/employee_cards/card_back.png",
         modulesVersionTags: {
