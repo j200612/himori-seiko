@@ -4,7 +4,7 @@
 .gcloudignore
 .dockerignore
 node_modules
-Dockerfile
+
 nginx.conf
 verify_all_syntax.js
 fix_bugs_v2.js
