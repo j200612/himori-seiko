@@ -63,7 +63,8 @@ async function seedDatabase() {
             const seedRoles = [
                 { id: 'emp101', name: '李志強', title: '工程主任 / 領隊', phone: '0923-456-789', role: 'regular', verified: true },
                 { id: 'emp102', name: '張憲明', title: '拉線組長', phone: '0912-345-678', role: 'contractor', verified: false },
-                { id: 'emp103', name: '王大同', title: '技術專員', phone: '0934-567-890', role: 'contractor', verified: false }
+                { id: 'emp103', name: '王大同', title: '技術專員', phone: '0934-567-890', role: 'contractor', verified: false },
+                { id: 'emp104', name: '林小新', title: '準同仁 / 線上會員', phone: '0987-654-321', role: 'member', verified: false }
             ];
             for (const item of seedRoles) {
                 await roleCol.doc(item.phone).set(item);
@@ -218,6 +219,9 @@ app.get('/api/line/chats', async (req, res) => {
                     { sender: "system", text: "您好，張憲明 同仁！請問需要什麼協助？" },
                     { sender: "user", text: "今日排班" },
                     { sender: "system", text: "🤖 日森精工 | 今日排班資訊：\n工作案場：台積電F20\n施工分區：6S整理整頓\n領隊：李志強\n出勤日期：2026-06-15" }
+                ]},
+                { id: "emp104", name: "林小新", phone: "0987-654-321", status: "AI 自動回覆中", role: "member", history: [
+                    { sender: "system", text: "歡迎加入日森精工林小新！您目前是【線上會員】，正在進行入職闖關。" }
                 ]}
             ];
             for (const item of defaults) {

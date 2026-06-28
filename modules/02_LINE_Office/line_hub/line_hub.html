@@ -503,8 +503,8 @@
             color: #94a3b8;
         }
 
-        /* LINE Rich Menu 授權選單 */
-        .line-rich-menu {
+        .line-rich-menu,
+        .rich-menu-grid {
             background: #1e293b;
             border-top: 1px solid rgba(255,255,255,0.05);
             display: grid;
@@ -1304,12 +1304,16 @@
             <div class="phone-frame">
                 <div class="phone-screen line-screen">
                     <div class="line-header">
-                        <div class="line-header-left">
-                            <div class="line-status-dot"></div>
-                            <span style="font-size:0.75rem;">日森精工 官方 LINE 帳號</span>
+                        <div class="line-header-left" style="display:flex; flex-direction:column; align-items:flex-start; line-height:1.2;">
+                            <div style="display:flex; align-items:center; gap:4px;">
+                                <div class="line-status-dot"></div>
+                                <span id="mobile-header-title" style="font-size:0.72rem; font-weight:bold;">日森精工 官方 LINE 帳號</span>
+                            </div>
+                            <span id="mobile-header-status" style="font-size:0.58rem; color:rgba(255,255,255,0.6); padding-left:12px;">線上即時大腦客服</span>
                         </div>
                         <select id="sim-identity-select" style="width:110px; font-size:0.68rem; padding:1px 4px; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.15);" onchange="handleSimIdentityChange()">
                             <option value="guest">訪客身分</option>
+                            <option value="member">⏳ 準同仁 / 線上會員：林小新</option>
                             <option value="contractor">外包：張憲明</option>
                             <option value="regular">幹部/領隊：李志強</option>
                         </select>
@@ -1327,6 +1331,34 @@
                     <!-- Rich Menu 授權選單 -->
                     <div class="line-rich-menu" id="line-rich-menu-panel">
                         <!-- 動態六宮格 -->
+                    </div>
+
+                    <!-- 會員專屬 Rich Menu 容器 -->
+                    <div id="menu-member" class="rich-menu-grid d-none">
+                        <button class="rich-btn" onclick="handleMemberMenuClick('✍️ 填寫基本資料')">
+                            <span class="rich-icon">✍️</span>
+                            <span>填寫基本資料</span>
+                        </button>
+                        <button class="rich-btn" onclick="handleMemberMenuClick('📜 簽署工作意向書')">
+                            <span class="rich-icon">📜</span>
+                            <span>簽署工作意向書</span>
+                        </button>
+                        <button class="rich-btn" onclick="handleMemberMenuClick('🌐 引導申辦職業工會')">
+                            <span class="rich-icon">🌐</span>
+                            <span>引導申辦職業工會</span>
+                        </button>
+                        <button class="rich-btn" onclick="handleMemberMenuClick('🪪 上傳第一階段身分證')">
+                            <span class="rich-icon">🪪</span>
+                            <span>上傳第一階段身分證</span>
+                        </button>
+                        <button class="rich-btn" onclick="handleMemberMenuClick('🏦 上傳薪資存摺封面')">
+                            <span class="rich-icon">🏦</span>
+                            <span>上傳薪資存摺封面</span>
+                        </button>
+                        <button class="rich-btn" onclick="handleMemberMenuClick('⏳ 審核進度 Timeline')">
+                            <span class="rich-icon">⏳</span>
+                            <span>審核進度 Timeline</span>
+                        </button>
                     </div>
 
                     <!-- 輸入框 -->
@@ -1909,6 +1941,7 @@
                 const activeSimUser = document.getElementById("sim-identity-select").value;
                 if ((activeSimUser === 'contractor' && activeChatId === 'emp102') ||
                     (activeSimUser === 'regular' && activeChatId === 'emp101') ||
+                    (activeSimUser === 'member' && activeChatId === 'emp104') ||
                     (activeSimUser === 'guest' && activeChatId === 'guest_123')) {
                     appendLineMessage(text, "system");
                 }
@@ -1925,6 +1958,7 @@
                     const activeSimUser = document.getElementById("sim-identity-select").value;
                     if ((activeSimUser === 'contractor' && activeChatId === 'emp102') ||
                         (activeSimUser === 'regular' && activeChatId === 'emp101') ||
+                        (activeSimUser === 'member' && activeChatId === 'emp104') ||
                         (activeSimUser === 'guest' && activeChatId === 'guest_123')) {
                         appendLineMessage(text, "system");
                     }
@@ -2458,7 +2492,6 @@
                 sendLineUserMessage();
             }
         }
-
         function sendLineUserMessage() {
             const input = document.getElementById("line-chat-input");
             const text = input.value.trim();
@@ -2468,6 +2501,164 @@
             sendLineUserKeyword(text);
         }
 
+        // 手動模擬上傳證照/照片
+        async function triggerMockPhotoUpload() {
+            const activeSimUser = document.getElementById("sim-identity-select").value;
+            const name = activeSimUser === 'guest' ? '訪客同仁' : (activeSimUser === 'regular' ? '李志強' : (activeSimUser === 'member' ? '林小新' : '張憲明'));
+            const phone = activeSimUser === 'guest' ? '—' : (activeSimUser === 'regular' ? '0923-456-789' : (activeSimUser === 'member' ? '0987-654-321' : '0912-345-678'));
+
+            const fileName = prompt("請輸入欲模擬傳送的文件或照片檔案名稱：", "身分證正反面影本.jpg");
+            if (!fileName) return;
+
+            appendLineMessage(`傳送了圖片: ${fileName}`, "user");
+
+            const icon = fileName.includes("存") ? "🏦" : "🪪";
+            const payload = {
+                sender: name,
+                phone: phone,
+                type: fileName,
+                fileUrl: '#',
+                icon: icon
+            };
+
+            const res = await apiRequest('POST', '/api/inbox-media/add', payload);
+            if (res) {
+                await loadDatabaseFromServer();
+            } else {
+                const list = JSON.parse(localStorage.getItem("himori_inbox_media")) || [];
+                const newId = list.length > 0 ? Math.max(...list.map(i => i.id)) + 1 : 1;
+                list.unshift({
+                    id: newId,
+                    sender: name,
+                    phone: phone,
+                    type: fileName,
+                    time: new Date().toISOString().replace('T', ' ').substring(0, 16),
+                    status: "pending",
+                    icon: icon
+                });
+                localStorage.setItem("himori_inbox_media", JSON.stringify(list));
+                renderInboxMedia();
+                renderMobileUploadLogs();
+            }
+
+            setTimeout(() => {
+                appendLineMessage("🤖 已收到您傳送的檔案！已提交給主管進行認證審查。", "system");
+            }, 600);
+        }
+
+        // 模擬切換聊天室身份
+        function handleSimIdentityChange() {
+            const val = document.getElementById("sim-identity-select").value;
+            switchMockUser(val);
+        }
+
+        // 實時更新手機模擬器頂部的標題與狀態
+        function updateMobileHeader(title, status) {
+            const titleEl = document.getElementById("mobile-header-title");
+            const statusEl = document.getElementById("mobile-header-status");
+            if (titleEl) titleEl.textContent = title;
+            if (statusEl) statusEl.textContent = status;
+        }
+
+        // 會員專屬 Rich Menu 點擊事件處理
+        function handleMemberMenuClick(title) {
+            appendLineMessage(`[點選選單] ${title}`, "user");
+            if (title.includes("上傳")) {
+                openWebPage("upload");
+                appendLineMessage("🤖 已為您開啟行動上傳中心，請選擇對應證件或照片上傳。", "system");
+            } else if (title.includes("意向書")) {
+                simulateWebPdfViewer("工作意向書.pdf", "https://storage.googleapis.com/himori-seiko-2006-media/sample_intent.pdf");
+                appendLineMessage("🤖 請在右側預覽器簽署工作意向書 PDF。", "system");
+            } else if (title.includes("工會")) {
+                simulateWebPdfViewer("桃市工會入會申請書.pdf", "https://storage.googleapis.com/himori-seiko-2006-media/%E6%A1%83%E5%B8%82%E5%B7%A5%E6%9C%83%E5%85%A5%E6%9C%83%E7%94%B3%E8%AB%8B%E6%9B%B8.pdf");
+                appendLineMessage("🤖 已為您打開桃園市勞動力工會入會申請預覽。", "system");
+            } else if (title.includes("Timeline")) {
+                openWebPage("upload");
+                appendLineMessage("🤖 已開啟您的入職闖關 Timeline 審核歷史紀錄。", "system");
+            } else {
+                appendLineMessage(`🤖 已收到您的【${title}】申請，正通知幹部對接服務！`, "system");
+            }
+        }
+
+        // 實體多角色身分切換與面板控制
+        function switchMockUser(role) {
+            // 在最前面加入對 menu-member 的隱藏控制
+            const memberMenu = document.getElementById("menu-member");
+            if (memberMenu) memberMenu.classList.add('d-none');
+
+            const panel = document.getElementById("line-rich-menu-panel");
+            if (panel) panel.classList.remove('d-none');
+
+            // 預設標題與狀態
+            updateMobileHeader('日森精工 官方 LINE 帳號', '線上即時大腦客服');
+
+            if (role === 'member') {
+                if (panel) panel.classList.add('d-none');
+                if (memberMenu) memberMenu.classList.remove('d-none');
+                updateMobileHeader('⏳ 準同仁/線上會員：林小新', '日森入職闖關中');
+
+                // 清除對話紀錄並重製為會員林小新的歷史
+                const chatHistory = document.getElementById("line-chat-history");
+                chatHistory.innerHTML = "";
+
+                const welcomeDiv = document.createElement("div");
+                welcomeDiv.className = "msg-bubble system";
+                welcomeDiv.id = "line-welcome-bubble";
+                welcomeDiv.innerHTML = `🤖 歡迎加入日森精工林小新！您目前是【線上會員】，正在進行入職闖關。<br><br>請點擊下方選單完成基本資料、意向書簽署、上傳身分證與薪資存摺封面以開通職務權限！<div class="msg-time">下午 12:00</div>`;
+                chatHistory.appendChild(welcomeDiv);
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+
+                // 網頁模擬器重設
+                closePdfPreview();
+                renderMobileUploadLogs();
+                return;
+            }
+
+            // 原 handleSimIdentityChange 邏輯
+            const verifiedStore = JSON.parse(localStorage.getItem("himori_verified_phones")) || { "0923-456-789": true };
+            
+            let finalRole = 'guest';
+            if (role === 'regular') {
+                finalRole = verifiedStore["0923-456-789"] ? 'regular' : 'guest';
+            } else if (role === 'contractor') {
+                finalRole = verifiedStore["0912-345-678"] ? 'contractor' : 'guest';
+            }
+
+            // 重新渲染 Rich Menu
+            renderLineRichMenu(finalRole);
+            
+            // 清除對話紀錄並重製為當前使用者的歷史
+            const chatHistory = document.getElementById("line-chat-history");
+            chatHistory.innerHTML = "";
+            
+            // 載入歡迎詞
+            const welcomeDiv = document.createElement("div");
+            welcomeDiv.className = "msg-bubble system";
+            welcomeDiv.id = "line-welcome-bubble";
+            welcomeDiv.innerHTML = aiConfig.welcome.replace(/\n/g, '<br>') + `<div class="msg-time">下午 12:00</div>`;
+            chatHistory.appendChild(welcomeDiv);
+
+            // 載入該身分在 `unresolvedChats` 的對話紀錄
+            const chatId = role === 'regular' ? 'emp101' : (role === 'contractor' ? 'emp102' : 'guest_123');
+            const chat = unresolvedChats.find(c => c.id === chatId);
+            if (chat) {
+                chat.history.slice(1).forEach(msg => {
+                    const bubble = document.createElement("div");
+                    bubble.className = `msg-bubble ${msg.sender === 'user' ? 'user' : 'system'}`;
+                    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    bubble.innerHTML = `${escapeHtml(msg.text).replace(/\n/g, '<br>')}<div class="msg-time">${timeStr}</div>`;
+                    chatHistory.appendChild(bubble);
+                });
+            }
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+
+            // 網頁模擬器重設
+            closePdfPreview();
+
+            // 重新渲染上傳歷史紀錄
+            renderMobileUploadLogs();
+        }
+
         async function sendLineUserKeyword(text) {
             appendLineMessage(text, "user");
             
@@ -2475,6 +2666,7 @@
             let chatId = "guest_123";
             if (activeSimUser === 'contractor') chatId = "emp102";
             else if (activeSimUser === 'regular') chatId = "emp101";
+            else if (activeSimUser === 'member') chatId = "emp104";
 
             const res = await apiRequest('POST', '/api/line/message', { chatId, text });
             if (res && res.chat) {
@@ -2526,6 +2718,7 @@
             let currentChatId = "guest_123";
             if (activeSimUser === 'contractor') currentChatId = "emp102";
             else if (activeSimUser === 'regular') currentChatId = "emp101";
+            else if (activeSimUser === 'member') currentChatId = "emp104";
 
             const chat = unresolvedChats.find(c => c.id === currentChatId);
             if (chat) {
@@ -2603,7 +2796,7 @@
             if (bestMatch && bestScore >= threshold) {
                 // 自動帶入動態變數：名稱
                 const activeSimUser = document.getElementById("sim-identity-select").value;
-                const name = activeSimUser === 'guest' ? '訪客同仁' : (activeSimUser === 'regular' ? '李志強' : '張憲明');
+                const name = activeSimUser === 'guest' ? '訪客同仁' : (activeSimUser === 'regular' ? '李志強' : (activeSimUser === 'member' ? '林小新' : '張憲明'));
                 const finalAnswer = bestMatch.answer.replace(/{使用者名稱}/g, name);
                 
                 appendLineMessage(finalAnswer, "system");
@@ -2613,7 +2806,7 @@
                 
                 // 修改對話狀態
                 const activeSimUser = document.getElementById("sim-identity-select").value;
-                let currentChatId = activeSimUser === 'regular' ? 'emp101' : (activeSimUser === 'contractor' ? 'emp102' : 'guest_123');
+                let currentChatId = activeSimUser === 'regular' ? 'emp101' : (activeSimUser === 'contractor' ? 'emp102' : (activeSimUser === 'member' ? 'emp104' : 'guest_123'));
                 
                 const chat = unresolvedChats.find(c => c.id === currentChatId);
                 if (chat) {
@@ -2629,100 +2822,9 @@
             }
         }
 
-        // 手動模擬上傳證照/照片
-        async function triggerMockPhotoUpload() {
-            const activeSimUser = document.getElementById("sim-identity-select").value;
-            const name = activeSimUser === 'guest' ? '訪客同仁' : (activeSimUser === 'regular' ? '李志強' : '張憲明');
-            const phone = activeSimUser === 'guest' ? '—' : (activeSimUser === 'regular' ? '0923-456-789' : '0912-345-678');
 
-            const fileName = prompt("請輸入欲模擬傳送的文件或照片檔案名稱：", "身分證正反面影本.jpg");
-            if (!fileName) return;
 
-            appendLineMessage(`傳送了圖片: ${fileName}`, "user");
 
-            const icon = fileName.includes("存") ? "🏦" : "🪪";
-            const payload = {
-                sender: name,
-                phone: phone,
-                type: fileName,
-                fileUrl: '#',
-                icon: icon
-            };
-
-            const res = await apiRequest('POST', '/api/inbox-media/add', payload);
-            if (res) {
-                await loadDatabaseFromServer();
-            } else {
-                const list = JSON.parse(localStorage.getItem("himori_inbox_media")) || [];
-                const newId = list.length > 0 ? Math.max(...list.map(i => i.id)) + 1 : 1;
-                list.unshift({
-                    id: newId,
-                    sender: name,
-                    phone: phone,
-                    type: fileName,
-                    time: new Date().toISOString().replace('T', ' ').substring(0, 16),
-                    status: "pending",
-                    icon: icon
-                });
-                localStorage.setItem("himori_inbox_media", JSON.stringify(list));
-                renderInboxMedia();
-                renderMobileUploadLogs();
-            }
-
-            setTimeout(() => {
-                appendLineMessage("🤖 已收到您傳送的檔案！已提交給主管進行認證審查。", "system");
-            }, 600);
-        }
-
-        // 模擬切換聊天室身份
-        function handleSimIdentityChange() {
-            const val = document.getElementById("sim-identity-select").value;
-            
-            // 讀取是否已認證
-            const verifiedStore = JSON.parse(localStorage.getItem("himori_verified_phones")) || { "0923-456-789": true };
-            
-            let finalRole = 'guest';
-            if (val === 'regular') {
-                finalRole = verifiedStore["0923-456-789"] ? 'regular' : 'guest';
-            } else if (val === 'contractor') {
-                finalRole = verifiedStore["0912-345-678"] ? 'contractor' : 'guest';
-            }
-
-            // 重新渲染 Rich Menu
-            renderLineRichMenu(finalRole);
-            
-            // 清除對話紀錄並重製為當前使用者的歷史
-            const chatHistory = document.getElementById("line-chat-history");
-            chatHistory.innerHTML = "";
-            
-            // 載入歡迎詞
-            const welcomeDiv = document.createElement("div");
-            welcomeDiv.className = "msg-bubble system";
-            welcomeDiv.id = "line-welcome-bubble";
-            welcomeDiv.innerHTML = aiConfig.welcome.replace(/\n/g, '<br>') + `<div class="msg-time">下午 12:00</div>`;
-            chatHistory.appendChild(welcomeDiv);
-
-            // 載入該身分在 `unresolvedChats` 的對話紀錄
-            const chatId = val === 'regular' ? 'emp101' : (val === 'contractor' ? 'emp102' : 'guest_123');
-            const chat = unresolvedChats.find(c => c.id === chatId);
-            if (chat) {
-                // 跳過第一個歡迎詞
-                chat.history.slice(1).forEach(msg => {
-                    const bubble = document.createElement("div");
-                    bubble.className = `msg-bubble ${msg.sender === 'user' ? 'user' : 'system'}`;
-                    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    bubble.innerHTML = `${escapeHtml(msg.text).replace(/\n/g, '<br>')}<div class="msg-time">${timeStr}</div>`;
-                    chatHistory.appendChild(bubble);
-                });
-            }
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-
-            // 網頁模擬器重設
-            closePdfPreview();
-
-            // 重新渲染上傳歷史紀錄
-            renderMobileUploadLogs();
-        }
 
 
         // ── 10. 模擬器二：行動網頁 & PDF 預覽器功能 ──
@@ -2764,7 +2866,7 @@
             logsContainer.innerHTML = "";
 
             const activeSimUser = document.getElementById("sim-identity-select").value;
-            const name = activeSimUser === 'guest' ? '訪客同仁' : (activeSimUser === 'regular' ? '李志強' : '張憲明');
+            const name = activeSimUser === 'guest' ? '訪客同仁' : (activeSimUser === 'regular' ? '李志強' : (activeSimUser === 'member' ? '林小新' : '張憲明'));
             
             const list = JSON.parse(localStorage.getItem("himori_inbox_media")) || [];
             const myFiles = list.filter(item => item.sender === name);
@@ -2822,8 +2924,8 @@
             if (!file) return;
 
             const activeSimUser = document.getElementById("sim-identity-select").value;
-            const name = activeSimUser === 'guest' ? '訪客同仁' : (activeSimUser === 'regular' ? '李志強' : '張憲明');
-            const phone = activeSimUser === 'guest' ? '—' : (activeSimUser === 'regular' ? '0923-456-789' : '0912-345-678');
+            const name = activeSimUser === 'guest' ? '訪客同仁' : (activeSimUser === 'regular' ? '李志強' : (activeSimUser === 'member' ? '林小新' : '張憲明'));
+            const phone = activeSimUser === 'guest' ? '—' : (activeSimUser === 'regular' ? '0923-456-789' : (activeSimUser === 'member' ? '0987-654-321' : '0912-345-678'));
 
             appendLineMessage(`📤 上傳了文件: ${file.name} (GCS 上傳中...)`, "user");
 
@@ -2878,8 +2980,8 @@
             input.value = "";
 
             const activeSimUser = document.getElementById("sim-identity-select").value;
-            const name = activeSimUser === 'guest' ? '訪客同仁' : (activeSimUser === 'regular' ? '李志強' : '張憲明');
-            const phone = activeSimUser === 'guest' ? '—' : (activeSimUser === 'regular' ? '0923-456-789' : '0912-345-678');
+            const name = activeSimUser === 'guest' ? '訪客同仁' : (activeSimUser === 'regular' ? '李志強' : (activeSimUser === 'member' ? '林小新' : '張憲明'));
+            const phone = activeSimUser === 'guest' ? '—' : (activeSimUser === 'regular' ? '0923-456-789' : (activeSimUser === 'member' ? '0987-654-321' : '0912-345-678'));
 
             appendLineMessage(`📤 傳送說明: ${text}`, "user");
 
@@ -2951,6 +3053,8 @@
                 matchedUser = { name: "張憲明", role: "contractor", id: "emp102", title: "拉線組長" };
             } else if (phone === '0934-567-890' || phone === '0934567890') {
                 matchedUser = { name: "王大同", role: "contractor", id: "emp103", title: "技術專員" };
+            } else if (phone === '0987-654-321' || phone === '0987654321') {
+                matchedUser = { name: "林小新", role: "member", id: "emp104", title: "準同仁 / 線上會員" };
             }
 
             if (!matchedUser) {
@@ -2965,7 +3069,7 @@
             localStorage.setItem("himori_verified_phones", JSON.stringify(verifiedStore));
 
             // 自動登入切換模擬器
-            document.getElementById("sim-identity-select").value = matchedUser.role === 'regular' ? 'regular' : 'contractor';
+            document.getElementById("sim-identity-select").value = matchedUser.role;
             handleSimIdentityChange();
 
             // 通知 LINE 系統綁定成功
