@@ -844,89 +844,7 @@
             box-shadow: 0 10px 25px rgba(6, 199, 85, 0.4);
         }
 
-        /* ════════════════════ 彈出視窗 (Modal) ════════════════════ */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(11, 15, 25, 0.6);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            z-index: 2000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
 
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .modal-box {
-            background-color: var(--cleanroom-white);
-            border-radius: 8px;
-            width: 90%;
-            max-width: 450px;
-            padding: 3rem 2.5rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            border: 1px solid var(--border);
-            text-align: center;
-            transform: scale(0.9) translateY(20px);
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .modal-overlay.active .modal-box {
-            transform: scale(1) translateY(0);
-        }
-
-        .modal-icon {
-            width: 68px;
-            height: 68px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.8rem auto;
-        }
-
-        .modal-icon.green {
-            background-color: rgba(6, 199, 85, 0.1);
-            color: var(--success-line);
-        }
-
-        .modal-box h3 {
-            font-size: 1.5rem;
-            margin-bottom: 0.8rem;
-            color: var(--primary-blue);
-            font-weight: 700;
-        }
-
-        .modal-box p {
-            font-size: 0.95rem;
-            color: var(--text-muted);
-            margin-bottom: 2.2rem;
-            line-height: 1.7;
-        }
-
-        .btn-modal-close {
-            background-color: var(--primary-blue);
-            color: white;
-            border: none;
-            padding: 0.8rem 2.5rem;
-            border-radius: 4px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: var(--transition);
-            width: 100%;
-        }
-
-        .btn-modal-close:hover {
-            background-color: var(--safety-teal);
-        }
 
         /* ════════════════════ 與日森精工並肩前行 (CTA Section) ════════════════════ */
         .cta-section {
@@ -1213,31 +1131,7 @@
             gap: 1.5rem;
         }
 
-        .footer-logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
 
-        .footer-brand-text {
-            color: #ffffff;
-            font-weight: 700;
-            font-size: 1.2rem;
-            letter-spacing: 2px;
-        }
-
-        .footer-tax-id {
-            font-size: 0.82rem;
-            color: var(--safety-teal);
-            font-weight: 600;
-            padding: 2px 8px;
-            background: rgba(13, 148, 136, 0.1);
-            border-radius: 4px;
-            border: 1px solid rgba(13, 148, 136, 0.25);
-            letter-spacing: 0.5px;
-        }
 
         .footer-spirit {
             color: var(--safety-teal);
@@ -1554,45 +1448,24 @@
                         </div>
                         <div class="info-text">
                             <strong>公司統一編號（統一發票開立）</strong>
-                            <span id="contact-tax-id">日森精工有限公司 (統編核准中)</span>
+                            <span id="contact-tax-id">日森精工有限公司 62097937</span>
                         </div>
                     </li>
                 </ul>
             </div>
             
             <div class="contact-action">
-                <h4>LINE 官方線上客服</h4>
-                <p>點擊下方按鈕加入 LINE 官方帳號，即可與線上排班專員或客服客服人員進行 1對1 即時通話、招募諮詢或工務反饋。</p>
-                <button class="contact-line" onclick="showModal('line')">
+                <h4>LINE 官方 AI 智能客服</h4>
+                <p>點擊下方按鈕，即可立即啟動 日森精工 Gemini 24H 智能體。提供您全天候免等待的 AI 智能對話、入職與工務自動化引導、以及無縫交接真人專員的頂級智慧服務。</p>
+                <a href="https://line.me/R/ti/p/@himori" target="_blank" class="contact-line" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
                     <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M24 10.3c0-5.2-5.4-9.3-12-9.3S0 5.1 0 10.3c0 4.6 4.3 8.5 10.1 9.2.4.1.9.3 1 .7l.3 2.1c0 .2.2.4.4.4.2 0 .3-.1.4-.2l2.6-2.6c1.7-.6 3.1-1.6 4.1-2.9 3.2-1.8 5.1-4.2 5.1-6.7zM7.5 13H5.8c-.3 0-.5-.2-.5-.5v-4c0-.3.2-.5.5-.5h.5c.3 0 .5.2.5.5v3h.7c.3 0 .5.2.5.5V12.5c0 .3-.2.5-.5.5zm3.8 0h-.5c-.3 0-.5-.2-.5-.5v-4c0-.3.2-.5.5-.5h.5c.3 0 .5.2.5.5v4c0 .3-.2.5-.5.5zm5.5 0h-2.1c-.3 0-.5-.2-.5-.5v-4c0-.3.2-.5.5-.5h2.1c.3 0 .5.2.5.5v.5c0 .3-.2.5-.5.5H15v.7h1.4c.3 0 .5.2.5.5v.5c0 .3-.2.5-.5.5H15v.8h1.8c.3 0 .5.2.5.5v.5c0 .3-.2.5-.5.5zM21.5 13h-2.1c-.3 0-.5-.2-.5-.5v-4c0-.3.2-.5.5-.5h2.1c.3 0 .5.2.5.5v.5c0 .3-.2.5-.5.5h-1.6v.7h1.4c.3 0 .5.2.5.5v.5c0 .3-.2.5-.5.5h-1.4v.8h1.8c.3 0 .5.2.5.5v.5c0 .3-.2.5-.5.5z"/>
                     </svg>
                     💬 連接 LINE 官方客服
-                </button>
+                </a>
             </div>
         </div>
     </section>
-
-    <!-- 彈出視窗 (Modal Overlay) -->
-    <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
-        <!-- LINE 官方 QR Code 彈出視窗 -->
-        <div class="modal-box" id="modal-line" style="display: none;" onclick="event.stopPropagation()">
-            <div class="modal-icon green">
-                <svg width="34" height="34" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M24 10.3c0-5.2-5.4-9.3-12-9.3S0 5.1 0 10.3c0 4.6 4.3 8.5 10.1 9.2.4.1.9.3 1 .7l.3 2.1c0 .2.2.4.4.4.2 0 .3-.1.4-.2l2.6-2.6c1.7-.6 3.1-1.6 4.1-2.9 3.2-1.8 5.1-4.2 5.1-6.7z"/>
-                </svg>
-            </div>
-            <h3>💬 掃描加入 LINE 官方客服</h3>
-            <p>請開啟您的 LINE 掃描以下 QR Code，即可加入日森精工官方帳號。<br>現場同仁加入後可於 LINE 中打卡、請假、對帳並使用智能問答查詢規章。</p>
-            <div style="background-color: #f1f5f9; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; display: inline-flex; align-items: center; justify-content: center; width: 180px; height: 180px;">
-                <!-- 模擬 QR Code 框 -->
-                <svg width="140" height="140" viewBox="0 0 24 24" fill="currentColor" style="color: #0F172A;">
-                    <path d="M0 0h9v9H0V0zm1 1v7h7V1H1zm10 0h9v9h-9V1zm1 1v7h7V2h-7zM0 11h9v9H0v-9zm1 1v7h7v-7H1zm11 1h2v2h-2v-2zm2 2h2v2h-2v-2zm-2 2h2v2h-2v-2zm4-4h2v2h-2v-2zm2 2h2v2h-2v-2zm-2 2h2v2h-2v-2zm-4-4h2v2h-2v-2zm8-6h2v2h-2V5zm-2 2h2v2h-2V7zm2 2h2v2h-2V9z"/>
-                </svg>
-            </div>
-            <button class="btn-modal-close" onclick="hideAllModals()">關閉視窗</button>
-        </div>
-    </div>
 
     <!-- 與日森精工並肩前行 (CTA) -->
     <section class="cta-section">
@@ -1605,13 +1478,10 @@
     <!-- 頁尾 (Footer) -->
     <footer class="modern-footer">
         <div class="footer-container">
-            <div class="footer-logo">
-                <span id="footer-brand" class="footer-brand-text">日森精工有限公司</span>
-                <span class="footer-tax-id">統一編號：62097937</span>
-            </div>
             <div class="footer-spirit">
                 「與日森精工有限公司並肩同行」
             </div>
+            <div id="footer-brand" style="display:none;"></div>
             <div id="footer-slogan" style="display:none;"></div>
             <div class="footer-copyright">
                 系統製作：映向行銷（版權所有） | © 2026 HIMORI SEIKO. All Rights Reserved.
@@ -1672,29 +1542,7 @@
             });
         });
 
-        // 彈出視窗控制
-        const overlay = document.getElementById('modal-overlay');
-        const modalLine = document.getElementById('modal-line');
 
-        function showModal(type) {
-            overlay.classList.add('active');
-            if (type === 'line') {
-                modalLine.style.display = 'block';
-            }
-        }
-
-        function hideAllModals() {
-            overlay.classList.remove('active');
-            setTimeout(() => {
-                modalLine.style.display = 'none';
-            }, 300);
-        }
-
-        function closeModal(event) {
-            if (event.target === overlay) {
-                hideAllModals();
-            }
-        }
 
         // 動態生成漂浮粒子效果 (Hero 背景)
         function createParticles() {
