@@ -130,6 +130,36 @@ app.post('/api/firestore/qa/clear', async (req, res) => {
     }
 });
 
+// 取得/更新 AI 大腦與歡迎詞配置
+app.get('/api/firestore/ai-config', async (req, res) => {
+    try {
+        const ref = firestore.collection('system_config').doc('ai_config');
+        const doc = await ref.get();
+        if (doc.exists) {
+            res.json(doc.data());
+        } else {
+            res.json({
+                prompt: "你是一個專精於高科技無塵室廠務維護、機電整合工程的智能客服助手，請以親切、專業、精確的口氣回覆日森精工同仁。問答回覆必須依據問答庫，低於相似度則啟動真人接管機制。",
+                confidence: 70,
+                welcome: "🤖 日森精工 | 數位營運指揮中心\n\n感謝您加入「日森精工」官方帳號！我們提供廠房維護、天車天車安裝及工安合規之即時服務。\n\n請點擊下方 Rich Menu 「🔐 認證開通/登入」綁定身分，即可查詢個人排班與假勤資訊。若有任何疑問，可直接打字與我對話。",
+                fallback: "您好，關於薪資計算的細節，這屬於公司的商業機密，小幫手無法直接透露具體數字或公式喔！不過，我很樂意為您查詢您個人的『預估報酬』與『20天工時津貼解鎖進度』。若有疑問請先向行政中心登記。"
+            });
+        }
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.post('/api/firestore/ai-config', async (req, res) => {
+    try {
+        const ref = firestore.collection('system_config').doc('ai_config');
+        await ref.set(req.body, { merge: true });
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 // 員工權限對齊名冊讀取
 app.get('/api/firestore/user-roles', async (req, res) => {
     try {
@@ -441,7 +471,16 @@ app.post('/api/line/message', async (req, res) => {
 
         if (aiReply.includes('[LOW_CONFIDENCE]')) {
             chat.status = '🚨 待真人接管';
-            aiReply = aiReply.replace('[LOW_CONFIDENCE]', '').trim();
+            let fallbackMsg = "抱歉，我不確定這個問題的答案。已經為您通知真人客服接管，請稍候...";
+            try {
+                const configDoc = await firestore.collection('system_config').doc('ai_config').get();
+                if (configDoc.exists && configDoc.data().fallback) {
+                    fallbackMsg = configDoc.data().fallback;
+                }
+            } catch (e) {
+                console.error("Failed to fetch ai_config fallback:", e);
+            }
+            aiReply = fallbackMsg;
         } else {
             chat.status = 'AI 自動回覆中';
         }
@@ -1071,7 +1110,7 @@ app.post('/api/line/webhook', verifyLineSignature, async (req, res) => {
                     aiReply = '已為您通知日森工務真人客服，我們將儘速接入與您對話，請稍候...';
                 } else if (userText === '今日排班') {
                     if (chat.phone !== '—') {
-                        aiReply = `🤖 日森精工 | 今日排班資訊：\n工作案場：台積電F20\n施工分區：6S整理整頓\n領隊：李志強\n出勤日期：2026-06-28`;
+                        aiReply = `🤖 日森精工 | 今日排班資訊：\n工作案場：台積電F20\n施工分區：6S整理整頓\n領隊：邱冠英\n出勤日期：2026-06-28`;
                     } else {
                         aiReply = '您目前尚未進行身份認證，請先點選選單中的「🔑 認證開通」綁定手機。';
                     }
@@ -1080,7 +1119,16 @@ app.post('/api/line/webhook', verifyLineSignature, async (req, res) => {
                     
                     if (aiReply.includes('[LOW_CONFIDENCE]')) {
                         chat.status = '🚨 待真人接管';
-                        aiReply = aiReply.replace('[LOW_CONFIDENCE]', '').trim();
+                        let fallbackMsg = "抱歉，我不確定這個問題的答案。已經為您通知真人客服接管，請稍候...";
+                        try {
+                            const configDoc = await firestore.collection('system_config').doc('ai_config').get();
+                            if (configDoc.exists && configDoc.data().fallback) {
+                                fallbackMsg = configDoc.data().fallback;
+                            }
+                        } catch (e) {
+                            console.error("Failed to fetch ai_config fallback:", e);
+                        }
+                        aiReply = fallbackMsg;
                     } else {
                         chat.status = 'AI 自動回覆中';
                     }

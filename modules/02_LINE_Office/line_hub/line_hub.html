@@ -528,6 +528,10 @@
             grid-column: span 2;
         }
 
+        .d-none {
+            display: none !important;
+        }
+
         .rich-btn {
             background: #0f172a;
             border: none;
@@ -1237,11 +1241,15 @@
 
                     <div class="card" style="margin-bottom:0;">
                         <div class="card-header">
-                            <div class="card-title">💬 LINE 歡迎問候語</div>
+                            <div class="card-title">💬 LINE 歡迎詞與防呆設定</div>
                         </div>
                         <div class="form-group">
                             <label for="ai-welcome">首次加入 LINE 官方帳號的問候語文案</label>
                             <textarea id="ai-welcome" rows="4" placeholder="歡迎加入..."></textarea>
+                        </div>
+                        <div class="form-group" style="margin-top:0.75rem;">
+                            <label for="ai-fallback">未知關鍵字/防呆回應設定（使用者亂打或非關鍵字時的裝傻回覆）</label>
+                            <textarea id="ai-fallback" rows="3" placeholder="請輸入未知關鍵字防呆裝傻訊息..."></textarea>
                         </div>
                         <button class="btn btn-accent" style="margin-top:0.5rem;" onclick="saveAiConfig()">💾 儲存 AI 配置參數</button>
                     </div>
@@ -1332,8 +1340,8 @@
                         <select id="sim-identity-select" style="width:110px; font-size:0.68rem; padding:1px 4px; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.15);" onchange="handleSimIdentityChange()">
                             <option value="guest">訪客身分</option>
                             <option value="member">⏳ 準同仁 / 線上會員：林小新</option>
-                            <option value="contractor">外包：張憲明</option>
-                            <option value="regular">幹部/領隊：李志強</option>
+                            <option value="contractor">承攬：郭怡蘭</option>
+                            <option value="regular">領隊：邱冠英</option>
                         </select>
                     </div>
 
@@ -1551,6 +1559,7 @@
             if (config) {
                 aiConfig = config;
                 localStorage.setItem("himori_ai_config", JSON.stringify(aiConfig));
+                loadAiConfigToUi();
             }
 
             // 載入多媒體收件匣
@@ -1611,15 +1620,11 @@
                 { id: "guest_123", name: "訪客 (未認證)", phone: "—", status: "AI 自動回覆中", role: "guest", history: [
                     { sender: "system", text: "歡迎加入日森精工數位客服平台！請輸入您的問題，或點選下方選單進行身分認證。" }
                 ]},
-                { id: "emp101", name: "李志強", phone: "0923-456-789", status: "🚨 待真人接管", role: "regular", history: [
-                    { sender: "system", text: "您好，李志強 主任！請問需要什麼協助？" },
-                    { sender: "user", text: "我想請問這個月工會保費要季繳多少錢？我好像算不出來。" },
-                    { sender: "system", text: "⚠️ 抱歉，我不確定這個問題的答案。已經為您通知真人客服接管，請稍候..." }
+                { id: "emp101", name: "邱冠英", phone: "0912-345-001", status: "AI 自動回覆中", role: "regular", history: [
+                    { sender: "system", text: "您好，邱冠英 領隊！請問需要什麼協助？" }
                 ]},
-                { id: "emp102", name: "張憲明", phone: "0912-345-678", status: "已解決", role: "contractor", history: [
-                    { sender: "system", text: "您好，張憲明 同仁！請問需要什麼協助？" },
-                    { sender: "user", text: "今日排班" },
-                    { sender: "system", text: "🤖 日森精工 | 今日排班資訊：\n工作案場：台積電F20\n施工分區：6S整理整頓\n領隊：李志強\n出勤日期：2026-06-15" }
+                { id: "emp102", name: "郭怡蘭", phone: "0912-345-002", status: "AI 自動回覆中", role: "contractor", history: [
+                    { sender: "system", text: "您好，郭怡蘭 同仁！請問需要什麼協助？" }
                 ]},
                 { id: "emp104", name: "林小新", phone: "0987-654-321", status: "AI 自動回覆中", role: "member", history: [
                     { sender: "system", text: "歡迎加入日森精工林小新！您目前是【線上會員】，正在進行入職闖關。" }
@@ -2389,12 +2394,14 @@
             document.getElementById("ai-confidence").value = aiConfig.confidence;
             document.getElementById("ai-confidence-lbl").textContent = aiConfig.confidence + "%";
             document.getElementById("ai-welcome").value = aiConfig.welcome;
+            document.getElementById("ai-fallback").value = aiConfig.fallback || "";
         }
 
         async function saveAiConfig() {
             aiConfig.prompt = document.getElementById("ai-prompt").value.trim();
             aiConfig.confidence = parseInt(document.getElementById("ai-confidence").value);
             aiConfig.welcome = document.getElementById("ai-welcome").value.trim();
+            aiConfig.fallback = document.getElementById("ai-fallback").value.trim();
 
             saveDatabase();
             await apiRequest('POST', '/api/firestore/ai-config', aiConfig);
@@ -2418,14 +2425,14 @@
 
             if (!employeePhoneList || employeePhoneList.length === 0) {
                 employeePhoneList = [
-                    { name: "李志強", title: "工程主任 / 領隊", phone: "0923-456-789", verified: true, role: "regular" },
-                    { name: "張憲明", title: "拉線組長", phone: "0912-345-678", verified: false, role: "contractor" },
-                    { name: "王大同", title: "技術專員", phone: "0934-567-890", verified: false, role: "contractor" },
+                    { name: "邱冠英", title: "現場同仁 / 領隊", phone: "0912-345-001", verified: true, role: "regular" },
+                    { name: "郭怡蘭", title: "工種:6S / 承攬夥伴", phone: "0912-345-002", verified: true, role: "contractor" },
+                    { name: "萬昱賢", title: "工種:6S / 承攬夥伴", phone: "0912-345-003", verified: true, role: "contractor" },
                     { name: "林小新", title: "準同仁 / 線上會員", phone: "0987-654-321", verified: false, role: "member" }
                 ];
             }
 
-            const verifiedStore = JSON.parse(localStorage.getItem("himori_verified_phones")) || { "0923-456-789": true };
+            const verifiedStore = JSON.parse(localStorage.getItem("himori_verified_phones")) || { "0912-345-001": true, "0912-345-002": true, "0912-345-003": true };
             
             employeePhoneList.forEach(emp => {
                 if (emp.verified === undefined) {
@@ -2561,8 +2568,8 @@
         // 手動模擬上傳證照/照片
         async function triggerMockPhotoUpload() {
             const activeSimUser = document.getElementById("sim-identity-select").value;
-            const name = activeSimUser === 'guest' ? '訪客同仁' : (activeSimUser === 'regular' ? '李志強' : (activeSimUser === 'member' ? '林小新' : '張憲明'));
-            const phone = activeSimUser === 'guest' ? '—' : (activeSimUser === 'regular' ? '0923-456-789' : (activeSimUser === 'member' ? '0987-654-321' : '0912-345-678'));
+            const name = activeSimUser === 'guest' ? '訪客同仁' : (activeSimUser === 'regular' ? '邱冠英' : (activeSimUser === 'member' ? '林小新' : '郭怡蘭'));
+            const phone = activeSimUser === 'guest' ? '—' : (activeSimUser === 'regular' ? '0912-345-001' : (activeSimUser === 'member' ? '0987-654-321' : '0912-345-002'));
 
             const fileName = prompt("請輸入欲模擬傳送的文件或照片檔案名稱：", "身分證正反面影本.jpg");
             if (!fileName) return;
@@ -2875,7 +2882,7 @@
             if (bestMatch && bestScore >= threshold) {
                 // 自動帶入動態變數：名稱
                 const activeSimUser = document.getElementById("sim-identity-select").value;
-                const name = activeSimUser === 'guest' ? '訪客同仁' : (activeSimUser === 'regular' ? '李志強' : (activeSimUser === 'member' ? '林小新' : '張憲明'));
+                const name = activeSimUser === 'guest' ? '訪客同仁' : (activeSimUser === 'regular' ? '邱冠英' : (activeSimUser === 'member' ? '林小新' : '郭怡蘭'));
                 const finalAnswer = bestMatch.answer.replace(/{使用者名稱}/g, name);
                 
                 appendLineMessage(finalAnswer, "system");
@@ -2945,7 +2952,7 @@
             logsContainer.innerHTML = "";
 
             const activeSimUser = document.getElementById("sim-identity-select").value;
-            const name = activeSimUser === 'guest' ? '訪客同仁' : (activeSimUser === 'regular' ? '李志強' : (activeSimUser === 'member' ? '林小新' : '張憲明'));
+            const name = activeSimUser === 'guest' ? '訪客同仁' : (activeSimUser === 'regular' ? '邱冠英' : (activeSimUser === 'member' ? '林小新' : '郭怡蘭'));
             
             const list = JSON.parse(localStorage.getItem("himori_inbox_media")) || [];
             const myFiles = list.filter(item => item.sender === name);
@@ -3003,8 +3010,8 @@
             if (!file) return;
 
             const activeSimUser = document.getElementById("sim-identity-select").value;
-            const name = activeSimUser === 'guest' ? '訪客同仁' : (activeSimUser === 'regular' ? '李志強' : (activeSimUser === 'member' ? '林小新' : '張憲明'));
-            const phone = activeSimUser === 'guest' ? '—' : (activeSimUser === 'regular' ? '0923-456-789' : (activeSimUser === 'member' ? '0987-654-321' : '0912-345-678'));
+            const name = activeSimUser === 'guest' ? '訪客同仁' : (activeSimUser === 'regular' ? '邱冠英' : (activeSimUser === 'member' ? '林小新' : '郭怡蘭'));
+            const phone = activeSimUser === 'guest' ? '—' : (activeSimUser === 'regular' ? '0912-345-001' : (activeSimUser === 'member' ? '0987-654-321' : '0912-345-002'));
 
             appendLineMessage(`📤 上傳了文件: ${file.name} (GCS 上傳中...)`, "user");
 
@@ -3059,8 +3066,8 @@
             input.value = "";
 
             const activeSimUser = document.getElementById("sim-identity-select").value;
-            const name = activeSimUser === 'guest' ? '訪客同仁' : (activeSimUser === 'regular' ? '李志強' : (activeSimUser === 'member' ? '林小新' : '張憲明'));
-            const phone = activeSimUser === 'guest' ? '—' : (activeSimUser === 'regular' ? '0923-456-789' : (activeSimUser === 'member' ? '0987-654-321' : '0912-345-678'));
+            const name = activeSimUser === 'guest' ? '訪客同仁' : (activeSimUser === 'regular' ? '邱冠英' : (activeSimUser === 'member' ? '林小新' : '郭怡蘭'));
+            const phone = activeSimUser === 'guest' ? '—' : (activeSimUser === 'regular' ? '0912-345-001' : (activeSimUser === 'member' ? '0987-654-321' : (activeSimUser === 'contractor' ? '0912-345-002' : '—')));
 
             appendLineMessage(`📤 傳送說明: ${text}`, "user");
 
@@ -3126,12 +3133,12 @@
 
             // 對齊員工資料庫
             let matchedUser = null;
-            if (phone === '0923-456-789' || phone === '0923456789') {
-                matchedUser = { name: "李志強", role: "regular", id: "emp101", title: "工程主任 / 領隊" };
-            } else if (phone === '0912-345-678' || phone === '0912345678') {
-                matchedUser = { name: "張憲明", role: "contractor", id: "emp102", title: "拉線組長" };
-            } else if (phone === '0934-567-890' || phone === '0934567890') {
-                matchedUser = { name: "王大同", role: "contractor", id: "emp103", title: "技術專員" };
+            if (phone === '0912-345-001' || phone === '0912345001') {
+                matchedUser = { name: "邱冠英", role: "regular", id: "emp101", title: "現場同仁 / 領隊" };
+            } else if (phone === '0912-345-002' || phone === '0912345002') {
+                matchedUser = { name: "郭怡蘭", role: "contractor", id: "emp102", title: "工種:6S / 承攬夥伴" };
+            } else if (phone === '0912-345-003' || phone === '0912345003') {
+                matchedUser = { name: "萬昱賢", role: "contractor", id: "emp103", title: "工種:6S / 承攬夥伴" };
             } else if (phone === '0987-654-321' || phone === '0987654321') {
                 matchedUser = { name: "林小新", role: "member", id: "emp104", title: "準同仁 / 線上會員" };
             }
