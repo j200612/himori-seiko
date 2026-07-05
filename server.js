@@ -331,6 +331,7 @@ async function processUserMessageWithGemini(userId, text, chat) {
     const userPhone = (chat.phone || "").replace(/-/g, "").trim();
     const isAdmin = (userPhone === "0937581112");
 
+    let partnerInfoContext = "";
     if (userPhone === '0912345001' || (chat.formData && chat.formData.phone && chat.formData.phone.replace(/-/g, '') === '0912345001')) {
         partnerInfoContext = `邱冠英本人資訊：預估報酬：出工 22 天 × 日薪 2400 = 52800 元（介紹費已永久取消歸零）。20 天津貼解鎖進度：22 天，已達成目標。`;
     } else if (userPhone === '0912345002' || (chat.formData && chat.formData.phone && chat.formData.phone.replace(/-/g, '') === '0912345002')) {
