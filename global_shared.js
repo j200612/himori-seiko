@@ -145,9 +145,9 @@
         params: { otRate: 1.5, holidayRate: 1.5, leadRate: 100, bonusDays: 22, bonusAmount: 3000 },
         tradesDb: { "6S": 2400, "拉線工程": 2500, "接線工程": 2800 },
         employeeDb: {
-            "邱冠英": { specialty: "6S", transAllow: 0, lodgAllow: 0, profAllow: 0, isLead: false, laborType: "contract", dailyRate: 2400, referrer: null },
-            "郭怡蘭": { specialty: "6S", transAllow: 0, lodgAllow: 0, profAllow: 0, isLead: false, laborType: "contract", dailyRate: 1950, referrer: "邱冠英" },
-            "萬昱賢": { specialty: "6S", transAllow: 2000, lodgAllow: 3000, profAllow: 0, isLead: false, laborType: "contract", dailyRate: 1700, referrer: "邱冠英" }
+            "邱冠英": { specialty: "6S", transAllow: 0, lodgAllow: 0, profAllow: 0, isLead: false, laborType: "contract", dailyRate: 2400, referrer: null, phone: "0912-345-001", cardNo: "HIMORI-QA-001", idImages: { front: "encrypted_id_front_hash_qiu", back: "encrypted_id_back_hash_qiu" } },
+            "郭怡蘭": { specialty: "6S", transAllow: 0, lodgAllow: 0, profAllow: 0, isLead: false, laborType: "contract", dailyRate: 1950, referrer: null, phone: "0912-345-002", cardNo: "HIMORI-QA-002", idImages: { front: "encrypted_id_front_hash_guo", back: "encrypted_id_back_hash_guo" } },
+            "萬昱賢": { specialty: "6S", transAllow: 2000, lodgAllow: 3000, profAllow: 0, isLead: false, laborType: "contract", dailyRate: 1700, referrer: null, phone: "0912-345-003", cardNo: "HIMORI-QA-003", idImages: { front: "encrypted_id_front_hash_wan", back: "encrypted_id_back_hash_wan" } }
         },
         rosterDb: [
             { date: "2026-06-12", createdDate: "2026-06-10", name: "邱冠英", site: "村田機械", zone: "6S整理整頓", status: "已接受" },
@@ -212,19 +212,19 @@
             { empId: "萬昱賢", name: "萬昱賢", password: "emp", role: "現場同仁 / 領隊", authorizedModules: ["base_hr", "func_attendance", "func_line_hub"] }
         ],
         cardsDb: {
-            "張憲明": { enabled: true, title: "拉線組長", phone: "0912-345-678", address: "台北市大安區信義路四段1號2樓" },
-            "李志強": { enabled: true, title: "工程主任 / 領隊", phone: "0923-456-789", address: "台北市大安區信義路四段1號2樓" },
-            "王大同": { enabled: false, title: "技術專員", phone: "0934-567-890", address: "台北市大安區信義row四段1號2樓" }
+            "郭怡蘭": { enabled: true, title: "工種:6S / 承攬夥伴", phone: "0912-345-002", address: "彰化縣" },
+            "邱冠英": { enabled: true, title: "工種:6S / 核心幹部", phone: "0912-345-001", address: "台中市" },
+            "萬昱賢": { enabled: true, title: "工種:6S / 承攬夥伴", phone: "0912-345-003", address: "台中市" }
         },
         insurancesDb: {
-            "張憲明": { status: "basic", increasedAmount: 0, history: [
+            "郭怡蘭": { status: "basic", increasedAmount: 0, history: [
                 { date: "2026-06-12", type: "基本保險加保", status: "已完成" }
             ]},
-            "李志強": { status: "increased", increasedAmount: 3000000, history: [
+            "邱冠英": { status: "increased", increasedAmount: 3000000, history: [
                 { date: "2026-06-12", type: "基本保險加保", status: "已完成" },
                 { date: "2026-06-15", type: "增額保險加保 (300萬)", status: "已完成" }
             ]},
-            "王大同": { status: "none", increasedAmount: 0, history: [] }
+            "萬昱賢": { status: "none", increasedAmount: 0, history: [] }
         },
         invoicesDb: [
             { invoiceNo: "AB-87654321", date: "2026-06-16", customerName: "台積電", taxId: "24436181", amount: 150000, tax: 7500, status: "valid", period: "115年 05-06月", taxType: "taxable", format: "three-way", items: [
@@ -232,10 +232,9 @@
             ]}
         ],
         intentDb: [
-            { name: "張憲明", phone: "0912-345-678", step: "completed", idno: "A123456789", bankNo: "013", bankAcct: "123456789012", signDate: "2026-06-12", status: "已核准" },
-            { name: "李志強", phone: "0923-456-789", step: "completed", idno: "B123456789", bankNo: "700", bankAcct: "123456789012", signDate: "2026-06-12", status: "已核准" },
-            { name: "王大同", phone: "0934-567-890", step: "signed", idno: "C123456789", bankNo: "007", bankAcct: "123456789012", signDate: "2026-06-15", status: "待審核" },
-            { name: "陳小兵", phone: "0955-123-456", step: "registered", idno: "", bankNo: "", bankAcct: "", signDate: "", status: "增員中" }
+            { name: "郭怡蘭", phone: "0912-345-002", step: "completed", idno: "N223456789", bankNo: "013", bankAcct: "123456789012", signDate: "2026-06-12", status: "已核准" },
+            { name: "邱冠英", phone: "0912-345-001", step: "completed", idno: "B123456789", bankNo: "700", bankAcct: "123456789012", signDate: "2026-06-12", status: "已核准" },
+            { name: "萬昱賢", phone: "0912-345-003", step: "signed", idno: "L123456789", bankNo: "007", bankAcct: "123456789012", signDate: "2026-06-15", status: "已核准" }
         ],
         qaDb: [
             { question: "請假手續與考評扣除規定", keyword: "請假", answer: "請假規定：同仁請假應提前於一日前下午18:00前，由LINE或系統提交假單；若臨時生病/突發狀況需於當天早上07:30前告知。未提供合格證明之請假，將扣除當月考評分數及全勤津貼累計天數。" },
@@ -343,7 +342,7 @@
         load() {
             try {
                 // 基本防呆與自動初始化
-                if (!localStorage.getItem("森精工_db_initialized_v6") || !localStorage.getItem("employeeDb") || !JSON.parse(localStorage.getItem("employeeDb"))["李志強"]) {
+                if (!localStorage.getItem("森精工_db_initialized_v6") || !localStorage.getItem("employeeDb") || !JSON.parse(localStorage.getItem("employeeDb"))["邱冠英"]) {
                     this.reset();
                     return;
                 }
