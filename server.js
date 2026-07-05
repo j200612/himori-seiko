@@ -551,6 +551,74 @@ app.post('/api/admin/display-settings', async (req, res) => {
     }
 });
 
+// 新增發薪與請款對帳前端頁面
+app.get('/admin/billing-payroll', (req, res) => {
+  res.sendFile(path.join(__dirname, 'modules/03_Payroll_Office/billing_payroll.html'));
+});
+
+// 新增發薪與請款對帳 API
+app.get('/api/admin/billing-payroll', async (req, res) => {
+  try {
+    const year = parseInt(req.query.year) || new Date().getFullYear();
+    const month = parseInt(req.query.month) || (new Date().getMonth() + 1);
+    const start = new Date(year, month - 1, 1);
+    const end = new Date(year, month, 0);
+    const logs = HimuriDb.attendanceLogs.filter(l => {
+      const d = new Date(l.date);
+      return d >= start && d <= end;
+    });
+    const employees = HimuriDb.employeeDb;
+    const details = [];
+    let totalExternal = 0, totalInternal = 0;
+    for (const name in employees) {
+      const emp = employees[name];
+      const empLogs = logs.filter(l => l.name === name);
+      const workDays = new Set();
+      let totalHours = 0;
+      let overtimePay = 0;
+      empLogs.forEach(l => {
+        workDays.add(l.date);
+        totalHours += l.hours;
+        const extra = Math.max(0, l.hours - 8);
+        if (extra > 0) {
+          const day = new Date(l.date).getDay();
+          if (day === 0) {
+            overtimePay += extra * 600;
+          } else if (day === 6) {
+            const firstTwo = Math.min(2, extra);
+            const rest = extra - firstTwo;
+            overtimePay += firstTwo * 399 + rest * 498;
+          } else {
+            overtimePay += extra * 399;
+          }
+        }
+      });
+      const daysCount = workDays.size;
+      const absentHours = Math.max(0, daysCount * 8 - totalHours);
+      const external = 2400 * daysCount - 300 * absentHours + overtimePay;
+      const internal = emp.dailyRate * daysCount;
+      let special = 0;
+      if (name === '萬昱賢') {
+        if (year === 2026 && month === 6) {
+          special = 500 + 1000;
+        } else if (daysCount >= 20) {
+          special = 2000 + 3000;
+        }
+      }
+      const net = external - internal - special;
+      totalExternal += external;
+      totalInternal += internal;
+      details.push({ name, external, internal, special, net });
+    }
+    const netProfit = totalExternal - totalInternal;
+    const result = { totalExternal, totalInternal, netProfit, details };
+    // TODO: auditLog.record('billing-payroll', { user: req.user?.id, query: req.query, resultSummary: result });
+    res.json(result);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // 主管審查核准 API
 app.post('/api/admin/approve-profile', async (req, res) => {
     try {

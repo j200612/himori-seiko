@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>發薪與請款對帳模組</title>
+  <link rel="stylesheet" href="/styles/payroll.css">
+  <style>
+    :root {
+      --primary-bg: #2c3e50;
+      --secondary-bg: #34495e;
+      --text-color: #ecf0f1;
+      --accent: #e74c3c;
+    }
+    body {margin:0; font-family: 'Microsoft JhengHei', sans-serif; background:#f0f2f5; color:#333;}
+    .container {max-width:1200px;margin:auto;padding:20px;}
+    h1 {color:var(--primary-bg);}
+    .controls {display:flex;gap:10px;margin-bottom:20px;align-items:center;}
+    select {padding:6px 10px;border:1px solid #ccc;border-radius:4px;}
+    button {padding:6px 12px;background:var(--primary-bg);color:#fff;border:none;border-radius:4px;cursor:pointer;}
+    table {width:100%;border-collapse:collapse;}
+    th,td {border:1px solid #ddd;padding:8px;word-break:break-word;white-space:normal;}
+    th {background:var(--secondary-bg);color:#fff;}
+    .summary {margin-top:20px;padding:10px;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,0.1);}
+    .alert {color:var(--accent);font-weight:bold;}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>發薪與請款對帳模組</h1>
+    <div class="controls">
+      <label for="yearSelect">年份：</label>
+      <select id="yearSelect"></select>
+      <label for="monthSelect">月份：</label>
+      <select id="monthSelect"></select>
+      <button id="loadBtn">載入資料</button>
+    </div>
+    <div class="summary" id="summaryBox"></div>
+    <table id="payrollTable">
+      <thead>
+        <tr>
+          <th>姓名</th>
+          <th>外部請款 (元)</th>
+          <th>內部報酬 (元)</th>
+          <th>特准 (元)</th>
+          <th>淨毛利 (元)</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <script>
+    const yearSelect=document.getElementById('yearSelect');
+    const monthSelect=document.getElementById('monthSelect');
+    const loadBtn=document.getElementById('loadBtn');
+    const summaryBox=document.getElementById('summaryBox');
+    const tableBody=document.querySelector('#payrollTable tbody');
+    const curYear=new Date().getFullYear();
+    for(let y=2026;y<=curYear+1;y++){
+      const opt=document.createElement('option');opt.value=y;opt.textContent=y;yearSelect.appendChild(opt);
+    }
+    for(let m=1;m<=12;m++){
+      const opt=document.createElement('option');opt.value=m;opt.textContent=m;monthSelect.appendChild(opt);
+    }
+    yearSelect.value=curYear; monthSelect.value=new Date().getMonth()+1;
+    loadBtn.addEventListener('click',()=>{fetchData();});
+    async function fetchData(){
+      const year=yearSelect.value; const month=monthSelect.value;
+      const res=await fetch(`/api/admin/billing-payroll?year=${year}&month=${month}`);
+      const data=await res.json();
+      render(data);
+    }
+    function render(data){
+      summaryBox.innerHTML=`<p>晶廷請款總額：<span class="alert">${data.totalExternal}</span> 元 | 同仁報酬總額(含津貼)：<span class="alert">${data.totalInternal}</span> 元 | 公司當月淨毛利：<span class="alert">${data.netProfit}</span> 元`;
+      tableBody.innerHTML='';
+      data.details.forEach(d=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td>${d.name}</td><td>${d.external}</td><td>${d.internal}</td><td>${d.special}</td><td>${d.net}</td>`;
+        tableBody.appendChild(tr);
+      });
+    }
+  </script>
+</body>
+</html>
