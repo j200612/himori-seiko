@@ -57,20 +57,17 @@ async function seedDatabase() {
 
         // B. 注入員工權限名冊 (user_roles)
         const roleCol = firestore.collection('user_roles');
-        const roleSnap = await roleCol.limit(1).get();
-        if (roleSnap.empty) {
-            console.log('🌱 Firestore user_roles 為空，開始注入 Seed Data...');
-            const seedRoles = [
-                { id: 'emp101', name: '李志強', title: '工程主任 / 領隊', phone: '0923-456-789', role: 'regular', verified: true },
-                { id: 'emp102', name: '張憲明', title: '拉線組長', phone: '0912-345-678', role: 'contractor', verified: false },
-                { id: 'emp103', name: '王大同', title: '技術專員', phone: '0934-567-890', role: 'contractor', verified: false },
-                { id: 'emp104', name: '林小新', title: '準同仁 / 線上會員', phone: '0987-654-321', role: 'member', verified: false }
-            ];
-            for (const item of seedRoles) {
-                await roleCol.doc(item.phone).set(item);
-            }
-            console.log('✅ user_roles Seed Data 注入成功！');
+        console.log('🌱 開始注入最高管理員與承攬團隊 Seed Data...');
+        const seedRoles = [
+            { id: 'admin01', name: '羅玉軒', title: '總裁', phone: '0937581112', role: 'admin', verified: true, otpEnabled: true },
+            { id: 'emp201', name: '邱冠英', title: '工種:6S / 承攬夥伴', phone: '0912345001', role: 'contractor', dailyRate: 2400, verified: true },
+            { id: 'emp202', name: '郭怡蘭', title: '工種:6S / 承攬夥伴', phone: '0912345002', role: 'contractor', dailyRate: 1950, verified: true },
+            { id: 'emp203', name: '萬昱賢', title: '工種:6S / 承攬夥伴', phone: '0912345003', role: 'contractor', dailyRate: 1700, verified: true }
+        ];
+        for (const item of seedRoles) {
+            await roleCol.doc(item.phone).set(item, { merge: true });
         }
+        console.log('✅ user_roles Seed Data 注入/更新成功！');
     } catch (e) {
         console.error('Seed database error:', e);
     }
@@ -327,10 +324,33 @@ async function processUserMessageWithGemini(userId, text, chat) {
         return aiReply;
     }
 
+    const userPhone = (chat.phone || "").replace(/-/g, "").trim();
+    const isAdmin = (userPhone === "0937581112");
+
+    let partnerInfoContext = "";
+    if (userPhone === '0912345001' || (chat.formData && chat.formData.phone && chat.formData.phone.replace(/-/g, '') === '0912345001')) {
+        partnerInfoContext = `邱冠英本人資訊：預估報酬：出工 22 天 × 日薪 2400 = 52800 元，加計介紹人津貼（郭怡蘭 22 天 + 萬昱賢 8 天，共 30 天 × 100 = 3000 元），總計 55800 元。20 天津貼解鎖進度：22 天，已達成目標。`;
+    } else if (userPhone === '0912345002' || (chat.formData && chat.formData.phone && chat.formData.phone.replace(/-/g, '') === '0912345002')) {
+        partnerInfoContext = `郭怡蘭本人資訊：預估報酬：出工 22 天 × 日薪 1950 = 42900 元。20 天津貼解鎖進度：22 天，無常態津貼。`;
+    } else if (userPhone === '0912345003' || (chat.formData && chat.formData.phone && chat.formData.phone.replace(/-/g, '') === '0912345003')) {
+        partnerInfoContext = `萬昱賢本人資訊：預估報酬：出工 8 天 × 日薪 1700 = 13600 元，加計 6 月特准部分津貼（保險補貼 500 + 房租津貼 1000 = 1500 元），總計 15100 元。20 天津貼解鎖進度：8 天（因總裁特准破月，已直接解鎖部分津貼，免受常態 20 天門檻限制）。`;
+    }
+
+    const gagFirewallRule = isAdmin ? 
+        `【管理員權限已啟動】：目前使用者是最高管理員「羅玉軒」（0937581112），您可以回答任何關於請款單價（平日基本 $2400、平日加班 $399/HR、週六前兩小時 $399/HR，第三小時起 $498/HR、週日與假日 $600/HR，每月10日前自動產出請款書）、所有承攬夥伴的津貼發放內幕與薪資明細的詢問。` :
+        `【封口令安全防線已被剛性觸發】：目前使用者不是管理員，而是普通同仁。
+如果使用者詢問敏感的請款單價（引發如：平日 $2400、平日加班 $399、週六前 2 小時 $399、第 3 小時起 $498、週日與假日 $600）、他人的津貼與薪資細節、或核心請款公式等：
+1. 你必須【剛性拒絕並裝傻】，絕不透露任何具體數字、請款單價或公式！你可以幽默地說這是商業機密或開玩笑帶過，或委婉拒絕。
+2. 你【只能】提供該同仁查詢本人的『預估報酬』與『20天工時津貼解鎖進度』，以下為該同仁本人的授權資料：
+${partnerInfoContext || "（查無此人 6 月授權資料，請引導同仁向行政中心登記）"}`;
+
     const fieldsState = JSON.stringify(chat.formData, null, 2);
     const prompt = `你是一個專為日森精工 (Himori Seiko) 設計的官方帳號智能客服助理大腦。
 你目前正在引導同仁填寫身分認證表格（必要欄位包括：姓名 name, 手機 phone, 生日 birthday, 地址 address, 身分證字號 idNumber, 緊急聯絡人 emergencyContact）。
 請閱讀當前表格填寫狀態與使用者輸入：
+
+【資安與權限規範】：
+${gagFirewallRule}
 
 【當前表格狀態】：
 ${fieldsState}
@@ -342,9 +362,9 @@ ${kbContent}
 ${text}
 
 【你的任務】：
-1. 判斷使用者輸入中是否包含上述 6 個欄位中任何漏填的資訊。如果有，請在 JSON 的 extractedData 中提取出來（繁體中文，格式需工整）。
+1. 判斷使用者輸入中是否包含上述 6 個欄位中任何漏填的資訊。如果有，請在 JSON の extractedData 中提取出來（繁體中文，格式需工整）。
 2. 檢查哪些欄位仍然是空的。
-3. 如果使用者問的是一般 FAQ 問題（例如詢問公司制度、福利等），且你可以從【知識庫內容】中找到精確答案，請在 reply 中直接親切地回答問題。
+3. 如果使用者問的是敏感的資安保護資料且非管理員，請確實依據【資安與權限規範】進行拒絕。如果使用者問的是一般 FAQ 問題（例如詢問公司制度、福利等），且你可以從【知識庫內容】中找到精確答案，請在 reply 中直接親切地回答問題。
 4. 如果使用者不是問 FAQ，或者回答了你之前問的表格資訊：
    - 如果還有空的必要欄位，請選取【其中一個】空欄位，用親切、引導的語氣詢問同仁（例如：『請問您的手機號碼是多少呢？』）。
    - 如果所有欄位都填滿了，請親切地告訴他：「您的基本資料已經填寫完整，我們會送交主管審核，謝謝您！」。

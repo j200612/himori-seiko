@@ -143,43 +143,73 @@
     // 預設資料庫參數
     const defaults = {
         params: { otRate: 1.5, holidayRate: 1.5, leadRate: 100, bonusDays: 22, bonusAmount: 3000 },
-        tradesDb: { "拉線工程": 2500, "接線工程": 2800, "軌道安裝": 2200 },
+        tradesDb: { "6S": 2400, "拉線工程": 2500, "接線工程": 2800 },
         employeeDb: {
-            "張憲明": { specialty: "拉線工程", transAllow: 1000, lodgAllow: 0, profAllow: 500, isLead: false, laborType: "contract" },
-            "李志強": { specialty: "接線工程", transAllow: 1000, lodgAllow: 2000, profAllow: 1000, isLead: true, laborType: "hire" },
-            "王大同": { specialty: "軌道安裝", transAllow: 0, lodgAllow: 0, profAllow: 0, isLead: false, laborType: "contract" }
+            "邱冠英": { specialty: "6S", transAllow: 0, lodgAllow: 0, profAllow: 0, isLead: false, laborType: "contract", dailyRate: 2400, referrer: null },
+            "郭怡蘭": { specialty: "6S", transAllow: 0, lodgAllow: 0, profAllow: 0, isLead: false, laborType: "contract", dailyRate: 1950, referrer: "邱冠英" },
+            "萬昱賢": { specialty: "6S", transAllow: 2000, lodgAllow: 3000, profAllow: 0, isLead: false, laborType: "contract", dailyRate: 1700, referrer: "邱冠英" }
         },
         rosterDb: [
-            { date: "2026-06-15", createdDate: "2026-06-12", name: "張憲明", site: "台積電F20", zone: "6S整理整頓", status: "已接受", notified_1st: "已送出 ✅", notified_5d: "—", notified_2d: "已送出 ✅", notified_1d: "已送出 ✅" },
-            { date: "2026-06-15", createdDate: "2026-06-12", name: "李志強", site: "台積電F20", zone: "軌道安裝工程", status: "已接受", notified_1st: "已送出 ✅", notified_5d: "—", notified_2d: "已送出 ✅", notified_1d: "已送出 ✅" },
-            { date: "2026-06-15", createdDate: "2026-06-12", name: "王大同", site: "台積電F20", zone: "軌道安裝工程", status: "已接受", notified_1st: "已送出 ✅", notified_5d: "—", notified_2d: "已送出 ✅", notified_1d: "已送出 ✅" }
+            { date: "2026-06-12", createdDate: "2026-06-10", name: "邱冠英", site: "村田機械", zone: "6S整理整頓", status: "已接受" },
+            { date: "2026-06-12", createdDate: "2026-06-10", name: "郭怡蘭", site: "村田機械", zone: "6S整理整頓", status: "已接受" },
+            { date: "2026-06-13", createdDate: "2026-06-10", name: "邱冠英", site: "村田機械", zone: "6S整理整頓", status: "已接受" },
+            { date: "2026-06-13", createdDate: "2026-06-10", name: "郭怡蘭", site: "村田機械", zone: "6S整理整頓", status: "已接受" }
         ],
-        attendanceLogs: [
-            { date: "2026-06-15", foreman: "李志強", name: "張憲明", site: "台積電F20", zone: "6S整理整頓", hours: 8, note: "準時下班" },
-            { date: "2026-06-15", foreman: "李志強", name: "李志強", site: "台積電F20", zone: "軌道安裝工程", hours: 10, note: "加班2小時調整軌道" },
-            { date: "2026-06-15", foreman: "李志強", name: "王大同", site: "台積電F20", zone: "軌道安裝工程", hours: 8, note: "無" }
-        ],
-        leaveDb: [
-            { id: "LV-001", date: "2026-06-12", name: "張憲明", type: "一般事假", reason: "家中有事請假", proof: "無", status: "已核准", appliedAt: "2026-06-09 10:00:00" },
-            { id: "LV-002", date: "2026-06-16", name: "王大同", type: "派工前一日臨時假", reason: "感冒發燒看診", proof: "未提供證明", status: "待審核", appliedAt: "2026-06-15 18:22:15" }
-        ],
-        announcementHistory: [
-            { time: "2026/06/15 17:30", title: "安全防護具宣導", target: "全員", content: "進入廠區請務必配戴新型反光背心及安全帶...", status: "已發送 ✅" }
-        ],
+        attendanceLogs: (function() {
+            const logs = [];
+            const qiuGuoDates = [
+                "2026-06-04", "2026-06-05", "2026-06-06", "2026-06-08", "2026-06-09",
+                "2026-06-10", "2026-06-11", "2026-06-12", "2026-06-13", "2026-06-15",
+                "2026-06-16", "2026-06-17", "2026-06-18", "2026-06-19", "2026-06-22",
+                "2026-06-23", "2026-06-24", "2026-06-25", "2026-06-26", "2026-06-27",
+                "2026-06-29", "2026-06-30"
+            ];
+            const wanDates = [
+                "2026-06-22", "2026-06-23", "2026-06-24", "2026-06-25", "2026-06-26",
+                "2026-06-27", "2026-06-29", "2026-06-30"
+            ];
+            
+            qiuGuoDates.forEach(date => {
+                let hours = 8;
+                let note = "正常工時";
+                if (date === "2026-06-12") {
+                    hours = 12;
+                    note = "加班4小時 (08:58 - 21:01)";
+                } else if (date === "2026-06-13") {
+                    hours = 9;
+                    note = "週六加班1小時 (08:58 - 18:01)";
+                } else if (date === "2026-06-06" || date === "2026-06-27") {
+                    note = "週六基本工時";
+                }
+                logs.push({ date, foreman: "羅玉軒", name: "邱冠英", site: "村田機械", zone: "6S整理整頓", hours, note });
+                logs.push({ date, foreman: "羅玉軒", name: "郭怡蘭", site: "村田機械", zone: "6S整理整頓", hours, note });
+            });
+
+            wanDates.forEach(date => {
+                let hours = 8;
+                let note = "正常工時";
+                if (date === "2026-06-27") {
+                    note = "週六基本工時";
+                }
+                logs.push({ date, foreman: "羅玉軒", name: "萬昱賢", site: "村田機械", zone: "6S整理整頓", hours, note });
+            });
+
+            return logs;
+        })(),
+        leaveDb: [],
+        announcementHistory: [],
         accData: {
-            company: { name:'日森精工有限公司', taxId:'', type:'ltd', capital:500000, par:1000, shares:500, owner:'', founded:'', address:'', business:'' },
+            company: { name:'日森精工有限公司', taxId:'62097937', type:'ltd', capital:500000, par:1000, shares:500, owner:'羅玉軒', founded:'2026-01-01', address:'台北市大安區信義路四段1號2樓', business:'機電工程' },
             shareholders: [
-                { name: '法人股東', shares: 255, type: 'corp', idno: '法人統編' },
-                { name: '自然人股東', shares: 245, type: 'person', idno: '自然人身分證' }
+                { name: '羅玉軒', shares: 500, type: 'person', idno: 'A123456789' }
             ],
-            balanceSheet: { cash:0, prepaid:0, fixed:0, ap:0, loan:0, otherLiab:0, status: "未核定" }
+            balanceSheet: { cash:500000, prepaid:0, fixed:0, ap:0, loan:0, otherLiab:0, status: "已核定" }
         },
         accountsDb: [
-            { empId: "admin", name: "林總經理", password: "admin123", role: "系統管理員 / 主管", authorizedModules: ["base_brand", "base_hr", "func_employee_cards", "func_work_dispatch", "func_attendance", "func_group_insurance", "func_internal_acc", "func_external_acc", "func_e_invoicing", "func_board_meeting", "func_line_hub", "base_permissions", "func_recruitment"] },
-            { empId: "accountant", name: "會計淑芬", password: "acc123", role: "會計財務", authorizedModules: ["base_hr", "func_work_dispatch", "func_attendance", "func_internal_acc", "func_external_acc", "func_e_invoicing"] },
-            { empId: "emp101", name: "李志強", password: "emp123", role: "現場同仁 / 領隊", authorizedModules: ["base_hr", "func_attendance", "func_line_hub"] },
-            { empId: "emp102", name: "張憲明", password: "emp123", role: "現場同仁 / 領隊", authorizedModules: ["base_hr", "func_attendance", "func_line_hub"] },
-            { empId: "emp103", name: "王大同", password: "emp123", role: "現場同仁 / 領隊", authorizedModules: ["base_hr", "func_attendance", "func_line_hub"] }
+            { empId: "0937581112", name: "羅玉軒", password: "admin", role: "最高系統管理員 / 總裁", otpEnabled: true, authorizedModules: ["base_brand", "base_hr", "func_employee_cards", "func_work_dispatch", "func_attendance", "func_group_insurance", "func_internal_acc", "func_external_acc", "func_e_invoicing", "func_board_meeting", "func_line_hub", "base_permissions", "func_recruitment"] },
+            { empId: "邱冠英", name: "邱冠英", password: "emp", role: "現場同仁 / 領隊", authorizedModules: ["base_hr", "func_attendance", "func_line_hub"] },
+            { empId: "郭怡蘭", name: "郭怡蘭", password: "emp", role: "現場同仁 / 領隊", authorizedModules: ["base_hr", "func_attendance", "func_line_hub"] },
+            { empId: "萬昱賢", name: "萬昱賢", password: "emp", role: "現場同仁 / 領隊", authorizedModules: ["base_hr", "func_attendance", "func_line_hub"] }
         ],
         cardsDb: {
             "張憲明": { enabled: true, title: "拉線組長", phone: "0912-345-678", address: "台北市大安區信義路四段1號2樓" },
