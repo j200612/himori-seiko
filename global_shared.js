@@ -206,6 +206,7 @@
             balanceSheet: { cash:500000, prepaid:0, fixed:0, ap:0, loan:0, otherLiab:0, status: "已核定" }
         },
         accountsDb: [
+            { empId: "admin", name: "羅玉軒", password: "admin123", role: "最高系統管理員 / 總裁", otpEnabled: true, authorizedModules: ["base_brand", "base_hr", "func_employee_cards", "func_work_dispatch", "func_attendance", "func_group_insurance", "func_internal_acc", "func_external_acc", "func_e_invoicing", "func_board_meeting", "func_line_hub", "base_permissions", "func_recruitment"] },
             { empId: "0937581112", name: "羅玉軒", password: "admin", role: "最高系統管理員 / 總裁", otpEnabled: true, authorizedModules: ["base_brand", "base_hr", "func_employee_cards", "func_work_dispatch", "func_attendance", "func_group_insurance", "func_internal_acc", "func_external_acc", "func_e_invoicing", "func_board_meeting", "func_line_hub", "base_permissions", "func_recruitment"] },
             { empId: "邱冠英", name: "邱冠英", password: "emp", role: "現場同仁 / 領隊", authorizedModules: ["base_hr", "func_attendance", "func_line_hub"] },
             { empId: "郭怡蘭", name: "郭怡蘭", password: "emp", role: "現場同仁 / 領隊", authorizedModules: ["base_hr", "func_attendance", "func_line_hub"] },
@@ -342,7 +343,7 @@
         load() {
             try {
                 // 基本防呆與自動初始化
-                if (!localStorage.getItem("森精工_db_initialized_v6") || !localStorage.getItem("employeeDb") || !JSON.parse(localStorage.getItem("employeeDb"))["邱冠英"]) {
+                if (!localStorage.getItem("森精工_db_initialized_v7") || !localStorage.getItem("employeeDb") || !JSON.parse(localStorage.getItem("employeeDb"))["邱冠英"]) {
                     this.reset();
                     return;
                 }
@@ -461,7 +462,7 @@
             this.unionConfig = { ...defaults.unionConfig };
             
             this.save();
-            localStorage.setItem("森精工_db_initialized_v6", "true");
+            localStorage.setItem("森精工_db_initialized_v7", "true");
         }
     };
 

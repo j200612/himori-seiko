@@ -491,7 +491,7 @@
     <div id="login-overlay">
         <div class="login-card">
             <img id="login-logo" class="login-logo" src="01_企業識別與設計/橫式logo.png" alt="日森精工">
-            <h2>營運中心</h2>
+            <h2>AI行政中心</h2>
             <p>請輸入您的員工編號與密碼</p>
 
             <div class="form-group">
@@ -620,13 +620,13 @@
         function applyPortalBranding() {
             if (typeof HimoriCompanyConfig !== 'undefined') {
                 // 修改網頁 Title
-                document.title = `${HimoriCompanyConfig.name} | 數位營運指揮中心`;
+                document.title = `${HimoriCompanyConfig.name} | AI行政中心`;
 
                 // 登入頁面
                 const loginLogo = document.getElementById("login-logo");
                 if (loginLogo) loginLogo.src = HimoriCompanyConfig.logoHorizontal;
                 const loginTitle = document.querySelector(".login-card h2");
-                if (loginTitle) loginTitle.textContent = `${HimoriCompanyConfig.name} 營運中心`;
+                if (loginTitle) loginTitle.textContent = `${HimoriCompanyConfig.name} AI行政中心`;
 
                 // 側邊欄 Logo
                 updateSidebarLogo();
