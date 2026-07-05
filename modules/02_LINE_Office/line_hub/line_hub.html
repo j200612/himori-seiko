@@ -1574,6 +1574,17 @@
             renderQaTable();
             renderInboxMedia();
             renderMobileUploadLogs();
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const debugTab = urlParams.get('debugTab');
+            const debugChatId = urlParams.get('debugChatId');
+            if (debugTab) {
+                switchTab(debugTab);
+            }
+            if (debugChatId) {
+                activeChatId = debugChatId;
+            }
+
             if (document.getElementById("tab-live-chat").classList.contains("active")) {
                 renderChatUserList();
                 renderChatHistory();
