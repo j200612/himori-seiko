@@ -488,7 +488,7 @@
 <body>
 
     <!-- 🌐 數據中心引入 -->
-    <script src="global_shared.js"></script>
+    <script src="global_shared.js?v=20260706_v8"></script>
 
     <!-- 🔐 登入畫面 -->
     <div id="login-overlay">
@@ -710,6 +710,7 @@
                 document.getElementById("main-frame").src = "about:blank";
                 alert("💡 您目前沒有任何授權的工作項目，請洽主管為您配置權限。");
             }
+            if (typeof checkAISecretaryPermission === 'function') checkAISecretaryPermission();
         }
 
         // 渲染導航列 (拆分 Emoji 與文字以支援側邊欄縮放)
@@ -766,6 +767,10 @@
                 document.getElementById("login-overlay").style.display = "flex";
                 document.getElementById("main-frame").src = "about:blank";
                 document.getElementById("login-password").value = "";
+                const widget = document.getElementById("ai-secretary-widget");
+                if (widget) widget.style.display = "none";
+                const box = document.getElementById("ai-secretary-box");
+                if (box) box.classList.remove("active");
             }
         }
 
@@ -796,6 +801,8 @@
 
                     // 重新渲染選單
                     renderSidebarMenu();
+                    
+                    if (typeof checkAISecretaryPermission === 'function') checkAISecretaryPermission();
                     
                     // 檢查目前顯示的模組是否還被授權且訂閱，若不滿足，切換到第一個可用模組，或空白
                     const activeNav = document.querySelector(".nav-item.active");
@@ -838,6 +845,376 @@
                 launchApp();
             }
         });
+    </script>
+    <!-- 💬 AI 秘書懸浮對話智能體 -->
+    <div id="ai-secretary-widget" style="display: none;">
+        <!-- 懸浮按鈕 -->
+        <button id="ai-secretary-btn" onclick="toggleAISecretary()" title="開啟 AI 秘書特助">
+            💬
+        </button>
+        
+        <!-- 對話視窗 -->
+        <div id="ai-secretary-box">
+            <div class="ai-sec-header">
+                <div class="ai-sec-title-area">
+                    <span class="ai-sec-title">日森精工 | AI 秘書特助</span>
+                    <span class="ai-sec-subtitle">系統管理助理</span>
+                </div>
+                <button class="ai-sec-close" onclick="toggleAISecretary()" title="關閉">×</button>
+            </div>
+            <div class="ai-sec-body" id="ai-sec-chat-body"></div>
+            <div class="ai-sec-footer">
+                <input type="text" id="ai-sec-chat-input" class="ai-sec-input" placeholder="詢問秘書，例如：幫我查萬昱賢當月出工天數" />
+                <button class="ai-sec-send" onclick="sendSecMessage()">送出</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        #ai-secretary-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10000;
+            font-family: 'Outfit', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+        }
+
+        #ai-secretary-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1E293B, #0F172A);
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--accent);
+            font-size: 1.5rem;
+            outline: none;
+        }
+
+        #ai-secretary-btn:hover {
+            transform: scale(1.1) translateY(-2px);
+            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+            border-color: var(--accent);
+        }
+
+        #ai-secretary-box {
+            position: absolute;
+            bottom: 75px;
+            right: 0;
+            width: 380px;
+            height: 520px;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: scale(0.9) translateY(20px);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #ai-secretary-box.active {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .ai-sec-header {
+            background: #0F172A;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .ai-sec-title-area {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ai-sec-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-light);
+        }
+
+        .ai-sec-subtitle {
+            font-size: 0.7rem;
+            color: var(--accent);
+        }
+
+        .ai-sec-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: color 0.2s;
+        }
+
+        .ai-sec-close:hover {
+            color: var(--danger);
+        }
+
+        .ai-sec-body {
+            flex-grow: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ai-sec-body::-webkit-scrollbar {
+            width: 4px;
+        }
+        .ai-sec-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .ai-sec-body::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .ai-msg {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 0.88rem;
+            line-height: 1.5;
+            word-break: break-all;
+            white-space: pre-wrap;
+        }
+
+        .ai-msg.user {
+            background: var(--accent);
+            color: #0F172A;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+            font-weight: 500;
+        }
+
+        .ai-msg.ai {
+            background: var(--primary-light);
+            color: var(--text-light);
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+            border: 1px solid var(--border);
+        }
+
+        .ai-msg.system {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            align-self: center;
+            max-width: 95%;
+            font-size: 0.78rem;
+            border-radius: 6px;
+            border: 1px dashed rgba(245, 158, 11, 0.3);
+            text-align: center;
+        }
+
+        .ai-sec-footer {
+            padding: 12px 16px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 8px;
+            background: #0F172A;
+        }
+
+        .ai-sec-input {
+            flex-grow: 1;
+            background: var(--primary-light);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: var(--text-light);
+            font-size: 0.88rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .ai-sec-input:focus {
+            border-color: var(--accent);
+        }
+
+        .ai-sec-send {
+            background: var(--accent);
+            color: #0F172A;
+            border: none;
+            border-radius: 8px;
+            padding: 0 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .ai-sec-send:hover {
+            opacity: 0.9;
+        }
+
+        .ai-typing {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            padding: 10px 14px;
+            background: var(--primary-light);
+            border-radius: 12px;
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+            border: 1px solid var(--border);
+        }
+
+        .ai-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            animation: aiDot 1.4s infinite ease-in-out both;
+        }
+
+        .ai-dot:nth-child(1) { animation-delay: -0.32s; }
+        .ai-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes aiDot {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.0); }
+        }
+    </style>
+
+    <script>
+        const secChatBody = document.getElementById("ai-sec-chat-body");
+        const secChatInput = document.getElementById("ai-sec-chat-input");
+
+        function checkAISecretaryPermission() {
+            const widget = document.getElementById("ai-secretary-widget");
+            if (!widget) return;
+            if (currentUser && (currentUser.empId === 'admin' || currentUser.empId === '0937581112' || (currentUser.role && (currentUser.role.includes('總裁') || currentUser.role.includes('管理員'))))) {
+                widget.style.display = "block";
+            } else {
+                widget.style.display = "none";
+                const box = document.getElementById("ai-secretary-box");
+                if (box) box.classList.remove("active");
+            }
+        }
+
+        function toggleAISecretary() {
+            const box = document.getElementById("ai-secretary-box");
+            box.classList.toggle("active");
+            if (box.classList.contains("active")) {
+                secChatInput.focus();
+                if (secChatBody.children.length === 0) {
+                    appendSecMessage("ai", "您好，總裁！我是您的 AI 秘書特助。我可以協助您進行各類工時、津貼、雙軌薪資請款的對話式查詢，或是幫您補登、修改工時紀錄。請問今天需要我做什麼？");
+                }
+            }
+        }
+
+        function appendSecMessage(sender, text) {
+            const msg = document.createElement("div");
+            msg.className = `ai-msg ${sender}`;
+            msg.textContent = text;
+            secChatBody.appendChild(msg);
+            secChatBody.scrollTop = secChatBody.scrollHeight;
+        }
+
+        function showSecTyping() {
+            const typing = document.createElement("div");
+            typing.id = "ai-sec-typing";
+            typing.className = "ai-typing";
+            typing.innerHTML = '<span class="ai-dot"></span><span class="ai-dot"></span><span class="ai-dot"></span>';
+            secChatBody.appendChild(typing);
+            secChatBody.scrollTop = secChatBody.scrollHeight;
+        }
+
+        function removeSecTyping() {
+            const typing = document.getElementById("ai-sec-typing");
+            if (typing) typing.remove();
+        }
+
+        async function sendSecMessage() {
+            const text = secChatInput.value.trim();
+            if (!text) return;
+            
+            appendSecMessage("user", text);
+            secChatInput.value = "";
+            
+            showSecTyping();
+            
+            try {
+                const res = await fetch("/api/admin/internal-agent", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        empId: currentUser.empId,
+                        role: currentUser.role,
+                        name: currentUser.name
+                    })
+                });
+                
+                removeSecTyping();
+                
+                if (res.status === 403) {
+                    appendSecMessage("system", "⚠️ 權限錯誤：此功能僅限總裁或最高管理權限存取。");
+                    return;
+                }
+                
+                const data = await res.json();
+                if (data.error) {
+                    appendSecMessage("ai", `❌ 系統錯誤: ${data.error}`);
+                } else {
+                    appendSecMessage("ai", data.reply);
+                    if (data.actionExecuted) {
+                        appendSecMessage("system", `⚙️ [AI 變更資料] 已成功寫入系統資料庫並記錄審計軌跡。`);
+                        
+                        // 觸發自訂事件以更新畫面與資料庫同步
+                        const event = new CustomEvent("himori_db_updated");
+                        window.dispatchEvent(event);
+                        
+                        // 如果有內嵌 iframe，通知 iframe 重新載入資料
+                        const mainFrame = document.getElementById("main-frame");
+                        if (mainFrame && mainFrame.contentWindow) {
+                            try {
+                                mainFrame.contentWindow.dispatchEvent(new CustomEvent("himori_db_updated"));
+                                // 如果是 billing_payroll 頁面，嘗試重新呼叫 fetchData
+                                if (typeof mainFrame.contentWindow.fetchData === 'function') {
+                                    mainFrame.contentWindow.fetchData();
+                                }
+                            } catch (e) {
+                                console.warn("Could not dispatch event to iframe", e);
+                            }
+                        }
+                    }
+                }
+            } catch (e) {
+                removeSecTyping();
+                appendSecMessage("ai", `⚠️ 連線錯誤，請稍後再試。`);
+            }
+        }
+
+        secChatInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                sendSecMessage();
+            }
+        });
+
+        // 頁面初始化後檢查一次
+        setTimeout(() => {
+            checkAISecretaryPermission();
+        }, 100);
     </script>
 </body>
 </html>

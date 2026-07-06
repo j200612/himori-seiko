@@ -270,7 +270,8 @@
             "func_board_meeting",
             "func_line_hub",
             "base_permissions",
-            "func_recruitment"
+            "func_recruitment",
+            "func_billing_payroll"
         ],
         companyConfig: { ...defaultCompanyConfig },
         unionConfig: {
