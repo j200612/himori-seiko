@@ -589,59 +589,105 @@ app.get('/admin/billing-payroll', (req, res) => {
 app.get('/api/admin/billing-payroll', async (req, res) => {
   try {
     const year = parseInt(req.query.year) || new Date().getFullYear();
-    const month = parseInt(req.query.month) || (new Date().getMonth() + 1);
-    const start = new Date(year, month - 1, 1);
-    const end = new Date(year, month, 0);
-    const logs = HimuriDb.attendanceLogs.filter(l => {
-      const d = new Date(l.date);
-      return d >= start && d <= end;
-    });
-    const employees = HimuriDb.employeeDb;
-    const details = [];
-    let totalExternal = 0, totalInternal = 0;
+    const isYearly = (req.query.month === 'all');
+    const monthsToProcess = isYearly ? [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] : [parseInt(req.query.month) || (new Date().getMonth() + 1)];
+
+    const employees = HimoriDb.employeeDb;
+    const detailsMap = {};
     for (const name in employees) {
-      const emp = employees[name];
-      const empLogs = logs.filter(l => l.name === name);
-      const workDays = new Set();
-      let totalHours = 0;
-      let overtimePay = 0;
-      empLogs.forEach(l => {
-        workDays.add(l.date);
-        totalHours += l.hours;
-        const extra = Math.max(0, l.hours - 8);
-        if (extra > 0) {
-          const day = new Date(l.date).getDay();
-          if (day === 0) {
-            overtimePay += extra * 600;
-          } else if (day === 6) {
-            const firstTwo = Math.min(2, extra);
-            const rest = extra - firstTwo;
-            overtimePay += firstTwo * 399 + rest * 498;
-          } else {
-            overtimePay += extra * 399;
-          }
-        }
-      });
-      const daysCount = workDays.size;
-      const absentHours = Math.max(0, daysCount * 8 - totalHours);
-      const external = 2400 * daysCount - 300 * absentHours + overtimePay;
-      const internal = emp.dailyRate * daysCount;
-      let special = 0;
-      if (name === '萬昱賢') {
-        if (year === 2026 && month === 6) {
-          special = 500 + 1000;
-        } else if (daysCount >= 20) {
-          special = 2000 + 3000;
-        }
-      }
-      const net = external - internal - special;
-      totalExternal += external;
-      totalInternal += internal;
-      details.push({ name, external, internal, special, net });
+        detailsMap[name] = { name, external: 0, internal: 0, special: 0, net: 0, workDays: 0, alerts: [] };
     }
+
+    let totalExternal = 0, totalInternal = 0;
+
+    for (const month of monthsToProcess) {
+        const start = new Date(year, month - 1, 1);
+        const end = new Date(year, month, 0);
+        const logs = HimoriDb.attendanceLogs.filter(l => {
+            const d = new Date(l.date);
+            return d >= start && d <= end;
+        });
+
+        for (const name in employees) {
+            const emp = employees[name];
+            const empLogs = logs.filter(l => l.name === name);
+            const workDays = new Set();
+            let totalHours = 0;
+            let overtimePay = 0;
+            let monthlyExternal = 0;
+
+            empLogs.forEach(l => {
+                workDays.add(l.date);
+                totalHours += l.hours;
+                
+                const day = new Date(l.date).getDay();
+                const isSundayOrHoliday = (day === 0); // Sunday only for now
+                if (isSundayOrHoliday) {
+                    monthlyExternal += l.hours * 600;
+                } else {
+                    if (l.hours < 8) {
+                        const absent = 8 - l.hours;
+                        monthlyExternal += 2400 - 300 * absent;
+                    } else {
+                        monthlyExternal += 2400;
+                        const extra = l.hours - 8;
+                        if (extra > 0) {
+                            if (day === 6) { // Saturday
+                                const firstTwo = Math.min(2, extra);
+                                const rest = extra - firstTwo;
+                                overtimePay += firstTwo * 399 + rest * 498;
+                            } else { // Weekdays
+                                overtimePay += extra * 399;
+                            }
+                        }
+                    }
+                }
+            });
+
+            monthlyExternal += overtimePay;
+            const daysCount = workDays.size;
+            
+            // 邱冠英:日薪2400 (介紹費永久歸零); 郭怡蘭:日薪1950; 萬昱賢:日薪1700
+            const monthlyInternal = emp.dailyRate * daysCount;
+            
+            let monthlySpecial = 0;
+            if (name === '萬昱賢') {
+                if (year === 2026 && month === 6) {
+                    // 2026年6月（破月特准）：自動判定萬昱賢套用特殊邏輯，剛性扣除（即補貼給員工的款項，以special表示）勞健保自付額 500 元、房租 1000 元
+                    monthlySpecial = 500 + 1000;
+                } else if (year > 2026 || (year === 2026 && month >= 7)) {
+                    // 2026年7月起（黃金防線）：滿 20 天以上解鎖，或是有總裁手動特准
+                    const approvedSpecials = (HimoriDb.companyConfig && HimoriDb.companyConfig.approvedSpecials) || [];
+                    const isApproved = approvedSpecials.some(s => s.name === name && s.year === year && s.month === month);
+                    
+                    if (daysCount >= 20 || isApproved) {
+                        monthlySpecial = 2000 + 3000;
+                    } else {
+                        monthlySpecial = 0;
+                        if (!isYearly && daysCount > 0) {
+                            detailsMap[name].alerts.push('2026年' + month + '月出工僅 ' + daysCount + ' 天，未滿20天！特准津貼（勞健保2000/房租3000）已被系統防呆凍結，需總裁特准發放。');
+                        }
+                    }
+                }
+            }
+
+            const monthlyNet = monthlyExternal - monthlyInternal - monthlySpecial;
+
+            // 累加至總表
+            detailsMap[name].external += monthlyExternal;
+            detailsMap[name].internal += monthlyInternal;
+            detailsMap[name].special += monthlySpecial;
+            detailsMap[name].net += monthlyNet;
+            detailsMap[name].workDays += daysCount;
+            
+            totalExternal += monthlyExternal;
+            totalInternal += monthlyInternal + monthlySpecial;
+        }
+    }
+
+    const details = Object.values(detailsMap);
     const netProfit = totalExternal - totalInternal;
-    const result = { totalExternal, totalInternal, netProfit, details };
-    // TODO: auditLog.record('billing-payroll', { user: req.user?.id, query: req.query, resultSummary: result });
+    const result = { totalExternal, totalInternal, netProfit, details, isYearly };
     res.json(result);
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -782,6 +828,19 @@ app.post('/api/admin/internal-agent', async (req, res) => {
                         note: '主管調整'
                     }
                 };
+            } else if (qText.includes('特准') && qText.includes('萬昱賢')) {
+                const match = qText.match(/2026年(\d+)月/);
+                const mVal = match ? parseInt(match[1]) : 7;
+                reply = '🤖 [模擬 AI 秘書] 好的，總裁！已為您登記：特別核准發放 萬昱賢 2026年' + mVal + '月 的特准津貼 5,000 元（含房租 3,000 與勞健保 2,000）。變更日誌已寫入 Firestore。';
+                action = {
+                    type: 'special_approve',
+                    payload: {
+                        name: '萬昱賢',
+                        date: '2026-0' + mVal + '-01',
+                        hours: 0,
+                        note: '總裁手動特准發放津貼'
+                    }
+                };
             }
             parsed = { reply, action };
         } else {
@@ -851,6 +910,21 @@ app.post('/api/admin/internal-agent', async (req, res) => {
                     HimoriDb.save();
                     actionExecuted = true;
                 }
+            } else if (type === 'special_approve' && payload.name && payload.date) {
+                const dateParts = payload.date.split('-');
+                const yVal = parseInt(dateParts[0]);
+                const mVal = parseInt(dateParts[1]);
+                HimoriDb.companyConfig.approvedSpecials = HimoriDb.companyConfig.approvedSpecials || [];
+                const exists = HimoriDb.companyConfig.approvedSpecials.some(s => s.name === payload.name && s.year === yVal && s.month === mVal);
+                if (!exists) {
+                    HimoriDb.companyConfig.approvedSpecials.push({
+                        name: payload.name,
+                        year: yVal,
+                        month: mVal
+                    });
+                    HimoriDb.save();
+                }
+                actionExecuted = true;
             }
 
             // 4. 動過必留痕跡：寫入 Firestore auditLog
