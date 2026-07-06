@@ -173,7 +173,7 @@
         }
 
         /* 側邊欄 */
-        sidebar {
+                sidebar {
             width: 260px;
             height: 100vh;
             box-sizing: border-box;
@@ -185,6 +185,7 @@
             flex-direction: column;
             padding: 1.5rem;
             z-index: 100;
+            overflow-y: auto !important;
             transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -294,6 +295,7 @@
             flex-direction: column;
             gap: 0.5rem;
             flex-grow: 1;
+            height: 100%;
             overflow-y: auto;
             scrollbar-width: thin;
         }
@@ -318,6 +320,7 @@
             align-items: center;
             gap: 0.85rem;
             padding: 0.85rem 1rem;
+            margin-bottom: 0.4rem;
             border-radius: 8px;
             color: var(--text-muted);
             text-decoration: none;
