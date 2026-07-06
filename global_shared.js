@@ -142,7 +142,7 @@
             category: 'base',
             name: '💵 發薪與請款對帳模組',
             version: '1.0.0',
-            src: 'modules/01_Core_Base/billing_payroll/billing_payroll.html',
+            src: 'modules/03_Payroll_Office/billing_payroll.html',
             desc: '雙軌算力工時發薪對帳請款模組，進行上游請款與內部夥伴報酬、黃金津貼對帳',
             dependencies: []
         }
