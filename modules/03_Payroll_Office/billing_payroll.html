@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>發薪與請款對帳模組</title>
+  <title>外包請款與合作報酬對帳系統</title>
   <style>
     :root {
       --primary-bg: #1e293b;
       --secondary-bg: #334155;
-      --accent: #f43f5e;
-      --accent-hover: #e11d48;
+      --accent: #e11d48;
+      --accent-hover: #be123c;
       --success: #10b981;
       --warning: #f59e0b;
       --text-light: #f8fafc;
@@ -36,7 +36,6 @@
       margin: 0 auto;
     }
 
-    /* 頂部標題 */
     .header-area {
       display: flex;
       justify-content: space-between;
@@ -51,10 +50,9 @@
       font-size: 1.8rem;
       margin: 0;
       font-weight: 700;
-      letter-spacing: -0.5px;
     }
 
-    /* 控制面板 */
+    /* 頂部控制列 */
     .controls {
       display: flex;
       gap: 12px;
@@ -87,13 +85,7 @@
       font-size: 0.9rem;
       color: var(--text-dark);
       outline: none;
-      transition: all 0.2s ease;
       cursor: pointer;
-    }
-
-    select:focus {
-      border-color: var(--primary-bg);
-      box-shadow: 0 0 0 3px rgba(30, 41, 59, 0.1);
     }
 
     button.btn-load {
@@ -110,63 +102,46 @@
 
     button.btn-load:hover {
       background: var(--secondary-bg);
-      transform: translateY(-1px);
     }
 
-    /* 警告警示框 */
-    .warning-alert {
-      background: rgba(244, 63, 94, 0.08);
-      border-left: 4px solid var(--accent);
-      color: #9f1239;
-      padding: 12px 18px;
-      margin-bottom: 20px;
-      border-radius: 6px;
-      font-size: 0.88rem;
-      font-weight: 600;
+    /* Tabs 分頁設計 */
+    .tabs-header {
       display: flex;
-      align-items: center;
       gap: 8px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
-    }
-
-    /* 彙總面板 */
-    .summary-card {
-      background: var(--card-bg);
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(15, 23, 42, 0.05);
-      padding: 20px 24px;
+      border-bottom: 2px solid var(--border);
       margin-bottom: 24px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-      border-top: 4px solid var(--primary-bg);
     }
 
-    .summary-item {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .summary-label {
-      font-size: 0.8rem;
+    .tab-btn {
+      padding: 12px 24px;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
       font-weight: 600;
+      font-size: 0.95rem;
       color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.2s ease;
     }
 
-    .summary-value {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--text-dark);
+    .tab-btn:hover {
+      color: var(--primary-bg);
     }
 
-    .summary-value.highlight {
-      color: var(--accent);
+    .tab-btn.active {
+      color: var(--primary-bg);
+      border-bottom-color: var(--primary-bg);
     }
 
-    /* 表格設計 */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* 表格與卡片 */
     .table-wrapper {
       background: var(--card-bg);
       border-radius: 12px;
@@ -187,7 +162,6 @@
       padding: 14px 18px;
       font-size: 0.88rem;
       font-weight: 600;
-      letter-spacing: 0.5px;
     }
 
     td {
@@ -199,15 +173,27 @@
       white-space: pre-wrap;
     }
 
-    tr:last-child td {
-      border-bottom: none;
-    }
-
     tr:hover td {
       background: #f8fafc;
     }
 
-    /* 特殊按鈕及徽章 */
+    /* 警告與驚嘆號 */
+    .status-frozen {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .status-approved {
+      color: var(--success);
+      font-weight: 700;
+    }
+
+    .status-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: block;
+    }
+
     .btn-approve {
       background: var(--accent);
       color: var(--text-light);
@@ -219,40 +205,113 @@
       cursor: pointer;
       margin-top: 6px;
       transition: all 0.2s ease;
-      display: inline-block;
     }
 
     .btn-approve:hover {
       background: var(--accent-hover);
-      transform: scale(1.03);
     }
 
-    .status-frozen {
-      color: var(--accent);
-      font-weight: 700;
+    /* 晶廷對帳對帳框 */
+    .reconcile-input {
+      width: 120px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      outline: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .reconcile-input.discrepancy {
+      background-color: #fef08a !important; /* 黃底警告 */
+      border-color: #eab308;
+    }
+
+    .discrepancy-label {
+      color: #ca8a04;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-left: 8px;
+      display: inline-block;
+    }
+
+    /* 毛利中控看板 */
+    .profit-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .profit-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(15, 23, 42, 0.05);
+      padding: 24px;
+      border-top: 4px solid var(--primary-bg);
+    }
+
+    .profit-card.accented {
+      border-top-color: var(--success);
+    }
+
+    .profit-label {
       font-size: 0.85rem;
-    }
-
-    .status-approved {
-      color: var(--success);
-      font-weight: 700;
-      font-size: 0.85rem;
-    }
-
-    .status-hint {
-      font-size: 0.72rem;
+      font-weight: 600;
       color: var(--text-muted);
-      display: block;
-      margin-top: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
-    /* 響應式優化 */
+    .profit-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-top: 8px;
+    }
+
+    .profit-value.success-text {
+      color: var(--success);
+    }
+
+    /* 同仁個人端與手機端 */
+    .contractor-view {
+      display: none;
+    }
+
+    .contractor-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(15, 23, 42, 0.05);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .contractor-name-header {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-bg);
+      margin-bottom: 16px;
+    }
+
+    .contractor-detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .contractor-detail-row:last-child {
+      border-bottom: none;
+    }
+
+    /* 手機移動端佈局 */
     @media (max-width: 768px) {
       body {
         padding: 16px;
       }
       .controls {
-        padding: 12px 16px;
         flex-direction: column;
         align-items: stretch;
       }
@@ -263,10 +322,8 @@
         width: 100%;
         text-align: center;
       }
-      .summary-card {
-        grid-template-columns: 1fr;
-        padding: 16px;
-        gap: 12px;
+      .tabs-header {
+        display: none; /* 手機端自動隱藏分頁按鈕 */
       }
     }
   </style>
@@ -274,11 +331,11 @@
 <body>
   <div class="container">
     <div class="header-area">
-      <h1>發薪與請款對帳模組</h1>
+      <h1 id="mainTitle">外包請款與合作報酬對帳系統</h1>
     </div>
 
-    <!-- 控制面板 -->
-    <div class="controls">
+    <!-- 頂部控制面板 -->
+    <div class="controls" id="topControls">
       <div class="control-group">
         <label for="yearSelect">年份</label>
         <select id="yearSelect"></select>
@@ -287,57 +344,165 @@
         <label for="monthSelect">月份</label>
         <select id="monthSelect"></select>
       </div>
-      <button class="btn-load" id="loadBtn">查詢帳目</button>
+      <button class="btn-load" id="loadBtn">進行查詢</button>
     </div>
 
-    <!-- 警示區域 -->
-    <div id="alertsContainer"></div>
+    <!-- 👤 承攬同仁端預覽 (手機與網頁隔離視窗) -->
+    <div id="contractorSection" class="contractor-view">
+      <div class="contractor-card">
+        <div class="contractor-name-header" id="cName">承攬夥伴</div>
+        <div class="contractor-detail-row">
+          <span>出工天數</span>
+          <span style="font-weight: 600;" id="cDays">0 天</span>
+        </div>
+        <div class="contractor-detail-row">
+          <span>總服務工時</span>
+          <span style="font-weight: 600;" id="cHours">0 小時</span>
+        </div>
+        <div class="contractor-detail-row">
+          <span>承攬基本報酬</span>
+          <span style="font-weight: 600;" id="cInternal">NT$ 0</span>
+        </div>
+        <div class="contractor-detail-row">
+          <span>特別津貼/代辦代扣</span>
+          <span style="font-weight: 600;" id="cSpecial">NT$ 0</span>
+        </div>
+        <div class="contractor-detail-row" style="border-top: 2px solid var(--border); padding-top: 14px;">
+          <span style="font-weight: 700; color: var(--primary-bg);">合作應領總計 (未稅)</span>
+          <span style="font-weight: 700; color: var(--accent); font-size: 1.2rem;" id="cTotal">NT$ 0</span>
+        </div>
+      </div>
 
-    <!-- 彙總面板 -->
-    <div class="summary-card" id="summaryCard">
-      <div class="summary-item">
-        <span class="summary-label">上游請款 (晶廷)</span>
-        <span class="summary-value" id="valExternal">0</span>
-      </div>
-      <div class="summary-item">
-        <span class="summary-label">同仁發放報酬</span>
-        <span class="summary-value" id="valInternal">0</span>
-      </div>
-      <div class="summary-item">
-        <span class="summary-label">公司預估淨利</span>
-        <span class="summary-value highlight" id="valNetProfit">0</span>
+      <!-- 個人明細表 v2.4.3 -->
+      <h2 style="font-size: 1.2rem; color: var(--primary-bg); margin-bottom: 12px;">服務明細日誌 (v2.4.3)</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>服務日期</th>
+              <th>案場區域</th>
+              <th>工時 (小時)</th>
+              <th>工時備註</th>
+            </tr>
+          </thead>
+          <tbody id="contractorLogsBody"></tbody>
+        </table>
       </div>
     </div>
 
-    <!-- 帳目大表 -->
-    <div class="table-wrapper">
-      <table id="payrollTable">
-        <thead>
-          <tr id="tableHeaderRow">
-            <th>同仁姓名</th>
-            <th>外部請款 (元)</th>
-            <th>內部報酬 (元)</th>
-            <th>特准津貼/扣減 (元)</th>
-            <th>累計出工天數</th>
-            <th>預估淨毛利 (元)</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-      </table>
+    <!-- 👑 總裁管理端 (Tabs 切換) -->
+    <div id="adminSection">
+      <!-- 手機端總裁全局簡表 -->
+      <div id="mobileSummaryGrid" style="display: none;" class="profit-grid">
+        <div class="profit-card">
+          <span class="profit-label">總服務工時</span>
+          <div class="profit-value" id="mTotalHours">0 小時</div>
+        </div>
+        <div class="profit-card">
+          <span class="profit-label">總發放合作報酬</span>
+          <div class="profit-value" id="mTotalInternal">NT$ 0</div>
+        </div>
+        <div class="profit-card">
+          <span class="profit-label">總上游請款 (晶廷)</span>
+          <div class="profit-value" id="mTotalExternal">NT$ 0</div>
+        </div>
+        <div class="profit-card accented">
+          <span class="profit-label">當期營運淨毛利</span>
+          <div class="profit-value success-text" id="mNetProfit">NT$ 0</div>
+        </div>
+      </div>
+
+      <!-- 網頁端分頁按鈕 -->
+      <div class="tabs-header" id="tabsHeader">
+        <button class="tab-btn active" onclick="switchTab('tabA')">分頁 A：合作報酬與發放核定區</button>
+        <button class="tab-btn" onclick="switchTab('tabB')">分頁 B：上游請款對帳區</button>
+        <button class="tab-btn" onclick="switchTab('tabC')">分頁 C：營運綜合毛利中控看板</button>
+      </div>
+
+      <!-- 分頁 A：合作報酬與發放核定區 -->
+      <div id="tabA" class="tab-content active">
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>承攬夥伴姓名</th>
+                <th>服務工時 (小時)</th>
+                <th>正常報酬 (元)</th>
+                <th>特准津貼/代辦代扣 (元)</th>
+                <th>累計出工天數</th>
+                <th>合併應發總金額 (元)</th>
+              </tr>
+            </thead>
+            <tbody id="tabABody"></tbody>
+          </table>
+        </div>
+        <!-- 製表簽章表框 -->
+        <div style="display: flex; justify-content: space-between; margin-top: 30px; font-weight: 600; font-size: 0.9rem; color: var(--text-muted); border-top: 1px dashed var(--border); padding-top: 20px;">
+          <div>製表核定：羅玉軒</div>
+          <div>財務審核：__________________</div>
+          <div>負責人簽章：__________________</div>
+        </div>
+      </div>
+
+      <!-- 分頁 B：上游（晶廷機械）請款對帳區 -->
+      <div id="tabB" class="tab-content">
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>承攬夥伴姓名</th>
+                <th>系統計算請款 (未稅)</th>
+                <th>上游實際核對金額 (未稅)</th>
+                <th>對帳比對結果</th>
+              </tr>
+            </thead>
+            <tbody id="tabBBody"></tbody>
+          </table>
+        </div>
+        <!-- 晶廷應請款總金額摘要 -->
+        <div class="profit-grid" style="margin-top: 20px;">
+          <div class="profit-card">
+            <span class="profit-label">晶廷請款總金額 (未稅)</span>
+            <div class="profit-value" id="bTotalExternal">NT$ 0</div>
+          </div>
+          <div class="profit-card accented">
+            <span class="profit-label">請款總金額 (含稅 5%)</span>
+            <div class="profit-value success-text" id="bTotalExternalTax">NT$ 0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 分頁 C：營運綜合毛利中控看板 -->
+      <div id="tabC" class="tab-content">
+        <div class="profit-grid">
+          <div class="profit-card">
+            <span class="profit-label">當期上游請款總額 (晶廷未稅)</span>
+            <div class="profit-value" id="cTotalExternal">NT$ 0</div>
+          </div>
+          <div class="profit-card">
+            <span class="profit-label">外包合作報酬總支出</span>
+            <div class="profit-value" id="cTotalInternal">NT$ 0</div>
+          </div>
+          <div class="profit-card accented">
+            <span class="profit-label">當期營運淨毛利</span>
+            <div class="profit-value success-text" id="cNetProfit">NT$ 0</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
+  <script src="/global_shared.js?v=20260708_v1"></script>
   <script>
     const yearSelect = document.getElementById('yearSelect');
     const monthSelect = document.getElementById('monthSelect');
     const loadBtn = document.getElementById('loadBtn');
-    const alertsContainer = document.getElementById('alertsContainer');
-    const tableBody = document.getElementById('tableBody');
     
-    const valExternal = document.getElementById('valExternal');
-    const valInternal = document.getElementById('valInternal');
-    const valNetProfit = document.getElementById('valNetProfit');
-
+    const contractorSection = document.getElementById('contractorSection');
+    const adminSection = document.getElementById('adminSection');
+    const mobileSummaryGrid = document.getElementById('mobileSummaryGrid');
+    const tabsHeader = document.getElementById('tabsHeader');
+    
     // 初始化年份
     const curYear = new Date().getFullYear();
     for (let y = 2026; y <= curYear + 1; y++) {
@@ -346,9 +511,9 @@
       opt.textContent = `${y} 年`;
       yearSelect.appendChild(opt);
     }
-    yearSelect.value = 2026; // 固定鎖定 2026 年為預設
+    yearSelect.value = 2026;
 
-    // 初始化月份 (支援全年總帳)
+    // 初始化月份
     const months = [
       { val: 'all', text: '年度總帳 (全年)' },
       { val: 1, text: '1 月' }, { val: 2, text: '2 月' }, { val: 3, text: '3 月' },
@@ -362,73 +527,164 @@
       opt.textContent = m.text;
       monthSelect.appendChild(opt);
     });
-    monthSelect.value = 6; // 固定鎖定 6 月為預設以配合破月測試
+    monthSelect.value = 6; // 預設查詢 6 月份實戰大帳
 
     loadBtn.addEventListener('click', fetchData);
-    
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      event.target.classList.add('active');
+    }
+
     function formatNumber(num) {
       return Number(num).toLocaleString('zh-TW');
     }
 
+    // 取得當前使用者角色
+    const currentUser = JSON.parse(sessionStorage.getItem("himori_user")) || { name: 'guest', role: 'guest' };
+    const isMobile = window.innerWidth <= 768;
+
     async function fetchData() {
       const year = yearSelect.value;
       const month = monthSelect.value;
+      
       try {
         const res = await fetch(`/api/admin/billing-payroll?year=${year}&month=${month}`);
         const data = await res.json();
-        render(data);
+        
+        // 判斷權限隔離
+        const partnerNames = ['邱冠英', '郭怡蘭', '萬昱賢'];
+        const isPartner = partnerNames.includes(currentUser.name);
+
+        if (isPartner) {
+          // 承攬夥伴端資安隔離：隱藏大總計、請款與毛利
+          document.getElementById('topControls').style.display = 'none';
+          adminSection.style.display = 'none';
+          contractorSection.style.display = 'block';
+          
+          renderContractor(data, currentUser.name, year, month);
+        } else {
+          // 總裁管理端：網頁端與手機端自適應
+          contractorSection.style.display = 'none';
+          adminSection.style.display = 'block';
+          
+          if (isMobile) {
+            mobileSummaryGrid.style.display = 'grid';
+            tabsHeader.style.display = 'none';
+            // 手機版總裁簡表下，分頁A 移至下方呈現
+            document.getElementById('tabA').classList.add('active');
+            document.getElementById('tabB').style.display = 'none';
+            document.getElementById('tabC').style.display = 'none';
+          } else {
+            mobileSummaryGrid.style.display = 'none';
+            tabsHeader.style.display = 'flex';
+          }
+          
+          renderAdmin(data, year, month);
+        }
       } catch (e) {
         console.error("Fetch payroll error", e);
         alert("⚠️ 無法載入帳目數據，請檢查後台伺服器。");
       }
     }
 
-    function render(data) {
-      // 1. 渲染彙總數據
-      valExternal.textContent = `NT$ ${formatNumber(data.totalExternal)}`;
-      valInternal.textContent = `NT$ ${formatNumber(data.totalInternal)}`;
-      valNetProfit.textContent = `NT$ ${formatNumber(data.netProfit)}`;
+    function renderContractor(data, partnerName, year, month) {
+      const d = data.details.find(x => x.name === partnerName);
+      if (!d) return;
 
-      // 2. 渲染警示訊息
-      alertsContainer.innerHTML = '';
-      let hasAlerts = false;
-      data.details.forEach(d => {
-        if (d.alerts && d.alerts.length > 0) {
-          hasAlerts = true;
-          d.alerts.forEach(msg => {
-            const div = document.createElement('div');
-            div.className = 'warning-alert';
-            div.innerHTML = `<span>⚠️ ${msg}</span>`;
-            alertsContainer.appendChild(div);
-          });
+      document.getElementById('cName').textContent = `${partnerName} 合作對帳明細 (${month === 'all' ? '全年' : month + '月'})`;
+      document.getElementById('cDays').textContent = `${d.workDays} 天`;
+      document.getElementById('cHours').textContent = `${d.hours} 小時`;
+      document.getElementById('cInternal').textContent = `NT$ ${formatNumber(d.internal)}`;
+      document.getElementById('cSpecial').textContent = `NT$ ${formatNumber(d.special)}`;
+      document.getElementById('cTotal').textContent = `NT$ ${formatNumber(d.internal + d.special)}`;
+
+      // 服務工時明細 v2.4.3
+      const logsBody = document.getElementById('contractorLogsBody');
+      logsBody.innerHTML = '';
+
+      if (month === 'all') {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td colspan="4" style="text-align: center; color: var(--text-muted);">全年總帳不載入每日明細，請切換至指定月份查詢。</td>`;
+        logsBody.appendChild(tr);
+        return;
+      }
+
+      // 查詢 HimoriDb 中的 Logs (G drive seeds 已被校正)
+      const allLogs = (window.HimoriDb && window.HimoriDb.attendanceLogs) || [];
+      const prefix = `${year}-0${month}`;
+      const partnerLogs = allLogs.filter(l => l.name === partnerName && l.date.startsWith(prefix));
+
+      // 萬昱賢 6月未到職特殊防線
+      if (partnerName === '萬昱賢' && parseInt(month) === 6) {
+        // 前 21 天為「未到職」明細
+        for (let day = 1; day <= 21; day++) {
+          const dateStr = `2026-06-${day < 10 ? '0' + day : day}`;
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${dateStr}</td>
+            <td style="color: var(--text-muted);">—</td>
+            <td style="color: var(--text-muted);">0</td>
+            <td style="color: var(--accent); font-weight: 600;">未到職</td>
+          `;
+          logsBody.appendChild(tr);
         }
-      });
+      }
 
-      // 3. 渲染明細表格
-      tableBody.innerHTML = '';
-      const isYearly = monthSelect.value === 'all';
+      // 渲染實體工時明細
+      partnerLogs.forEach(l => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${l.date}</td>
+          <td>${l.site} / ${l.zone}</td>
+          <td style="font-weight: 600;">${l.hours}</td>
+          <td>${l.note}</td>
+        `;
+        logsBody.appendChild(tr);
+      });
+    }
+
+    function renderAdmin(data, year, month) {
+      // 1. 渲染四大中控指標
+      document.getElementById('mTotalHours').textContent = `${data.details.reduce((a,b)=>a+b.hours, 0)} 小時`;
+      document.getElementById('mTotalInternal').textContent = `NT$ ${formatNumber(data.totalInternal)}`;
+      document.getElementById('mTotalExternal').textContent = `NT$ ${formatNumber(data.totalExternal)}`;
+      document.getElementById('mNetProfit').textContent = `NT$ ${formatNumber(data.netProfit)}`;
+
+      document.getElementById('bTotalExternal').textContent = `NT$ ${formatNumber(data.totalExternal)}`;
+      document.getElementById('bTotalExternalTax').textContent = `NT$ ${formatNumber(data.totalExternalTax)}`;
       
+      document.getElementById('cTotalExternal').textContent = `NT$ ${formatNumber(data.totalExternal)}`;
+      document.getElementById('cTotalInternal').textContent = `NT$ ${formatNumber(data.totalInternal)}`;
+      document.getElementById('cNetProfit').textContent = `NT$ ${formatNumber(data.netProfit)}`;
+
+      // 2. 渲染 Tab A (發放核定)
+      const tabABody = document.getElementById('tabABody');
+      tabABody.innerHTML = '';
+      
+      const isYearly = month === 'all';
+
       data.details.forEach(d => {
         const tr = document.createElement('tr');
         
-        // 特准津貼欄位渲染邏輯 (對齊黃金防線)
         let specialCellHtml = '';
         if (d.name === '萬昱賢') {
           if (isYearly) {
             specialCellHtml = `<span>${formatNumber(d.special)}</span><span class="status-hint">(累計津貼)</span>`;
           } else {
-            // 月度查詢
-            const isJune = parseInt(monthSelect.value) === 6;
+            const isJune = parseInt(month) === 6;
             if (isJune) {
-              specialCellHtml = `<span class="status-approved">${formatNumber(d.special)}</span><span class="status-hint">(破月特准: 勞健保500+房租1000)</span>`;
-            } else if (parseInt(monthSelect.value) >= 7) {
+              specialCellHtml = `<span class="status-approved">${formatNumber(d.special)}</span><span class="status-hint">(破月特准租屋與保險補貼)</span>`;
+            } else if (parseInt(month) >= 7) {
               if (d.special > 0) {
                 specialCellHtml = `<span class="status-approved">${formatNumber(d.special)}</span><span class="status-hint">(已解鎖: 勞健保2000+房租3000)</span>`;
               } else {
                 specialCellHtml = `
                   <span class="status-frozen">⚠️ 0</span>
                   <span class="status-hint">(出工不滿20天，已自動凍結)</span>
-                  <button class="btn-approve" onclick="approveSpecial('${d.name}', ${yearSelect.value}, ${monthSelect.value})">總裁特准發放</button>
+                  <button class="btn-approve" onclick="approveSpecial('${d.name}', ${year}, ${month})">總裁特准發放</button>
                 `;
               }
             } else {
@@ -436,26 +692,69 @@
             }
           }
         } else {
-          // 其他同仁無特別津貼/扣減，永久為 0
-          specialCellHtml = `<span>0</span><span class="status-hint">(介紹費/佣金歸零)</span>`;
+          specialCellHtml = `<span>0</span><span class="status-hint">(介紹費永久歸零)</span>`;
         }
 
         tr.innerHTML = `
           <td style="font-weight: 600;">${d.name}</td>
-          <td style="font-weight: 500;">NT$ ${formatNumber(d.external)}</td>
-          <td style="font-weight: 500;">NT$ ${formatNumber(d.internal)}</td>
+          <td>${d.hours}</td>
+          <td>${formatNumber(d.internal - d.special)}</td>
           <td>${specialCellHtml}</td>
-          <td style="text-align: center; font-weight: 600;">${d.workDays} 天</td>
-          <td style="font-weight: 600; color: ${d.net >= 0 ? 'var(--text-dark)' : 'var(--accent)'};">
-            NT$ ${formatNumber(d.net)}
+          <td style="font-weight: 600;">${d.workDays} 天</td>
+          <td style="font-weight: 700; color: var(--accent);">NT$ ${formatNumber(d.internal)}</td>
+        `;
+        tabABody.appendChild(tr);
+      });
+
+      // UI 右移與清空合計格約束：正常工時與加班合計格一律清空，橫向 colspan="5" 貼合應發總計左側
+      const trTotal = document.createElement('tr');
+      trTotal.style.background = '#f1f5f9';
+      trTotal.innerHTML = `
+        <td colspan="5" style="text-align: right; font-weight: 700; padding: 12px 18px;">公司合併應發總計：</td>
+        <td style="font-weight: 700; color: var(--accent); padding: 12px 18px;">NT$ ${formatNumber(data.totalInternal)}</td>
+      `;
+      tabABody.appendChild(trTotal);
+
+      // 3. 渲染 Tab B (上游晶廷對帳)
+      const tabBBody = document.getElementById('tabBBody');
+      tabBBody.innerHTML = '';
+      
+      data.details.forEach(d => {
+        const tr = document.createElement('tr');
+        
+        // 請款核對輸入框及比對邏輯
+        tr.innerHTML = `
+          <td style="font-weight: 600;">${d.name}</td>
+          <td style="font-weight: 500;">NT$ ${formatNumber(d.external)}</td>
+          <td>
+            <input type="number" class="reconcile-input" value="${d.external}" id="input_${d.name}" oninput="reconcile('${d.name}', ${d.external})">
+          </td>
+          <td>
+            <span id="label_${d.name}" class="status-approved">✅ 金額相符</span>
           </td>
         `;
-        tableBody.appendChild(tr);
+        tabBBody.appendChild(tr);
       });
     }
 
+    function reconcile(name, calculatedValue) {
+      const inputEl = document.getElementById(`input_${name}`);
+      const labelEl = document.getElementById(`label_${name}`);
+      const enteredValue = parseFloat(inputEl.value);
+
+      if (isNaN(enteredValue) || enteredValue !== calculatedValue) {
+        inputEl.classList.add('discrepancy');
+        labelEl.className = 'status-frozen';
+        labelEl.textContent = '⚠️ 請款金額不符';
+      } else {
+        inputEl.classList.remove('discrepancy');
+        labelEl.className = 'status-approved';
+        labelEl.textContent = '✅ 金額相符';
+      }
+    }
+
     async function approveSpecial(name, year, month) {
-      if (confirm(`確定要手動特准發放 ${name} ${year}年${month}月的 5,000 元特准津貼嗎？此項特准將立即記錄於審計日誌。`)) {
+      if (confirm(`確定要手動特准發放 ${name} ${year}年${month}月的 5,000 元特准津貼嗎？`)) {
         try {
           const response = await fetch('/api/admin/internal-agent', {
             method: 'POST',
@@ -476,7 +775,7 @@
       }
     }
 
-    // 頁面加載自動查詢一次
+    // 頁面加載自動查詢
     fetchData();
   </script>
 </body>
