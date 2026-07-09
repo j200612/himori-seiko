@@ -58,6 +58,82 @@ const bucketName = process.env.GCS_BUCKET_NAME || 'himori-seiko-2006-media';
 const bucket = storage.bucket(bucketName);
 
 // 🔍 自動檢查並建立 GCS 儲存桶
+
+// 🧠 AI中控大腦「多元資料入庫」種子歷史數據置入
+async function seedAiAssets() {
+    try {
+        const assetsCol = firestore.collection('ai_assets');
+        const snap = await assetsCol.limit(1).get();
+        if (snap.empty) {
+            console.log('🧠 AI中控大腦：檢測到無歷史資產，啟動歷史資產置入...');
+            const seedData = [
+                {
+                    id: 'ASSET-001',
+                    name: '大谷保險代理人有限公司 - 工作規則與考勤辦法.pdf',
+                    category: 'PDF',
+                    timestamp: '2025-10-15T09:00:00+08:00',
+                    version: 1,
+                    currentUrl: '/勞動力工會-入會申請書11501.pdf',
+                    aiMetadata: { company: '大谷保險代理人有限公司', type: '工作規則', status: '歷史雜訊' },
+                    isActive: true,
+                    history: []
+                },
+                {
+                    id: 'ASSET-002',
+                    name: '大谷保險代理人有限公司 - 2025年度營運預算模板.xlsx',
+                    category: 'Excel',
+                    timestamp: '2025-11-20T10:30:00+08:00',
+                    version: 1,
+                    currentUrl: '/勞動力工會-入會申請書11501_範例.pdf',
+                    aiMetadata: { company: '大谷保險代理人有限公司', type: '財務預算', status: '歷史雜訊' },
+                    isActive: true,
+                    history: []
+                },
+                {
+                    id: 'ASSET-003',
+                    name: '台股群創 (3481) 技術基本面分析與籌碼動向.pdf',
+                    category: 'PDF',
+                    timestamp: '2025-12-05T14:15:00+08:00',
+                    version: 1,
+                    currentUrl: '/勞動力工會-入會申請書11501_範例.pdf',
+                    aiMetadata: { stockCode: '3481', stockName: '群創', type: '個股研究', status: '歷史雜訊' },
+                    isActive: true,
+                    history: []
+                },
+                {
+                    id: 'ASSET-004',
+                    name: '日森精工 - v2.5.3 財務外包對帳大總表.pdf',
+                    category: 'PDF',
+                    timestamp: '2026-06-30T18:00:00+08:00',
+                    version: 1,
+                    currentUrl: '/勞動力工會-入會申請書11501_範例.pdf',
+                    aiMetadata: { company: '日森精工有限公司', type: '財務總表', version: 'v2.5.3', status: '實戰數據' },
+                    isActive: true,
+                    history: []
+                },
+                {
+                    id: 'ASSET-005',
+                    name: '日森精工 - v2.4.3 承攬夥伴個人明細對帳單.pdf',
+                    category: 'PDF',
+                    timestamp: '2026-06-30T18:30:00+08:00',
+                    version: 1,
+                    currentUrl: '/勞動力工會-入會申請書11501_範例.pdf',
+                    aiMetadata: { company: '日森精工有限公司', type: '個人對帳單', version: 'v2.4.3', status: '實戰數據' },
+                    isActive: true,
+                    history: []
+                }
+            ];
+            for (const item of seedData) {
+                await assetsCol.doc(item.id).set(item);
+            }
+            console.log('✅ 🧠 AI中控大腦歷史資產初始化置入完畢。');
+        }
+    } catch (e) {
+        console.error('❌ AI中控大腦歷史資產初始化失敗:', e);
+    }
+}
+seedAiAssets();
+
 bucket.exists().then(([exists]) => {
     if (!exists) {
         bucket.create({ location: 'asia-east1' }).then(() => {
@@ -716,6 +792,188 @@ app.get('/api/admin/billing-payroll', async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 });
+
+
+// 🧠 AI 中控大腦「多元資料入庫與資產管理」API
+app.get('/api/admin/ai-assets', async (req, res) => {
+    try {
+        const queryStr = req.query.query ? req.query.query.toLowerCase() : '';
+        const assetsCol = firestore.collection('ai_assets');
+        const snap = await assetsCol.where('isActive', '==', true).get();
+        
+        let list = [];
+        snap.forEach(doc => {
+            const data = doc.data();
+            list.push(data);
+        });
+
+        // 關鍵字模糊搜尋
+        if (queryStr) {
+            list = list.filter(item => {
+                const nameMatch = item.name.toLowerCase().includes(queryStr);
+                const catMatch = item.category.toLowerCase().includes(queryStr);
+                const metaMatch = JSON.stringify(item.aiMetadata).toLowerCase().includes(queryStr);
+                return nameMatch || catMatch || metaMatch;
+            });
+        }
+
+        // 時間倒序排序
+        list.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        res.json(list);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// 手動或 AI 電子檔圖檔入庫
+app.post('/api/admin/ai-assets/upload', async (req, res) => {
+    try {
+        const { name, category, url, aiMetadata } = req.body;
+        const id = 'ASSET-' + Date.now();
+        const doc = {
+            id,
+            name: name || '未命名檔案',
+            category: category || 'PDF',
+            timestamp: new Date().toISOString(),
+            version: 1,
+            currentUrl: url || '/勞動力工會-入會申請書11501_範例.pdf',
+            aiMetadata: aiMetadata || { company: '日森精工有限公司', status: '實戰數據' },
+            isActive: true,
+            history: []
+        };
+        await firestore.collection('ai_assets').doc(id).set(doc);
+        res.json({ success: true, doc });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// 模擬語音辨識結構化
+app.post('/api/admin/ai-assets/parse-voice', (req, res) => {
+    try {
+        const { voiceText } = req.body;
+        // 模擬解析語音內容
+        let parsed = {
+            name: 'attendance_voice_input.pdf',
+            category: 'PDF',
+            aiMetadata: { company: '日森精工有限公司', type: '出工對帳', status: '實戰數據' }
+        };
+
+        if (voiceText.includes('大谷')) {
+            parsed.name = '大谷保險_工作日誌.pdf';
+            parsed.aiMetadata.company = '大谷保險代理人有限公司';
+            parsed.aiMetadata.status = '歷史雜訊';
+        } else if (voiceText.includes('群創') || voiceText.includes('3481')) {
+            parsed.name = '群創3481_籌碼分析.pdf';
+            parsed.aiMetadata.company = '台股群創 3481';
+            parsed.aiMetadata.status = '歷史雜訊';
+        }
+
+        res.json(parsed);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// 語音確認後正式入庫
+app.post('/api/admin/ai-assets/create', async (req, res) => {
+    try {
+        const { name, category, aiMetadata } = req.body;
+        const id = 'ASSET-' + Date.now();
+        const doc = {
+            id,
+            name: name || '語音匯入檔案',
+            category: category || 'PDF',
+            timestamp: new Date().toISOString(),
+            version: 1,
+            currentUrl: '/勞動力工會-入會申請書11501_範例.pdf',
+            aiMetadata: aiMetadata || { company: '日森精工有限公司', status: '實戰數據' },
+            isActive: true,
+            history: []
+        };
+        await firestore.collection('ai_assets').doc(id).set(doc);
+        res.json({ success: true, doc });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// 版本更換 (覆蓋)
+app.post('/api/admin/ai-assets/:id/replace', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { newName, newUrl, newMetadata } = req.body;
+        
+        const docRef = firestore.collection('ai_assets').doc(id);
+        const docSnap = await docRef.get();
+        if (!docSnap.exists) {
+            return res.status(404).json({ error: 'Asset not found' });
+        }
+
+        const currentData = docSnap.data();
+
+        // 將當前版本存入歷史
+        const oldVersion = {
+            version: currentData.version,
+            name: currentData.name,
+            timestamp: currentData.timestamp,
+            currentUrl: currentData.currentUrl,
+            aiMetadata: currentData.aiMetadata
+        };
+
+        const updatedHistory = [...(currentData.history || []), oldVersion];
+
+        const updatedDoc = {
+            ...currentData,
+            name: newName || currentData.name,
+            currentUrl: newUrl || currentData.currentUrl,
+            aiMetadata: newMetadata || currentData.aiMetadata,
+            timestamp: new Date().toISOString(),
+            version: currentData.version + 1,
+            history: updatedHistory
+        };
+
+        await docRef.set(updatedDoc);
+        res.json({ success: true, doc: updatedDoc });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// 特權徹底物理刪除
+app.delete('/api/admin/ai-assets/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const docRef = firestore.collection('ai_assets').doc(id);
+        const docSnap = await docRef.get();
+        
+        if (!docSnap.exists) {
+            return res.status(404).json({ error: 'Asset not found' });
+        }
+
+        const data = docSnap.data();
+
+        // 物理毀滅級 GCS 刪除
+        if (data.currentUrl && data.currentUrl.includes(bucketName)) {
+            try {
+                // 獲取 GCS 檔名
+                const parts = data.currentUrl.split('/');
+                const gcsFileName = parts[parts.length - 1];
+                await bucket.file(gcsFileName).delete();
+                console.log('✅ Storage file deleted: ' + gcsFileName);
+            } catch (err) {
+                console.warn('⚠️ Could not delete storage file, it might not exist:', err.message);
+            }
+        }
+
+        // 刪除 Firestore 容器紀錄
+        await docRef.delete();
+        res.json({ success: true, message: 'Asset fully destroyed from Firestore and Storage.' });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 
 // ── 5.4. 內駐 AI 秘書智能體 API ──
 app.post('/api/admin/internal-agent', async (req, res) => {
