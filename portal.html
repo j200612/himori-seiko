@@ -1,3 +1,7 @@
+<!--
+💡 版權所有 © 2026 映向行銷有限公司 (Image Marketing Co., Ltd.)。保留所有權利。
+⚖️ 本原始碼與架構為映向行銷之核心商業機密，專為特定客戶「日森精工」打造之 AI 行政中心模組。
+-->
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -484,12 +488,27 @@
             border: none;
             background: transparent;
         }
+
+        /* 🧠 AI中控入口自適應折行樣式 */
+        #nav-func_ai_asset_ingestion {
+            white-space: normal !important;
+            word-break: break-all !important;
+            height: auto !important;
+            line-height: 1.3 !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+        #nav-func_ai_asset_ingestion .nav-text {
+            white-space: normal !important;
+            word-break: break-all !important;
+            max-width: 100% !important;
+        }
     </style>
 </head>
 <body>
 
     <!-- 🌐 數據中心引入 -->
-    <script src="global_shared.js?v=20260706_v8"></script>
+    <script src="global_shared.js?v=20260710_v2_IMAGE_MARKETING"></script>
 
     <!-- 🔐 登入畫面 -->
     <div id="login-overlay">
@@ -567,7 +586,7 @@
                 </button>
             </div>
             <div class="sidebar-copyright">
-                © 2026 映向行銷. Powered by Image Marketing
+                💡 系統開發維護：映向行銷有限公司 © 2026
             </div>
         </sidebar>
 
@@ -722,8 +741,23 @@
             HimoriDb.load();
             const subscribed = HimoriDb.subscribedModules || [];
 
+            // 檢查是否為外包承攬夥伴以實施最高授權分流
+            const partnerNames = ['邱冠英', '郭怡蘭', '萬昱賢'];
+            const isPartner = partnerNames.includes(currentUser.name) || (currentUser.role && (currentUser.role.includes('同仁') || currentUser.role.includes('領隊')));
+
+            if (!isPartner) {
+                const aiItem = document.createElement("div");
+                aiItem.className = "nav-item";
+                aiItem.id = "nav-func_ai_asset_ingestion";
+                aiItem.title = "🧠 AI多元資料入庫中控大腦";
+                aiItem.innerHTML = `<span class="nav-icon">🧠</span><span class="nav-text">AI多元資料入庫中控大腦</span>`;
+                aiItem.onclick = () => switchSubModule("func_ai_asset_ingestion");
+                menuContainer.appendChild(aiItem);
+            }
+
             const modules = currentUser.authorizedModules || [];
             modules.forEach(modId => {
+                if (modId === 'func_ai_asset_ingestion') return; // 已在最頂層硬編碼釘上
                 const mod = HimoriModules[modId];
                 // 只有訂閱的模組，或是基礎(Base)模組，才會在側邊選單中渲染
                 if (mod && (mod.category === 'base' || subscribed.includes(modId))) {
@@ -752,8 +786,9 @@
             const mod = HimoriModules[moduleId];
             const frame = document.getElementById("main-frame");
 
-            if (mod) {
-                frame.src = mod.src;
+            const srcUrl = mod ? mod.src : (moduleId === 'func_ai_asset_ingestion' ? 'modules/01_Core_Base/ai_asset_ingestion/ai_asset_ingestion.html' : '');
+            if (srcUrl) {
+                frame.src = srcUrl + (srcUrl.includes('?') ? '&' : '?') + 'v=20260710_v2_IMAGE_MARKETING';
             } else {
                 frame.src = "about:blank";
             }

@@ -1,3 +1,5 @@
+// 💡 版權所有 © 2026 映向行銷有限公司 (Image Marketing Co., Ltd.)。保留所有權利。
+// ⚖️ 本原始碼與架構為映向行銷之核心商業機密，專為特定客戶「日森精工」打造之 AI 行政中心模組。
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
@@ -29,10 +31,9 @@ if (typeof global.CustomEvent === 'undefined') {
     };
 }
 
-// 載入全域共享數據中心，並對應 typo 名稱
+// 載入全域共享數據中心
 require('./global_shared.js');
 const HimoriDb = global.window.HimoriDb;
-const HimuriDb = HimoriDb; // 確保與 billing-payroll API 內的拼寫相容
 
 
 const app = express();
@@ -943,6 +944,14 @@ app.post('/api/admin/ai-assets/:id/replace', async (req, res) => {
 // 特權徹底物理刪除
 app.delete('/api/admin/ai-assets/:id', async (req, res) => {
     try {
+        // 總裁身份剛性大鎖
+        const empId = req.headers['x-user-id'] || '';
+        const role = req.headers['x-user-role'] ? decodeURIComponent(req.headers['x-user-role']) : '';
+        const isAdmin = (empId === 'admin' || empId === '0937581112' || role.includes('總裁') || role.includes('管理員') || role === 'admin');
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Forbidden: Admin access required for physical destruction' });
+        }
+
         const { id } = req.params;
         const docRef = firestore.collection('ai_assets').doc(id);
         const docSnap = await docRef.get();

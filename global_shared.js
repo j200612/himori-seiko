@@ -1,3 +1,5 @@
+// 💡 版權所有 © 2026 映向行銷有限公司 (Image Marketing Co., Ltd.)。保留所有權利。
+// ⚖️ 本原始碼與架構為映向行銷之核心商業機密，專為特定客戶「日森精工」打造之 AI 行政中心模組。
 // ==================== 日森精工 | 數位營運中心 共享數據中心 ====================
 // 本檔案負責跨模組（iframe）的資料庫存取、統一初始化、SaaS 模組管理與自動自我修復。
 
@@ -34,6 +36,14 @@
 
     // 系統 SaaS 模組註冊中心 (一般類與功能類)
     const HimoriModules = {
+        func_ai_asset_ingestion: {
+            category: 'base',
+            name: '🧠 AI 多元資料入庫與資產管理',
+            version: '1.0.0',
+            src: 'modules/01_Core_Base/ai_asset_ingestion/ai_asset_ingestion.html',
+            desc: '多元資料入庫、AI辨識結構化、時間流檔案預覽、版本管理與全域搜尋中心',
+            dependencies: []
+        },
         base_brand: {
             category: 'base',
             name: '🎨 企業識別模組',
@@ -144,14 +154,6 @@
             version: '1.0.0',
             src: 'modules/03_Payroll_Office/billing_payroll.html',
             desc: '雙軌算力工時發薪對帳請款模組，進行上游請款與內部夥伴報酬、黃金津貼對帳',
-            dependencies: []
-        },
-        func_ai_asset_ingestion: {
-            category: 'base',
-            name: '🧠 AI 多元資料入庫與資產管理',
-            version: '1.0.0',
-            src: 'modules/01_Core_Base/ai_asset_ingestion/ai_asset_ingestion.html',
-            desc: '多元資料入庫、AI辨識結構化、時間流檔案預覽、版本管理與全域搜尋中心',
             dependencies: []
         }
     };

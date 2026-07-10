@@ -1,3 +1,7 @@
+<!--
+💡 版權所有 © 2026 映向行銷有限公司 (Image Marketing Co., Ltd.)。保留所有權利。
+⚖️ 本原始碼與架構為映向行銷之核心商業機密，專為特定客戶「日森精工」打造之 AI 行政中心模組。
+-->
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -352,7 +356,7 @@
             </div>
             <div class="pdf-buttons">
               <button class="btn btn-outline" onclick="previewPdf()">👁️ 檔案預覽</button>
-              <button class="btn btn-outline" onclick="sendPdf()">✉️ 檔案傳送 (LINE/Email)</button>
+              <button class="btn btn-outline" onclick="sendPdf()">✉️ 檔案傳送</button>
               <button class="btn btn-outline" onclick="printPdf()">🖨️ 檔案列印</button>
             </div>
             <!-- 原地內嵌預覽 -->
@@ -389,15 +393,34 @@
         <!-- 總裁端視角 -->
         <div id="simPresidentView" style="display: none;">
           <h3 style="font-size: 1.1rem; color: var(--text-light); background: var(--primary-bg); padding: 8px; border-radius: 6px;">👑 總裁 AI 中控簡板</h3>
-          <!-- 語音辨識大腦入口 -->
+          <!-- 語音/拍照格式化入庫 -->
           <div class="card" style="padding: 12px; margin-bottom: 12px; border-top: 3px solid var(--accent);">
-            <h4 style="margin: 0 0 8px 0; font-size: 0.9rem;">🎙️ AI 語音/指令格式化入庫</h4>
+            <h4 style="margin: 0 0 8px 0; font-size: 0.9rem;">🎙️ AI 語音/拍照格式化入庫</h4>
             <textarea id="voiceInputText" placeholder="說點什麼...例如：『新增大谷保險考勤規則技術分析』..." style="width:100%; height: 50px; font-size: 0.8rem; padding: 6px; box-sizing: border-box; border-radius: 6px; border: 1px solid var(--border);"></textarea>
-            <button class="btn btn-danger" style="width: 100%; font-size: 0.8rem; margin-top: 6px; padding: 6px;" onclick="triggerVoiceParse()">發送語音指令</button>
+            <div style="display: flex; gap: 8px; margin-top: 6px;">
+              <button class="btn btn-danger" style="flex: 1; font-size: 0.8rem; padding: 6px;" onclick="triggerVoiceParse()">🎙️ 語音入庫</button>
+              <button class="btn btn-primary" style="flex: 1; font-size: 0.8rem; padding: 6px; background-color: var(--success);" onclick="triggerPhotoParse()">📸 拍照辨識</button>
+            </div>
           </div>
           <!-- 核心資產時間流簡表 -->
           <h4 style="margin: 12px 0 6px 0; font-size: 0.9rem; color: var(--primary-bg);">📂 歷史資產盤點與淨化流</h4>
           <div id="simPresidentFiles"></div>
+        </div>
+
+        <!-- 手機端 PDF 預覽與三大按鈕層 -->
+        <div id="mobilePdfPreview" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #f1f5f9; z-index: 100; flex-direction: column; padding: 12px; box-sizing: border-box;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-weight: bold; font-size: 0.85rem; color: var(--text-dark);">📄 手機 PDF 調閱</span>
+            <button class="btn btn-outline" style="font-size: 0.7rem; padding: 2px 6px;" onclick="closeMobilePreview()">關閉</button>
+          </div>
+          <div style="flex: 1; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; background: #fff; margin-bottom: 8px;">
+            <iframe id="mobilePdfIframe" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+          </div>
+          <div style="display: flex; gap: 4px;">
+            <button class="btn btn-outline" style="flex: 1; font-size: 0.7rem; padding: 6px; text-align: center; white-space: nowrap;" onclick="previewPdf()">👁️ 預覽</button>
+            <button class="btn btn-outline" style="flex: 1; font-size: 0.7rem; padding: 6px; text-align: center; white-space: nowrap;" onclick="sendPdf()">✉️ 傳送</button>
+            <button class="btn btn-outline" style="flex: 1; font-size: 0.7rem; padding: 6px; text-align: center; white-space: nowrap;" onclick="printPdf()">🖨️ 列印</button>
+          </div>
         </div>
       </div>
     </div>
@@ -442,6 +465,19 @@
     </div>
   </div>
 
+  <!-- 原始檔預覽彈窗 -->
+  <div class="modal" id="previewModal">
+    <div class="modal-content" style="max-width: 900px; width: 95%; height: 85vh; display: flex; flex-direction: column; padding: 16px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h3 style="margin: 0; color: var(--primary-bg);" id="previewModalTitle">📄 原始檔案調閱預覽</h3>
+        <button class="btn btn-outline" onclick="closeModal('previewModal')" style="padding: 4px 8px;">關閉</button>
+      </div>
+      <div style="flex: 1; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: #fff;">
+        <iframe id="previewIframe" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+      </div>
+    </div>
+  </div>
+
   <!-- 版本更換 Modal -->
   <div class="modal" id="replaceModal">
     <div class="modal-content">
@@ -465,13 +501,13 @@
     </div>
   </div>
 
-  <script src="/global_shared.js?v=20260709_v1"></script>
+  <script src="/global_shared.js?v=20260710_v2_IMAGE_MARKETING"></script>
   <script>
     const currentUser = JSON.parse(sessionStorage.getItem("himori_user")) || { name: "guest", role: "guest" };
     
     // 角色權限安全分流與隱蔽
     const partnerNames = ['邱冠英', '郭怡蘭', '萬昱賢'];
-    const isPartner = partnerNames.includes(currentUser.name);
+    const isPartner = partnerNames.includes(currentUser.name) || (currentUser.role && (currentUser.role.includes('同仁') || currentUser.role.includes('領隊')));
 
     if (isPartner) {
       // 承攬同仁：強制鎖定在時間軌道流，隱藏版本管理分頁、刪除鍵、AI 上傳卡片
@@ -541,7 +577,7 @@
             </div>
           </div>
           <div class="btn-group">
-            <button class="btn btn-outline" onclick="openOriginalPreview('${item.currentUrl}')">👁️ 預覽檔案</button>
+            <button class="btn btn-outline" onclick="openOriginalPreview('${item.currentUrl}', '${item.name.replace(/'/g, "\\'")}')">[👁️ 預覽原始檔]</button>
           </div>
         `;
         t1.appendChild(row1);
@@ -555,7 +591,7 @@
               <span class="file-name">${item.name}</span>
               <div class="file-meta">
                 <span class="badge ${badgeClass}">${item.aiMetadata.status}</span>
-                <span>公司: ${item.aiMetadata.company || '日森精工'}</span>
+                <span>公司/研究: ${item.aiMetadata.company || item.aiMetadata.stockName || '日森精工'}</span>
                 <span>屬性: ${item.aiMetadata.type || '無'}</span>
                 <span>版本: v${item.version}</span>
               </div>
@@ -591,7 +627,7 @@
         row.innerHTML = `
           <div style="font-weight:600; margin-bottom:4px;">${item.name}</div>
           <div style="color:var(--text-muted);">時間: ${new Date(item.timestamp).toLocaleDateString()} (v${item.version})</div>
-          <button class="btn btn-outline" style="font-size:0.7rem; padding: 4px 8px; margin-top: 6px;" onclick="openOriginalPreview('${item.currentUrl}')">👁️ 預覽</button>
+          <button class="btn btn-outline" style="font-size:0.7rem; padding: 4px 8px; margin-top: 6px;" onclick="openMobilePreview('${item.currentUrl}')">👁️ 預覽</button>
         `;
         partnerFiles.appendChild(row);
       });
@@ -606,7 +642,7 @@
           <div style="display:flex; justify-content:space-between; align-items:center; margin-top: 6px;">
             <span style="font-size: 0.7rem; color: ${badgeColor}; font-weight:700;">● ${item.aiMetadata.status}</span>
             <div style="display:flex; gap: 4px;">
-              <button class="btn btn-outline" style="font-size:0.7rem; padding: 3px 6px;" onclick="openOriginalPreview('${item.currentUrl}')">預覽</button>
+              <button class="btn btn-outline" style="font-size:0.7rem; padding: 3px 6px;" onclick="openMobilePreview('${item.currentUrl}')">預覽</button>
               <button class="btn btn-danger" style="font-size:0.7rem; padding: 3px 6px;" onclick="deleteAsset('${item.id}')">物理刪除</button>
             </div>
           </div>
@@ -615,14 +651,48 @@
       });
     }
 
-    // 預覽最原始檔案流彈窗/Iframe
-    function openOriginalPreview(url) {
-      // 在 Tab 3 下方顯示預覽視窗並載入 Iframe
-      switchTab(3);
-      const viewer = document.getElementById('pdfViewerFrame');
-      const iframe = document.getElementById('pdfIframe');
-      viewer.style.display = 'block';
+    // 預覽最原始檔案流彈窗/Iframe (Web 端原地彈窗預覽)
+    function openOriginalPreview(url, name) {
+      document.getElementById('previewModalTitle').textContent = `📄 原始檔調閱預覽: ${name}`;
+      document.getElementById('previewIframe').src = url;
+      openModal('previewModal');
+    }
+
+    // 手機端預覽
+    function openMobilePreview(url) {
+      const preview = document.getElementById('mobilePdfPreview');
+      const iframe = document.getElementById('mobilePdfIframe');
       iframe.src = url;
+      preview.style.display = 'flex';
+    }
+
+    function closeMobilePreview() {
+      const preview = document.getElementById('mobilePdfPreview');
+      const iframe = document.getElementById('mobilePdfIframe');
+      preview.style.display = 'none';
+      iframe.src = '';
+    }
+
+    // 模擬拍照辨識結構化
+    function triggerPhotoParse() {
+      const parsed = {
+        name: 'photo_receipt_captured.jpg',
+        category: 'Image',
+        aiMetadata: {
+          company: '日森精工有限公司',
+          type: '拍照進項憑證',
+          status: '實戰數據'
+        }
+      };
+
+      // 彈出確認防線 Modal
+      document.getElementById('confirmName').value = parsed.name;
+      document.getElementById('confirmCategory').value = parsed.category;
+      document.getElementById('confirmCompany').value = parsed.aiMetadata.company;
+      document.getElementById('confirmType').value = parsed.aiMetadata.type;
+      document.getElementById('confirmStatus').value = parsed.aiMetadata.status;
+      
+      openModal('voiceConfirmModal');
     }
 
     // AI 自動結構化上傳檔案
@@ -756,17 +826,23 @@
       }
     }
 
-    // 物理毀滅級徹底刪除
+    // 物理毀滅級徹底刪除 (帶上身份校驗標頭)
     async function deleteAsset(id) {
       if (confirm('⚠️ 警告：特權物理毀滅級刪除！此操作將連同 Firestore 容器與 Storage 儲存桶內的實體檔案一併連根拔起且無法還原！確定要執行嗎？')) {
         try {
           const res = await fetch(`/api/admin/ai-assets/${id}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: {
+              'X-User-Id': currentUser.empId || '',
+              'X-User-Role': encodeURIComponent(currentUser.role || '')
+            }
           });
           const data = await res.json();
           if (data.success) {
             alert('🔥 檔案與紀錄已完全從資料庫與雲端桶中物理抹除！');
             loadAssets();
+          } else {
+            alert(`⚠️ 刪除失敗: ${data.error || '未授權'}`);
           }
         } catch (e) {
           alert('⚠️ 物理刪除失敗');
@@ -800,6 +876,9 @@
     }
     function closeModal(id) {
       document.getElementById(id).style.display = 'none';
+      if (id === 'previewModal') {
+        document.getElementById('previewIframe').src = '';
+      }
     }
 
     // 初始化自動載入
