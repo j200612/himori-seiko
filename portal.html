@@ -7,7 +7,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>日森精工 | 數位營運指揮中心</title>
+    <title>日森精工 | AI行政中心</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -488,27 +488,12 @@
             border: none;
             background: transparent;
         }
-
-        /* 🧠 AI中控入口自適應折行樣式 */
-        #nav-func_ai_asset_ingestion {
-            white-space: normal !important;
-            word-break: break-all !important;
-            height: auto !important;
-            line-height: 1.3 !important;
-            display: flex !important;
-            align-items: center !important;
-        }
-        #nav-func_ai_asset_ingestion .nav-text {
-            white-space: normal !important;
-            word-break: break-all !important;
-            max-width: 100% !important;
-        }
     </style>
 </head>
 <body>
 
     <!-- 🌐 數據中心引入 -->
-    <script src="global_shared.js?v=20260710_v2_IMAGE_MARKETING"></script>
+    <script src="global_shared.js?v=20260710_v3_IMAGE_MARKETING"></script>
 
     <!-- 🔐 登入畫面 -->
     <div id="login-overlay">
@@ -749,8 +734,8 @@
                 const aiItem = document.createElement("div");
                 aiItem.className = "nav-item";
                 aiItem.id = "nav-func_ai_asset_ingestion";
-                aiItem.title = "🧠 AI多元資料入庫中控大腦";
-                aiItem.innerHTML = `<span class="nav-icon">🧠</span><span class="nav-text">AI多元資料入庫中控大腦</span>`;
+                aiItem.title = "🧠 AI大腦模組";
+                aiItem.innerHTML = `<span class="nav-icon">🧠</span><span class="nav-text">AI大腦模組</span>`;
                 aiItem.onclick = () => switchSubModule("func_ai_asset_ingestion");
                 menuContainer.appendChild(aiItem);
             }
@@ -788,7 +773,7 @@
 
             const srcUrl = mod ? mod.src : (moduleId === 'func_ai_asset_ingestion' ? 'modules/01_Core_Base/ai_asset_ingestion/ai_asset_ingestion.html' : '');
             if (srcUrl) {
-                frame.src = srcUrl + (srcUrl.includes('?') ? '&' : '?') + 'v=20260710_v2_IMAGE_MARKETING';
+                frame.src = srcUrl + (srcUrl.includes('?') ? '&' : '?') + 'v=20260710_v3_IMAGE_MARKETING';
             } else {
                 frame.src = "about:blank";
             }

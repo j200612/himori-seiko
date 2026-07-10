@@ -312,9 +312,15 @@
     <!-- 左側網頁控制台 -->
     <div class="web-panel">
       <!-- 標題與基本說明 -->
-      <div class="card">
-        <h1>🧠 AI 中控大腦：多元資料入庫與資產管理中心</h1>
-        <p style="color: var(--text-muted); font-size: 0.9rem;">
+      <div class="card" style="padding: 24px; margin-bottom: 24px;">
+        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 8px; flex-wrap: wrap;">
+          <img src="../../../../01_企業識別與設計/橫式logo.png" alt="Logo" style="height: 57px; width: auto; filter: drop-shadow(0 0 4px rgba(0,0,0,0.05));">
+          <h1 style="font-size: 1.45rem; border-left: 2px solid var(--border); padding-left: 16px; font-weight: 700; color: var(--primary-bg); margin: 0; display: flex; align-items: center; gap: 8px;">
+            🧠 AI大腦模組
+            <span style="font-size: 0.68rem; font-weight: normal; color: var(--text-muted); margin-left: 8px; vertical-align: middle; background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border); letter-spacing: 0.5px;">v1.0.0</span>
+          </h1>
+        </div>
+        <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); padding-left: 0;">
           管理日森精工有限公司之核心外包承攬文件與財務明細。支援時間軌道流、關鍵字檢索、歷史雜訊盤點與 PDF 輸出。
         </p>
       </div>
@@ -501,7 +507,7 @@
     </div>
   </div>
 
-  <script src="/global_shared.js?v=20260710_v2_IMAGE_MARKETING"></script>
+  <script src="/global_shared.js?v=20260710_v3_IMAGE_MARKETING"></script>
   <script>
     const currentUser = JSON.parse(sessionStorage.getItem("himori_user")) || { name: "guest", role: "guest" };
     
