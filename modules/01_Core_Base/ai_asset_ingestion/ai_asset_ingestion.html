@@ -336,18 +336,18 @@
         </p>
       </div>
 
-      <!-- 兩大獨立分頁 -->
+      <!-- 兩大獨立分頁 (抽屜重組) -->
       <div class="card">
         <div class="tabs-header">
-          <button class="tab-btn active" id="tab1Btn" onclick="switchTab(1)">時間軌道檔案流</button>
-          <button class="tab-btn" id="tab2Btn" onclick="switchTab(2)">歷史資產大淨化 (全域搜尋與版本)</button>
-          <button class="tab-btn" id="tab3Btn" onclick="switchTab(3)">📁 PDF輸出文件模板</button>
+          <button class="tab-btn active" id="tab1Btn" onclick="switchTab(1)">📂 全域時間軌道流</button>
+          <button class="tab-btn" id="tab2Btn" onclick="switchTab(2)">🗃️ 分類資產抽屜頁</button>
+          <button class="tab-btn" id="tab3Btn" onclick="switchTab(3)">🚨 未歸檔與不確定文件</button>
         </div>
 
-        <!-- Tab 1: 時間軌道檔案流 -->
+        <!-- Tab 1: 全域時間軌道流 -->
         <div id="tab1" class="tab-content active">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <h2 style="margin: 0; font-size: 1.2rem;">🕒 時間軌道檔案流</h2>
+            <h2 style="margin: 0; font-size: 1.2rem;">📂 全域時間軌道流</h2>
           </div>
           <!-- 模糊搜尋框 -->
           <div class="form-group" style="margin-bottom: 16px;">
@@ -356,49 +356,24 @@
           <div id="fileStreamList"></div>
         </div>
 
-        <!-- Tab 2: 全域搜尋與版本管理 -->
+        <!-- Tab 2: 分類資產抽屜頁 -->
         <div id="tab2" class="tab-content">
-          <h2 style="font-size: 1.2rem; margin-bottom: 12px;">🔍 歷史資產大淨化</h2>
-          <div class="form-group" style="display: flex; gap: 8px;">
-            <input type="text" id="searchInput" placeholder="輸入檔案關鍵字、日期或對象進行模糊搜尋..." style="flex: 1;">
-            <button class="btn btn-primary" onclick="loadAssets()">篩選檔案</button>
+          <h2 style="font-size: 1.2rem; margin-bottom: 12px;">🗃️ 分類資產抽屜頁</h2>
+          <!-- 抽屜手把快捷按鈕 -->
+          <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+            <button class="btn btn-outline drawer-btn active" id="drawerVoiceBtn" onclick="filterCategoryDrawer('voice')">🎙️ 語音日誌</button>
+            <button class="btn btn-outline drawer-btn" id="drawerFinanceBtn" onclick="filterCategoryDrawer('finance')">🧾 財務憑證</button>
+            <button class="btn btn-outline" id="drawerInsuranceBtn" onclick="filterCategoryDrawer('insurance')">🛡️ 夥伴團保</button>
+            <button class="btn btn-outline" id="drawerTemplateBtn" onclick="filterCategoryDrawer('template')">📄 輸出模板</button>
           </div>
-          <div id="versionManagementList"></div>
+          <div id="categoryDrawerList"></div>
         </div>
 
-        <!-- Tab 3: PDF輸出文件模板 -->
+        <!-- Tab 3: 未歸檔與不確定文件 -->
         <div id="tab3" class="tab-content">
-          <h2 style="font-size: 1.2rem; margin-bottom: 12px;">📁 PDF輸出文件模板</h2>
-          <div id="pdfTemplateList">
-            <!-- Row 1: v2.5.3 -->
-            <div class="file-stream-item">
-              <div class="file-info">
-                <span class="file-name">日森精工有限公司 - v2.5.3 財務外包對帳大總表.pdf</span>
-                <div class="file-meta">
-                  <span class="badge badge-pdf">PDF</span>
-                  <span class="badge badge-real">核心模板</span>
-                  <span>版本: v2.5.3</span>
-                </div>
-              </div>
-              <div class="btn-group">
-                <button class="btn btn-outline" onclick="openOriginalPreview('/勞動力工會-入會申請書11501_範例.pdf', '日森精工有限公司 - v2.5.3 財務外包對帳大總表.pdf')">[👁️ 預覽原始檔]</button>
-              </div>
-            </div>
-            <!-- Row 2: v2.4.3 -->
-            <div class="file-stream-item">
-              <div class="file-info">
-                <span class="file-name">日森精工有限公司 - v2.4.3 承攬夥伴個人明細對帳單.pdf</span>
-                <div class="file-meta">
-                  <span class="badge badge-pdf">PDF</span>
-                  <span class="badge badge-real">核心模板</span>
-                  <span>版本: v2.4.3</span>
-                </div>
-              </div>
-              <div class="btn-group">
-                <button class="btn btn-outline" onclick="openOriginalPreview('/勞動力工會-入會申請書11501.pdf', '日森精工有限公司 - v2.4.3 承攬夥伴個人明細對帳單.pdf')">[👁️ 預覽原始檔]</button>
-              </div>
-            </div>
-          </div>
+          <h2 style="font-size: 1.2rem; margin-bottom: 12px;">🚨 未歸檔與不確定文件</h2>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">專門收納環境噪音太大、解析不完全之舊雜訊檔案。總裁特權隨時歸檔。</p>
+          <div id="noiseDrawerList"></div>
         </div>
       </div>
 
@@ -516,8 +491,8 @@
   <!-- 版本更換 Modal -->
   <div class="modal" id="replaceModal">
     <div class="modal-content">
-      <h3>🔄 更換檔案新版本</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted);">上傳新版本後，舊版本將自動留存歷史軌跡封存。</p>
+      <h3>🔄 更換檔案新版本與歸檔</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted);">上傳新版本後，舊版本將自動留存歷史軌跡封存。總裁特權覆蓋鎖將全程保護防止衝突。</p>
       <div class="form-group">
         <label>新檔案名稱</label>
         <input type="text" id="replaceName" placeholder="請輸入新檔案名稱">
@@ -525,8 +500,8 @@
       <div class="form-group">
         <label>新屬性狀態</label>
         <select id="replaceStatus">
-          <option value="實戰數據">實戰數據</option>
-          <option value="歷史雜訊">歷史雜訊</option>
+          <option value="實戰數據">實戰數據 (保留)</option>
+          <option value="歷史雜訊">歷史雜訊 (過濾)</option>
         </select>
       </div>
       <div class="btn-group" style="justify-content: flex-end; margin-top: 20px;">
@@ -536,7 +511,7 @@
     </div>
   </div>
 
-  <script src="/global_shared.js?v=20260711_v3_IMAGE_MARKETING"></script>
+  <script src="/global_shared.js?v=20260711_v5_IMAGE_MARKETING"></script>
   <script>
     const currentUser = JSON.parse(sessionStorage.getItem("himori_user")) || { name: "guest", role: "guest" };
     
@@ -545,6 +520,7 @@
     const isPartner = partnerNames.includes(currentUser.name) || (currentUser.role && (currentUser.role.includes('同仁') || currentUser.role.includes('領隊')));
 
     let cachedAssets = [];
+    let currentDrawerTab = 'voice';
 
     if (isPartner) {
       // 承攬同仁：強制鎖定在時間軌道流，隱藏版本管理分頁、刪除鍵、AI 上傳卡片
@@ -568,21 +544,21 @@
     }
 
     async function loadAssets() {
-      const q = document.getElementById('searchInput').value;
       try {
-        const res = await fetch(`/api/admin/ai-assets?query=${encodeURIComponent(q)}`);
+        const res = await fetch(`/api/admin/ai-assets`);
         cachedAssets = await res.json();
         
-        renderWebLists(cachedAssets);
+        // 渲染主抽屜
+        renderTab1List(cachedAssets);
+        // 渲染分類抽屜
+        filterCategoryDrawer(currentDrawerTab);
+        // 渲染待辦抽屜
+        renderTab3List(cachedAssets);
+        
         renderSimulatorLists(cachedAssets);
       } catch (e) {
         console.error('Fetch assets error', e);
       }
-    }
-
-    function renderWebLists(data) {
-      renderTab1List(data);
-      renderTab2List(data);
     }
 
     function renderTab1List(data) {
@@ -619,51 +595,11 @@
       });
 
       if (filtered.length === 0) {
-        const emptyMsg = `<p style="text-align:center; color:var(--text-muted); padding: 30px;">查無檔案資產，請重新整理或匯入檔案。</p>`;
-        t1.innerHTML = emptyMsg;
+        t1.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding: 30px;">查無檔案資產，請重新整理或匯入檔案。</p>`;
       }
     }
 
-    function renderTab2List(data) {
-      const t2 = document.getElementById('versionManagementList');
-      t2.innerHTML = '';
-
-      let filtered = data;
-      if (isPartner) {
-        filtered = data.filter(item => item.name.includes(currentUser.name) || item.aiMetadata.type === '個人對帳單');
-      }
-
-      filtered.forEach(item => {
-        const badgeClass = item.aiMetadata.status === '實戰數據' ? 'badge-real' : 'badge-noise';
-
-        if (!isPartner) {
-          const row2 = document.createElement('div');
-          row2.className = 'file-stream-item';
-          row2.innerHTML = `
-            <div class="file-info">
-              <span class="file-name">${item.name}</span>
-              <div class="file-meta">
-                <span class="badge ${badgeClass}">${item.aiMetadata.status}</span>
-                <span>公司/研究: ${item.aiMetadata.company || item.aiMetadata.stockName || '日森精工'}</span>
-                <span>屬性: ${item.aiMetadata.type || '無'}</span>
-                <span>版本: v${item.version}</span>
-              </div>
-            </div>
-            <div class="btn-group">
-              <button class="btn btn-outline" onclick="openReplaceModal('${item.id}', '${item.name.replace(/'/g, "\\'")}', '${item.aiMetadata.status}')">🔄 更換新版本</button>
-              <button class="btn btn-danger" onclick="deleteAsset('${item.id}')">🗑️ 特權徹底刪除</button>
-            </div>
-          `;
-          t2.appendChild(row2);
-        }
-      });
-
-      if (filtered.length === 0) {
-        const emptyMsg = `<p style="text-align:center; color:var(--text-muted); padding: 30px;">查無檔案資產，請重新整理或匯入檔案。</p>`;
-        t2.innerHTML = emptyMsg;
-      }
-    }
-
+    // 模糊搜尋 (Tab 1 專用)
     function filterStreamList() {
       const q = document.getElementById('streamSearchInput').value.toLowerCase().trim();
       let filtered = cachedAssets;
@@ -680,6 +616,93 @@
         });
       }
       renderTab1List(filtered);
+    }
+
+    // 分類抽屜篩選按鈕觸發
+    function filterCategoryDrawer(type) {
+      currentDrawerTab = type;
+      
+      // 更新按鈕 active 狀態
+      document.querySelectorAll('.drawer-btn').forEach(btn => btn.classList.remove('active'));
+      if (type === 'voice') document.getElementById('drawerVoiceBtn').classList.add('active');
+      if (type === 'finance') document.getElementById('drawerFinanceBtn').classList.add('active');
+      if (type === 'insurance') document.getElementById('drawerInsuranceBtn').classList.add('active');
+      if (type === 'template') document.getElementById('drawerTemplateBtn').classList.add('active');
+
+      const container = document.getElementById('categoryDrawerList');
+      container.innerHTML = '';
+
+      let filtered = cachedAssets;
+      if (isPartner) {
+        filtered = filtered.filter(item => item.name.includes(currentUser.name) || item.aiMetadata.type === '個人對帳單');
+      }
+
+      if (type === 'voice') {
+        filtered = filtered.filter(item => item.category === 'Voice' || item.name.toLowerCase().includes('voice') || item.name.includes('語音'));
+      } else if (type === 'finance') {
+        filtered = filtered.filter(item => item.aiMetadata.type === '外包進項單據' || item.aiMetadata.type === '拍照進項憑證' || item.name.includes('對帳') || item.name.includes('憑證'));
+      } else if (type === 'insurance') {
+        filtered = filtered.filter(item => item.name.includes('保險') || item.name.includes('團保') || item.name.includes('工會'));
+      } else if (type === 'template') {
+        filtered = filtered.filter(item => item.name.includes('模板') || item.name.includes('對帳大總表') || item.name.includes('對帳單.pdf'));
+      }
+
+      filtered.forEach(item => {
+        const fileBadge = item.category === 'PDF' ? 'badge-pdf' : 'badge-excel';
+        const row = document.createElement('div');
+        row.className = 'file-stream-item';
+        row.innerHTML = `
+          <div class="file-info">
+            <span class="file-name">${item.name}</span>
+            <div class="file-meta">
+              <span class="badge ${fileBadge}">${item.category}</span>
+              <span>版本: v${item.version}</span>
+              <span>屬性: ${item.aiMetadata.type || '無'}</span>
+            </div>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-outline" onclick="openOriginalPreview('${item.currentUrl}', '${item.name.replace(/'/g, "\\'")}')">[👁️ 預覽原始檔]</button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding: 30px;">該抽屜目前空空如也。</p>`;
+      }
+    }
+
+    // 渲染待辦抽屜 (Tab 3: 未歸檔/歷史雜訊)
+    function renderTab3List(data) {
+      const container = document.getElementById('noiseDrawerList');
+      container.innerHTML = '';
+
+      // 僅展示「歷史雜訊」檔案
+      let filtered = data.filter(item => item.aiMetadata.status === '歷史雜訊');
+
+      filtered.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'file-stream-item';
+        row.innerHTML = `
+          <div class="file-info">
+            <span class="file-name" style="color: #fca5a5;">${item.name}</span>
+            <div class="file-meta">
+              <span class="badge badge-noise">歷史雜訊</span>
+              <span>對象: ${item.aiMetadata.company || '未知'}</span>
+              <span>版本: v${item.version}</span>
+            </div>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-primary" onclick="openReplaceModal('${item.id}', '${item.name.replace(/'/g, "\\'")}', '${item.aiMetadata.status}')">🔄 重新命名/歸檔</button>
+            <button class="btn btn-danger" onclick="deleteAsset('${item.id}')">🗑️ 徹底刪除</button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<p style="text-align:center; color:var(--success); padding: 30px; font-weight: 600;">🎉 太棒了！目前沒有未歸檔的噪訊檔案！</p>`;
+      }
     }
 
     function renderSimulatorLists(data) {
@@ -873,11 +896,15 @@
       }
     }
 
-    // 版本更換 (覆蓋舊版)
+    // 版本更換與歸檔 (防線 B 整合)
     let currentReplaceId = '';
+    let currentReplaceVersion = 0;
     function openReplaceModal(id, name, status) {
       currentReplaceId = id;
-      document.getElementById('replaceName').value = name; // Pre-fill the original name exactly
+      const asset = cachedAssets.find(item => item.id === id);
+      currentReplaceVersion = asset ? asset.version : 0;
+
+      document.getElementById('replaceName').value = name;
       document.getElementById('replaceStatus').value = status;
       openModal('replaceModal');
       
@@ -887,6 +914,7 @@
     async function saveReplacement() {
       const payload = {
         newName: document.getElementById('replaceName').value,
+        currentVersion: currentReplaceVersion, // 帶入前端加載版本號
         newMetadata: {
           company: '日森精工有限公司',
           status: document.getElementById('replaceStatus').value
@@ -896,14 +924,24 @@
       try {
         const res = await fetch(`/api/admin/ai-assets/${currentReplaceId}/replace`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-User-Id': currentUser.empId || '',
+            'X-User-Role': encodeURIComponent(currentUser.role || '')
+          },
           body: JSON.stringify(payload)
         });
         const data = await res.json();
+        if (res.status === 409) {
+          alert(data.error || '⚠️ 偵測到並行衝突阻斷！此版本已被其他同仁修改。');
+          return;
+        }
         if (data.success) {
-          alert('✅ 版本覆蓋與名稱變更成功，歷史軌跡已在後台留存！');
+          alert('✅ 版本更新與歸檔成功，歷史軌跡已在後台安全封存！');
           closeModal('replaceModal');
           loadAssets();
+        } else {
+          alert(`⚠️ 更新失敗: ${data.error}`);
         }
       } catch (e) {
         alert('⚠️ 更換版本失敗');

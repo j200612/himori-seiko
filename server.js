@@ -860,11 +860,18 @@ app.post('/api/admin/ai-assets/parse-voice', (req, res) => {
             aiMetadata: { company: '日森精工有限公司', type: '出工對帳', status: '實戰數據' }
         };
 
-        if (voiceText.includes('大谷')) {
+        // 安全防線 A：語音術語自動校正大腦
+        let correctedText = voiceText || '';
+        if (correctedText.includes('全田') || correctedText.includes('全田機械') || correctedText.includes('村田')) {
+            parsed.name = '村田機械_設備合約.pdf';
+            parsed.aiMetadata.company = '村田機械股份有限公司';
+            parsed.aiMetadata.type = '設備外包承攬';
+            parsed.aiMetadata.status = '實戰數據';
+        } else if (correctedText.includes('大谷')) {
             parsed.name = '大谷保險_工作日誌.pdf';
             parsed.aiMetadata.company = '大谷保險代理人有限公司';
             parsed.aiMetadata.status = '歷史雜訊';
-        } else if (voiceText.includes('群創') || voiceText.includes('3481')) {
+        } else if (correctedText.includes('群創') || correctedText.includes('3481')) {
             parsed.name = '群創3481_籌碼分析.pdf';
             parsed.aiMetadata.company = '台股群創 3481';
             parsed.aiMetadata.status = '歷史雜訊';
@@ -903,8 +910,12 @@ app.post('/api/admin/ai-assets/create', async (req, res) => {
 app.post('/api/admin/ai-assets/:id/replace', async (req, res) => {
     try {
         const { id } = req.params;
-        const { newName, newUrl, newMetadata } = req.body;
+        const { newName, newUrl, newMetadata, currentVersion } = req.body;
         
+        const userRole = req.headers['x-user-role'] ? decodeURIComponent(req.headers['x-user-role']) : '';
+        const userId = req.headers['x-user-id'] || '';
+        const isPresident = userRole.includes('主管') || userRole.includes('總裁') || userId === 'admin';
+
         const docRef = firestore.collection('ai_assets').doc(id);
         const docSnap = await docRef.get();
         if (!docSnap.exists) {
@@ -912,6 +923,11 @@ app.post('/api/admin/ai-assets/:id/replace', async (req, res) => {
         }
 
         const currentData = docSnap.data();
+
+        // 防線 B：總裁專屬特權覆蓋鎖 (並行衝突防止)
+        if (!isPresident && currentVersion !== undefined && parseInt(currentVersion) !== parseInt(currentData.version)) {
+            return res.status(409).json({ error: '⚠️ 偵測到並行修改衝突！此版本已被其他同仁更新，無法覆蓋。本系統以總裁之指令為最高最终依歸。' });
+        }
 
         // 將當前版本存入歷史
         const oldVersion = {
