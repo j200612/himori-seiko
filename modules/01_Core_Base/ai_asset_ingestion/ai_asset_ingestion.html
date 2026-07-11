@@ -7,28 +7,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI中控大腦與多元資料入庫管理系統</title>
+  <title>AI行政中心 | 🧠 AI大腦模組</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  
   <style>
     :root {
-      --primary-bg: #1e293b;
-      --secondary-bg: #334155;
-      --accent: #e11d48;
-      --accent-hover: #be123c;
+      --primary-bg: #0f172a;
+      --secondary-bg: #1e293b;
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.2);
+      --accent-hover: #0ea5e9;
       --success: #10b981;
       --warning: #f59e0b;
       --text-light: #f8fafc;
       --text-dark: #0f172a;
-      --text-muted: #64748b;
-      --border: #e2e8f0;
-      --card-bg: #ffffff;
-      --bg-gradient: linear-gradient(135deg, #f8fafc, #f1f5f9);
+      --text-muted: #94a3b8;
+      --border: rgba(255, 255, 255, 0.08);
+      --card-bg: rgba(30, 41, 59, 0.45);
+      --bg-gradient: linear-gradient(135deg, #090d1a, #0f172a);
     }
     
     body {
       margin: 0;
       font-family: 'Outfit', 'Noto Sans TC', sans-serif;
-      background: var(--bg-gradient);
-      color: var(--text-dark);
+      background: url('../../../../01_企業識別與設計/底色.png') center center / cover no-repeat fixed;
+      color: var(--text-light);
       padding: 24px;
       box-sizing: border-box;
       min-height: 100vh;
@@ -53,22 +59,25 @@
 
     .card {
       background: var(--card-bg);
+      border: 1px solid var(--border);
       border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(15, 23, 42, 0.05);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
       padding: 24px;
       margin-bottom: 24px;
     }
 
     h1, h2, h3 {
       margin-top: 0;
-      color: var(--primary-bg);
+      color: var(--text-light);
     }
 
     /* Tabs */
     .tabs-header {
       display: flex;
       gap: 8px;
-      border-bottom: 2px solid var(--border);
+      border-bottom: 1px solid var(--border);
       margin-bottom: 20px;
     }
 
@@ -85,12 +94,12 @@
     }
 
     .tab-btn:hover {
-      color: var(--primary-bg);
+      color: var(--accent);
     }
 
     .tab-btn.active {
-      color: var(--primary-bg);
-      border-bottom-color: var(--primary-bg);
+      color: var(--accent);
+      border-bottom-color: var(--accent);
     }
 
     .tab-content {
@@ -112,7 +121,7 @@
     }
 
     .file-stream-item:hover {
-      background: #f8fafc;
+      background: rgba(255, 255, 255, 0.03);
     }
 
     .file-info {
@@ -123,7 +132,7 @@
 
     .file-name {
       font-weight: 600;
-      color: var(--primary-bg);
+      color: var(--text-light);
       word-break: break-all;
     }
 
@@ -143,23 +152,23 @@
     }
 
     .badge-noise {
-      background: #fee2e2;
-      color: #ef4444;
+      background: rgba(239, 68, 68, 0.15);
+      color: #fca5a5;
     }
 
     .badge-real {
-      background: #d1fae5;
-      color: #10b981;
+      background: rgba(16, 185, 129, 0.15);
+      color: #a7f3d0;
     }
 
     .badge-excel {
-      background: #fef3c7;
-      color: #d97706;
+      background: rgba(245, 158, 11, 0.15);
+      color: #fde68a;
     }
 
     .badge-pdf {
-      background: #e0f2fe;
-      color: #0284c7;
+      background: rgba(56, 189, 248, 0.15);
+      color: #bae6fd;
     }
 
     /* 操作按鈕 */
@@ -179,31 +188,34 @@
     }
 
     .btn-primary {
-      background: var(--primary-bg);
-      color: var(--text-light);
-    }
-
-    .btn-primary:hover {
-      background: var(--secondary-bg);
-    }
-
-    .btn-danger {
       background: var(--accent);
       color: var(--text-light);
     }
 
-    .btn-danger:hover {
+    .btn-primary:hover {
       background: var(--accent-hover);
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.3);
+      color: white;
     }
 
     .btn-outline {
       border-color: var(--border);
       background: transparent;
-      color: var(--text-dark);
+      color: var(--text-light);
     }
 
     .btn-outline:hover {
-      background: #f1f5f9;
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
     }
 
     /* 手機模擬窗 (Mobile Simulator) */
@@ -214,14 +226,14 @@
       background: #0f172a;
       border-radius: 36px;
       border: 12px solid #334155;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       display: flex;
       flex-direction: column;
       overflow: hidden;
     }
 
     .simulator-screen {
-      background: #f1f5f9;
+      background: #0b0f19;
       flex: 1;
       overflow-y: auto;
       padding: 16px;
@@ -229,7 +241,7 @@
     }
 
     .simulator-header {
-      background: var(--primary-bg);
+      background: var(--secondary-bg);
       color: var(--text-light);
       padding: 12px;
       text-align: center;
@@ -244,12 +256,12 @@
       text-align: center;
       border-radius: 12px;
       cursor: pointer;
-      background: #f8fafc;
+      background: rgba(255, 255, 255, 0.02);
       transition: border-color 0.2s ease;
     }
 
     .upload-area:hover {
-      border-color: var(--primary-bg);
+      border-color: var(--accent);
     }
 
     /* Modal */
@@ -260,19 +272,21 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0,0,0,0.6);
       align-items: center;
       justify-content: center;
       z-index: 1000;
     }
 
     .modal-content {
-      background: var(--card-bg);
+      background: var(--secondary-bg);
+      border: 1px solid var(--border);
+      color: var(--text-light);
       padding: 24px;
       border-radius: 12px;
       max-width: 500px;
       width: 90%;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
     }
 
     .form-group {
@@ -283,27 +297,24 @@
       display: block;
       font-weight: 600;
       margin-bottom: 6px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
     }
 
     .form-group input, .form-group select {
       width: 100%;
-      padding: 8px;
+      padding: 10px;
+      background: rgba(15, 23, 42, 0.6);
       border: 1px solid var(--border);
       border-radius: 6px;
       box-sizing: border-box;
+      color: var(--text-light);
+      outline: none;
+      transition: border-color 0.3s;
     }
 
-    /* PDF 控制台 */
-    .pdf-console {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .pdf-buttons {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
+    .form-group input:focus, .form-group select:focus {
+      border-color: var(--accent);
     }
   </style>
 </head>
@@ -311,13 +322,13 @@
   <div class="main-layout">
     <!-- 左側網頁控制台 -->
     <div class="web-panel">
-      <!-- 標題與基本說明 -->
+      <!-- 標題與基本說明 (與 base_brand 規格一致) -->
       <div class="card" style="padding: 24px; margin-bottom: 24px;">
         <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 8px; flex-wrap: wrap;">
-          <img src="../../../../01_企業識別與設計/橫式logo.png" alt="Logo" style="height: 57px; width: auto; filter: drop-shadow(0 0 4px rgba(0,0,0,0.05));">
-          <h1 style="font-size: 1.45rem; border-left: 2px solid var(--border); padding-left: 16px; font-weight: 700; color: var(--primary-bg); margin: 0; display: flex; align-items: center; gap: 8px;">
+          <img src="../../../../01_企業識別與設計/橫式logo.png" alt="Logo" style="height: 57px; width: auto; filter: drop-shadow(0 0 4px rgba(255,255,255,0.05));">
+          <h1 style="font-size: 1.45rem; border-left: 2px solid var(--border); padding-left: 16px; font-weight: 700; color: #FFFFFF; margin: 0; display: flex; align-items: center; gap: 8px;">
             🧠 AI大腦模組
-            <span style="font-size: 0.68rem; font-weight: normal; color: var(--text-muted); margin-left: 8px; vertical-align: middle; background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border); letter-spacing: 0.5px;">v1.0.0</span>
+            <span style="font-size: 0.68rem; font-weight: normal; color: var(--text-muted); margin-left: 8px; vertical-align: middle; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border); letter-spacing: 0.5px;">v1.0.0</span>
           </h1>
         </div>
         <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); padding-left: 0;">
@@ -330,44 +341,62 @@
         <div class="tabs-header">
           <button class="tab-btn active" id="tab1Btn" onclick="switchTab(1)">時間軌道檔案流</button>
           <button class="tab-btn" id="tab2Btn" onclick="switchTab(2)">歷史資產大淨化 (全域搜尋與版本)</button>
-          <button class="tab-btn" id="tab3Btn" onclick="switchTab(3)">PDF 審定模板輸出主控台</button>
+          <button class="tab-btn" id="tab3Btn" onclick="switchTab(3)">📁 PDF輸出文件模板</button>
         </div>
 
         <!-- Tab 1: 時間軌道檔案流 -->
         <div id="tab1" class="tab-content active">
-          <h2>🕒 時間軌道檔案流</h2>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h2 style="margin: 0; font-size: 1.2rem;">🕒 時間軌道檔案流</h2>
+          </div>
+          <!-- 模糊搜尋框 -->
+          <div class="form-group" style="margin-bottom: 16px;">
+            <input type="text" id="streamSearchInput" placeholder="🔍 搜尋時間軌道檔案（可搜尋檔名、類別、對象、屬性等）..." oninput="filterStreamList()">
+          </div>
           <div id="fileStreamList"></div>
         </div>
 
         <!-- Tab 2: 全域搜尋與版本管理 -->
         <div id="tab2" class="tab-content">
-          <h2>🔍 歷史資產大淨化</h2>
+          <h2 style="font-size: 1.2rem; margin-bottom: 12px;">🔍 歷史資產大淨化</h2>
           <div class="form-group" style="display: flex; gap: 8px;">
-            <input type="text" id="searchInput" placeholder="輸入關鍵字以篩選大谷保險、群創3481或日森精工文件..." style="flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
+            <input type="text" id="searchInput" placeholder="輸入關鍵字以篩選大谷保險、群創3481或日森精工文件..." style="flex: 1;">
             <button class="btn btn-primary" onclick="loadAssets()">篩選檔案</button>
           </div>
           <div id="versionManagementList"></div>
         </div>
 
-        <!-- Tab 3: PDF 審定模板輸出主控台 -->
+        <!-- Tab 3: PDF輸出文件模板 -->
         <div id="tab3" class="tab-content">
-          <h2>📄 PDF 審定模板輸出主控台</h2>
-          <div class="pdf-console">
-            <div class="form-group">
-              <label for="pdfTemplateSelect">選擇審定之固定 PDF 模板</label>
-              <select id="pdfTemplateSelect">
-                <option value="v253">日森精工有限公司 - v2.5.3 財務外包對帳大總表.pdf</option>
-                <option value="v243">日森精工有限公司 - v2.4.3 承攬夥伴個人明細對帳單.pdf</option>
-              </select>
+          <h2 style="font-size: 1.2rem; margin-bottom: 12px;">📁 PDF輸出文件模板</h2>
+          <div id="pdfTemplateList">
+            <!-- Row 1: v2.5.3 -->
+            <div class="file-stream-item">
+              <div class="file-info">
+                <span class="file-name">日森精工有限公司 - v2.5.3 財務外包對帳大總表.pdf</span>
+                <div class="file-meta">
+                  <span class="badge badge-pdf">PDF</span>
+                  <span class="badge badge-real">核心模板</span>
+                  <span>版本: v2.5.3</span>
+                </div>
+              </div>
+              <div class="btn-group">
+                <button class="btn btn-outline" onclick="openOriginalPreview('/勞動力工會-入會申請書11501_範例.pdf', '日森精工有限公司 - v2.5.3 財務外包對帳大總表.pdf')">[👁️ 預覽原始檔]</button>
+              </div>
             </div>
-            <div class="pdf-buttons">
-              <button class="btn btn-outline" onclick="previewPdf()">👁️ 檔案預覽</button>
-              <button class="btn btn-outline" onclick="sendPdf()">✉️ 檔案傳送</button>
-              <button class="btn btn-outline" onclick="printPdf()">🖨️ 檔案列印</button>
-            </div>
-            <!-- 原地內嵌預覽 -->
-            <div id="pdfViewerFrame" style="display: none; border: 1px solid var(--border); border-radius: 12px; height: 400px; margin-top: 16px; overflow: hidden; position: relative;">
-              <iframe id="pdfIframe" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+            <!-- Row 2: v2.4.3 -->
+            <div class="file-stream-item">
+              <div class="file-info">
+                <span class="file-name">日森精工有限公司 - v2.4.3 承攬夥伴個人明細對帳單.pdf</span>
+                <div class="file-meta">
+                  <span class="badge badge-pdf">PDF</span>
+                  <span class="badge badge-real">核心模板</span>
+                  <span>版本: v2.4.3</span>
+                </div>
+              </div>
+              <div class="btn-group">
+                <button class="btn btn-outline" onclick="openOriginalPreview('/勞動力工會-入會申請書11501.pdf', '日森精工有限公司 - v2.4.3 承攬夥伴個人明細對帳單.pdf')">[👁️ 預覽原始檔]</button>
+              </div>
             </div>
           </div>
         </div>
@@ -391,41 +420,41 @@
       <div class="simulator-screen" id="simScreen">
         <!-- 承攬同仁端視角 -->
         <div id="simPartnerView" style="display: none;">
-          <h3 style="font-size: 1.1rem; color: var(--text-light); background: var(--primary-bg); padding: 8px; border-radius: 6px;">👤 外包商個人文件夾</h3>
+          <h3 style="font-size: 1.1rem; color: var(--text-light); background: var(--secondary-bg); padding: 8px; border-radius: 6px;">👤 外包商個人文件夾</h3>
           <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">依授權分流，同仁僅可存取個人對帳明細。</p>
           <div id="simPartnerFiles"></div>
         </div>
 
         <!-- 總裁端視角 -->
         <div id="simPresidentView" style="display: none;">
-          <h3 style="font-size: 1.1rem; color: var(--text-light); background: var(--primary-bg); padding: 8px; border-radius: 6px;">👑 總裁 AI 中控簡板</h3>
+          <h3 style="font-size: 1.1rem; color: var(--text-light); background: var(--secondary-bg); padding: 8px; border-radius: 6px;">👑 總裁 AI 中控簡板</h3>
           <!-- 語音/拍照格式化入庫 -->
-          <div class="card" style="padding: 12px; margin-bottom: 12px; border-top: 3px solid var(--accent);">
+          <div class="card" style="padding: 12px; margin-bottom: 12px; border-top: 3px solid var(--accent); background: rgba(15,23,42,0.4);">
             <h4 style="margin: 0 0 8px 0; font-size: 0.9rem;">🎙️ AI 語音/拍照格式化入庫</h4>
-            <textarea id="voiceInputText" placeholder="說點什麼...例如：『新增大谷保險考勤規則技術分析』..." style="width:100%; height: 50px; font-size: 0.8rem; padding: 6px; box-sizing: border-box; border-radius: 6px; border: 1px solid var(--border);"></textarea>
+            <textarea id="voiceInputText" placeholder="說點什麼...例如：『新增大谷保險考勤規則技術分析』..." style="width:100%; height: 50px; font-size: 0.8rem; padding: 6px; box-sizing: border-box; border-radius: 6px; border: 1px solid var(--border); background: rgba(15,23,42,0.6); color: var(--text-light); outline: none;"></textarea>
             <div style="display: flex; gap: 8px; margin-top: 6px;">
               <button class="btn btn-danger" style="flex: 1; font-size: 0.8rem; padding: 6px;" onclick="triggerVoiceParse()">🎙️ 語音入庫</button>
               <button class="btn btn-primary" style="flex: 1; font-size: 0.8rem; padding: 6px; background-color: var(--success);" onclick="triggerPhotoParse()">📸 拍照辨識</button>
             </div>
           </div>
           <!-- 核心資產時間流簡表 -->
-          <h4 style="margin: 12px 0 6px 0; font-size: 0.9rem; color: var(--primary-bg);">📂 歷史資產盤點與淨化流</h4>
+          <h4 style="margin: 12px 0 6px 0; font-size: 0.9rem; color: var(--accent);">📂 歷史資產盤點與淨化流</h4>
           <div id="simPresidentFiles"></div>
         </div>
 
         <!-- 手機端 PDF 預覽與三大按鈕層 -->
-        <div id="mobilePdfPreview" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #f1f5f9; z-index: 100; flex-direction: column; padding: 12px; box-sizing: border-box;">
+        <div id="mobilePdfPreview" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #0b0f19; z-index: 100; flex-direction: column; padding: 12px; box-sizing: border-box;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <span style="font-weight: bold; font-size: 0.85rem; color: var(--text-dark);">📄 手機 PDF 調閱</span>
+            <span style="font-weight: bold; font-size: 0.85rem; color: var(--text-light);">📄 手機 PDF 調閱</span>
             <button class="btn btn-outline" style="font-size: 0.7rem; padding: 2px 6px;" onclick="closeMobilePreview()">關閉</button>
           </div>
           <div style="flex: 1; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; background: #fff; margin-bottom: 8px;">
             <iframe id="mobilePdfIframe" src="" style="width: 100%; height: 100%; border: none;"></iframe>
           </div>
           <div style="display: flex; gap: 4px;">
-            <button class="btn btn-outline" style="flex: 1; font-size: 0.7rem; padding: 6px; text-align: center; white-space: nowrap;" onclick="previewPdf()">👁️ 預覽</button>
-            <button class="btn btn-outline" style="flex: 1; font-size: 0.7rem; padding: 6px; text-align: center; white-space: nowrap;" onclick="sendPdf()">✉️ 傳送</button>
-            <button class="btn btn-outline" style="flex: 1; font-size: 0.7rem; padding: 6px; text-align: center; white-space: nowrap;" onclick="printPdf()">🖨️ 列印</button>
+            <button class="btn btn-outline" style="flex: 1; font-size: 0.7rem; padding: 6px; text-align: center; white-space: nowrap;" onclick="previewPdfMobile()">👁️ 預覽</button>
+            <button class="btn btn-outline" style="flex: 1; font-size: 0.7rem; padding: 6px; text-align: center; white-space: nowrap;" onclick="sendPdfMobile()">✉️ 傳送</button>
+            <button class="btn btn-outline" style="flex: 1; font-size: 0.7rem; padding: 6px; text-align: center; white-space: nowrap;" onclick="printPdfMobile()">🖨️ 列印</button>
           </div>
         </div>
       </div>
@@ -473,9 +502,9 @@
 
   <!-- 原始檔預覽彈窗 -->
   <div class="modal" id="previewModal">
-    <div class="modal-content" style="max-width: 900px; width: 95%; height: 85vh; display: flex; flex-direction: column; padding: 16px;">
+    <div class="modal-content" style="max-width: 900px; width: 95%; height: 85vh; display: flex; flex-direction: column; padding: 16px; background: var(--secondary-bg);">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-        <h3 style="margin: 0; color: var(--primary-bg);" id="previewModalTitle">📄 原始檔案調閱預覽</h3>
+        <h3 style="margin: 0; color: var(--text-light);" id="previewModalTitle">📄 原始檔案調閱預覽</h3>
         <button class="btn btn-outline" onclick="closeModal('previewModal')" style="padding: 4px 8px;">關閉</button>
       </div>
       <div style="flex: 1; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: #fff;">
@@ -490,8 +519,8 @@
       <h3>🔄 更換檔案新版本</h3>
       <p style="font-size: 0.85rem; color: var(--text-muted);">上傳新版本後，舊版本將自動留存歷史軌跡封存。</p>
       <div class="form-group">
-        <label>新檔名</label>
-        <input type="text" id="replaceName">
+        <label>新檔案名稱</label>
+        <input type="text" id="replaceName" placeholder="請輸入新檔案名稱">
       </div>
       <div class="form-group">
         <label>新屬性狀態</label>
@@ -507,13 +536,15 @@
     </div>
   </div>
 
-  <script src="/global_shared.js?v=20260710_v3_IMAGE_MARKETING"></script>
+  <script src="/global_shared.js?v=20260711_v3_IMAGE_MARKETING"></script>
   <script>
     const currentUser = JSON.parse(sessionStorage.getItem("himori_user")) || { name: "guest", role: "guest" };
     
     // 角色權限安全分流與隱蔽
     const partnerNames = ['邱冠英', '郭怡蘭', '萬昱賢'];
     const isPartner = partnerNames.includes(currentUser.name) || (currentUser.role && (currentUser.role.includes('同仁') || currentUser.role.includes('領隊')));
+
+    let cachedAssets = [];
 
     if (isPartner) {
       // 承攬同仁：強制鎖定在時間軌道流，隱藏版本管理分頁、刪除鍵、AI 上傳卡片
@@ -540,27 +571,26 @@
       const q = document.getElementById('searchInput').value;
       try {
         const res = await fetch(`/api/admin/ai-assets?query=${encodeURIComponent(q)}`);
-        const data = await res.json();
+        cachedAssets = await res.json();
         
-        renderWebLists(data);
-        renderSimulatorLists(data);
+        renderWebLists(cachedAssets);
+        renderSimulatorLists(cachedAssets);
       } catch (e) {
         console.error('Fetch assets error', e);
       }
     }
 
     function renderWebLists(data) {
-      // Tab 1 List
+      renderTab1List(data);
+      renderTab2List(data);
+    }
+
+    function renderTab1List(data) {
       const t1 = document.getElementById('fileStreamList');
       t1.innerHTML = '';
-      
-      // Tab 2 List (搜尋與版本管理)
-      const t2 = document.getElementById('versionManagementList');
-      t2.innerHTML = '';
 
       let filtered = data;
       if (isPartner) {
-        // 同仁僅能看到與自己名字相關，或標註為「個人對帳單」的非敏感檔案
         filtered = data.filter(item => item.name.includes(currentUser.name) || item.aiMetadata.type === '個人對帳單');
       }
 
@@ -569,7 +599,6 @@
         const badgeClass = item.aiMetadata.status === '實戰數據' ? 'badge-real' : 'badge-noise';
         const fileBadge = item.category === 'PDF' ? 'badge-pdf' : 'badge-excel';
 
-        // Tab 1 Row
         const row1 = document.createElement('div');
         row1.className = 'file-stream-item';
         row1.innerHTML = `
@@ -587,8 +616,26 @@
           </div>
         `;
         t1.appendChild(row1);
+      });
 
-        // Tab 2 Row (版本與刪除)
+      if (filtered.length === 0) {
+        const emptyMsg = `<p style="text-align:center; color:var(--text-muted); padding: 30px;">查無檔案資產，請重新整理或匯入檔案。</p>`;
+        t1.innerHTML = emptyMsg;
+      }
+    }
+
+    function renderTab2List(data) {
+      const t2 = document.getElementById('versionManagementList');
+      t2.innerHTML = '';
+
+      let filtered = data;
+      if (isPartner) {
+        filtered = data.filter(item => item.name.includes(currentUser.name) || item.aiMetadata.type === '個人對帳單');
+      }
+
+      filtered.forEach(item => {
+        const badgeClass = item.aiMetadata.status === '實戰數據' ? 'badge-real' : 'badge-noise';
+
         if (!isPartner) {
           const row2 = document.createElement('div');
           row2.className = 'file-stream-item';
@@ -603,7 +650,7 @@
               </div>
             </div>
             <div class="btn-group">
-              <button class="btn btn-outline" onclick="openReplaceModal('${item.id}', '${item.name}', '${item.aiMetadata.status}')">🔄 更換新版本</button>
+              <button class="btn btn-outline" onclick="openReplaceModal('${item.id}', '${item.name.replace(/'/g, "\\'")}', '${item.aiMetadata.status}')">🔄 更換新版本</button>
               <button class="btn btn-danger" onclick="deleteAsset('${item.id}')">🗑️ 特權徹底刪除</button>
             </div>
           `;
@@ -613,9 +660,26 @@
 
       if (filtered.length === 0) {
         const emptyMsg = `<p style="text-align:center; color:var(--text-muted); padding: 30px;">查無檔案資產，請重新整理或匯入檔案。</p>`;
-        t1.innerHTML = emptyMsg;
         t2.innerHTML = emptyMsg;
       }
+    }
+
+    function filterStreamList() {
+      const q = document.getElementById('streamSearchInput').value.toLowerCase().trim();
+      let filtered = cachedAssets;
+      if (q) {
+        filtered = cachedAssets.filter(item => {
+          const name = (item.name || '').toLowerCase();
+          const cat = (item.category || '').toLowerCase();
+          const status = (item.aiMetadata.status || '').toLowerCase();
+          const company = (item.aiMetadata.company || item.aiMetadata.stockName || '').toLowerCase();
+          const type = (item.aiMetadata.type || '').toLowerCase();
+          const version = `v${item.version}`;
+          
+          return name.includes(q) || cat.includes(q) || status.includes(q) || company.includes(q) || type.includes(q) || version.includes(q);
+        });
+      }
+      renderTab1List(filtered);
     }
 
     function renderSimulatorLists(data) {
@@ -629,9 +693,9 @@
       const partnerData = data.filter(item => item.name.includes(currentUser.name) || item.aiMetadata.type === '個人對帳單');
       partnerData.forEach(item => {
         const row = document.createElement('div');
-        row.style = 'background: white; border-radius: 8px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-size: 0.8rem;';
+        row.style = 'background: #1e293b; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-size: 0.8rem;';
         row.innerHTML = `
-          <div style="font-weight:600; margin-bottom:4px;">${item.name}</div>
+          <div style="font-weight:600; margin-bottom:4px; color:var(--text-light);">${item.name}</div>
           <div style="color:var(--text-muted);">時間: ${new Date(item.timestamp).toLocaleDateString()} (v${item.version})</div>
           <button class="btn btn-outline" style="font-size:0.7rem; padding: 4px 8px; margin-top: 6px;" onclick="openMobilePreview('${item.currentUrl}')">👁️ 預覽</button>
         `;
@@ -642,9 +706,9 @@
       data.forEach(item => {
         const badgeColor = item.aiMetadata.status === '實戰數據' ? 'var(--success)' : 'var(--accent)';
         const row = document.createElement('div');
-        row.style = 'background: white; border-radius: 8px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-size: 0.8rem;';
+        row.style = 'background: #1e293b; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-size: 0.8rem;';
         row.innerHTML = `
-          <div style="font-weight:600; margin-bottom:4px;">${item.name}</div>
+          <div style="font-weight:600; margin-bottom:4px; color:var(--text-light);">${item.name}</div>
           <div style="display:flex; justify-content:space-between; align-items:center; margin-top: 6px;">
             <span style="font-size: 0.7rem; color: ${badgeColor}; font-weight:700;">● ${item.aiMetadata.status}</span>
             <div style="display:flex; gap: 4px;">
@@ -665,7 +729,9 @@
     }
 
     // 手機端預覽
+    let mobilePreviewUrl = '';
     function openMobilePreview(url) {
+      mobilePreviewUrl = url;
       const preview = document.getElementById('mobilePdfPreview');
       const iframe = document.getElementById('mobilePdfIframe');
       iframe.src = url;
@@ -677,6 +743,18 @@
       const iframe = document.getElementById('mobilePdfIframe');
       preview.style.display = 'none';
       iframe.src = '';
+      mobilePreviewUrl = '';
+    }
+
+    // 手機模擬控制台按鈕
+    function previewPdfMobile() {
+      if (mobilePreviewUrl) alert(`👁️ [手機模擬器] 正在預覽 PDF：${mobilePreviewUrl}`);
+    }
+    function sendPdfMobile() {
+      if (mobilePreviewUrl) alert('✉️ [手機模擬器] 已傳送 PDF 檔案至主管 LINE 與信箱。');
+    }
+    function printPdfMobile() {
+      if (mobilePreviewUrl) alert('🖨️ [手機模擬器] 已連線 AirPrint 列印本機 PDF 報表。');
     }
 
     // 模擬拍照辨識結構化
@@ -799,7 +877,7 @@
     let currentReplaceId = '';
     function openReplaceModal(id, name, status) {
       currentReplaceId = id;
-      document.getElementById('replaceName').value = `[更新] ${name}`;
+      document.getElementById('replaceName').value = name; // Pre-fill the original name exactly
       document.getElementById('replaceStatus').value = status;
       openModal('replaceModal');
       
@@ -823,7 +901,7 @@
         });
         const data = await res.json();
         if (data.success) {
-          alert('✅ 版本覆蓋成功，歷史軌跡已在後台留存！');
+          alert('✅ 版本覆蓋與名稱變更成功，歷史軌跡已在後台留存！');
           closeModal('replaceModal');
           loadAssets();
         }
@@ -854,26 +932,6 @@
           alert('⚠️ 物理刪除失敗');
         }
       }
-    }
-
-    // PDF 審定模板控制台
-    function previewPdf() {
-      const template = document.getElementById('pdfTemplateSelect').value;
-      const url = template === 'v253' ? '/勞動力工會-入會申請書11501_範例.pdf' : '/勞動力工會-入會申請書11501.pdf';
-      
-      const frame = document.getElementById('pdfViewerFrame');
-      const iframe = document.getElementById('pdfIframe');
-      frame.style.display = 'block';
-      iframe.src = url;
-      alert('👁️ 原地內嵌 PDF 預覽載入完成。');
-    }
-
-    function sendPdf() {
-      alert('✉️ [模擬 AI 傳送] 檔案已一鍵透過 API 封裝並傳送至 LINE 官方中控台、WhatsApp 與您的電子郵件！');
-    }
-
-    function printPdf() {
-      alert('🖨️ [模擬 AI 列印] 已一鍵呼叫本地與手機 AirPrint 無線列印組件，請於出紙匣收取報表。');
     }
 
     // Modal 輔助
