@@ -64,71 +64,142 @@ const bucket = storage.bucket(bucketName);
 async function seedAiAssets() {
     try {
         const assetsCol = firestore.collection('ai_assets');
-        const snap = await assetsCol.limit(1).get();
-        if (snap.empty) {
-            console.log('🧠 AI中控大腦：檢測到無歷史資產，啟動歷史資產置入...');
-            const seedData = [
-                {
-                    id: 'ASSET-001',
-                    name: '大谷保險代理人有限公司 - 工作規則與考勤辦法.pdf',
-                    category: 'PDF',
-                    timestamp: '2025-10-15T09:00:00+08:00',
-                    version: 1,
-                    currentUrl: '/勞動力工會-入會申請書11501.pdf',
-                    aiMetadata: { company: '大谷保險代理人有限公司', type: '工作規則', status: '歷史雜訊' },
-                    isActive: true,
-                    history: []
-                },
-                {
-                    id: 'ASSET-002',
-                    name: '大谷保險代理人有限公司 - 2025年度營運預算模板.xlsx',
-                    category: 'Excel',
-                    timestamp: '2025-11-20T10:30:00+08:00',
-                    version: 1,
-                    currentUrl: '/勞動力工會-入會申請書11501_範例.pdf',
-                    aiMetadata: { company: '大谷保險代理人有限公司', type: '財務預算', status: '歷史雜訊' },
-                    isActive: true,
-                    history: []
-                },
-                {
-                    id: 'ASSET-003',
-                    name: '台股群創 (3481) 技術基本面分析與籌碼動向.pdf',
-                    category: 'PDF',
-                    timestamp: '2025-12-05T14:15:00+08:00',
-                    version: 1,
-                    currentUrl: '/勞動力工會-入會申請書11501_範例.pdf',
-                    aiMetadata: { stockCode: '3481', stockName: '群創', type: '個股研究', status: '歷史雜訊' },
-                    isActive: true,
-                    history: []
-                },
-                {
-                    id: 'ASSET-004',
-                    name: '日森精工 - v2.5.3 財務外包對帳大總表.pdf',
-                    category: 'PDF',
-                    timestamp: '2026-06-30T18:00:00+08:00',
-                    version: 1,
-                    currentUrl: '/勞動力工會-入會申請書11501_範例.pdf',
-                    aiMetadata: { company: '日森精工有限公司', type: '財務總表', version: 'v2.5.3', status: '實戰數據' },
-                    isActive: true,
-                    history: []
-                },
-                {
-                    id: 'ASSET-005',
-                    name: '日森精工 - v2.4.3 承攬夥伴個人明細對帳單.pdf',
-                    category: 'PDF',
-                    timestamp: '2026-06-30T18:30:00+08:00',
-                    version: 1,
-                    currentUrl: '/勞動力工會-入會申請書11501_範例.pdf',
-                    aiMetadata: { company: '日森精工有限公司', type: '個人對帳單', version: 'v2.4.3', status: '實戰數據' },
-                    isActive: true,
-                    history: []
-                }
-            ];
-            for (const item of seedData) {
-                await assetsCol.doc(item.id).set(item);
+        
+        // 為了確保重置，強制清空集合並重新寫入
+        const snapshot = await assetsCol.get();
+        const batch = firestore.batch();
+        snapshot.docs.forEach(doc => batch.delete(doc.ref));
+        await batch.commit();
+        console.log('🗑️ AI資產資料庫已清空。');
+
+        const seedData = [
+            {
+                id: 'ASSET-HIST-1',
+                name: '日森精工 - 橫式LOGO品牌標識.png',
+                category: 'Image',
+                timestamp: '2026-07-12T09:00:00+08:00',
+                version: 1,
+                currentUrl: '/01_企業識別與設計/橫式logo.png',
+                aiMetadata: { company: '日森精工有限公司', type: '🖼️ 企業識別Logo', status: '實戰數據' },
+                isActive: true,
+                history: []
+            },
+            {
+                id: 'ASSET-HIST-2',
+                name: '日森精工 - 直式LOGO品牌標識.png',
+                category: 'Image',
+                timestamp: '2026-07-12T09:05:00+08:00',
+                version: 1,
+                currentUrl: '/01_企業識別與設計/直式logo.png',
+                aiMetadata: { company: '日森精工有限公司', type: '🖼️ 企業識別Logo', status: '實戰數據' },
+                isActive: true,
+                history: []
+            },
+            {
+                id: 'ASSET-HIST-3',
+                name: '日森精工 - 品牌識別系統與設立白皮書.pdf',
+                category: 'PDF',
+                timestamp: '2026-07-12T09:10:00+08:00',
+                version: 1,
+                currentUrl: '/01_企業識別與設計/日森精工品牌識別系統與設立白皮書.pdf',
+                aiMetadata: { company: '日森精工有限公司', type: '🖼️ 企業識別Logo', status: '實戰數據' },
+                isActive: true,
+                history: []
+            },
+            {
+                id: 'ASSET-HIST-4',
+                name: '日森精工 - 品牌識別與設立綱要.txt',
+                category: 'Text',
+                timestamp: '2026-07-12T09:15:00+08:00',
+                version: 1,
+                currentUrl: '/01_企業識別與設計/品牌識別綱要.txt',
+                aiMetadata: { company: '日森精工有限公司', type: '📄 歷史基本資料', status: '實戰數據' },
+                isActive: true,
+                history: []
+            },
+            {
+                id: 'ASSET-HIST-5',
+                name: '日森精工 - 勞動力工會入會申請書.pdf',
+                category: 'PDF',
+                timestamp: '2026-07-12T09:20:00+08:00',
+                version: 1,
+                currentUrl: '/勞動力工會-入會申請書11501.pdf',
+                aiMetadata: { company: '日森精工有限公司', type: '📜 初始合約', status: '實戰數據' },
+                isActive: true,
+                history: []
+            },
+            {
+                id: 'ASSET-HIST-6',
+                name: '日森精工 - 勞動力工會入會申請書_填寫範例.pdf',
+                category: 'PDF',
+                timestamp: '2026-07-12T09:25:00+08:00',
+                version: 1,
+                currentUrl: '/勞動力工會-入會申請書11501_範例.pdf',
+                aiMetadata: { company: '日森精工有限公司', type: '📜 初始合約', status: '實戰數據' },
+                isActive: true,
+                history: []
+            },
+            {
+                id: 'ASSET-HIST-7',
+                name: '日森精工 - 好頭家PLUS二代團保費率及條款.pdf',
+                category: 'PDF',
+                timestamp: '2026-07-12T09:30:00+08:00',
+                version: 1,
+                currentUrl: '/團保/好頭家PLUS二代(工廠工程業)_11105-(5~6類).pdf',
+                aiMetadata: { company: '日森精工有限公司', type: '🛡️ 夥伴團保', status: '實戰數據' },
+                isActive: true,
+                history: []
+            },
+            {
+                id: 'ASSET-HIST-8',
+                name: '日森精工 - 勞工保險職業災害適用費率表.doc',
+                category: 'Word',
+                timestamp: '2026-07-12T09:35:00+08:00',
+                version: 1,
+                currentUrl: '/團保/1101027製(公告於全球資訊網用)-勞工保險職業災害保險適用行業別及費率表(111年1月1日起適用).doc',
+                aiMetadata: { company: '日森精工有限公司', type: '🛡️ 夥伴團保', status: '實戰數據' },
+                isActive: true,
+                history: []
+            },
+            {
+                id: 'ASSET-HIST-9',
+                name: '日森精工 - 財務外包對帳大總表_v2.5.3.pdf',
+                category: 'PDF',
+                timestamp: '2026-07-12T09:40:00+08:00',
+                version: 1,
+                currentUrl: '/勞動力工會-入會申請書11501_範例.pdf',
+                aiMetadata: { company: '日森精工有限公司', type: '🧾 財務憑證', status: '實戰數據' },
+                isActive: true,
+                history: []
+            },
+            {
+                id: 'ASSET-HIST-10',
+                name: '日森精工 - 承攬夥伴個人明細對帳單_v2.4.3.pdf',
+                category: 'PDF',
+                timestamp: '2026-07-12T09:45:00+08:00',
+                version: 1,
+                currentUrl: '/勞動力工會-入會申請書11501_範例.pdf',
+                aiMetadata: { company: '日森精工有限公司', type: '🧾 財務憑證', status: '實戰數據' },
+                isActive: true,
+                history: []
+            },
+            {
+                id: 'ASSET-HIST-11',
+                name: '日森精工 - 總裁隨行語音備忘日誌.mp3',
+                category: 'Voice',
+                timestamp: '2026-07-12T09:50:00+08:00',
+                version: 1,
+                currentUrl: '/勞動力工會-入會申請書11501_範例.pdf',
+                aiMetadata: { company: '日森精工有限公司', type: '🎙️ 語音日誌', status: '實戰數據' },
+                isActive: true,
+                history: []
             }
-            console.log('✅ 🧠 AI中控大腦歷史資產初始化置入完畢。');
+        ];
+        
+        for (const item of seedData) {
+            await assetsCol.doc(item.id).set(item);
         }
+        console.log('✅ 🧠 AI中控大腦歷史資產初始化置入完畢。');
     } catch (e) {
         console.error('❌ AI中控大腦歷史資產初始化失敗:', e);
     }
@@ -138,55 +209,99 @@ seedAiAssets();
 async function seedCoreMemories() {
     try {
         const memCol = firestore.collection('core_memories');
-        const snap = await memCol.limit(1).get();
-        if (snap.empty) {
-            const seedData = [
-                {
-                    id: 'MEM-2026-V1',
-                    code: 'MEM-2026-V1',
-                    name: '【專案唯一合法物理源頭路徑規格】',
-                    content: '全案唯一合法源頭路徑為雲端 G:\\我的雲端硬碟\\ai\\日森精工\\。嚴禁於本地電腦 C 槽建立實體資料夾或進行交叉同步，以維持代碼源頭與實體檔案的絕對純淨。',
-                    version: 1,
-                    timestamp: new Date().toISOString()
-                },
-                {
-                    id: 'MEM-2026-V2',
-                    code: 'MEM-2026-V2',
-                    name: '【全域防快取地雷剛性流水號鐵律】',
-                    content: '每當優化、修復或改寫完實體檔案，必須於全系統腳本與網頁引用端，強制更新後綴流水號標籤（目前最新為 ?v=20260712_v2_IMAGE_MARKETING），藉此徹底踩碎瀏覽器快取地雷。',
-                    version: 1,
-                    timestamp: new Date().toISOString()
-                },
-                {
-                    id: 'MEM-2026-V3',
-                    code: 'MEM-2026-V3',
-                    name: '【映向行銷版權防切與機密宣告規範】',
-                    content: '所有核心檔案最頂端必須刻上「映向行銷有限公司」專利版權註解。左側選單底部必須 100% 完整渲染 💡 系統開發維護：映向行銷有限公司 © 2026 視覺字樣，縮減登出按鈕至 32px，確保全域防跑格。',
-                    version: 1,
-                    timestamp: new Date().toISOString()
-                },
-                {
-                    id: 'MEM-2026-V4',
-                    code: 'MEM-2026-V4',
-                    name: '【大腦底層防線 A：語音術語自動校正字典】',
-                    content: '後台語音解析（/api/admin/ai-assets/parse-voice）時，若聽到台灣國語或環境雜音（如「全田」、「全田機械」、「村田」），系統必須啟動模糊對齊，自動校正並以正確的「村田機械股份有限公司」進行結構化正名入庫。',
-                    version: 1,
-                    timestamp: new Date().toISOString()
-                },
-                {
-                    id: 'MEM-2026-V5',
-                    code: 'MEM-2026-V5',
-                    name: '【大腦底層防線 B：總裁專屬特權覆蓋鎖機制】',
-                    content: '一般同仁進行版本更新或更名若遇並行衝突，後台一律回傳 409 Conflict 阻斷防打架；若偵測操作帳號為最高權限總裁（admin），則直接觸發特權覆蓋鎖強行覆寫，全系統以總裁之最終指令為最高依歸。',
-                    version: 1,
-                    timestamp: new Date().toISOString()
-                }
-            ];
-            for (const item of seedData) {
-                await memCol.doc(item.id).set(item);
+        
+        const snapshot = await memCol.get();
+        const batch = firestore.batch();
+        snapshot.docs.forEach(doc => batch.delete(doc.ref));
+        await batch.commit();
+        console.log('🗑️ 自我核心記憶資料庫已清空。');
+
+        const seedData = [
+            {
+                id: 'MEM-2026-V1',
+                code: 'MEM-2026-V1',
+                name: '【專案唯一合法物理源頭路徑規格】',
+                content: '全案唯一合法源頭路徑為雲端 G:\\我的雲端硬碟\\ai\\日森精工\\。嚴禁於本地電腦 C 槽建立實體資料夾或進行交叉同步，以維持代碼源頭與實體檔案的絕對純淨。',
+                version: 1,
+                timestamp: new Date().toISOString()
+            },
+            {
+                id: 'MEM-2026-V2',
+                code: 'MEM-2026-V2',
+                name: '【全域防快取地雷剛性流水號鐵律】',
+                content: '每當優化、修復或改寫完實體檔案，必須於全系統腳本與網頁引用端，強制更新後綴流水號標籤（目前最新為 ?v=20260712_v2_IMAGE_MARKETING），藉此徹底踩碎瀏覽器快取地雷。',
+                version: 1,
+                timestamp: new Date().toISOString()
+            },
+            {
+                id: 'MEM-2026-V3',
+                code: 'MEM-2026-V3',
+                name: '【映向行銷版權防切與機密宣告規範】',
+                content: '所有核心檔案最頂端必須刻上「映向行銷有限公司」專利版權註解。左側選單底部必須 100% 完整渲染 💡 系統開發維護：映向行銷有限公司 © 2026 視覺字樣，縮減登出按鈕至 32px，確保全域防跑格。',
+                version: 1,
+                timestamp: new Date().toISOString()
+            },
+            {
+                id: 'MEM-2026-V4',
+                code: 'MEM-2026-V4',
+                name: '【大腦底層防線 A：語音術語自動校正字典】',
+                content: '後台語音解析（/api/admin/ai-assets/parse-voice）時，若聽到台灣國語或環境雜音（如「全田」、「全田機械」、「村田」），系統必須啟動模糊對齊，自動校正並以正確的「村田機械股份有限公司」進行結構化正名入庫。',
+                version: 1,
+                timestamp: new Date().toISOString()
+            },
+            {
+                id: 'MEM-2026-V5',
+                code: 'MEM-2026-V5',
+                name: '【大腦底層防線 B：總裁專屬特權覆蓋鎖機制】',
+                content: '一般同仁進行版本更新或更名若遇並行衝突，後台一律回傳 409 Conflict 阻斷防打架；若偵測操作帳號為最高權限總裁（admin），則直接觸發特權覆蓋鎖強行覆寫，全系統以總裁之最終指令為最高依歸。',
+                version: 1,
+                timestamp: new Date().toISOString()
+            },
+            {
+                id: 'MEM-2026-V6',
+                code: 'MEM-2026-V6',
+                name: '【模組化黃金三層目錄架構規範】',
+                content: '系統底層目錄採用「黃金三層架構」（01_Core_Base、02_LINE_Office、03_Industry_Modules / 03_Payroll_Office），以模組化方式管理，實現系統功能的熱插拔與高擴展性。',
+                version: 1,
+                timestamp: new Date().toISOString()
+            },
+            {
+                id: 'MEM-2026-V7',
+                code: 'MEM-2026-V7',
+                name: '【勞工法規身分隔離與防呆鐵律】',
+                content: '在員工名冊模組中正式引入 laborType 欄位，嚴格區分「雇傭-有勞健保」與「承攬-無勞健保」。所有系統邏輯與承攬夥伴介面一律正名為「合作報酬、外包商、承攬夥伴、服務工時」等合規字眼，嚴禁僱傭敏感字詞以防法律風險。',
+                version: 1,
+                timestamp: new Date().toISOString()
+            },
+            {
+                id: 'MEM-2026-V8',
+                code: 'MEM-2026-V8',
+                name: '【角色模組授權與權限隔離原則】',
+                content: '基於安全隔離，非管理員角色（如承攬同仁邱冠英、郭怡蘭等）登入時，利用前端 JS 動態過濾，自動隱蔽「🧠 AI大腦模組」與「⚙️ 權限訂閱模組」等敏感入口，確保資料流權限安全。',
+                version: 1,
+                timestamp: new Date().toISOString()
+            },
+            {
+                id: 'MEM-2026-V9',
+                code: 'MEM-2026-V9',
+                name: '【電子名片與企業識別客製化特徵】',
+                content: '電子名片模組（employee_cards.html）內置專為日森精工設計的實體名片前/後背景與動態套印版面。企業識別模組（brand.html）支援 Whitelabel 機制，可一鍵替換 Logo 與品牌色彩。',
+                version: 1,
+                timestamp: new Date().toISOString()
+            },
+            {
+                id: 'MEM-2026-V10',
+                code: 'MEM-2026-V10',
+                name: '【雙端 AI 智能體入庫與確認防線】',
+                content: '語音與拍照等多元資料輸入時，系統必須先彈出確認防線 Modal 供確認/修改結構化資訊後，方可上載入庫；手機端調閱 PDF 時支援預覽、傳送（LINE/Email）與列印三大控制功能。',
+                version: 1,
+                timestamp: new Date().toISOString()
             }
-            console.log('✅ 自我核心記憶初始化入庫成功。');
+        ];
+        for (const item of seedData) {
+            await memCol.doc(item.id).set(item);
         }
+        console.log('✅ 自我核心記憶初始化入庫成功。');
     } catch (e) {
         console.error('❌ 自我核心記憶初始化失敗:', e);
     }
@@ -196,19 +311,25 @@ seedCoreMemories();
 async function seedAssetTags() {
     try {
         const tagsCol = firestore.collection('asset_tags');
-        const snap = await tagsCol.limit(1).get();
-        if (snap.empty) {
-            const seedTags = [
-                { id: 'tag-1', name: '🎙️ 語音日誌' },
-                { id: 'tag-2', name: '🧾 財務憑證' },
-                { id: 'tag-3', name: '🛡️ 夥伴團保' },
-                { id: 'tag-4', name: '📄 輸出模板' }
-            ];
-            for (const tag of seedTags) {
-                await tagsCol.doc(tag.id).set(tag);
-            }
-            console.log('✅ 業務標籤初始化入庫成功。');
+        
+        const snapshot = await tagsCol.get();
+        const batch = firestore.batch();
+        snapshot.docs.forEach(doc => batch.delete(doc.ref));
+        await batch.commit();
+        console.log('🗑️ 業務標籤資料庫已清空。');
+
+        const seedTags = [
+            { id: 'tag-1', name: '🖼️ 企業識別Logo' },
+            { id: 'tag-2', name: '📄 歷史基本資料' },
+            { id: 'tag-3', name: '📜 初始合約' },
+            { id: 'tag-4', name: '🛡️ 夥伴團保' },
+            { id: 'tag-5', name: '🎙️ 語音日誌' },
+            { id: 'tag-6', name: '🧾 財務憑證' }
+        ];
+        for (const tag of seedTags) {
+            await tagsCol.doc(tag.id).set(tag);
         }
+        console.log('✅ 業務標籤初始化入庫成功。');
     } catch (e) {
         console.error('❌ 業務標籤初始化失敗:', e);
     }
