@@ -322,7 +322,7 @@
   <div class="main-layout">
     <!-- 左側網頁控制台 -->
     <div class="web-panel">
-      <!-- 標題與基本說明 (與 base_brand 規格一致) -->
+      <!-- 標題與說明 -->
       <div class="card" style="padding: 24px; margin-bottom: 24px;">
         <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 8px; flex-wrap: wrap;">
           <img src="../../../../01_企業識別與設計/橫式logo.png" alt="Logo" style="height: 57px; width: auto; filter: drop-shadow(0 0 4px rgba(255,255,255,0.05));">
@@ -332,16 +332,17 @@
           </h1>
         </div>
         <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); padding-left: 0;">
-          管理日森精工有限公司之核心外包承攬文件與財務明細。支援時間軌道流、關鍵字檢索、歷史雜訊盤點與 PDF 輸出。
+          管理日森精工有限公司之核心自我命格世界觀與外部接收數據庫，建構 100% 雲端同步防毀滅防災機制。
         </p>
       </div>
 
-      <!-- 兩大獨立分頁 (抽屜重組) -->
+      <!-- 四大分頁 -->
       <div class="card">
         <div class="tabs-header">
           <button class="tab-btn active" id="tab1Btn" onclick="switchTab(1)">📂 全域時間軌道流</button>
-          <button class="tab-btn" id="tab2Btn" onclick="switchTab(2)">🗃️ 分類資產抽屜頁</button>
+          <button class="tab-btn" id="tab2Btn" onclick="switchTab(2)">🗃️ 外部資訊接收抽屜</button>
           <button class="tab-btn" id="tab3Btn" onclick="switchTab(3)">🚨 未歸檔與不確定文件</button>
+          <button class="tab-btn" id="tab4Btn" onclick="switchTab(4)">💾 自我核心記憶</button>
         </div>
 
         <!-- Tab 1: 全域時間軌道流 -->
@@ -356,34 +357,64 @@
           <div id="fileStreamList"></div>
         </div>
 
-        <!-- Tab 2: 分類資產抽屜頁 -->
+        <!-- Tab 2: 外部資訊接收抽屜 -->
         <div id="tab2" class="tab-content">
-          <h2 style="font-size: 1.2rem; margin-bottom: 12px;">🗃️ 分類資產抽屜頁</h2>
-          <!-- 抽屜手把快捷按鈕 -->
-          <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
-            <button class="btn btn-outline drawer-btn active" id="drawerVoiceBtn" onclick="filterCategoryDrawer('voice')">🎙️ 語音日誌</button>
-            <button class="btn btn-outline drawer-btn" id="drawerFinanceBtn" onclick="filterCategoryDrawer('finance')">🧾 財務憑證</button>
-            <button class="btn btn-outline" id="drawerInsuranceBtn" onclick="filterCategoryDrawer('insurance')">🛡️ 夥伴團保</button>
-            <button class="btn btn-outline" id="drawerTemplateBtn" onclick="filterCategoryDrawer('template')">📄 輸出模板</button>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h2 style="margin: 0; font-size: 1.2rem;">🗃️ 外部資訊接收抽屜</h2>
           </div>
+          
+          <!-- 標籤管理工具區 -->
+          <div style="background: rgba(255,255,255,0.02); border: 1px dashed var(--border); padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 8px;">
+              <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">🏷️ 業務標籤管理工具：</span>
+              <input type="text" id="newTagNameInput" placeholder="輸入標籤名稱（如：🖼️ 企業識別Logo）" style="width: 240px; padding: 6px 10px; background: rgba(15, 23, 42, 0.6); color: var(--text-light); border: 1px solid var(--border); border-radius: 6px; font-size: 0.8rem;">
+              <button class="btn btn-primary" style="padding: 6px 12px; font-size: 0.8rem;" onclick="addAssetTag()">➕ 新增業務標籤</button>
+            </div>
+            <!-- 列出所有可刪除的標籤 -->
+            <div id="tagsManagerList" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+          </div>
+
+          <!-- 抽屜手把按鈕區 -->
+          <div id="drawerHandlesList" style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;"></div>
           <div id="categoryDrawerList"></div>
         </div>
 
         <!-- Tab 3: 未歸檔與不確定文件 -->
         <div id="tab3" class="tab-content">
           <h2 style="font-size: 1.2rem; margin-bottom: 12px;">🚨 未歸檔與不確定文件</h2>
-          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">專門收納環境噪音太大、解析不完全之舊雜訊檔案。總裁特權隨時歸檔。</p>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">存放環境噪音過大解析未完全之檔案。提供總裁覆蓋歸檔更名或物理徹底刪除。</p>
           <div id="noiseDrawerList"></div>
+        </div>
+
+        <!-- Tab 4: 自我核心記憶 -->
+        <div id="tab4" class="tab-content">
+          <h2 style="font-size: 1.2rem; margin-bottom: 12px;">💾 自我核心記憶 (天生命格)</h2>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">本專案的底層開發大框架與基因構想規章，即時與 Firestore 雲端同步儲存，支援總裁隨意志「逆天改命」。</p>
+          <div id="coreMemoriesList"></div>
+
+          <!-- 新增核心記憶區 -->
+          <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); padding: 16px; border-radius: 8px; margin-top: 20px;">
+            <h3 style="font-size: 1rem; margin-bottom: 12px;">➕ 新增自我核心記憶</h3>
+            <div class="form-group">
+              <label>記憶名稱</label>
+              <input type="text" id="newMemoryName" placeholder="例如：【安全驗證角色特權覆蓋規範】">
+            </div>
+            <div class="form-group">
+              <label>記憶內容</label>
+              <textarea id="newMemoryContent" placeholder="輸入規則細節與決策內容..." style="width:100%; height:80px; background: rgba(15, 23, 42, 0.6); color: var(--text-light); border: 1px solid var(--border); border-radius: 6px; padding: 10px; box-sizing: border-box; outline: none;"></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="createCoreMemory()">寫入自我內核記憶</button>
+          </div>
         </div>
       </div>
 
       <!-- AI 檔案/圖檔入庫區 -->
       <div class="card" id="aiUploadCard">
-        <h2>📂 雙端 AI 智能體：檔案與圖檔入庫</h2>
+        <h2>📂 雙端 AI 智能體：檔案與圖檔實體入庫</h2>
         <div class="upload-area" onclick="document.getElementById('fileInput').click()">
           <span style="font-size: 2rem;">📤</span>
           <p style="margin: 8px 0; font-weight: 600;">拖曳檔案至此或點擊選取檔案</p>
-          <span style="font-size: 0.8rem; color: var(--text-muted);">AI 將自動辨識類別、結構化屬性並格式化命名入庫</span>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">上傳的檔案將自動物理同步寫入 GCS 儲存桶與 Firestore</span>
           <input type="file" id="fileInput" style="display: none;" onchange="handleFileUpload(event)">
         </div>
       </div>
@@ -511,7 +542,26 @@
     </div>
   </div>
 
-  <script src="/global_shared.js?v=20260711_v5_IMAGE_MARKETING"></script>
+  <!-- 編輯自我核心記憶 Modal -->
+  <div class="modal" id="editMemoryModal">
+    <div class="modal-content">
+      <h3>✏️ 編輯自我核心記憶</h3>
+      <div class="form-group">
+        <label>記憶名稱</label>
+        <input type="text" id="editMemoryName">
+      </div>
+      <div class="form-group">
+        <label>記憶內容</label>
+        <textarea id="editMemoryContent" style="width:100%; height:120px; background: rgba(15, 23, 42, 0.6); color: var(--text-light); border: 1px solid var(--border); border-radius: 6px; padding: 10px; box-sizing: border-box; outline: none;"></textarea>
+      </div>
+      <div class="btn-group" style="justify-content: flex-end; margin-top: 20px;">
+        <button class="btn btn-outline" onclick="closeModal('editMemoryModal')">取消</button>
+        <button class="btn btn-primary" id="editMemorySaveBtn">儲存變更</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/global_shared.js?v=20260712_v2_IMAGE_MARKETING"></script>
   <script>
     const currentUser = JSON.parse(sessionStorage.getItem("himori_user")) || { name: "guest", role: "guest" };
     
@@ -520,17 +570,19 @@
     const isPartner = partnerNames.includes(currentUser.name) || (currentUser.role && (currentUser.role.includes('同仁') || currentUser.role.includes('領隊')));
 
     let cachedAssets = [];
-    let currentDrawerTab = 'voice';
+    let cachedTags = [];
+    let cachedMemories = [];
+    let currentDrawerTab = '';
 
     if (isPartner) {
-      // 承攬同仁：強制鎖定在時間軌道流，隱藏版本管理分頁、刪除鍵、AI 上傳卡片
+      // 承攬同仁：強制鎖定在時間軌道流，隱藏版本管理、待辦、核心記憶、AI 上傳
       document.getElementById('tab2Btn').style.display = 'none';
       document.getElementById('tab3Btn').style.display = 'none';
+      document.getElementById('tab4Btn').style.display = 'none';
       document.getElementById('aiUploadCard').style.display = 'none';
       document.getElementById('simPartnerView').style.display = 'block';
       document.getElementById('simPresidentView').style.display = 'none';
     } else {
-      // 總裁與管理員：可見全部功能
       document.getElementById('simPartnerView').style.display = 'none';
       document.getElementById('simPresidentView').style.display = 'block';
     }
@@ -548,19 +600,217 @@
         const res = await fetch(`/api/admin/ai-assets`);
         cachedAssets = await res.json();
         
-        // 渲染主抽屜
         renderTab1List(cachedAssets);
-        // 渲染分類抽屜
-        filterCategoryDrawer(currentDrawerTab);
-        // 渲染待辦抽屜
         renderTab3List(cachedAssets);
-        
         renderSimulatorLists(cachedAssets);
+        
+        if (currentDrawerTab) {
+          filterCategoryDrawer(currentDrawerTab);
+        }
       } catch (e) {
         console.error('Fetch assets error', e);
       }
     }
 
+    // ── 標籤載入與維護 ──
+    async function loadAssetTags() {
+      try {
+        const res = await fetch('/api/admin/asset-tags');
+        cachedTags = await res.json();
+        
+        renderTagsManagerList();
+        renderDrawerHandlesList();
+        
+        if (cachedTags.length > 0 && !currentDrawerTab) {
+          currentDrawerTab = cachedTags[0].name;
+          filterCategoryDrawer(currentDrawerTab);
+        }
+      } catch (e) {
+        console.error('Fetch tags error', e);
+      }
+    }
+
+    function renderTagsManagerList() {
+      const container = document.getElementById('tagsManagerList');
+      container.innerHTML = '';
+      cachedTags.forEach(tag => {
+        const span = document.createElement('span');
+        span.style = 'background: rgba(255,255,255,0.05); padding: 4px 8px; border: 1px solid var(--border); border-radius: 4px; font-size: 0.75rem; display: flex; align-items: center; gap: 6px;';
+        span.innerHTML = `${tag.name} <span style="color: #ef4444; cursor: pointer; font-weight: bold;" onclick="deleteAssetTag('${tag.id}')" title="刪除此標籤">❌</span>`;
+        container.appendChild(span);
+      });
+    }
+
+    function renderDrawerHandlesList() {
+      const container = document.getElementById('drawerHandlesList');
+      container.innerHTML = '';
+      cachedTags.forEach(tag => {
+        const btn = document.createElement('button');
+        btn.className = `btn btn-outline drawer-btn ${currentDrawerTab === tag.name ? 'active' : ''}`;
+        btn.textContent = tag.name;
+        btn.onclick = () => {
+          currentDrawerTab = tag.name;
+          document.querySelectorAll('.drawer-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          filterCategoryDrawer(tag.name);
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    async function addAssetTag() {
+      const input = document.getElementById('newTagNameInput');
+      const name = input.value.trim();
+      if (!name) return;
+      
+      try {
+        const res = await fetch('/api/admin/asset-tags', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name })
+        });
+        const data = await res.json();
+        if (data.success) {
+          input.value = '';
+          await loadAssetTags();
+        }
+      } catch (e) {
+        alert('新增標籤失敗');
+      }
+    }
+
+    async function deleteAssetTag(id) {
+      if (!confirm('是否確定要刪除此業務標籤？')) return;
+      try {
+        const res = await fetch(`/api/admin/asset-tags/${id}`, {
+          method: 'DELETE'
+        });
+        const data = await res.json();
+        if (data.success) {
+          if (cachedTags.find(t => t.id === id)?.name === currentDrawerTab) {
+            currentDrawerTab = '';
+          }
+          await loadAssetTags();
+        }
+      } catch (e) {
+        alert('刪除標籤失敗');
+      }
+    }
+
+    // ── 自我核心記憶載入與維護 ──
+    async function loadCoreMemories() {
+      try {
+        const res = await fetch('/api/admin/core-memories');
+        cachedMemories = await res.json();
+        renderCoreMemoriesList();
+      } catch (e) {
+        console.error('Fetch memories error', e);
+      }
+    }
+
+    function renderCoreMemoriesList() {
+      const container = document.getElementById('coreMemoriesList');
+      container.innerHTML = '';
+      
+      cachedMemories.forEach(mem => {
+        const row = document.createElement('div');
+        row.className = 'file-stream-item';
+        row.innerHTML = `
+          <div class="file-info" style="flex: 1; margin-right: 16px;">
+            <span class="file-name" style="color: var(--accent);">${mem.code} - ${mem.name} <span style="font-size: 0.72rem; font-weight: normal; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border); margin-left: 6px;">v${mem.version}</span></span>
+            <div style="font-size: 0.85rem; color: var(--text-light); margin-top: 6px; line-height: 1.5; white-space: pre-wrap;">${mem.content}</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">更新時間: ${new Date(mem.timestamp).toLocaleString('zh-TW')}</div>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-outline" onclick="openEditMemoryModal('${mem.id}', '${mem.name.replace(/'/g, "\\'")}', '${mem.content.replace(/\n/g, "\\n").replace(/'/g, "\\'")}')">✏️ 編輯</button>
+            <button class="btn btn-danger" onclick="deleteCoreMemory('${mem.id}')">🗑️ 刪除</button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+
+      if (cachedMemories.length === 0) {
+        container.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding: 30px;">核心記憶目前是空白的。</p>`;
+      }
+    }
+
+    async function createCoreMemory() {
+      const nameInput = document.getElementById('newMemoryName');
+      const contentInput = document.getElementById('newMemoryContent');
+      const name = nameInput.value.trim();
+      const content = contentInput.value.trim();
+      
+      if (!name || !content) {
+        alert('請填寫完整記憶名稱與內容！');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/admin/core-memories', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, content })
+        });
+        const data = await res.json();
+        if (data.success) {
+          nameInput.value = '';
+          contentInput.value = '';
+          alert('✅ 成功寫入自我核心內核記憶！');
+          await loadCoreMemories();
+        }
+      } catch (e) {
+        alert('寫入記憶失敗');
+      }
+    }
+
+    let currentEditMemoryId = '';
+    function openEditMemoryModal(id, name, content) {
+      currentEditMemoryId = id;
+      document.getElementById('editMemoryName').value = name;
+      document.getElementById('editMemoryContent').value = content;
+      openModal('editMemoryModal');
+      
+      document.getElementById('editMemorySaveBtn').onclick = saveCoreMemoryChange;
+    }
+
+    async function saveCoreMemoryChange() {
+      const name = document.getElementById('editMemoryName').value.trim();
+      const content = document.getElementById('editMemoryContent').value.trim();
+      
+      try {
+        const res = await fetch(`/api/admin/core-memories/${currentEditMemoryId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, content })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('✅ 自我內核記憶更新完成，版本號已自動遞增！');
+          closeModal('editMemoryModal');
+          await loadCoreMemories();
+        }
+      } catch (e) {
+        alert('更新記憶失敗');
+      }
+    }
+
+    async function deleteCoreMemory(id) {
+      if (!confirm('🚨 警告：確定要刪除這條天生命格的核心自我記憶嗎？')) return;
+      try {
+        const res = await fetch(`/api/admin/core-memories/${id}`, {
+          method: 'DELETE'
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('🔥 核心記憶已物理抹除。');
+          await loadCoreMemories();
+        }
+      } catch (e) {
+        alert('刪除記憶失敗');
+      }
+    }
+
+    // ── 檔案列表渲染邏輯 ──
     function renderTab1List(data) {
       const t1 = document.getElementById('fileStreamList');
       t1.innerHTML = '';
@@ -618,17 +868,8 @@
       renderTab1List(filtered);
     }
 
-    // 分類抽屜篩選按鈕觸發
+    // 分類抽屜篩選
     function filterCategoryDrawer(type) {
-      currentDrawerTab = type;
-      
-      // 更新按鈕 active 狀態
-      document.querySelectorAll('.drawer-btn').forEach(btn => btn.classList.remove('active'));
-      if (type === 'voice') document.getElementById('drawerVoiceBtn').classList.add('active');
-      if (type === 'finance') document.getElementById('drawerFinanceBtn').classList.add('active');
-      if (type === 'insurance') document.getElementById('drawerInsuranceBtn').classList.add('active');
-      if (type === 'template') document.getElementById('drawerTemplateBtn').classList.add('active');
-
       const container = document.getElementById('categoryDrawerList');
       container.innerHTML = '';
 
@@ -637,18 +878,24 @@
         filtered = filtered.filter(item => item.name.includes(currentUser.name) || item.aiMetadata.type === '個人對帳單');
       }
 
-      if (type === 'voice') {
-        filtered = filtered.filter(item => item.category === 'Voice' || item.name.toLowerCase().includes('voice') || item.name.includes('語音'));
-      } else if (type === 'finance') {
-        filtered = filtered.filter(item => item.aiMetadata.type === '外包進項單據' || item.aiMetadata.type === '拍照進項憑證' || item.name.includes('對帳') || item.name.includes('憑證'));
-      } else if (type === 'insurance') {
-        filtered = filtered.filter(item => item.name.includes('保險') || item.name.includes('團保') || item.name.includes('工會'));
-      } else if (type === 'template') {
-        filtered = filtered.filter(item => item.name.includes('模板') || item.name.includes('對帳大總表') || item.name.includes('對帳單.pdf'));
+      // 提取標籤純文字（去除 Emoji）
+      const plainTag = type.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '').trim();
+
+      if (plainTag) {
+        filtered = filtered.filter(item => {
+          const name = (item.name || '').toLowerCase();
+          const cat = (item.category || '').toLowerCase();
+          const itemType = (item.aiMetadata.type || '').toLowerCase();
+          const target = plainTag.toLowerCase();
+          
+          return name.includes(target) || cat.includes(target) || itemType.includes(target);
+        });
       }
 
       filtered.forEach(item => {
         const fileBadge = item.category === 'PDF' ? 'badge-pdf' : 'badge-excel';
+        const badgeClass = item.aiMetadata.status === '實戰數據' ? 'badge-real' : 'badge-noise';
+        
         const row = document.createElement('div');
         row.className = 'file-stream-item';
         row.innerHTML = `
@@ -656,19 +903,22 @@
             <span class="file-name">${item.name}</span>
             <div class="file-meta">
               <span class="badge ${fileBadge}">${item.category}</span>
+              <span class="badge ${badgeClass}">${item.aiMetadata.status}</span>
               <span>版本: v${item.version}</span>
-              <span>屬性: ${item.aiMetadata.type || '無'}</span>
+              <span>對象: ${item.aiMetadata.company || '日森精工'}</span>
             </div>
           </div>
           <div class="btn-group">
-            <button class="btn btn-outline" onclick="openOriginalPreview('${item.currentUrl}', '${item.name.replace(/'/g, "\\'")}')">[👁️ 預覽原始檔]</button>
+            <button class="btn btn-outline" onclick="openReplaceModal('${item.id}', '${item.name.replace(/'/g, "\\'")}', '${item.aiMetadata.status}')">🔄 更換新版本</button>
+            <button class="btn btn-outline" onclick="openOriginalPreview('${item.currentUrl}', '${item.name.replace(/'/g, "\\'")}')">[👁️ 預覽]</button>
+            <button class="btn btn-danger" onclick="deleteAsset('${item.id}')">🗑️ 物理刪除</button>
           </div>
         `;
         container.appendChild(row);
       });
 
       if (filtered.length === 0) {
-        container.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding: 30px;">該抽屜目前空空如也。</p>`;
+        container.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding: 30px;">該分類抽屜目前沒有資產檔案。</p>`;
       }
     }
 
@@ -802,27 +1052,42 @@
       openModal('voiceConfirmModal');
     }
 
-    // AI 自動結構化上傳檔案
+    // ── Google Cloud Storage 與 Firestore 雙上傳防災 ──
     async function handleFileUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
 
-      const aiParsedName = `日森精工 - ${file.name}`;
-      const ext = file.name.split('.').pop().toUpperCase();
-      const category = (ext === 'XLSX' || ext === 'XLS') ? 'Excel' : 'PDF';
-
-      const payload = {
-        name: aiParsedName,
-        category: category,
-        url: '/勞動力工會-入會申請書11501_範例.pdf', // 預設使用範例PDF以供預覽
-        aiMetadata: {
-          company: '日森精工有限公司',
-          type: '外包進項單據',
-          status: '實戰數據'
-        }
-      };
-
+      // 1. 上傳實體檔案至 Google Cloud Storage
+      const formData = new FormData();
+      formData.append('file', file);
+      
       try {
+        const uploadRes = await fetch('/api/storage/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const uploadData = await uploadRes.json();
+        
+        let fileUrl = '/勞動力工會-入會申請書11501_範例.pdf';
+        if (uploadData.success && uploadData.url) {
+          fileUrl = uploadData.url;
+        }
+
+        const aiParsedName = `日森精工 - ${file.name}`;
+        const ext = file.name.split('.').pop().toUpperCase();
+        const category = (ext === 'XLSX' || ext === 'XLS') ? 'Excel' : 'PDF';
+
+        const payload = {
+          name: aiParsedName,
+          category: category,
+          url: fileUrl,
+          aiMetadata: {
+            company: '日森精工有限公司',
+            type: '外包進項單據',
+            status: '實戰數據'
+          }
+        };
+
         const res = await fetch('/api/admin/ai-assets/upload', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -830,11 +1095,11 @@
         });
         const resData = await res.json();
         if (resData.success) {
-          alert(`✅ AI 大腦辨識完成！成功匯入資產：${resData.doc.name}`);
+          alert(`✅ AI 大腦辨識與 Cloud Storage 物理備份完成！成功匯入資產：${resData.doc.name}`);
           loadAssets();
         }
       } catch (e) {
-        alert('⚠️ 上傳失敗');
+        alert('⚠️ 上傳至雲端防災 Storage 失敗');
       }
     }
 
@@ -984,7 +1249,13 @@
     }
 
     // 初始化自動載入
-    loadAssets();
+    async function init() {
+      await loadAssetTags();
+      await loadAssets();
+      await loadCoreMemories();
+    }
+    
+    init();
   </script>
 </body>
 </html>

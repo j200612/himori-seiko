@@ -135,6 +135,87 @@ async function seedAiAssets() {
 }
 seedAiAssets();
 
+async function seedCoreMemories() {
+    try {
+        const memCol = firestore.collection('core_memories');
+        const snap = await memCol.limit(1).get();
+        if (snap.empty) {
+            const seedData = [
+                {
+                    id: 'MEM-2026-V1',
+                    code: 'MEM-2026-V1',
+                    name: '【專案唯一合法物理源頭路徑規格】',
+                    content: '全案唯一合法源頭路徑為雲端 G:\\我的雲端硬碟\\ai\\日森精工\\。嚴禁於本地電腦 C 槽建立實體資料夾或進行交叉同步，以維持代碼源頭與實體檔案的絕對純淨。',
+                    version: 1,
+                    timestamp: new Date().toISOString()
+                },
+                {
+                    id: 'MEM-2026-V2',
+                    code: 'MEM-2026-V2',
+                    name: '【全域防快取地雷剛性流水號鐵律】',
+                    content: '每當優化、修復或改寫完實體檔案，必須於全系統腳本與網頁引用端，強制更新後綴流水號標籤（目前最新為 ?v=20260712_v2_IMAGE_MARKETING），藉此徹底踩碎瀏覽器快取地雷。',
+                    version: 1,
+                    timestamp: new Date().toISOString()
+                },
+                {
+                    id: 'MEM-2026-V3',
+                    code: 'MEM-2026-V3',
+                    name: '【映向行銷版權防切與機密宣告規範】',
+                    content: '所有核心檔案最頂端必須刻上「映向行銷有限公司」專利版權註解。左側選單底部必須 100% 完整渲染 💡 系統開發維護：映向行銷有限公司 © 2026 視覺字樣，縮減登出按鈕至 32px，確保全域防跑格。',
+                    version: 1,
+                    timestamp: new Date().toISOString()
+                },
+                {
+                    id: 'MEM-2026-V4',
+                    code: 'MEM-2026-V4',
+                    name: '【大腦底層防線 A：語音術語自動校正字典】',
+                    content: '後台語音解析（/api/admin/ai-assets/parse-voice）時，若聽到台灣國語或環境雜音（如「全田」、「全田機械」、「村田」），系統必須啟動模糊對齊，自動校正並以正確的「村田機械股份有限公司」進行結構化正名入庫。',
+                    version: 1,
+                    timestamp: new Date().toISOString()
+                },
+                {
+                    id: 'MEM-2026-V5',
+                    code: 'MEM-2026-V5',
+                    name: '【大腦底層防線 B：總裁專屬特權覆蓋鎖機制】',
+                    content: '一般同仁進行版本更新或更名若遇並行衝突，後台一律回傳 409 Conflict 阻斷防打架；若偵測操作帳號為最高權限總裁（admin），則直接觸發特權覆蓋鎖強行覆寫，全系統以總裁之最終指令為最高依歸。',
+                    version: 1,
+                    timestamp: new Date().toISOString()
+                }
+            ];
+            for (const item of seedData) {
+                await memCol.doc(item.id).set(item);
+            }
+            console.log('✅ 自我核心記憶初始化入庫成功。');
+        }
+    } catch (e) {
+        console.error('❌ 自我核心記憶初始化失敗:', e);
+    }
+}
+seedCoreMemories();
+
+async function seedAssetTags() {
+    try {
+        const tagsCol = firestore.collection('asset_tags');
+        const snap = await tagsCol.limit(1).get();
+        if (snap.empty) {
+            const seedTags = [
+                { id: 'tag-1', name: '🎙️ 語音日誌' },
+                { id: 'tag-2', name: '🧾 財務憑證' },
+                { id: 'tag-3', name: '🛡️ 夥伴團保' },
+                { id: 'tag-4', name: '📄 輸出模板' }
+            ];
+            for (const tag of seedTags) {
+                await tagsCol.doc(tag.id).set(tag);
+            }
+            console.log('✅ 業務標籤初始化入庫成功。');
+        }
+    } catch (e) {
+        console.error('❌ 業務標籤初始化失敗:', e);
+    }
+}
+seedAssetTags();
+
+
 bucket.exists().then(([exists]) => {
     if (!exists) {
         bucket.create({ location: 'asia-east1' }).then(() => {
@@ -994,6 +1075,110 @@ app.delete('/api/admin/ai-assets/:id', async (req, res) => {
         // 刪除 Firestore 容器紀錄
         await docRef.delete();
         res.json({ success: true, message: 'Asset fully destroyed from Firestore and Storage.' });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+
+// ── 自我核心記憶 CRUD ──
+app.get('/api/admin/core-memories', async (req, res) => {
+    try {
+        const snap = await firestore.collection('core_memories').get();
+        const memories = [];
+        snap.forEach(doc => memories.push(doc.data()));
+        memories.sort((a, b) => b.code.localeCompare(a.code));
+        res.json(memories);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.post('/api/admin/core-memories', async (req, res) => {
+    try {
+        const { name, content } = req.body;
+        const countSnap = await firestore.collection('core_memories').get();
+        const codeNum = countSnap.size + 1;
+        const code = `MEM-2026-V${codeNum}`;
+        const id = code;
+        const memory = {
+            id,
+            code,
+            name: name || '【未命名記憶】',
+            content: content || '',
+            version: 1,
+            timestamp: new Date().toISOString()
+        };
+        await firestore.collection('core_memories').doc(id).set(memory);
+        res.json({ success: true, doc: memory });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.put('/api/admin/core-memories/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, content } = req.body;
+        const docRef = firestore.collection('core_memories').doc(id);
+        const docSnap = await docRef.get();
+        if (!docSnap.exists) {
+            return res.status(404).json({ error: 'Memory not found' });
+        }
+        const current = docSnap.data();
+        const updated = {
+            ...current,
+            name: name || current.name,
+            content: content || current.content,
+            version: (current.version || 1) + 1,
+            timestamp: new Date().toISOString()
+        };
+        await docRef.set(updated);
+        res.json({ success: true, doc: updated });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.delete('/api/admin/core-memories/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        await firestore.collection('core_memories').doc(id).delete();
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// ── 業務標籤 CRUD ──
+app.get('/api/admin/asset-tags', async (req, res) => {
+    try {
+        const snap = await firestore.collection('asset_tags').get();
+        const tags = [];
+        snap.forEach(doc => tags.push(doc.data()));
+        res.json(tags);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.post('/api/admin/asset-tags', async (req, res) => {
+    try {
+        const { name } = req.body;
+        const id = 'tag-' + Date.now();
+        const tag = { id, name };
+        await firestore.collection('asset_tags').doc(id).set(tag);
+        res.json({ success: true, doc: tag });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.delete('/api/admin/asset-tags/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        await firestore.collection('asset_tags').doc(id).delete();
+        res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
