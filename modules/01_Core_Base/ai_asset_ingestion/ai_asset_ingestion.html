@@ -79,6 +79,7 @@
       gap: 8px;
       border-bottom: 1px solid var(--border);
       margin-bottom: 20px;
+      flex-wrap: wrap;
     }
 
     .tab-btn {
@@ -336,13 +337,14 @@
         </p>
       </div>
 
-      <!-- 四大分頁 -->
+      <!-- 五大分頁 -->
       <div class="card">
         <div class="tabs-header">
           <button class="tab-btn active" id="tab1Btn" onclick="switchTab(1)">📂 全域時間軌道流</button>
           <button class="tab-btn" id="tab2Btn" onclick="switchTab(2)">🗃️ 外部資訊接收抽屜</button>
           <button class="tab-btn" id="tab3Btn" onclick="switchTab(3)">🚨 未歸檔與不確定文件</button>
           <button class="tab-btn" id="tab4Btn" onclick="switchTab(4)">💾 自我核心記憶</button>
+          <button class="tab-btn" id="tab5Btn" onclick="switchTab(5)">📋 輸出文件範本管理</button>
         </div>
 
         <!-- Tab 1: 全域時間軌道流 -->
@@ -401,9 +403,42 @@
             </div>
             <div class="form-group">
               <label>記憶內容</label>
-              <textarea id="newMemoryContent" placeholder="輸入規則細節與決策內容..." style="width:100%; height:80px; background: rgba(15, 23, 42, 0.6); color: var(--text-light); border: 1px solid var(--border); border-radius: 6px; padding: 10px; box-sizing: border-box; outline: none;"></textarea>
+              <textarea id="newMemoryContent" placeholder="輸入規則細節與決訊內容..." style="width:100%; height:80px; background: rgba(15, 23, 42, 0.6); color: var(--text-light); border: 1px solid var(--border); border-radius: 6px; padding: 10px; box-sizing: border-box; outline: none;"></textarea>
             </div>
             <button class="btn btn-primary" onclick="createCoreMemory()">寫入自我內核記憶</button>
+          </div>
+        </div>
+
+        <!-- Tab 5: 輸出文件範本管理 -->
+        <div id="tab5" class="tab-content">
+          <h2 style="font-size: 1.2rem; margin-bottom: 12px;">📋 輸出文件範本管理</h2>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">
+            上傳同仁現成歷史檔案，AI 大腦將自動逆向解析欄位，定位出變數填空位置（如姓名、薪資、工時等），並存入範本庫。
+          </p>
+          
+          <!-- 範本上傳區 -->
+          <div class="upload-area" onclick="document.getElementById('templateFileInput').click()" style="margin-bottom: 24px;">
+            <span style="font-size: 2rem;">📝</span>
+            <p style="margin: 8px 0; font-weight: 600;">上傳歷史實體檔案 ➔ AI 逆向自動通靈轉範本</p>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">系統會自動提取文件內文，並定位可變參數</span>
+            <input type="file" id="templateFileInput" style="display: none;" onchange="handleTemplateUpload(event)">
+          </div>
+
+          <!-- 範本列表 -->
+          <div id="templatesList"></div>
+
+          <!-- 在線變數編輯器 (卡片式) -->
+          <div id="templateEditorCard" class="card" style="display: none; margin-top: 24px; border: 1px solid var(--accent); background: rgba(56, 189, 248, 0.03);">
+            <h3 id="editorCardTitle" style="color: var(--accent); font-size: 1.1rem; margin-bottom: 12px;">✏️ 範本在線變數編輯對齊器</h3>
+            <div class="form-group">
+              <label>範本名稱</label>
+              <input type="text" id="editorTemplateName" style="width: 100%;">
+            </div>
+            <div id="editorVariablesContainer"></div>
+            <div class="btn-group" style="margin-top: 16px; justify-content: flex-end;">
+              <button class="btn btn-outline" onclick="closeTemplateEditor()">取消</button>
+              <button class="btn btn-primary" onclick="saveTemplateEditor()">💾 特權覆蓋回存 (版本遞增)</button>
+            </div>
           </div>
         </div>
       </div>
@@ -506,15 +541,32 @@
     </div>
   </div>
 
-  <!-- 原始檔預覽彈窗 -->
-  <div class="modal" id="previewModal">
-    <div class="modal-content" style="max-width: 900px; width: 95%; height: 85vh; display: flex; flex-direction: column; padding: 16px; background: var(--secondary-bg);">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-        <h3 style="margin: 0; color: var(--text-light);" id="previewModalTitle">📄 原始檔案調閱預覽</h3>
-        <button class="btn btn-outline" onclick="closeModal('previewModal')" style="padding: 4px 8px;">關閉</button>
+  <!-- 範本核定 Modal (微藍灰色調毛玻璃) -->
+  <div class="modal" id="templateConfirmModal" style="backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: rgba(15, 23, 42, 0.4);">
+    <div class="modal-content" style="background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(56, 189, 248, 0.25); box-shadow: 0 8px 32px rgba(56, 189, 248, 0.15);">
+      <h3 style="color: var(--accent); margin-top: 0; display: flex; align-items: center; gap: 8px;">
+        🧠 AI 大腦自動通靈範本核定
+      </h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+        AI 已完成該檔案的逆向結構分析。請核定此輸出範本的系統建議名稱與初始版本。
+      </p>
+      <div class="form-group">
+        <label>系統建議名稱</label>
+        <input type="text" id="confirmTemplateName" style="width: 100%;">
       </div>
-      <div style="flex: 1; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: #fff;">
-        <iframe id="previewIframe" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+      <div class="form-group">
+        <label>預設初始版本號</label>
+        <div style="background: rgba(255, 255, 255, 0.05); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); font-size: 0.9rem; font-weight: bold; color: var(--accent);">
+          v1.0.0
+        </div>
+      </div>
+      <div id="confirmTemplateVariables" style="margin-top: 12px; background: rgba(0,0,0,0.15); padding: 12px; border-radius: 6px; font-size: 0.8rem; border: 1px solid var(--border);">
+        <div style="font-weight: bold; color: var(--text-light); margin-bottom: 6px;">AI 提取之動態變數：</div>
+        <ul id="confirmVariablesList" style="margin: 0; padding-left: 18px; color: var(--text-muted); line-height: 1.5;"></ul>
+      </div>
+      <div class="btn-group" style="justify-content: flex-end; margin-top: 20px;">
+        <button class="btn btn-outline" onclick="closeModal('templateConfirmModal')">取消</button>
+        <button class="btn btn-primary" onclick="confirmTemplateSave()">沒問題，確認回存</button>
       </div>
     </div>
   </div>
@@ -572,13 +624,15 @@
     let cachedAssets = [];
     let cachedTags = [];
     let cachedMemories = [];
+    let cachedTemplates = [];
     let currentDrawerTab = '';
 
     if (isPartner) {
-      // 承攬同仁：強制鎖定在時間軌道流，隱藏版本管理、待辦、核心記憶、AI 上傳
+      // 承攬同仁：強制鎖定在時間軌道流，隱藏版本管理、待辦、核心記憶、範本管理、AI 上傳
       document.getElementById('tab2Btn').style.display = 'none';
       document.getElementById('tab3Btn').style.display = 'none';
       document.getElementById('tab4Btn').style.display = 'none';
+      document.getElementById('tab5Btn').style.display = 'none';
       document.getElementById('aiUploadCard').style.display = 'none';
       document.getElementById('simPartnerView').style.display = 'block';
       document.getElementById('simPresidentView').style.display = 'none';
@@ -955,6 +1009,216 @@
       }
     }
 
+    // ── 📋 輸出文件範本管理（Tab 5） ──
+    async function loadTemplates() {
+      try {
+        const res = await fetch('/api/admin/templates');
+        cachedTemplates = await res.json();
+        renderTemplatesList();
+      } catch (e) {
+        console.error('Fetch templates error', e);
+      }
+    }
+
+    function renderTemplatesList() {
+      const container = document.getElementById('templatesList');
+      container.innerHTML = '';
+
+      cachedTemplates.forEach(tpl => {
+        const dateStr = new Date(tpl.timestamp).toLocaleString('zh-TW');
+        const row = document.createElement('div');
+        row.className = 'file-stream-item';
+        row.innerHTML = `
+          <div class="file-info">
+            <span class="file-name" style="color: var(--accent);">${tpl.name}</span>
+            <div class="file-meta">
+              <span class="badge badge-pdf">v${tpl.version}</span>
+              <span>變數數量: ${tpl.variables ? tpl.variables.length : 0}</span>
+              <span>更新時間: ${dateStr}</span>
+            </div>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-outline" onclick="openOriginalPreview('${tpl.currentUrl}', '${tpl.name.replace(/'/g, "\\'")}')">👁️ 原生分頁預覽</button>
+            <button class="btn btn-outline" onclick="openTemplateEditor('${tpl.id}')">✏️ 在線編輯修正</button>
+            <button class="btn btn-danger" onclick="deleteTemplate('${tpl.id}')">🗑️ 物理刪除</button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+
+      if (cachedTemplates.length === 0) {
+        container.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding: 30px;">目前沒有範本，上傳一個以生成範本。</p>`;
+      }
+    }
+
+    let parsedTempVariables = [];
+    let tempFileUrl = '';
+
+    async function handleTemplateUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      // 1. 上傳實體檔案至 GCS 儲存桶
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      try {
+        const uploadRes = await fetch('/api/storage/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const uploadData = await uploadRes.json();
+        tempFileUrl = (uploadData.success && uploadData.url) ? uploadData.url : '/勞動力工會-入會申請書11501_範例.pdf';
+
+        // 2. 呼叫後端 AI 逆向通靈
+        const reverseRes = await fetch('/api/admin/templates/reverse-engineer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fileName: file.name })
+        });
+        const reverseData = await reverseRes.json();
+
+        if (reverseData.success) {
+          parsedTempVariables = reverseData.variables;
+          document.getElementById('confirmTemplateName').value = reverseData.recommendedName;
+          
+          const listContainer = document.getElementById('confirmVariablesList');
+          listContainer.innerHTML = '';
+          parsedTempVariables.forEach(v => {
+            const li = document.createElement('li');
+            li.textContent = `${v.label} (變數標記: ${v.key}, 預設值: ${v.defaultValue})`;
+            listContainer.appendChild(li);
+          });
+
+          openModal('templateConfirmModal');
+        }
+      } catch (e) {
+        alert('⚠️ AI 逆向解析範本失敗');
+      }
+    }
+
+    async function confirmTemplateSave() {
+      const name = document.getElementById('confirmTemplateName').value.trim();
+      if (!name) {
+        alert('請輸入範本名稱！');
+        return;
+      }
+
+      const payload = {
+        name,
+        url: tempFileUrl,
+        variables: parsedTempVariables
+      };
+
+      try {
+        const res = await fetch('/api/admin/templates/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('✅ 輸出文件範本逆向生成並存入資料庫！');
+          closeModal('templateConfirmModal');
+          await loadTemplates();
+        }
+      } catch (e) {
+        alert('⚠️ 保存範本失敗');
+      }
+    }
+
+    let currentEditTemplateId = '';
+    function openTemplateEditor(id) {
+      currentEditTemplateId = id;
+      const tpl = cachedTemplates.find(t => t.id === id);
+      if (!tpl) return;
+
+      document.getElementById('editorTemplateName').value = tpl.name;
+      const varContainer = document.getElementById('editorVariablesContainer');
+      varContainer.innerHTML = '';
+
+      tpl.variables.forEach((v, index) => {
+        const div = document.createElement('div');
+        div.style = 'display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; align-items: center;';
+        div.innerHTML = `
+          <div>
+            <label style="font-size:0.75rem; color:var(--text-muted);">欄位鍵值 (Key)</label>
+            <input type="text" class="tpl-var-key" value="${v.key}" style="padding: 6px; font-size:0.8rem; background:rgba(0,0,0,0.2); color:white; border:1px solid var(--border); border-radius:4px; width:90%;">
+          </div>
+          <div>
+            <label style="font-size:0.75rem; color:var(--text-muted);">欄位名稱 (Label)</label>
+            <input type="text" class="tpl-var-label" value="${v.label}" style="padding: 6px; font-size:0.8rem; background:rgba(0,0,0,0.2); color:white; border:1px solid var(--border); border-radius:4px; width:90%;">
+          </div>
+          <div>
+            <label style="font-size:0.75rem; color:var(--text-muted);">測試填充預設值 (Default)</label>
+            <input type="text" class="tpl-var-default" value="${v.defaultValue}" style="padding: 6px; font-size:0.8rem; background:rgba(0,0,0,0.2); color:white; border:1px solid var(--border); border-radius:4px; width:90%;">
+          </div>
+        `;
+        varContainer.appendChild(div);
+      });
+
+      document.getElementById('templateEditorCard').style.display = 'block';
+      document.getElementById('templateEditorCard').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function closeTemplateEditor() {
+      document.getElementById('templateEditorCard').style.display = 'none';
+      currentEditTemplateId = '';
+    }
+
+    async function saveTemplateEditor() {
+      const name = document.getElementById('editorTemplateName').value.trim();
+      const keys = document.getElementsByClassName('tpl-var-key');
+      const labels = document.getElementsByClassName('tpl-var-label');
+      const defaults = document.getElementsByClassName('tpl-var-default');
+
+      const variables = [];
+      for (let i = 0; i < keys.length; i++) {
+        variables.push({
+          key: keys[i].value.trim(),
+          label: labels[i].value.trim(),
+          defaultValue: defaults[i].value.trim()
+        });
+      }
+
+      try {
+        const res = await fetch(`/api/admin/templates/${currentEditTemplateId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-User-Id': currentUser.empId || '',
+            'X-User-Role': encodeURIComponent(currentUser.role || '')
+          },
+          body: JSON.stringify({ name, variables })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert(`✅ 範本已成功以總裁特權鎖覆寫！目前最新版本為 v${data.doc.version}`);
+          closeTemplateEditor();
+          await loadTemplates();
+        }
+      } catch (e) {
+        alert('⚠️ 保存變更失敗');
+      }
+    }
+
+    async function deleteTemplate(id) {
+      if (!confirm('🚨 確定要物理刪除此輸出範本嗎？此操作無法還原！')) return;
+      try {
+        const res = await fetch(`/api/admin/templates/${id}`, {
+          method: 'DELETE'
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('🔥 範本已物理抹除。');
+          await loadTemplates();
+        }
+      } catch (e) {
+        alert('物理刪除範本失敗');
+      }
+    }
+
+
     function renderSimulatorLists(data) {
       const partnerFiles = document.getElementById('simPartnerFiles');
       const presidentFiles = document.getElementById('simPresidentFiles');
@@ -994,11 +1258,9 @@
       });
     }
 
-    // 預覽最原始檔案流彈窗/Iframe (Web 端原地彈窗預覽)
+    // 剛性解鎖原生 PDF 預覽：直接呼叫原生瀏覽器新分頁打開
     function openOriginalPreview(url, name) {
-      document.getElementById('previewModalTitle').textContent = `📄 原始檔調閱預覽: ${name}`;
-      document.getElementById('previewIframe').src = url;
-      openModal('previewModal');
+      window.open(url, '_blank');
     }
 
     // 手機端預覽
@@ -1253,6 +1515,7 @@
       await loadAssetTags();
       await loadAssets();
       await loadCoreMemories();
+      await loadTemplates();
     }
     
     init();

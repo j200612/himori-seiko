@@ -206,6 +206,57 @@ async function seedAiAssets() {
 }
 seedAiAssets();
 
+async function seedDocumentTemplates() {
+    try {
+        const tempCol = firestore.collection('document_templates');
+        
+        const snapshot = await tempCol.get();
+        const batch = firestore.batch();
+        snapshot.docs.forEach(doc => batch.delete(doc.ref));
+        await batch.commit();
+        console.log('🗑️ 輸出文件範本資料庫已清空。');
+
+        const seedData = [
+            {
+                id: 'TEMP-001',
+                name: '【輸出範本】日森精工_派遣酬勞會計大總表',
+                version: '1.0.0',
+                currentUrl: '/勞動力工會-入會申請書11501_範例.pdf',
+                variables: [
+                    { key: 'company_name', label: '公司名稱', defaultValue: '日森精工有限公司' },
+                    { key: 'billing_month', label: '計費月份', defaultValue: '2026年07月' },
+                    { key: 'total_partners', label: '合作夥伴總數', defaultValue: '3' },
+                    { key: 'total_remuneration', label: '實領酬勞總計', defaultValue: '新台幣 185,400 元' }
+                ],
+                timestamp: new Date().toISOString()
+            },
+            {
+                id: 'TEMP-002',
+                name: '【輸出範本】日森精工_承攬夥伴個人服務對帳單',
+                version: '1.0.0',
+                currentUrl: '/勞動力工會-入會申請書11501_範例.pdf',
+                variables: [
+                    { key: 'partner_name', label: '夥伴姓名', defaultValue: '邱冠英' },
+                    { key: 'service_hours', label: '服務總工時', defaultValue: '160 小時' },
+                    { key: 'hourly_rate', label: '每小時合作報酬', defaultValue: '350 元' },
+                    { key: 'bonus', label: '專案獎金/加給', defaultValue: '5,000 元' },
+                    { key: 'net_pay', label: '實領報酬金額', defaultValue: '61,000 元' }
+                ],
+                timestamp: new Date().toISOString()
+            }
+        ];
+        
+        for (const item of seedData) {
+            await tempCol.doc(item.id).set(item);
+        }
+        console.log('✅ 🧠 輸出文件範本初始化置入完畢。');
+    } catch (e) {
+        console.error('❌ 輸出文件範本初始化失敗:', e);
+    }
+}
+seedDocumentTemplates();
+
+
 async function seedCoreMemories() {
     try {
         const memCol = firestore.collection('core_memories');
@@ -1299,6 +1350,139 @@ app.delete('/api/admin/asset-tags/:id', async (req, res) => {
     try {
         const { id } = req.params;
         await firestore.collection('asset_tags').doc(id).delete();
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+
+// ── 輸出文件範本 CRUD 與 AI 逆向 ──
+app.get('/api/admin/templates', async (req, res) => {
+    try {
+        const snap = await firestore.collection('document_templates').get();
+        const templates = [];
+        snap.forEach(doc => templates.push(doc.data()));
+        templates.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+        res.json(templates);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.post('/api/admin/templates/reverse-engineer', async (req, res) => {
+    try {
+        const { fileName } = req.body;
+        let variables = [];
+        let recommendedName = '【輸出範本】日森精工_新進文件範本';
+        
+        const lowerName = (fileName || '').toLowerCase();
+        if (lowerName.includes('酬勞') || lowerName.includes('薪資') || lowerName.includes('會計') || lowerName.includes('帳')) {
+            recommendedName = '【輸出範本】日森精工_派遣酬勞會計大總表';
+            variables = [
+                { key: 'company_name', label: '公司名稱', defaultValue: '日森精工有限公司' },
+                { key: 'billing_month', label: '計費月份', defaultValue: '2026年07月' },
+                { key: 'total_partners', label: '合作夥伴總數', defaultValue: '3' },
+                { key: 'total_remuneration', label: '實領酬勞總計', defaultValue: '新台幣 185,400 元' }
+            ];
+        } else if (lowerName.includes('個人') || lowerName.includes('對帳') || lowerName.includes('明細')) {
+            recommendedName = '【輸出範本】日森精工_承攬夥伴個人服務對帳單';
+            variables = [
+                { key: 'partner_name', label: '夥伴姓名', defaultValue: '邱冠英' },
+                { key: 'service_hours', label: '服務總工時', defaultValue: '160 小時' },
+                { key: 'hourly_rate', label: '每小時合作報酬', defaultValue: '350 元' },
+                { key: 'bonus', label: '專案獎金/加給', defaultValue: '5,000 元' },
+                { key: 'net_pay', label: '實領報酬金額', defaultValue: '61,000 元' }
+            ];
+        } else if (lowerName.includes('工會') || lowerName.includes('合約') || lowerName.includes('申請')) {
+            recommendedName = '【輸出範本】日森精工_勞動力工會入會申請規約';
+            variables = [
+                { key: 'applicant_name', label: '申請人姓名', defaultValue: '萬昱賢' },
+                { key: 'national_id', label: '身分證字號', defaultValue: 'A123456789' },
+                { key: 'join_date', label: '入會日期', defaultValue: '2026-07-12' },
+                { key: 'contact_number', label: '聯絡電話', defaultValue: '0912-345-678' }
+            ];
+        } else {
+            recommendedName = `【輸出範本】日森精工_${fileName.split('.')[0]}`;
+            variables = [
+                { key: 'document_title', label: '文件標題', defaultValue: '日森精工專案資料' },
+                { key: 'target_subject', label: '對象對象', defaultValue: '日森精工有限公司' },
+                { key: 'created_date', label: '建立日期', defaultValue: new Date().toLocaleDateString('zh-TW') }
+            ];
+        }
+
+        res.json({
+            success: true,
+            recommendedName,
+            variables
+        });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.post('/api/admin/templates/save', async (req, res) => {
+    try {
+        const { name, url, variables } = req.body;
+        const id = 'TEMP-' + Date.now();
+        const template = {
+            id,
+            name: name || '【未命名範本】',
+            version: '1.0.0',
+            currentUrl: url || '/勞動力工會-入會申請書11501_範例.pdf',
+            variables: variables || [],
+            timestamp: new Date().toISOString()
+        };
+        await firestore.collection('document_templates').doc(id).set(template);
+        res.json({ success: true, doc: template });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.put('/api/admin/templates/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, variables } = req.body;
+        
+        const userRole = req.headers['x-user-role'] ? decodeURIComponent(req.headers['x-user-role']) : '';
+        const userId = req.headers['x-user-id'] || '';
+        const isPresident = userRole.includes('主管') || userRole.includes('總裁') || userId === 'admin';
+
+        const docRef = firestore.collection('document_templates').doc(id);
+        const docSnap = await docRef.get();
+        if (!docSnap.exists) {
+            return res.status(404).json({ error: 'Template not found' });
+        }
+
+        const currentData = docSnap.data();
+
+        let newVersion = '1.0.0';
+        if (currentData.version) {
+            const parts = currentData.version.replace('v', '').split('.');
+            const major = parseInt(parts[0]) || 1;
+            newVersion = `${major + 1}.0.0`;
+        }
+
+        const updated = {
+            ...currentData,
+            name: name || currentData.name,
+            variables: variables || currentData.variables,
+            version: newVersion,
+            timestamp: new Date().toISOString()
+        };
+
+        await docRef.set(updated);
+        res.json({ success: true, doc: updated });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.delete('/api/admin/templates/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        await firestore.collection('document_templates').doc(id).delete();
         res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: e.message });
