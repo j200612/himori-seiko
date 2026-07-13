@@ -219,28 +219,63 @@ async function seedDocumentTemplates() {
         const seedData = [
             {
                 id: 'TEMP-001',
-                name: '【輸出範本】日森精工_派遣酬勞會計大總表',
+                name: '【輸出範本】日森精工_2026年6月度_晶廷機械請款總表',
                 version: '1.0.0',
                 currentUrl: '/勞動力工會-入會申請書11501_範例.pdf',
                 variables: [
                     { key: 'company_name', label: '公司名稱', defaultValue: '日森精工有限公司' },
-                    { key: 'billing_month', label: '計費月份', defaultValue: '2026年07月' },
-                    { key: 'total_partners', label: '合作夥伴總數', defaultValue: '3' },
-                    { key: 'total_remuneration', label: '實領酬勞總計', defaultValue: '新台幣 185,400 元' }
+                    { key: 'client_name', label: '請款對象', defaultValue: '晶廷機械股份有限公司' },
+                    { key: 'billing_month', label: '計費月份', defaultValue: '2026年06月' },
+                    { key: 'base_rate_daily', label: '項目1：平日基本費率', defaultValue: '2,400 元/天' },
+                    { key: 'overtime_rate_hourly', label: '項目2：平日加班費率', defaultValue: '399 元/時' },
+                    { key: 'sat_first_2h_rate', label: '項目3：週六前2h加班費率', defaultValue: '399 元/時' },
+                    { key: 'sat_after_2h_rate', label: '項目4：週六後加班費率', defaultValue: '498 元/時' },
+                    { key: 'holiday_rate', label: '項目5：國定假日加班費率', defaultValue: '600 元/時' },
+                    { key: 'total_net_amount', label: '應請款總金額 (未稅)', defaultValue: '185,496 元' },
+                    { key: 'tax_amount', label: '5%營業稅', defaultValue: '9,275 元' },
+                    { key: 'total_gross_amount', label: '本次總請款合計 (含稅)', defaultValue: '194,771 元' },
+                    { key: 'partners_list', label: '出工名冊成員', defaultValue: '邱冠英、郭怡蘭、萬昱賢' }
                 ],
                 timestamp: new Date().toISOString()
             },
             {
                 id: 'TEMP-002',
-                name: '【輸出範本】日森精工_承攬夥伴個人服務對帳單',
+                name: '【輸出範本】日森精工_2026年06月_派遣酬勞會計大總表',
                 version: '1.0.0',
                 currentUrl: '/勞動力工會-入會申請書11501_範例.pdf',
                 variables: [
-                    { key: 'partner_name', label: '夥伴姓名', defaultValue: '邱冠英' },
-                    { key: 'service_hours', label: '服務總工時', defaultValue: '160 小時' },
-                    { key: 'hourly_rate', label: '每小時合作報酬', defaultValue: '350 元' },
-                    { key: 'bonus', label: '專案獎金/加給', defaultValue: '5,000 元' },
-                    { key: 'net_pay', label: '實領報酬金額', defaultValue: '61,000 元' }
+                    { key: 'company_name', label: '公司名稱', defaultValue: '日森精工有限公司' },
+                    { key: 'billing_month', label: '計費月份', defaultValue: '2026年06月' },
+                    { key: 'remuneration_qiu', label: '邱冠英 實發酬勞', defaultValue: '75,300 元' },
+                    { key: 'remuneration_kuo', label: '郭怡蘭 實發酬勞', defaultValue: '61,181 元' },
+                    { key: 'remuneration_wan', label: '萬昱賢 實發酬勞', defaultValue: '21,156 元' },
+                    { key: 'total_company_remuneration', label: '公司合併應發總計', defaultValue: '157,637 元' },
+                    { key: 'table_headers', label: '會計明細標頭欄位', defaultValue: '姓名、日酬勞、時酬勞、正常工時、加班工時、特別津貼補償、本月實發酬勞總計' }
+                ],
+                timestamp: new Date().toISOString()
+            },
+            {
+                id: 'TEMP-003',
+                name: '【輸出範本】日森精工_2026年6月個人明細表 (邱冠英/郭怡蘭/萬昱賢)',
+                version: '1.0.0',
+                currentUrl: '/勞動力工會-入會申請書11501_範例.pdf',
+                variables: [
+                    { key: 'partner_name', label: '承攬同仁姓名', defaultValue: '邱冠英' },
+                    { key: 'billing_month', label: '計費月份', defaultValue: '2026年06月' },
+                    { key: 'table_headers', label: '出勤明細欄位', defaultValue: '日期、星期、上班時間、下班時間、總時數、正常工時、加班工時、合計時數、備註欄 (端午節、未到職)' }
+                ],
+                timestamp: new Date().toISOString()
+            },
+            {
+                id: 'TEMP-004',
+                name: '【輸出範本】日森精工_勞動力工會入會與團保費率條款',
+                version: '1.0.0',
+                currentUrl: '/團保/好頭家PLUS二代(工廠工程業)_11105-(5~6類).pdf',
+                variables: [
+                    { key: 'union_name', label: '工會名稱', defaultValue: '勞動力工會' },
+                    { key: 'insurance_name', label: '團保名稱', defaultValue: '好頭家PLUS二代團保費率及條款' },
+                    { key: 'applicant_fields', label: '申請書欄位規格', defaultValue: '申請人姓名、身分證字號、通訊地址' },
+                    { key: 'insurance_rate_structure', label: '費率表結構 (五至六類工程業)', defaultValue: '好頭家PLUS二代五至六類工程業費率對照表結構' }
                 ],
                 timestamp: new Date().toISOString()
             }
@@ -249,7 +284,7 @@ async function seedDocumentTemplates() {
         for (const item of seedData) {
             await tempCol.doc(item.id).set(item);
         }
-        console.log('✅ 🧠 輸出文件範本初始化置入完畢。');
+        console.log('✅ 🧠 輸出文件範本歷史真實數據初始化置入完畢。');
     } catch (e) {
         console.error('❌ 輸出文件範本初始化失敗:', e);
     }
