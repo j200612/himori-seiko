@@ -108,11 +108,11 @@ async function seedAiAssets() {
             },
             {
                 id: 'ASSET-HIST-4',
-                name: '日森精工 - 品牌識別與設立綱要.txt',
-                category: 'Text',
+                name: '日森精工 - 品牌識別與設立綱要.docx',
+                category: 'Word',
                 timestamp: '2026-07-12T09:15:00+08:00',
                 version: 1,
-                currentUrl: '/01_企業識別與設計/品牌識別綱要.txt',
+                currentUrl: '/01_企業識別與設計/品牌識別綱要.docx',
                 aiMetadata: { company: '日森精工有限公司', type: '📄 歷史基本資料', status: '實戰數據' },
                 isActive: true,
                 history: []
@@ -141,7 +141,7 @@ async function seedAiAssets() {
             },
             {
                 id: 'ASSET-HIST-7',
-                name: '日森精工 - 好頭家PLUS二代團保費率及條款.pdf',
+                name: '日森精工 - 好頭家PLUS二代(工廠工程業)_11105-(5~6類).pdf',
                 category: 'PDF',
                 timestamp: '2026-07-12T09:30:00+08:00',
                 version: 1,
@@ -163,7 +163,7 @@ async function seedAiAssets() {
             },
             {
                 id: 'ASSET-HIST-9',
-                name: '日森精工 - 財務外包對帳大總表_v2.5.3.pdf',
+                name: '日森精工_2026年6月度_晶廷機械請款總表_v1.0.3.pdf',
                 category: 'PDF',
                 timestamp: '2026-07-12T09:40:00+08:00',
                 version: 1,
@@ -174,7 +174,7 @@ async function seedAiAssets() {
             },
             {
                 id: 'ASSET-HIST-10',
-                name: '日森精工 - 承攬夥伴個人明細對帳單_v2.4.3.pdf',
+                name: '日森精工_2026年06月_派遣酬勞會計大總表_v1.0.1.pdf',
                 category: 'PDF',
                 timestamp: '2026-07-12T09:45:00+08:00',
                 version: 1,
@@ -185,12 +185,12 @@ async function seedAiAssets() {
             },
             {
                 id: 'ASSET-HIST-11',
-                name: '日森精工 - 總裁隨行語音備忘日誌.mp3',
-                category: 'Voice',
+                name: '日森精工_2026年6月個人出勤明細表_v1.0.0.pdf',
+                category: 'PDF',
                 timestamp: '2026-07-12T09:50:00+08:00',
                 version: 1,
                 currentUrl: '/勞動力工會-入會申請書11501_範例.pdf',
-                aiMetadata: { company: '日森精工有限公司', type: '🎙️ 語音日誌', status: '實戰數據' },
+                aiMetadata: { company: '日森精工有限公司', type: '📄 歷史基本資料', status: '實戰數據' },
                 isActive: true,
                 history: []
             }
@@ -219,8 +219,8 @@ async function seedDocumentTemplates() {
         const seedData = [
             {
                 id: 'TEMP-001',
-                name: '【輸出範本】日森精工_2026年6月度_晶廷機械請款總表',
-                version: '1.0.0',
+                name: '【輸出範本】日森精工_2026年6月度_晶廷機械請款總表_v1.0.3.pdf',
+                version: '1.0.3',
                 currentUrl: '/勞動力工會-入會申請書11501_範例.pdf',
                 variables: [
                     { key: 'company_name', label: '公司名稱', defaultValue: '日森精工有限公司' },
@@ -240,8 +240,8 @@ async function seedDocumentTemplates() {
             },
             {
                 id: 'TEMP-002',
-                name: '【輸出範本】日森精工_2026年06月_派遣酬勞會計大總表',
-                version: '1.0.0',
+                name: '【輸出範本】日森精工_2026年06月_派遣酬勞會計大總表_v1.0.1.pdf',
+                version: '1.0.1',
                 currentUrl: '/勞動力工會-入會申請書11501_範例.pdf',
                 variables: [
                     { key: 'company_name', label: '公司名稱', defaultValue: '日森精工有限公司' },
@@ -256,7 +256,7 @@ async function seedDocumentTemplates() {
             },
             {
                 id: 'TEMP-003',
-                name: '【輸出範本】日森精工_2026年6月個人明細表 (邱冠英/郭怡蘭/萬昱賢)',
+                name: '【輸出範本】日森精工_2026年6月個人出勤明細表_v1.0.0.pdf',
                 version: '1.0.0',
                 currentUrl: '/勞動力工會-入會申請書11501_範例.pdf',
                 variables: [
@@ -268,7 +268,7 @@ async function seedDocumentTemplates() {
             },
             {
                 id: 'TEMP-004',
-                name: '【輸出範本】日森精工_勞動力工會入會與團保費率條款',
+                name: '【輸出範本】好頭家PLUS二代(工廠工程業)_11105-(5~6類)_v1.0.0.pdf',
                 version: '1.0.0',
                 currentUrl: '/團保/好頭家PLUS二代(工廠工程業)_11105-(5~6類).pdf',
                 variables: [
