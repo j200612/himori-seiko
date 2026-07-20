@@ -517,6 +517,34 @@
     </div>
   </div>
 
+  <!-- ✏️ 編輯輸出黃金範本毛玻璃 Modal -->
+  <div class="modal" id="editTemplateModal" style="backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: rgba(15, 23, 42, 0.4);">
+    <div class="modal-content" style="background: rgba(30, 41, 59, 0.9); border: 1px solid rgba(56, 189, 248, 0.3); box-shadow: 0 8px 32px rgba(56, 189, 248, 0.2); width: 680px; max-width: 90%;">
+      <h3 style="color: var(--accent); margin-top: 0; display: flex; align-items: center; gap: 8px;">
+        ✏️ 編輯輸出黃金範本與變數宣告
+      </h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">
+        總裁可在此編修黃金格式範本名稱與內文變數宣告，儲存後物理寫庫覆寫生效。
+      </p>
+      <div class="form-group">
+        <label>範本名稱</label>
+        <input type="text" id="editTemplateModalName" style="width: 100%;">
+      </div>
+      <div class="form-group">
+        <label>範本宣告內文 / 描述</label>
+        <textarea id="editTemplateModalContent" style="width: 100%; height: 120px; background: rgba(15, 23, 42, 0.8); color: var(--text-light); border: 1px solid var(--border); border-radius: 8px; padding: 10px; box-sizing: border-box; font-size: 0.88rem; outline: none; resize: vertical;"></textarea>
+      </div>
+      <div class="form-group">
+        <label>動態填空變數列表 (Variables)</label>
+        <div id="editTemplateModalVarsContainer" style="background: rgba(15,23,42,0.5); padding: 12px; border-radius: 8px; border: 1px solid var(--border); max-height: 200px; overflow-y: auto;"></div>
+      </div>
+      <div class="btn-group" style="justify-content: flex-end; margin-top: 20px;">
+        <button class="btn btn-outline" onclick="closeModal('editTemplateModal')">取消</button>
+        <button class="btn btn-primary" onclick="saveTemplateModalFromModal()">💾 保存範本變更 (版本遞增)</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 範本核定 Modal (極簡雙欄位) -->
   <div class="modal" id="templateConfirmModal" style="backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: rgba(15, 23, 42, 0.4);">
     <div class="modal-content" style="background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(56, 189, 248, 0.25); box-shadow: 0 8px 32px rgba(56, 189, 248, 0.15);">
@@ -952,15 +980,15 @@
     }
 
     function resolveTemplateUrl(tpl) {
-      if (tpl.currentUrl && tpl.currentUrl.startsWith('http')) return tpl.currentUrl;
-      if (tpl.url && tpl.url.startsWith('http')) return tpl.url;
+      if (tpl.currentUrl && tpl.currentUrl.length > 5) return tpl.currentUrl;
+      if (tpl.url && tpl.url.length > 5) return tpl.url;
       
       const match = cachedAssets.find(a => (a.name || '').includes(tpl.name) || (tpl.name || '').includes(a.name));
-      if (match && match.currentUrl && match.currentUrl.startsWith('http')) {
+      if (match && match.currentUrl && match.currentUrl.length > 5) {
         return match.currentUrl;
       }
       
-      return tpl.currentUrl || tpl.url || 'https://storage.googleapis.com/himori-seiko-2006-media/1784536000-日森精工-測試憲法宣言.pdf';
+      return 'https://storage.googleapis.com/himori-seiko-2006-media/1784531190739_2aq85.docx';
     }
 
     function renderTemplatesList(customList) {
@@ -978,7 +1006,7 @@
         row.className = 'file-stream-item';
         row.innerHTML = `
           <div class="file-info" style="flex: 1;">
-            <span class="file-name" style="color: var(--accent); font-weight: 600; font-size: 0.95rem;">${tpl.name}</span>
+            <span class="file-name" style="color: var(--accent); font-weight: 600; font-size: 0.95rem;">${tpl.name} <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(v${tpl.version || '1.0.0'})</span></span>
             <div class="file-meta" style="font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; display: flex; gap: 12px;">
               <span>變數數量: ${tpl.variables ? tpl.variables.length : 0}</span>
               <span>更新時間: ${dateStr}</span>
@@ -986,6 +1014,7 @@
           </div>
           <div class="btn-group">
             <button class="btn btn-outline" onclick="openOriginalPreview('${realGcsUrl}', '${tpl.name.replace(/'/g, "\\'")}')">[👁️ 預覽原始檔]</button>
+            <button class="btn btn-outline" onclick="openTemplateEditorModal('${tpl.id}')">[✏️ 編輯範本]</button>
             <button class="btn btn-danger" onclick="deleteTemplate('${tpl.id}')">[🗑️ 物理刪除]</button>
           </div>
         `;
@@ -1459,12 +1488,100 @@
         alert('⚠️ 無法取得實體網址');
         return;
       }
-      let targetUrl = url;
-      if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
-        targetUrl = 'https://storage.googleapis.com/himori-seiko-2006-media/1784536000-日森精工-測試憲法宣言.pdf';
+      let targetUrl = url.trim();
+      if (targetUrl.startsWith('/')) {
+        targetUrl = window.location.origin + targetUrl;
+      } else if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
+        targetUrl = 'https://storage.googleapis.com/himori-seiko-2006-media/' + encodeURIComponent(targetUrl);
       }
       console.log(`[GCS 物理網址直連] 開啟網址: ${targetUrl}`);
       window.open(targetUrl, '_blank');
+    }
+
+    // ── ✏️ 分頁二：黃金範本編輯彈窗開關與保存 ──
+    let currentEditingTemplateId = '';
+
+    function openTemplateEditorModal(id) {
+      currentEditingTemplateId = id;
+      const tpl = cachedTemplates.find(t => t.id === id);
+      if (!tpl) {
+        alert('⚠️ 找不到該範本紀錄');
+        return;
+      }
+
+      document.getElementById('editTemplateModalName').value = tpl.name || '';
+      document.getElementById('editTemplateModalContent').value = tpl.content || `【${tpl.name}】黃金輸出格式，宣告變數共 ${(tpl.variables || []).length} 項。`;
+
+      const varsContainer = document.getElementById('editTemplateModalVarsContainer');
+      varsContainer.innerHTML = '';
+
+      (tpl.variables || []).forEach((v, idx) => {
+        const div = document.createElement('div');
+        div.style = 'display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; align-items: center;';
+        div.innerHTML = `
+          <div>
+            <label style="font-size:0.75rem; color:var(--text-muted);">變數 Key</label>
+            <input type="text" class="modal-tpl-key" value="${v.key || ''}" style="padding: 6px; font-size:0.8rem; background:rgba(0,0,0,0.3); color:white; border:1px solid var(--border); border-radius:4px; width:100%;">
+          </div>
+          <div>
+            <label style="font-size:0.75rem; color:var(--text-muted);">欄位 Label</label>
+            <input type="text" class="modal-tpl-label" value="${v.label || ''}" style="padding: 6px; font-size:0.8rem; background:rgba(0,0,0,0.3); color:white; border:1px solid var(--border); border-radius:4px; width:100%;">
+          </div>
+          <div>
+            <label style="font-size:0.75rem; color:var(--text-muted);">預設值 Default</label>
+            <input type="text" class="modal-tpl-default" value="${v.defaultValue || ''}" style="padding: 6px; font-size:0.8rem; background:rgba(0,0,0,0.3); color:white; border:1px solid var(--border); border-radius:4px; width:100%;">
+          </div>
+        `;
+        varsContainer.appendChild(div);
+      });
+
+      openModal('editTemplateModal');
+    }
+
+    async function saveTemplateModalFromModal() {
+      if (!currentEditingTemplateId) return;
+
+      const name = document.getElementById('editTemplateModalName').value.trim();
+      const content = document.getElementById('editTemplateModalContent').value.trim();
+      const keys = document.getElementsByClassName('modal-tpl-key');
+      const labels = document.getElementsByClassName('modal-tpl-label');
+      const defaults = document.getElementsByClassName('modal-tpl-default');
+
+      if (!name) {
+        alert('請填寫範本名稱！');
+        return;
+      }
+
+      const variables = [];
+      for (let i = 0; i < keys.length; i++) {
+        variables.push({
+          key: keys[i].value.trim(),
+          label: labels[i].value.trim(),
+          defaultValue: defaults[i].value.trim()
+        });
+      }
+
+      try {
+        const res = await fetch(`/api/admin/templates/${currentEditingTemplateId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-User-Id': currentUser.empId || '',
+            'X-User-Role': encodeURIComponent(currentUser.role || '')
+          },
+          body: JSON.stringify({ name, content, variables })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert(`✅ 黃金範本【${data.doc.name}】覆寫成功！版本已自動遞增為 v${data.doc.version}`);
+          closeModal('editTemplateModal');
+          await loadTemplates();
+        } else {
+          alert(`⚠️ 保存失敗: ${data.error || '未授權'}`);
+        }
+      } catch (e) {
+        alert('⚠️ 保存範本變更失敗');
+      }
     }
 
     // 手機端預覽

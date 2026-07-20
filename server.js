@@ -1596,12 +1596,8 @@ app.post('/api/admin/templates/save', async (req, res) => {
 app.put('/api/admin/templates/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, variables } = req.body;
+        const { name, content, variables } = req.body;
         
-        const userRole = req.headers['x-user-role'] ? decodeURIComponent(req.headers['x-user-role']) : '';
-        const userId = req.headers['x-user-id'] || '';
-        const isPresident = userRole.includes('主管') || userRole.includes('總裁') || userId === 'admin';
-
         const docRef = firestore.collection('document_templates').doc(id);
         const docSnap = await docRef.get();
         if (!docSnap.exists) {
@@ -1620,6 +1616,7 @@ app.put('/api/admin/templates/:id', async (req, res) => {
         const updated = {
             ...currentData,
             name: name || currentData.name,
+            content: content !== undefined ? content : (currentData.content || ''),
             variables: variables || currentData.variables,
             version: newVersion,
             timestamp: new Date().toISOString()
