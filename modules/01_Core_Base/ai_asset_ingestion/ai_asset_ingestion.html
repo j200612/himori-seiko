@@ -337,28 +337,27 @@
         </p>
       </div>
 
-      <!-- 極簡白話兩大分頁翼 -->
+      <!-- 極簡白話兩大分頁 -->
       <div class="card">
         <div class="tabs-header">
-          <button class="tab-btn active" id="tab1Btn" onclick="switchTab(1)">📥 翼一：全域檔案輸入與中央控台</button>
-          <button class="tab-btn" id="tab2Btn" onclick="switchTab(2)">📤 翼二：輸出格式資料庫</button>
+          <button class="tab-btn active" id="tab1Btn" onclick="switchTab(1)">分頁一：全域檔案輸入與中央控台</button>
+          <button class="tab-btn" id="tab2Btn" onclick="switchTab(2)">分頁二：輸出格式資料庫</button>
         </div>
 
-        <!-- 翼一：全域檔案輸入與中央控台 -->
+        <!-- 分頁一：全域檔案輸入與中央控台 -->
         <div id="tab1" class="tab-content active">
           
-          <!-- 1. 頂部：【核心記憶】 -->
+          <!-- 1. 頂部：【核心記憶】 (優雅條列顯示) -->
           <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; padding: 20px; margin-bottom: 20px; backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
               <h2 style="margin: 0; font-size: 1.1rem; color: var(--accent); display: flex; align-items: center; gap: 8px;">
-                🧠 核心記憶
+                🧠 核心記憶 (中央憲章與法規鎖)
               </h2>
               <div class="btn-group">
-                <button class="btn btn-outline" style="font-size: 0.8rem; padding: 4px 12px;" onclick="enableEditConstitution()">✏️ 編輯核心記憶</button>
-                <button class="btn btn-primary" style="font-size: 0.8rem; padding: 4px 12px;" onclick="saveConstitution()">💾 保存核心記憶</button>
+                <button class="btn btn-primary" style="font-size: 0.8rem; padding: 4px 12px;" onclick="openConstitutionEditModal()">✏️ 編輯核心記憶</button>
               </div>
             </div>
-            <textarea id="coreConstitutionText" readonly style="width: 100%; height: 160px; background: rgba(15, 23, 42, 0.6); color: var(--text-light); border: 1px solid var(--border); border-radius: 8px; padding: 12px; box-sizing: border-box; font-size: 0.85rem; line-height: 1.6; outline: none; font-family: inherit; resize: vertical;"></textarea>
+            <div id="coreConstitutionList" style="display: flex; flex-direction: column; gap: 8px;"></div>
           </div>
 
           <!-- 2. 中部：【全域拖曳檔案輸入區】 -->
@@ -495,6 +494,26 @@
       <div class="btn-group" style="justify-content: flex-end; margin-top: 20px;">
         <button class="btn btn-outline" onclick="closeModal('ingestModal')">取消</button>
         <button class="btn btn-primary" onclick="confirmIngestSave()">🧠 融入大腦記憶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 編輯核心記憶毛玻璃 Modal -->
+  <div class="modal" id="editConstitutionModal" style="backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: rgba(15, 23, 42, 0.4);">
+    <div class="modal-content" style="background: rgba(30, 41, 59, 0.9); border: 1px solid rgba(56, 189, 248, 0.3); box-shadow: 0 8px 32px rgba(56, 189, 248, 0.2); width: 680px; max-width: 90%;">
+      <h3 style="color: var(--accent); margin-top: 0; display: flex; align-items: center; gap: 8px;">
+        ✏️ 編輯核心記憶與全系統法規安全鎖
+      </h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">
+        總裁隨時可修訂經營理念與法規校正字典，保存後物理寫庫全域生效。
+      </p>
+      <div class="form-group">
+        <label>核心記憶全文條文</label>
+        <textarea id="modalConstitutionText" style="width: 100%; height: 260px; background: rgba(15, 23, 42, 0.8); color: var(--text-light); border: 1px solid var(--border); border-radius: 8px; padding: 12px; box-sizing: border-box; font-size: 0.88rem; line-height: 1.6; outline: none; font-family: inherit; resize: vertical;"></textarea>
+      </div>
+      <div class="btn-group" style="justify-content: flex-end; margin-top: 20px;">
+        <button class="btn btn-outline" onclick="closeModal('editConstitutionModal')">取消</button>
+        <button class="btn btn-primary" onclick="saveConstitutionFromModal()">💾 保存核心記憶</button>
       </div>
     </div>
   </div>
@@ -882,25 +901,18 @@
 
       filtered.forEach(item => {
         const dateStr = new Date(item.timestamp).toLocaleString('zh-TW');
-        const badgeClass = item.aiMetadata.status === '實戰數據' ? 'badge-real' : 'badge-noise';
-        const fileBadge = item.category === 'PDF' ? 'badge-pdf' : 'badge-excel';
-
-        const categoryTag = item.category || item.aiMetadata.type || '📂 一般資料';
         const row1 = document.createElement('div');
         row1.className = 'file-stream-item';
         row1.innerHTML = `
-          <div class="file-info">
-            <span class="file-name">${item.name}</span>
-            <div class="file-meta">
-              <span class="badge ${fileBadge}">${categoryTag}</span>
-              <span class="badge ${badgeClass}">${item.aiMetadata.status}</span>
-              <span>上傳時間: ${dateStr}</span>
-              <span>版本: v${item.version}</span>
+          <div class="file-info" style="flex: 1;">
+            <span class="file-name" style="font-weight: 600; color: var(--text-light); font-size: 0.95rem;">${item.name}</span>
+            <div class="file-meta" style="font-size: 0.78rem; color: var(--text-muted); margin-top: 4px;">
+              <span>📅 入庫時間: ${dateStr}</span>
             </div>
           </div>
           <div class="btn-group">
-            <button class="btn btn-outline" onclick="openRelocateModal('${item.id}', '${item.name.replace(/'/g, "\\'")}', '${categoryTag.replace(/'/g, "\\'")}')">📦 變更分類</button>
             <button class="btn btn-outline" onclick="openOriginalPreview('${item.currentUrl}', '${item.name.replace(/'/g, "\\'")}')">[👁️ 預覽原始檔]</button>
+            <button class="btn btn-danger" onclick="deleteAsset('${item.id}')">[🗑️ 物理刪除]</button>
           </div>
         `;
         t1.appendChild(row1);
@@ -919,106 +931,17 @@
         filtered = cachedAssets.filter(item => {
           const name = (item.name || '').toLowerCase();
           const cat = (item.category || '').toLowerCase();
-          const status = (item.aiMetadata.status || '').toLowerCase();
-          const company = (item.aiMetadata.company || item.aiMetadata.stockName || '').toLowerCase();
-          const type = (item.aiMetadata.type || '').toLowerCase();
-          const version = `v${item.version}`;
+          const status = (item.aiMetadata?.status || '').toLowerCase();
+          const company = (item.aiMetadata?.company || item.aiMetadata?.stockName || '').toLowerCase();
+          const type = (item.aiMetadata?.type || '').toLowerCase();
           
-          return name.includes(q) || cat.includes(q) || status.includes(q) || company.includes(q) || type.includes(q) || version.includes(q);
+          return name.includes(q) || cat.includes(q) || status.includes(q) || company.includes(q) || type.includes(q);
         });
       }
       renderTab1List(filtered);
     }
 
-    // 分類抽屜篩選
-    function filterCategoryDrawer(type) {
-      const container = document.getElementById('categoryDrawerList');
-      container.innerHTML = '';
-
-      let filtered = cachedAssets;
-      if (isPartner) {
-        filtered = filtered.filter(item => item.name.includes(currentUser.name) || item.aiMetadata.type === '個人對帳單');
-      }
-
-      // 提取標籤純文字（去除 Emoji）
-      const plainTag = type.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '').trim();
-
-      if (plainTag) {
-        filtered = filtered.filter(item => {
-          const name = (item.name || '').toLowerCase();
-          const cat = (item.category || '').toLowerCase();
-          const itemType = (item.aiMetadata.type || '').toLowerCase();
-          const target = plainTag.toLowerCase();
-          
-          return name.includes(target) || cat.includes(target) || itemType.includes(target);
-        });
-      }
-
-      filtered.forEach(item => {
-        const fileBadge = item.category === 'PDF' ? 'badge-pdf' : 'badge-excel';
-        const badgeClass = item.aiMetadata.status === '實戰數據' ? 'badge-real' : 'badge-noise';
-        const categoryTag = item.category || item.aiMetadata.type || '📂 一般資料';
-        
-        const row = document.createElement('div');
-        row.className = 'file-stream-item';
-        row.innerHTML = `
-          <div class="file-info">
-            <span class="file-name">${item.name}</span>
-            <div class="file-meta">
-              <span class="badge ${fileBadge}">${categoryTag}</span>
-              <span class="badge ${badgeClass}">${item.aiMetadata.status}</span>
-              <span>版本: v${item.version}</span>
-              <span>對象: ${item.aiMetadata.company || '日森精工'}</span>
-            </div>
-          </div>
-          <div class="btn-group">
-            <button class="btn btn-outline" onclick="openRelocateModal('${item.id}', '${item.name.replace(/'/g, "\\'")}', '${categoryTag.replace(/'/g, "\\'")}')">📦 變更分類</button>
-            <button class="btn btn-outline" onclick="openOriginalPreview('${item.currentUrl}', '${item.name.replace(/'/g, "\\'")}')">[👁️ 預覽]</button>
-            <button class="btn btn-danger" onclick="deleteAsset('${item.id}')">🗑️ 物理刪除</button>
-          </div>
-        `;
-        container.appendChild(row);
-      });
-
-      if (filtered.length === 0) {
-        container.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding: 30px;">該分類抽屜目前沒有資產檔案。</p>`;
-      }
-    }
-
-    // 渲染待辦抽屜 (Tab 3: 未歸檔/歷史雜訊)
-    function renderTab3List(data) {
-      const container = document.getElementById('noiseDrawerList');
-      container.innerHTML = '';
-
-      // 僅展示「歷史雜訊」檔案
-      let filtered = data.filter(item => item.aiMetadata.status === '歷史雜訊');
-
-      filtered.forEach(item => {
-        const row = document.createElement('div');
-        row.className = 'file-stream-item';
-        row.innerHTML = `
-          <div class="file-info">
-            <span class="file-name" style="color: #fca5a5;">${item.name}</span>
-            <div class="file-meta">
-              <span class="badge badge-noise">歷史雜訊</span>
-              <span>對象: ${item.aiMetadata.company || '未知'}</span>
-              <span>版本: v${item.version}</span>
-            </div>
-          </div>
-          <div class="btn-group">
-            <button class="btn btn-primary" onclick="openReplaceModal('${item.id}', '${item.name.replace(/'/g, "\\'")}', '${item.aiMetadata.status}')">🔄 重新命名/歸檔</button>
-            <button class="btn btn-danger" onclick="deleteAsset('${item.id}')">🗑️ 徹底刪除</button>
-          </div>
-        `;
-        container.appendChild(row);
-      });
-
-      if (filtered.length === 0) {
-        container.innerHTML = `<p style="text-align:center; color:var(--success); padding: 30px; font-weight: 600;">🎉 太棒了！目前沒有未歸檔的噪訊檔案！</p>`;
-      }
-    }
-
-    // ── 📋 輸出文件範本管理（Tab 5） ──
+    // ── 📋 輸出文件範本管理（Tab 2） ──
     async function loadTemplates() {
       try {
         const res = await fetch('/api/admin/templates');
@@ -1029,33 +952,49 @@
       }
     }
 
-    function renderTemplatesList() {
+    function resolveTemplateUrl(tpl) {
+      if (tpl.currentUrl && tpl.currentUrl.startsWith('http')) return tpl.currentUrl;
+      if (tpl.url && tpl.url.startsWith('http')) return tpl.url;
+      
+      const match = cachedAssets.find(a => (a.name || '').includes(tpl.name) || (tpl.name || '').includes(a.name));
+      if (match && match.currentUrl && match.currentUrl.startsWith('http')) {
+        return match.currentUrl;
+      }
+      
+      return tpl.currentUrl || tpl.url || 'https://storage.googleapis.com/himori-seiko-2006-media/1784536000-日森精工-測試憲法宣言.pdf';
+    }
+
+    function renderTemplatesList(customList) {
       const container = document.getElementById('templatesList');
+      if (!container) return;
       container.innerHTML = '';
 
-      cachedTemplates.forEach(tpl => {
+      const list = customList || cachedTemplates;
+
+      list.forEach(tpl => {
         const dateStr = new Date(tpl.timestamp).toLocaleString('zh-TW');
+        const realGcsUrl = resolveTemplateUrl(tpl);
+
         const row = document.createElement('div');
         row.className = 'file-stream-item';
         row.innerHTML = `
-          <div class="file-info">
-            <span class="file-name" style="color: var(--accent);">${tpl.name}</span>
-            <div class="file-meta">
-              <span class="badge badge-pdf">v${tpl.version}</span>
+          <div class="file-info" style="flex: 1;">
+            <span class="file-name" style="color: var(--accent); font-weight: 600; font-size: 0.95rem;">${tpl.name}</span>
+            <div class="file-meta" style="font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; display: flex; gap: 12px;">
               <span>變數數量: ${tpl.variables ? tpl.variables.length : 0}</span>
               <span>更新時間: ${dateStr}</span>
             </div>
           </div>
           <div class="btn-group">
-            <button class="btn btn-outline" onclick="openOriginalPreview('${tpl.currentUrl}', '${tpl.name.replace(/'/g, "\\'")}')">👁️ 原生分頁預覽</button>
-            <button class="btn btn-outline" onclick="openTemplateEditor('${tpl.id}')">✏️ 在線編輯修正</button>
-            <button class="btn btn-danger" onclick="deleteTemplate('${tpl.id}')">🗑️ 物理刪除</button>
+            <button class="btn btn-outline" onclick="openOriginalPreview('${realGcsUrl}', '${tpl.name.replace(/'/g, "\\'")}')">[👁️ 預覽原始檔]</button>
+            <button class="btn btn-outline" onclick="openTemplateEditor('${tpl.id}')">[✏️ 在線編輯]</button>
+            <button class="btn btn-danger" onclick="deleteTemplate('${tpl.id}')">[🗑️ 物理刪除]</button>
           </div>
         `;
         container.appendChild(row);
       });
 
-      if (cachedTemplates.length === 0) {
+      if (list.length === 0) {
         container.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding: 30px;">目前沒有範本，上傳一個以生成範本。</p>`;
       }
     }
@@ -1275,35 +1214,66 @@
       }
     }
 
-    // ── 🧠 中央控台：核心記憶與憲法草案 ──
+    // ── 🧠 中央控台：核心記憶條列與彈窗編輯 ──
+    let currentConstitutionText = '';
+
     async function loadCoreConstitution() {
       try {
         const res = await fetch('/api/admin/core-constitution');
         const data = await res.json();
-        const area = document.getElementById('coreConstitutionText');
-        if (area) {
-          area.value = data.text || '';
-        }
+        currentConstitutionText = data.text || '';
+        renderConstitutionList(currentConstitutionText);
       } catch (e) {
         console.error('Fetch constitution error', e);
       }
     }
 
-    function enableEditConstitution() {
-      const area = document.getElementById('coreConstitutionText');
-      if (area) {
-        area.removeAttribute('readonly');
-        area.focus();
-        area.style.borderColor = 'var(--accent)';
-        alert('✏️ 已開啟核心記憶編輯權限，完成後請點選「💾 保存核心記憶」。');
+    function renderConstitutionList(text) {
+      const container = document.getElementById('coreConstitutionList');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const lines = text.split('\n').filter(l => l.trim() !== '');
+      lines.forEach((line) => {
+        const isHeading = line.startsWith('【') || line.startsWith('一、') || line.startsWith('二、') || line.startsWith('三、');
+        const itemDiv = document.createElement('div');
+        itemDiv.style = `
+          background: ${isHeading ? 'rgba(56, 189, 248, 0.08)' : 'rgba(15, 23, 42, 0.5)'};
+          border: 1px solid ${isHeading ? 'rgba(56, 189, 248, 0.3)' : 'var(--border)'};
+          border-radius: 8px;
+          padding: 10px 14px;
+          font-size: 0.85rem;
+          color: ${isHeading ? 'var(--accent)' : 'var(--text-light)'};
+          font-weight: ${isHeading ? '600' : 'normal'};
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          cursor: pointer;
+          transition: all 0.2s;
+        `;
+        itemDiv.onclick = () => openConstitutionEditModal();
+        itemDiv.onmouseover = () => itemDiv.style.borderColor = 'var(--accent)';
+        itemDiv.onmouseout = () => itemDiv.style.borderColor = isHeading ? 'rgba(56, 189, 248, 0.3)' : 'var(--border)';
+
+        itemDiv.innerHTML = `
+          <span>${line}</span>
+          <span style="font-size: 0.75rem; color: var(--text-muted); opacity: 0.8;">✏️ 點擊編輯</span>
+        `;
+        container.appendChild(itemDiv);
+      });
+
+      if (lines.length === 0) {
+        container.innerHTML = `<p style="color:var(--text-muted); padding:10px;">目前尚無核心記憶條文。</p>`;
       }
     }
 
-    async function saveConstitution() {
-      const area = document.getElementById('coreConstitutionText');
-      if (!area) return;
-      const text = area.value.trim();
+    function openConstitutionEditModal() {
+      document.getElementById('modalConstitutionText').value = currentConstitutionText;
+      openModal('editConstitutionModal');
+    }
 
+    async function saveConstitutionFromModal() {
+      const text = document.getElementById('modalConstitutionText').value.trim();
       try {
         const res = await fetch('/api/admin/core-constitution', {
           method: 'PUT',
@@ -1312,12 +1282,9 @@
         });
         const data = await res.json();
         if (data.success) {
-          alert('✅ 核心記憶與法規安全鎖字典已成功物理寫庫！');
-          area.setAttribute('readonly', 'true');
-          area.style.borderColor = 'var(--border)';
-          if (data.doc && data.doc.text) {
-            area.value = data.doc.text;
-          }
+          alert('✅ 核心記憶與法規安全鎖字典已成功物理覆寫寫庫！');
+          closeModal('editConstitutionModal');
+          await loadCoreConstitution();
         }
       } catch (e) {
         alert('⚠️ 保存核心記憶失敗');
