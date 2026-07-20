@@ -1390,8 +1390,11 @@
       }, false);
     }
 
-    async function confirmIngestSave() {
+    // 🚨 剛性修正：確認核定入庫時，必須百分之百將 currentUploadedFileUrl 傳給後端！
+    async function submitIngestAsset() {
       const name = document.getElementById('ingestFileName').value.trim();
+      const category = document.getElementById('ingestCategory')?.value || '📂 一般資料';
+      
       if (!name) {
         alert('請輸入檔案名稱！');
         return;
@@ -1401,13 +1404,14 @@
         return;
       }
 
+      // 核心死鎖：如果全域變數裡有剛剛上傳成功的網址，強制帶入！
       const payload = {
         name: name,
-        category: '全域記憶',
-        url: currentUploadedFileUrl,
+        category: category,
+        url: currentUploadedFileUrl, // 👈 焊死這個欄位！絕不允許再傳 undefined 導致空字串！
         aiMetadata: {
+          type: category,
           company: '日森精工有限公司',
-          type: '全域記憶',
           status: '實戰數據'
         }
       };
@@ -1418,34 +1422,25 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-        const data = await res.json();
-        if (data.success) {
-          alert(`✅ 檔案【${data.doc.name}】已成功融入大腦全域記憶！`);
+        const result = await res.json();
+        if (result.success) {
           closeModal('ingestModal');
           currentUploadedFileUrl = '';
-          await loadAssets();
+          // 重新加載檔案清單，確保最新覆寫/新增的檔案網址即時動態刷新
+          await fetchAssetsAndTemplates(); 
+        } else {
+          alert(`⚠️ 入庫失敗: ${result.error}`);
         }
       } catch (e) {
-        alert('⚠️ 融入大腦失敗');
+        alert(`⚠️ 請求入庫失敗: ${e.message}`);
       }
     }
 
-      try {
-        const res = await fetch('/api/admin/ai-assets/create', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        if (data.success) {
-          alert('✅ 檔案已成功融入大腦全域記憶！');
-          closeModal('ingestModal');
-          currentUploadedFileUrl = '';
-          await loadAssets();
-        }
-      } catch (e) {
-        alert('⚠️ 融入大腦失敗');
-      }
+    const confirmIngestSave = submitIngestAsset;
+
+    async function fetchAssetsAndTemplates() {
+      await loadAssets();
+      await loadTemplates();
     }
 
     function filterTemplateList() {
@@ -1498,19 +1493,17 @@
       });
     }
 
-    // 剛性解鎖原生 PDF/實體檔案預覽：直接呼叫原生瀏覽器新分頁開啟 Cloud Storage 物理網址
+    // 🚨 預覽按鈕防呆：全動態綁定，絕不允許拿空字串去拼儲存桶根目錄
     function openOriginalPreview(url, name) {
-      if (!url) {
-        alert('⚠️ 無法取得實體網址');
+      if (!url || url === 'undefined' || url === 'null' || url.trim() === '') {
+        alert('⚠️ 系統提示：該檔案在資料庫中的 currentUrl 欄位為空值，代表上傳時未成功寫入網址，請刪除該項目重新上傳！');
         return;
       }
       let targetUrl = url.trim();
       if (targetUrl.startsWith('/')) {
         targetUrl = window.location.origin + targetUrl;
-      } else if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
-        targetUrl = 'https://storage.googleapis.com/himori-seiko-2006-media/' + encodeURIComponent(targetUrl);
       }
-      console.log(`[GCS 物理網址直連] 開啟網址: ${targetUrl}`);
+      console.log(`[動態實體網址直連] 開啟網址: ${targetUrl}`);
       window.open(targetUrl, '_blank');
     }
 

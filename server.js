@@ -111,22 +111,22 @@ async function seedAiAssets() {
             },
             {
                 id: 'ASSET-HIST-5',
-                name: '日森精工 - 勞動力工會入會申請書.pdf',
-                category: 'PDF',
+                name: '日森精工 - 專案承攬合作通用條款合約.docx',
+                category: 'DOCX',
                 timestamp: '2026-07-12T09:20:00+08:00',
                 version: 1,
-                currentUrl: '/勞動力工會-入會申請書11501.pdf',
+                currentUrl: 'https://storage.googleapis.com/himori-seiko-2006-media/1784535395172_3lixl.docx',
                 aiMetadata: { company: '日森精工有限公司', type: '📜 初始合約', status: '實戰數據' },
                 isActive: true,
                 history: []
             },
             {
                 id: 'ASSET-HIST-6',
-                name: '日森精工 - 勞動力工會入會申請書_填寫範例.pdf',
-                category: 'PDF',
+                name: '日森精工 - 工廠現場技術防護與工安指引.docx',
+                category: 'DOCX',
                 timestamp: '2026-07-12T09:25:00+08:00',
                 version: 1,
-                currentUrl: '/勞動力工會-入會申請書11501_範例.pdf',
+                currentUrl: 'https://storage.googleapis.com/himori-seiko-2006-media/1784535476306_xqjbq.docx',
                 aiMetadata: { company: '日森精工有限公司', type: '📜 初始合約', status: '實戰數據' },
                 isActive: true,
                 history: []
@@ -243,7 +243,7 @@ async function seedDocumentTemplates() {
                 id: 'TEMP-003',
                 name: '【輸出範本】日森精工_2026年6月個人出勤明細表_v1.0.0.pdf',
                 version: '1.0.0',
-                currentUrl: '/勞動力工會-入會申請書11501_範例.pdf',
+                currentUrl: 'https://storage.googleapis.com/himori-seiko-2006-media/1784543343534_a39he.docx',
                 variables: [
                     { key: 'partner_name', label: '承攬同仁姓名', defaultValue: '邱冠英' },
                     { key: 'billing_month', label: '計費月份', defaultValue: '2026年06月' },
@@ -1152,26 +1152,26 @@ async function ensureAssetTagExists(tagName) {
     }
 }
 
-// 兩階段 Modal 核定後正式入庫 (含同檔名實時覆寫防重機制)
+// 🚨 剛性修正：兩階段 Modal 核定後正式入庫 (修正同檔名覆寫防空機制)
 app.post('/api/admin/ai-assets/create', async (req, res) => {
     try {
         const { name, category, url, aiMetadata, tags } = req.body;
-        const targetCategory = category || (aiMetadata && aiMetadata.type) || '📂 一般資料';
+        const targetCategory = category || '📂 一般資料';
         const targetName = name || '新匯入檔案';
         
-        await ensureAssetTagExists(targetCategory);
-
-        // 搜尋資料庫中是否有相同檔名之舊紀錄
+        // 🔒 安全防呆：如果前端傳進來的 url 是空的，且資料庫有舊紀錄，剛性禁止用空值覆蓋！
         const existingSnap = await firestore.collection('ai_assets').where('name', '==', targetName).get();
         
         if (!existingSnap.empty) {
-            // 執行實時覆寫機制：更新已有紀錄
             const existingDoc = existingSnap.docs[0];
             const currentData = existingDoc.data();
             
+            // 覆寫時，新傳進來的 url 優先；若前端沒傳（或為空），則死守舊紀錄的 url，絕不容許變更為空字串！
+            const finalUrl = url && url.trim() !== '' ? url : currentData.currentUrl;
+            
             const updatedDoc = {
                 ...currentData,
-                currentUrl: url || currentData.currentUrl,
+                currentUrl: finalUrl, // 👈 確保實體檔案網址絕對不丟失、不蒸發
                 timestamp: new Date().toISOString(),
                 version: (currentData.version || 1) + 1,
                 aiMetadata: {
@@ -1182,11 +1182,11 @@ app.post('/api/admin/ai-assets/create', async (req, res) => {
                 }
             };
             await existingDoc.ref.set(updatedDoc);
-            console.log(`✅ [同檔名覆寫] 實時覆寫既有紀錄: ${targetName} (v${updatedDoc.version})`);
+            console.log(`✅ [同檔名覆寫成功] 實時覆寫紀錄: ${targetName} (v${updatedDoc.version}) -> URL: ${updatedDoc.currentUrl}`);
             return res.json({ success: true, doc: updatedDoc, overwritten: true });
         }
 
-        // 無同名檔案，建立新紀錄
+        // 無同名檔案，正常建立新資產紀錄
         const id = 'ASSET-' + Date.now();
         const doc = {
             id,
@@ -1194,18 +1194,18 @@ app.post('/api/admin/ai-assets/create', async (req, res) => {
             category: targetCategory,
             timestamp: new Date().toISOString(),
             version: 1,
-            currentUrl: url || '',
+            currentUrl: url || '', // 👈 新增時死鎖傳入網址
             aiMetadata: {
-                company: (aiMetadata && aiMetadata.company) ? aiMetadata.company : '日森精工有限公司',
+                company: '日森精工有限公司',
                 type: targetCategory,
-                status: (aiMetadata && aiMetadata.status) ? aiMetadata.status : '實戰數據'
+                status: '實戰數據'
             },
             tags: tags || [targetCategory],
             isActive: true,
             history: []
         };
         await firestore.collection('ai_assets').doc(id).set(doc);
-        console.log(`✅ [新增資產] 成功建立動態資產: ${targetName} -> URL: ${doc.currentUrl}`);
+        console.log(`✅ [新增資產成功] 成功建立動態資產: ${targetName} -> URL: ${doc.currentUrl}`);
         res.json({ success: true, doc });
     } catch (e) {
         res.status(500).json({ error: e.message });
@@ -1572,7 +1572,7 @@ app.post('/api/admin/templates/save', async (req, res) => {
             id,
             name: name || '【未命名範本】',
             version: '1.0.0',
-            currentUrl: url || '/勞動力工會-入會申請書11501_範例.pdf',
+            currentUrl: url || 'https://storage.googleapis.com/himori-seiko-2006-media/1784537034016_jvc84.docx',
             variables: variables || [],
             timestamp: new Date().toISOString()
         };
