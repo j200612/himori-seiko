@@ -126,7 +126,7 @@ async function seedAiAssets() {
                 category: 'DOCX',
                 timestamp: '2026-07-12T09:25:00+08:00',
                 version: 1,
-                currentUrl: 'https://storage.googleapis.com/himori-seiko-2006-media/1784535476306_xqjbq.docx',
+                currentUrl: 'https://storage.googleapis.com/himori-seiko-2006-media/1784551741069_yp2fp.docx',
                 aiMetadata: { company: '日森精工有限公司', type: '📜 初始合約', status: '實戰數據' },
                 isActive: true,
                 history: []
@@ -437,6 +437,49 @@ seedDatabase();
 
 // ── 2. Firestore API ──
 
+// FAQ
+// ── 3. Google Cloud Storage 實體檔案上傳與公開存取 API (Promise 異步阻塞鎖防蒸發) ──
+app.post('/api/storage/upload', upload.single('file'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded.' });
+        }
+        const ext = path.extname(req.file.originalname);
+        const gcsFileName = `${Date.now()}_${Math.random().toString(36).substring(2, 7)}${ext}`;
+        const blob = bucket.file(gcsFileName);
+        
+        // 🔒 Promise 阻塞鎖：確保 GCS 實體寫入與權限設定 100% 完成後才放行回應前端
+        const publicUrl = await new Promise((resolve, reject) => {
+            const blobStream = blob.createWriteStream({
+                metadata: { contentType: req.file.mimetype },
+                resumable: false
+            });
+
+            blobStream.on('error', (err) => {
+                reject(err);
+            });
+
+            blobStream.on('finish', async () => {
+                try {
+                    await blob.makePublic();
+                } catch (e) {
+                    console.warn('Could not make blob public, using standard URL:', e);
+                }
+                const url = `https://storage.googleapis.com/${bucketName}/${gcsFileName}`;
+                resolve(url);
+            });
+
+            blobStream.end(req.file.buffer);
+        });
+
+        console.log(`✅ [GCS 物理同步鎖完工] 實體檔名: ${req.file.originalname} -> 直連網址: ${publicUrl}`);
+        res.json({ success: true, url: publicUrl, fileName: req.file.originalname, gcsFileName });
+    } catch (e) {
+        console.error('❌ GCS 實體上傳失敗:', e);
+        res.status(500).json({ error: e.message });
+    }
+});
+
 // FAQ 讀取
 app.get('/api/firestore/qa', async (req, res) => {
     try {
@@ -560,43 +603,7 @@ app.post('/api/firestore/user-roles/update', async (req, res) => {
 });
 
 
-// ── 3. Google Cloud Storage 上傳 API ──
-app.post('/api/storage/upload', upload.single('file'), async (req, res) => {
-    try {
-        if (!req.file) {
-            return res.status(400).json({ error: 'No file uploaded.' });
-        }
-        const ext = path.extname(req.file.originalname);
-        const gcsFileName = `${Date.now()}_${Math.random().toString(36).substring(2, 7)}${ext}`;
-        const blob = bucket.file(gcsFileName);
-        
-        const blobStream = blob.createWriteStream({
-            metadata: { contentType: req.file.mimetype },
-            resumable: false
-        });
 
-        blobStream.on('error', (err) => {
-            res.status(500).json({ error: err.message });
-        });
-
-        blobStream.on('finish', async () => {
-            // 設定公開存取權限
-            try {
-                await blob.makePublic();
-            } catch (e) {
-                // 如果權限不允許，回退使用儲存桶內簽名或公開連結
-                console.warn('Could not make blob public, using standard URL:', e);
-            }
-            const publicUrl = `https://storage.googleapis.com/${bucketName}/${gcsFileName}`;
-            console.log(`✅ [GCS 上傳成功] 檔名: ${req.file.originalname} -> 公開網址: ${publicUrl}`);
-            res.json({ success: true, url: publicUrl, fileName: req.file.originalname, gcsFileName });
-        });
-
-        blobStream.end(req.file.buffer);
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
 
 
 // ── 4. LINE Webhook 仿真與 Gemini API 大腦 (RAG + 信心門檻) ──
