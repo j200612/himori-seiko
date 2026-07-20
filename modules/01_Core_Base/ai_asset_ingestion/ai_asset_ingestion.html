@@ -337,88 +337,70 @@
         </p>
       </div>
 
-      <!-- 五大分頁 -->
+      <!-- 極簡白話兩大分頁翼 -->
       <div class="card">
         <div class="tabs-header">
-          <button class="tab-btn active" id="tab1Btn" onclick="switchTab(1)">📂 全域時間軌道流</button>
-          <button class="tab-btn" id="tab2Btn" onclick="switchTab(2)">🗃️ 外部資訊接收抽屜</button>
-          <button class="tab-btn" id="tab3Btn" onclick="switchTab(3)">🚨 未歸檔與不確定文件</button>
-          <button class="tab-btn" id="tab4Btn" onclick="switchTab(4)">💾 自我核心記憶</button>
-          <button class="tab-btn" id="tab5Btn" onclick="switchTab(5)">📋 輸出文件範本管理</button>
+          <button class="tab-btn active" id="tab1Btn" onclick="switchTab(1)">📥 翼一：全域檔案輸入與中央控台</button>
+          <button class="tab-btn" id="tab2Btn" onclick="switchTab(2)">📤 翼二：輸出格式資料庫</button>
         </div>
 
-        <!-- Tab 1: 全域時間軌道流 -->
+        <!-- 翼一：全域檔案輸入與中央控台 -->
         <div id="tab1" class="tab-content active">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <h2 style="margin: 0; font-size: 1.2rem;">📂 全域時間軌道流</h2>
+          
+          <!-- 1. 頂部：【核心記憶】 -->
+          <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; padding: 20px; margin-bottom: 20px; backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <h2 style="margin: 0; font-size: 1.1rem; color: var(--accent); display: flex; align-items: center; gap: 8px;">
+                🧠 核心記憶
+              </h2>
+              <div class="btn-group">
+                <button class="btn btn-outline" style="font-size: 0.8rem; padding: 4px 12px;" onclick="enableEditConstitution()">✏️ 編輯核心記憶</button>
+                <button class="btn btn-primary" style="font-size: 0.8rem; padding: 4px 12px;" onclick="saveConstitution()">💾 保存核心記憶</button>
+              </div>
+            </div>
+            <textarea id="coreConstitutionText" readonly style="width: 100%; height: 160px; background: rgba(15, 23, 42, 0.6); color: var(--text-light); border: 1px solid var(--border); border-radius: 8px; padding: 12px; box-sizing: border-box; font-size: 0.85rem; line-height: 1.6; outline: none; font-family: inherit; resize: vertical;"></textarea>
           </div>
-          <!-- 模糊搜尋框 -->
-          <div class="form-group" style="margin-bottom: 16px;">
-            <input type="text" id="streamSearchInput" placeholder="🔍 輸入檔案關鍵字、日期或對象進行模糊搜尋..." oninput="filterStreamList()">
+
+          <!-- 2. 中部：【全域拖曳檔案輸入區】 -->
+          <div id="tab1-upload-dropzone" class="upload-area" style="margin-bottom: 24px; transition: all 0.3s ease;">
+            <span style="font-size: 2.2rem;">📥</span>
+            <p style="margin: 8px 0; font-weight: 600; font-size: 1rem; color: var(--text-light);">拖曳任何實體檔案至此 或 點擊選取檔案 ➔ 融入大腦記憶</p>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">檔案將自動上傳至 Cloud Storage 物理備份，並記錄於全域記憶池</span>
+            <input type="file" id="tab1-file-input" style="display: none;">
           </div>
-          <div id="fileStreamList"></div>
+
+          <!-- 3. 底部：【條列式時間流模糊檢索牆】 -->
+          <div style="margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <h3 style="margin: 0; font-size: 1.05rem; color: var(--text-light);">🔍⏳ 條列式時間流檢索牆</h3>
+            </div>
+            <div class="form-group" style="margin-bottom: 16px;">
+              <input type="text" id="streamSearchInput" placeholder="🔍 輸入關鍵字（如：費用、請款、晶廷、邱冠英、194771）進行全域模糊過濾..." oninput="filterStreamList()">
+            </div>
+            <div id="fileStreamList"></div>
+          </div>
         </div>
 
-        <!-- Tab 2: 外部資訊接收抽屜 -->
+        <!-- 翼二：輸出格式資料庫 -->
         <div id="tab2" class="tab-content">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <h2 style="margin: 0; font-size: 1.2rem;">🗃️ 外部資訊接收抽屜</h2>
+            <h2 style="margin: 0; font-size: 1.2rem; color: var(--accent);">📤 輸出格式資料庫</h2>
           </div>
-          
-          <!-- Tab 2 獨立上傳區 (兩階段 AI 命名與 Modal 核定入庫) -->
-          <div id="tab2-upload-dropzone" class="upload-area" style="margin-bottom: 16px; transition: all 0.3s ease;">
-            <span style="font-size: 2rem;">📤</span>
-            <p style="margin: 8px 0; font-weight: 600;">拖曳檔案至此 或 點擊選取外部資訊檔案 ➔ 兩階段 AI 命名核定入庫</p>
-            <span style="font-size: 0.8rem; color: var(--text-muted);">檔案將實體寫入 Cloud Storage，並彈出毛玻璃 Modal 供總裁核定名稱後才物理存入</span>
-            <input type="file" id="tab2-file-input" style="display: none;">
-          </div>
-
-          <!-- 抽屜手把資料夾區 -->
-          <div id="drawerHandlesList" style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;"></div>
-          <div id="categoryDrawerList"></div>
-        </div>
-
-        <!-- Tab 3: 未歸檔與不確定文件 -->
-        <div id="tab3" class="tab-content">
-          <h2 style="font-size: 1.2rem; margin-bottom: 12px;">🚨 未歸檔與不確定文件</h2>
-          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">存放環境噪音過大解析未完全之檔案。提供總裁覆蓋歸檔更名或物理徹底刪除。</p>
-          <div id="noiseDrawerList"></div>
-        </div>
-
-        <!-- Tab 4: 自我核心記憶 -->
-        <div id="tab4" class="tab-content">
-          <h2 style="font-size: 1.2rem; margin-bottom: 12px;">💾 自我核心記憶 (天生命格)</h2>
-          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">本專案的底層開發大框架與基因構想規章，即時與 Firestore 雲端同步儲存，支援總裁隨意志「逆天改命」。</p>
-          <div id="coreMemoriesList"></div>
-
-          <!-- 新增核心記憶區 -->
-          <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); padding: 16px; border-radius: 8px; margin-top: 20px;">
-            <h3 style="font-size: 1rem; margin-bottom: 12px;">➕ 新增自我核心記憶</h3>
-            <div class="form-group">
-              <label>記憶名稱</label>
-              <input type="text" id="newMemoryName" placeholder="例如：【安全驗證角色特權覆蓋規範】">
-            </div>
-            <div class="form-group">
-              <label>記憶內容</label>
-              <textarea id="newMemoryContent" placeholder="輸入規則細節與決訊內容..." style="width:100%; height:80px; background: rgba(15, 23, 42, 0.6); color: var(--text-light); border: 1px solid var(--border); border-radius: 6px; padding: 10px; box-sizing: border-box; outline: none;"></textarea>
-            </div>
-            <button class="btn btn-primary" onclick="createCoreMemory()">寫入自我內核記憶</button>
-          </div>
-        </div>
-
-        <!-- Tab 5: 輸出文件範本管理 (極致清爽版面，不含語音拍照) -->
-        <div id="tab5" class="tab-content">
-          <h2 style="font-size: 1.2rem; margin-bottom: 12px;">📋 輸出文件範本管理</h2>
-          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">
-            上傳同仁現成歷史檔案，AI 大腦將自動逆向解析欄位，定位出變數填空位置（如姓名、薪資、工時等），並存入範本庫。
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+            此分頁專門統一規劃、儲存與宣告日森精工所有輸出文件之黃金標準格式（如請款單、外包合約 Docs/Sheets）。
           </p>
           
-          <!-- 範本獨立上傳區 (支援拖曳 Drag & Drop 與獨立點擊) -->
-          <div id="template-upload-dropzone" class="upload-area" style="margin-bottom: 24px; transition: all 0.3s ease;">
+          <!-- 獨立範本上傳區 -->
+          <div id="template-upload-dropzone" class="upload-area" style="margin-bottom: 20px; transition: all 0.3s ease;">
             <span style="font-size: 2rem;">📝</span>
-            <p style="margin: 8px 0; font-weight: 600;">拖曳檔案至此 或 點擊選取歷史實體檔案 ➔ AI 逆向通靈轉範本</p>
-            <span style="font-size: 0.8rem; color: var(--text-muted);">系統會自動提取文件內文，並定位可變參數</span>
+            <p style="margin: 8px 0; font-weight: 600;">拖曳歷史範本至此 或 點擊選取 ➔ 逆向通靈轉輸出黃金格式</p>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">系統會自動提取文件內文，並定位可變填空參數</span>
             <input type="file" id="template-file-input" style="display: none;">
+          </div>
+
+          <!-- 模糊搜尋列 -->
+          <div class="form-group" style="margin-bottom: 16px;">
+            <input type="text" id="templateSearchInput" placeholder="🔍 輸入關鍵字搜尋黃金輸出格式..." oninput="filterTemplateList()">
           </div>
 
           <!-- 範本列表 -->
@@ -497,22 +479,22 @@
     <option value="📂 企業理念與核心記憶"></option>
   </datalist>
 
-  <!-- 資產入庫兩階段確認 Modal (極簡雙欄位) -->
-  <div class="modal" id="voiceConfirmModal" style="backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: rgba(15, 23, 42, 0.4);">
+  <!-- 單一欄位極簡融入大腦 Modal -->
+  <div class="modal" id="ingestModal" style="backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: rgba(15, 23, 42, 0.4);">
     <div class="modal-content" style="background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(56, 189, 248, 0.25); box-shadow: 0 8px 32px rgba(56, 189, 248, 0.15);">
-      <h3 style="color: var(--accent); margin-top: 0;">📤 檔案入庫與名稱/資料夾核定</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">請核定檔名與歸屬資料夾，點擊「確認格式化入庫」後將正式寫入資料庫。</p>
+      <h3 style="color: var(--accent); margin-top: 0; display: flex; align-items: center; gap: 8px;">
+        🧠 融入大腦全域記憶
+      </h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+        請核定檔案名稱，點擊「融入大腦記憶」後將正式寫入 Cloud Storage 實體桶與資料庫。
+      </p>
       <div class="form-group">
-        <label>1. 檔案名稱 (可手動自由修改)</label>
-        <input type="text" id="confirmName" style="width: 100%;">
-      </div>
-      <div class="form-group">
-        <label>2. 文件類別 / 資料夾 (選取或打字即建新資料夾)</label>
-        <input type="text" id="confirmCategory" list="folderDatalist" placeholder="選擇或輸入資料夾名稱（如：📂 費用類）" style="width: 100%;">
+        <label>檔案名稱 (可手動自由修改)</label>
+        <input type="text" id="ingestFileName" style="width: 100%;">
       </div>
       <div class="btn-group" style="justify-content: flex-end; margin-top: 20px;">
-        <button class="btn btn-outline" onclick="closeModal('voiceConfirmModal')">取消</button>
-        <button class="btn btn-primary" onclick="confirmFormatSave()">確認格式化入庫</button>
+        <button class="btn btn-outline" onclick="closeModal('ingestModal')">取消</button>
+        <button class="btn btn-primary" onclick="confirmIngestSave()">🧠 融入大腦記憶</button>
       </div>
     </div>
   </div>
@@ -617,7 +599,7 @@
     </div>
   </div>
 
-  <script src="/global_shared.js?v=20260712_v2_IMAGE_MARKETING"></script>
+  <script src="/global_shared.js?v=20260720_v3_TESLA_BRAIN"></script>
   <script>
     const currentUser = JSON.parse(sessionStorage.getItem("himori_user")) || { name: "guest", role: "guest" };
     
@@ -626,23 +608,21 @@
     const isPartner = partnerNames.includes(currentUser.name) || (currentUser.role && (currentUser.role.includes('同仁') || currentUser.role.includes('領隊')));
 
     let cachedAssets = [];
-    let cachedTags = [];
-    let cachedMemories = [];
     let cachedTemplates = [];
-    let currentDrawerTab = '';
 
     if (isPartner) {
-      // 承攬同仁：強制鎖定在時間軌道流，隱藏版本管理、待辦、核心記憶、範本管理、AI 上傳
-      document.getElementById('tab2Btn').style.display = 'none';
-      document.getElementById('tab3Btn').style.display = 'none';
-      document.getElementById('tab4Btn').style.display = 'none';
-      document.getElementById('tab5Btn').style.display = 'none';
-      document.getElementById('aiUploadCard').style.display = 'none';
-      document.getElementById('simPartnerView').style.display = 'block';
-      document.getElementById('simPresidentView').style.display = 'none';
+      // 承攬同仁：僅展示翼一時間檢索流
+      const t2 = document.getElementById('tab2Btn');
+      if (t2) t2.style.display = 'none';
+      const pView = document.getElementById('simPartnerView');
+      if (pView) pView.style.display = 'block';
+      const presView = document.getElementById('simPresidentView');
+      if (presView) presView.style.display = 'none';
     } else {
-      document.getElementById('simPartnerView').style.display = 'none';
-      document.getElementById('simPresidentView').style.display = 'block';
+      const pView = document.getElementById('simPartnerView');
+      if (pView) pView.style.display = 'none';
+      const presView = document.getElementById('simPresidentView');
+      if (presView) presView.style.display = 'block';
     }
 
     function switchTab(idx) {
@@ -659,12 +639,7 @@
         cachedAssets = await res.json();
         
         renderTab1List(cachedAssets);
-        renderTab3List(cachedAssets);
         renderSimulatorLists(cachedAssets);
-        
-        if (currentDrawerTab) {
-          filterCategoryDrawer(currentDrawerTab);
-        }
       } catch (e) {
         console.error('Fetch assets error', e);
       }
@@ -1300,10 +1275,59 @@
       }
     }
 
-    // ── 兩階段 AI 資產上傳與 Modal 核定入庫 ──
+    // ── 🧠 中央控台：核心記憶與憲法草案 ──
+    async function loadCoreConstitution() {
+      try {
+        const res = await fetch('/api/admin/core-constitution');
+        const data = await res.json();
+        const area = document.getElementById('coreConstitutionText');
+        if (area) {
+          area.value = data.text || '';
+        }
+      } catch (e) {
+        console.error('Fetch constitution error', e);
+      }
+    }
+
+    function enableEditConstitution() {
+      const area = document.getElementById('coreConstitutionText');
+      if (area) {
+        area.removeAttribute('readonly');
+        area.focus();
+        area.style.borderColor = 'var(--accent)';
+        alert('✏️ 已開啟核心記憶編輯權限，完成後請點選「💾 保存核心記憶」。');
+      }
+    }
+
+    async function saveConstitution() {
+      const area = document.getElementById('coreConstitutionText');
+      if (!area) return;
+      const text = area.value.trim();
+
+      try {
+        const res = await fetch('/api/admin/core-constitution', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('✅ 核心記憶與法規安全鎖字典已成功物理寫庫！');
+          area.setAttribute('readonly', 'true');
+          area.style.borderColor = 'var(--border)';
+          if (data.doc && data.doc.text) {
+            area.value = data.doc.text;
+          }
+        }
+      } catch (e) {
+        alert('⚠️ 保存核心記憶失敗');
+      }
+    }
+
+    // ── 📥 翼一：全域拖曳檔案輸入與極簡單一欄位 Modal ──
     let currentUploadedFileUrl = '';
 
-    async function processAssetUpload(file) {
+    async function processIngestUpload(file) {
       if (!file) return;
 
       const formData = new FormData();
@@ -1318,43 +1342,29 @@
         currentUploadedFileUrl = (uploadData.success && uploadData.url) ? uploadData.url : '/勞動力工會-入會申請書11501_範例.pdf';
 
         const aiParsedName = `日森精工 - ${file.name}`;
-        const lower = file.name.toLowerCase();
-        let suggestedCategory = '📂 一般資料';
-        if (lower.includes('請款') || lower.includes('對帳') || lower.includes('發票') || lower.includes('費')) {
-          suggestedCategory = '📂 費用類';
-        } else if (lower.includes('工時') || lower.includes('明細') || lower.includes('勞') || lower.includes('夥伴')) {
-          suggestedCategory = '📂 人事類';
-        } else if (lower.includes('合約') || lower.includes('協議') || lower.includes('條款')) {
-          suggestedCategory = '📂 契約類';
-        } else if (lower.includes('白皮書') || lower.includes('綱要') || lower.includes('理念')) {
-          suggestedCategory = '📂 企業理念與核心記憶';
-        }
+        document.getElementById('ingestFileName').value = aiParsedName;
 
-        // 第一階段完成，第二階段彈出極簡毛玻璃確認 Modal 核定
-        document.getElementById('confirmName').value = aiParsedName;
-        document.getElementById('confirmCategory').value = suggestedCategory;
-
-        openModal('voiceConfirmModal');
+        openModal('ingestModal');
       } catch (e) {
-        alert('⚠️ 上傳至雲端防災 Storage 失敗');
+        alert('⚠️ 上傳至雲端 Storage 失敗');
       }
     }
 
-    function initTab2UploadListeners() {
-      const dropzone = document.getElementById('tab2-upload-dropzone');
-      const tab2FileInput = document.getElementById('tab2-file-input');
+    function initTab1UploadListeners() {
+      const dropzone = document.getElementById('tab1-upload-dropzone');
+      const tab1FileInput = document.getElementById('tab1-file-input');
 
-      if (!dropzone || !tab2FileInput) return;
+      if (!dropzone || !tab1FileInput) return;
 
       dropzone.addEventListener('click', (e) => {
         e.stopPropagation();
-        tab2FileInput.click();
+        tab1FileInput.click();
       });
 
-      tab2FileInput.addEventListener('change', (e) => {
+      tab1FileInput.addEventListener('change', (e) => {
         e.stopPropagation();
         if (e.target.files && e.target.files[0]) {
-          processAssetUpload(e.target.files[0]);
+          processIngestUpload(e.target.files[0]);
           e.target.value = '';
         }
       });
@@ -1380,25 +1390,27 @@
       dropzone.addEventListener('drop', (e) => {
         const dt = e.dataTransfer;
         if (dt && dt.files && dt.files[0]) {
-          processAssetUpload(dt.files[0]);
+          processIngestUpload(dt.files[0]);
         }
       }, false);
     }
 
-    async function confirmFormatSave() {
-      const name = document.getElementById('confirmName').value.trim();
-      const category = document.getElementById('confirmCategory').value.trim() || '📂 一般資料';
+    async function confirmIngestSave() {
+      const name = document.getElementById('ingestFileName').value.trim();
+      if (!name) {
+        alert('請輸入檔案名稱！');
+        return;
+      }
 
       const payload = {
         name: name,
-        category: category,
+        category: '全域記憶',
         url: currentUploadedFileUrl || '/勞動力工會-入會申請書11501_範例.pdf',
         aiMetadata: {
           company: '日森精工有限公司',
-          type: category,
+          type: '全域記憶',
           status: '實戰數據'
-        },
-        tags: [category]
+        }
       };
 
       try {
@@ -1409,91 +1421,36 @@
         });
         const data = await res.json();
         if (data.success) {
-          alert('✅ 檔案與資料夾分類已成功核定並物理寫入資料庫！');
-          closeModal('voiceConfirmModal');
+          alert('✅ 檔案已成功融入大腦全域記憶！');
+          closeModal('ingestModal');
           currentUploadedFileUrl = '';
-          const voiceInput = document.getElementById('voiceInputText');
-          if (voiceInput) voiceInput.value = '';
-          await loadAssetTags();
           await loadAssets();
         }
       } catch (e) {
-        alert('⚠️ 入庫失敗');
+        alert('⚠️ 融入大腦失敗');
       }
     }
 
-    // 📦 資產動態搬家 (修改類別)
-    let currentRelocateAssetId = '';
-    let currentRelocateAssetVersion = 1;
-
-    function openRelocateModal(id, name, currentCategory) {
-      currentRelocateAssetId = id;
-      const asset = cachedAssets.find(item => item.id === id);
-      currentRelocateAssetVersion = asset ? asset.version : 1;
-
-      document.getElementById('relocateFileName').value = name || '';
-      document.getElementById('relocateCategory').value = currentCategory || asset?.category || '📂 一般資料';
-      openModal('relocateModal');
-
-      document.getElementById('relocateSaveBtn').onclick = saveRelocateAsset;
-    }
-
-    async function saveRelocateAsset() {
-      const newName = document.getElementById('relocateFileName').value.trim();
-      const newCategory = document.getElementById('relocateCategory').value.trim();
-
-      if (!newCategory) {
-        alert('請選擇或輸入資料夾名稱！');
-        return;
+    function filterTemplateList() {
+      const q = document.getElementById('templateSearchInput').value.toLowerCase().trim();
+      let filtered = cachedTemplates;
+      if (q) {
+        filtered = cachedTemplates.filter(item => (item.name || '').toLowerCase().includes(q));
       }
-
-      const payload = {
-        newName: newName,
-        newCategory: newCategory,
-        currentVersion: currentRelocateAssetVersion,
-        newMetadata: {
-          type: newCategory,
-          status: '實戰數據'
-        }
-      };
-
-      try {
-        const res = await fetch(`/api/admin/ai-assets/${currentRelocateAssetId}/replace`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-User-Id': currentUser.empId || '',
-            'X-User-Role': encodeURIComponent(currentUser.role || '')
-          },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        if (res.status === 409) {
-          alert(data.error || '⚠️ 偵測到衝突！此版本已被其他同仁修改。');
-          return;
-        }
-        if (data.success) {
-          alert('📦 資產分類更換與搬家成功！刷新抽屜分類器中...');
-          closeModal('relocateModal');
-          await loadAssetTags();
-          await loadAssets();
-        } else {
-          alert(`⚠️ 搬家失敗: ${data.error}`);
-        }
-      } catch (e) {
-        alert('⚠️ 更換資料夾失敗');
-      }
+      renderTemplatesList(filtered);
     }
 
     function renderSimulatorLists(data) {
       const partnerFiles = document.getElementById('simPartnerFiles');
       const presidentFiles = document.getElementById('simPresidentFiles');
       
+      if (!partnerFiles || !presidentFiles) return;
+
       partnerFiles.innerHTML = '';
       presidentFiles.innerHTML = '';
 
       // 模擬同仁個人文件
-      const partnerData = data.filter(item => item.name.includes(currentUser.name) || item.aiMetadata.type === '個人對帳單');
+      const partnerData = data.filter(item => item.name.includes(currentUser.name) || (item.aiMetadata && item.aiMetadata.type === '個人對帳單'));
       partnerData.forEach(item => {
         const row = document.createElement('div');
         row.style = 'background: #1e293b; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-size: 0.8rem;';
@@ -1507,15 +1464,15 @@
 
       // 總裁手機檔案列表
       data.forEach(item => {
-        const badgeColor = item.aiMetadata.status === '實戰數據' ? 'var(--success)' : 'var(--accent)';
+        const badgeColor = (item.aiMetadata && item.aiMetadata.status === '實戰數據') ? 'var(--success)' : 'var(--accent)';
         const row = document.createElement('div');
         row.style = 'background: #1e293b; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-size: 0.8rem;';
         row.innerHTML = `
           <div style="font-weight:600; margin-bottom:4px; color:var(--text-light);">${item.name}</div>
           <div style="display:flex; justify-content:space-between; align-items:center; margin-top: 6px;">
-            <span style="font-size: 0.7rem; color: ${badgeColor}; font-weight:700;">● ${item.aiMetadata.status}</span>
+            <span style="font-size: 0.7rem; color: ${badgeColor}; font-weight:700;">● ${item.aiMetadata ? item.aiMetadata.status : '實戰數據'}</span>
             <div style="display:flex; gap: 4px;">
-              <button class="btn btn-outline" style="font-size:0.7rem; padding: 3px 6px;" onclick="openMobilePreview('${item.currentUrl}')">預覽</button>
+              <button class="btn btn-outline" style="font-size:0.7rem; padding: 3px 6px;" onclick="openOriginalPreview('${item.currentUrl}', '${item.name.replace(/'/g, "\\'")}')">預覽</button>
               <button class="btn btn-danger" style="font-size:0.7rem; padding: 3px 6px;" onclick="deleteAsset('${item.id}')">物理刪除</button>
             </div>
           </div>
@@ -1524,8 +1481,12 @@
       });
     }
 
-    // 剛性解鎖原生 PDF 預覽：直接呼叫原生瀏覽器新分頁打開
+    // 剛性解鎖原生 PDF/實體檔案預覽：直接呼叫原生瀏覽器新分頁開啟 Cloud Storage 物理網址
     function openOriginalPreview(url, name) {
+      if (!url) {
+        alert('⚠️ 無法取得實體網址');
+        return;
+      }
       window.open(url, '_blank');
     }
 
@@ -1545,88 +1506,6 @@
       preview.style.display = 'none';
       iframe.src = '';
       mobilePreviewUrl = '';
-    }
-
-    // 手機模擬控制台按鈕
-    function previewPdfMobile() {
-      if (mobilePreviewUrl) alert(`👁️ [手機模擬器] 正在預覽 PDF：${mobilePreviewUrl}`);
-    }
-    function sendPdfMobile() {
-      if (mobilePreviewUrl) alert('✉️ [手機模擬器] 已傳送 PDF 檔案至主管 LINE 與信箱。');
-    }
-    function printPdfMobile() {
-      if (mobilePreviewUrl) alert('🖨️ [手機模擬器] 已連線 AirPrint 列印本機 PDF 報表。');
-    }
-
-    // 模擬拍照辨識結構化
-    function triggerPhotoParse() {
-      const parsed = {
-        name: 'photo_receipt_captured.jpg',
-        category: '📂 費用類',
-        aiMetadata: {
-          company: '日森精工有限公司',
-          type: '📂 費用類',
-          status: '實戰數據'
-        }
-      };
-
-      // 彈出確認防線 Modal
-      document.getElementById('confirmName').value = parsed.name;
-      document.getElementById('confirmCategory').value = parsed.category;
-      
-      openModal('voiceConfirmModal');
-    }
-
-    // 版本更換與歸檔 (防線 B 整合)
-    let currentReplaceId = '';
-    let currentReplaceVersion = 0;
-    function openReplaceModal(id, name, status) {
-      currentReplaceId = id;
-      const asset = cachedAssets.find(item => item.id === id);
-      currentReplaceVersion = asset ? asset.version : 0;
-
-      document.getElementById('replaceName').value = name;
-      document.getElementById('replaceStatus').value = status;
-      openModal('replaceModal');
-      
-      document.getElementById('replaceSaveBtn').onclick = saveReplacement;
-    }
-
-    async function saveReplacement() {
-      const payload = {
-        newName: document.getElementById('replaceName').value,
-        currentVersion: currentReplaceVersion, // 帶入前端加載版本號
-        newMetadata: {
-          company: '日森精工有限公司',
-          status: document.getElementById('replaceStatus').value
-        }
-      };
-
-      try {
-        const res = await fetch(`/api/admin/ai-assets/${currentReplaceId}/replace`, {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'X-User-Id': currentUser.empId || '',
-            'X-User-Role': encodeURIComponent(currentUser.role || '')
-          },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        if (res.status === 409) {
-          alert(data.error || '⚠️ 偵測到並行衝突阻斷！此版本已被其他同仁修改。');
-          return;
-        }
-        if (data.success) {
-          alert('✅ 版本更新與歸檔成功，歷史軌跡已在後台安全封存！');
-          closeModal('replaceModal');
-          loadAssets();
-        } else {
-          alert(`⚠️ 更新失敗: ${data.error}`);
-        }
-      } catch (e) {
-        alert('⚠️ 更換版本失敗');
-      }
     }
 
     // 物理毀滅級徹底刪除 (帶上身份校驗標頭)
@@ -1666,12 +1545,11 @@
 
     // 初始化自動載入
     async function init() {
-      await loadAssetTags();
+      await loadCoreConstitution();
       await loadAssets();
-      await loadCoreMemories();
       await loadTemplates();
+      initTab1UploadListeners();
       initTemplateUploadListeners();
-      initTab2UploadListeners();
     }
     
     init();
