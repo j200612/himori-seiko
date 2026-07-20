@@ -704,7 +704,7 @@
     </div>
   </div>
 
-  <script src="/global_shared.js?v=20260721_v5_WYSIWYG_TOTAL"></script>
+  <script src="/global_shared.js?v=20260721_v6_BRAIN_LINE_LIVE"></script>
   <script>
     const currentUser = JSON.parse(sessionStorage.getItem("himori_user")) || { name: "guest", role: "guest" };
     
@@ -1057,25 +1057,17 @@
 
       list.forEach(tpl => {
         const dateStr = new Date(tpl.timestamp).toLocaleString('zh-TW');
-        const realGcsUrl = tpl.currentUrl || tpl.url || '';
-
-        const slotBadgesHtml = (tpl.variables || []).map(v => {
-          const isAuto = v.slotType === 'auto' || v.key.includes('name') || v.key.includes('hours') || v.key.includes('rate') || v.key.includes('pay') || v.key.includes('company');
-          if (isAuto) {
-            return `<span style="font-size: 0.7rem; color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); padding: 2px 6px; border-radius: 4px; font-weight:600;">[自動撈庫: ${v.label}]</span>`;
-          } else {
-            return `<span style="font-size: 0.7rem; color: #c084fc; background: rgba(192, 132, 252, 0.12); border: 1px solid rgba(192, 132, 252, 0.3); padding: 2px 6px; border-radius: 4px; font-weight:600;">[即時輸入: ${v.label}]</span>`;
-          }
-        }).join(' ');
+        const cleanName = (tpl.name || '未命名範本').replace(/【|】|黃金範本|輸出範本|日森精工 - |日森精工_/g, '').trim();
+        const varCount = tpl.variables ? tpl.variables.length : 0;
 
         const row = document.createElement('div');
         row.className = 'file-stream-item';
         row.innerHTML = `
           <div class="file-info" style="flex: 1;">
-            <span class="file-name" style="color: var(--accent); font-weight: 600; font-size: 0.95rem;">${tpl.name} <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(v${tpl.version || '1.0.0'})</span></span>
-            <div class="file-meta" style="font-size: 0.78rem; color: var(--text-muted); margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
-              <span>更新時間: ${dateStr}</span>
-              ${slotBadgesHtml}
+            <span class="file-name" style="color: var(--accent); font-weight: 600; font-size: 0.95rem;">${cleanName} <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(v${tpl.version || '1.0.0'})</span></span>
+            <div class="file-meta" style="font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; display: flex; gap: 16px; align-items: center;">
+              <span>📅 更新時間: ${dateStr}</span>
+              <span>⚡ 定位 Slot 數量: ${varCount} 個</span>
             </div>
           </div>
           <div class="btn-group">
@@ -1097,7 +1089,6 @@
     async function processTemplateUpload(file) {
       if (!file) return;
 
-      // 1. 上傳實體檔案至 GCS 儲存桶
       const formData = new FormData();
       formData.append('file', file);
       
@@ -1107,7 +1098,13 @@
           body: formData
         });
         const uploadData = await uploadRes.json();
-        tempFileUrl = (uploadData.success && uploadData.url) ? uploadData.url : 'https://storage.googleapis.com/himori-seiko-2006-media/1784537034016_jvc84.docx';
+
+        if (uploadData.url || (uploadData.success && uploadData.url)) {
+          tempFileUrl = uploadData.url;
+        } else {
+          alert(`⚠️ 上傳至雲端 Storage 失敗: ${uploadData.error || '無法取得 GCS 實體網址'}`);
+          return;
+        }
 
         // 2. 呼叫後端 AI 逆向通靈
         const reverseRes = await fetch('/api/admin/templates/reverse-engineer', {
@@ -1118,23 +1115,27 @@
         const reverseData = await reverseRes.json();
 
         if (reverseData.success) {
-          parsedTempVariables = reverseData.variables;
-          document.getElementById('confirmTemplateName').value = reverseData.recommendedName;
+          parsedTempVariables = reverseData.variables || [];
+          const cleanName = (reverseData.recommendedName || file.name).replace(/【|】|黃金範本|輸出範本|日森精工 - |日森精工_/g, '').trim();
+          document.getElementById('confirmTemplateName').value = cleanName;
           
           const listContainer = document.getElementById('confirmVariablesList');
-          listContainer.innerHTML = '';
-          parsedTempVariables.forEach(v => {
-            const li = document.createElement('li');
-            li.textContent = `${v.label} (變數標記: ${v.key}, 預設值: ${v.defaultValue})`;
-            listContainer.appendChild(li);
-          });
+          if (listContainer) {
+            listContainer.innerHTML = '';
+            parsedTempVariables.forEach(v => {
+              const li = document.createElement('li');
+              const tag = v.slotType === 'auto' ? '[自動撈庫]' : '[即時輸入]';
+              li.textContent = `${tag} ${v.label} (Key: ${v.key})`;
+              listContainer.appendChild(li);
+            });
+          }
 
           openModal('templateConfirmModal');
         } else {
-          alert(`⚠️ AI 逆向解析範本失敗: ${reverseData.error || '未知錯誤'}`);
+          alert(`⚠️ AI 逆向解析範本失敗: ${reverseData.error || '未知後端錯誤'}`);
         }
       } catch (e) {
-        alert('⚠️ AI 逆向解析範本失敗');
+        alert(`⚠️ 上傳或逆向分析過程發生例外錯位: ${e.message}`);
       }
     }
 
@@ -1186,14 +1187,20 @@
     }
 
     async function confirmTemplateSave() {
-      const name = document.getElementById('confirmTemplateName').value.trim();
-      if (!name) {
+      const rawName = document.getElementById('confirmTemplateName').value.trim();
+      const cleanName = rawName.replace(/【|】|黃金範本|輸出範本|日森精工 - |日森精工_/g, '').trim();
+
+      if (!cleanName) {
         alert('請輸入範本名稱！');
+        return;
+      }
+      if (!tempFileUrl) {
+        alert('⚠️ 無法存取 GCS 實體檔案網址，請重新拖曳上傳！');
         return;
       }
 
       const payload = {
-        name,
+        name: cleanName,
         url: tempFileUrl,
         variables: parsedTempVariables
       };
@@ -1206,13 +1213,16 @@
         });
         const data = await res.json();
         if (data.success) {
-          alert('✅ 輸出文件範本逆向生成並存入資料庫！');
+          alert(`✅ 範本【${cleanName}】已成功核定入庫並完成 Slot 格子宣告！`);
           closeModal('templateConfirmModal');
+          tempFileUrl = '';
+          parsedTempVariables = [];
           await loadTemplates();
+        } else {
+          alert(`⚠️ 儲存範本失敗: ${data.error}`);
         }
       } catch (e) {
-        alert('⚠️ 保存範本失敗');
-      }
+        alert(`⚠️ 請求儲存範本時發生例外: ${e.message}`);
     }
 
     let currentEditTemplateId = '';
