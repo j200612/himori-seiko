@@ -1328,14 +1328,20 @@
           body: formData
         });
         const uploadData = await uploadRes.json();
-        currentUploadedFileUrl = (uploadData.success && uploadData.url) ? uploadData.url : 'https://storage.googleapis.com/himori-seiko-2006-media/1784531190739_2aq85.docx';
+        
+        if (uploadData.url || (uploadData.success && uploadData.url)) {
+          currentUploadedFileUrl = uploadData.url;
+        } else {
+          alert(`⚠️ 上傳至雲端失敗: ${uploadData.error || '無法取得 GCS 實體網址'}`);
+          return;
+        }
 
         const aiParsedName = `日森精工 - ${file.name}`;
         document.getElementById('ingestFileName').value = aiParsedName;
 
         openModal('ingestModal');
       } catch (e) {
-        alert('⚠️ 上傳至雲端 Storage 失敗');
+        alert('⚠️ 上傳至雲端 Storage 失敗: ' + e.message);
       }
     }
 
@@ -1390,17 +1396,39 @@
         alert('請輸入檔案名稱！');
         return;
       }
+      if (!currentUploadedFileUrl) {
+        alert('⚠️ 無法取得已上傳檔案之實體網址，請重新拖曳上傳！');
+        return;
+      }
 
       const payload = {
         name: name,
         category: '全域記憶',
-        url: currentUploadedFileUrl || 'https://storage.googleapis.com/himori-seiko-2006-media/1784531190739_2aq85.docx',
+        url: currentUploadedFileUrl,
         aiMetadata: {
           company: '日森精工有限公司',
           type: '全域記憶',
           status: '實戰數據'
         }
       };
+
+      try {
+        const res = await fetch('/api/admin/ai-assets/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert(`✅ 檔案【${data.doc.name}】已成功融入大腦全域記憶！`);
+          closeModal('ingestModal');
+          currentUploadedFileUrl = '';
+          await loadAssets();
+        }
+      } catch (e) {
+        alert('⚠️ 融入大腦失敗');
+      }
+    }
 
       try {
         const res = await fetch('/api/admin/ai-assets/create', {

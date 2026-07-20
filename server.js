@@ -588,7 +588,8 @@ app.post('/api/storage/upload', upload.single('file'), async (req, res) => {
                 console.warn('Could not make blob public, using standard URL:', e);
             }
             const publicUrl = `https://storage.googleapis.com/${bucketName}/${gcsFileName}`;
-            res.json({ url: publicUrl, fileName: req.file.originalname });
+            console.log(`✅ [GCS 上傳成功] 檔名: ${req.file.originalname} -> 公開網址: ${publicUrl}`);
+            res.json({ success: true, url: publicUrl, fileName: req.file.originalname, gcsFileName });
         });
 
         blobStream.end(req.file.buffer);
@@ -1193,7 +1194,7 @@ app.post('/api/admin/ai-assets/create', async (req, res) => {
             category: targetCategory,
             timestamp: new Date().toISOString(),
             version: 1,
-            currentUrl: url || 'https://storage.googleapis.com/himori-seiko-2006-media/1784531190739_2aq85.docx',
+            currentUrl: url || '',
             aiMetadata: {
                 company: (aiMetadata && aiMetadata.company) ? aiMetadata.company : '日森精工有限公司',
                 type: targetCategory,
@@ -1204,6 +1205,7 @@ app.post('/api/admin/ai-assets/create', async (req, res) => {
             history: []
         };
         await firestore.collection('ai_assets').doc(id).set(doc);
+        console.log(`✅ [新增資產] 成功建立動態資產: ${targetName} -> URL: ${doc.currentUrl}`);
         res.json({ success: true, doc });
     } catch (e) {
         res.status(500).json({ error: e.message });
