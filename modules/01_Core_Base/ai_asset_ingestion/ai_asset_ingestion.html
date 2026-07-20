@@ -416,12 +416,12 @@
             上傳同仁現成歷史檔案，AI 大腦將自動逆向解析欄位，定位出變數填空位置（如姓名、薪資、工時等），並存入範本庫。
           </p>
           
-          <!-- 範本上傳區 -->
-          <div class="upload-area" onclick="document.getElementById('templateFileInput').click()" style="margin-bottom: 24px;">
+          <!-- 範本獨立上傳區 (支援拖曳 Drag & Drop 與獨立點擊) -->
+          <div id="template-upload-dropzone" class="upload-area" style="margin-bottom: 24px; transition: all 0.3s ease;">
             <span style="font-size: 2rem;">📝</span>
-            <p style="margin: 8px 0; font-weight: 600;">上傳歷史實體檔案 ➔ AI 逆向自動通靈轉範本</p>
+            <p style="margin: 8px 0; font-weight: 600;">拖曳檔案至此 或 點擊選取歷史實體檔案 ➔ AI 逆向通靈轉範本</p>
             <span style="font-size: 0.8rem; color: var(--text-muted);">系統會自動提取文件內文，並定位可變參數</span>
-            <input type="file" id="templateFileInput" style="display: none;" onchange="handleTemplateUpload(event)">
+            <input type="file" id="template-file-input" style="display: none;">
           </div>
 
           <!-- 範本列表 -->
@@ -1054,8 +1054,7 @@
     let parsedTempVariables = [];
     let tempFileUrl = '';
 
-    async function handleTemplateUpload(event) {
-      const file = event.target.files[0];
+    async function processTemplateUpload(file) {
       if (!file) return;
 
       // 1. 上傳實體檔案至 GCS 儲存桶
@@ -1091,10 +1090,59 @@
           });
 
           openModal('templateConfirmModal');
+        } else {
+          alert(`⚠️ AI 逆向解析範本失敗: ${reverseData.error || '未知錯誤'}`);
         }
       } catch (e) {
         alert('⚠️ AI 逆向解析範本失敗');
       }
+    }
+
+    function initTemplateUploadListeners() {
+      const dropzone = document.getElementById('template-upload-dropzone');
+      const templateFileInput = document.getElementById('template-file-input');
+
+      if (!dropzone || !templateFileInput) return;
+
+      // 獨立點擊上傳，切斷冒泡
+      dropzone.addEventListener('click', (e) => {
+        e.stopPropagation();
+        templateFileInput.click();
+      });
+
+      templateFileInput.addEventListener('change', (e) => {
+        e.stopPropagation();
+        if (e.target.files && e.target.files[0]) {
+          processTemplateUpload(e.target.files[0]);
+          e.target.value = '';
+        }
+      });
+
+      // 拖曳 (Drag & Drop) 事件隔離與高亮樣式
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.style.borderColor = 'var(--accent)';
+          dropzone.style.background = 'rgba(56, 189, 248, 0.1)';
+        }, false);
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.style.borderColor = 'var(--border)';
+          dropzone.style.background = 'rgba(15, 23, 42, 0.4)';
+        }, false);
+      });
+
+      dropzone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        if (dt && dt.files && dt.files[0]) {
+          processTemplateUpload(dt.files[0]);
+        }
+      }, false);
     }
 
     async function confirmTemplateSave() {
@@ -1516,6 +1564,7 @@
       await loadAssets();
       await loadCoreMemories();
       await loadTemplates();
+      initTemplateUploadListeners();
     }
     
     init();
