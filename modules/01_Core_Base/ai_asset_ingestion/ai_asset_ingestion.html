@@ -1030,7 +1030,7 @@
           body: formData
         });
         const uploadData = await uploadRes.json();
-        tempFileUrl = (uploadData.success && uploadData.url) ? uploadData.url : '/勞動力工會-入會申請書11501_範例.pdf';
+        tempFileUrl = (uploadData.success && uploadData.url) ? uploadData.url : 'https://storage.googleapis.com/himori-seiko-2006-media/1784537034016_jvc84.docx';
 
         // 2. 呼叫後端 AI 逆向通靈
         const reverseRes = await fetch('/api/admin/templates/reverse-engineer', {
@@ -1328,7 +1328,7 @@
           body: formData
         });
         const uploadData = await uploadRes.json();
-        currentUploadedFileUrl = (uploadData.success && uploadData.url) ? uploadData.url : '/勞動力工會-入會申請書11501_範例.pdf';
+        currentUploadedFileUrl = (uploadData.success && uploadData.url) ? uploadData.url : 'https://storage.googleapis.com/himori-seiko-2006-media/1784531190739_2aq85.docx';
 
         const aiParsedName = `日森精工 - ${file.name}`;
         document.getElementById('ingestFileName').value = aiParsedName;
@@ -1394,7 +1394,7 @@
       const payload = {
         name: name,
         category: '全域記憶',
-        url: currentUploadedFileUrl || '/勞動力工會-入會申請書11501_範例.pdf',
+        url: currentUploadedFileUrl || 'https://storage.googleapis.com/himori-seiko-2006-media/1784531190739_2aq85.docx',
         aiMetadata: {
           company: '日森精工有限公司',
           type: '全域記憶',

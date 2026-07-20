@@ -1086,7 +1086,7 @@ app.post('/api/admin/ai-assets/upload', async (req, res) => {
             category: category || 'PDF',
             timestamp: new Date().toISOString(),
             version: 1,
-            currentUrl: url || '/勞動力工會-入會申請書11501_範例.pdf',
+            currentUrl: url || 'https://storage.googleapis.com/himori-seiko-2006-media/1784531190739_2aq85.docx',
             aiMetadata: aiMetadata || { company: '日森精工有限公司', status: '實戰數據' },
             isActive: true,
             history: []
@@ -1193,7 +1193,7 @@ app.post('/api/admin/ai-assets/create', async (req, res) => {
             category: targetCategory,
             timestamp: new Date().toISOString(),
             version: 1,
-            currentUrl: url || '/勞動力工會-入會申請書11501_範例.pdf',
+            currentUrl: url || 'https://storage.googleapis.com/himori-seiko-2006-media/1784531190739_2aq85.docx',
             aiMetadata: {
                 company: (aiMetadata && aiMetadata.company) ? aiMetadata.company : '日森精工有限公司',
                 type: targetCategory,

@@ -293,11 +293,11 @@
             },
             portals: {
                 website: "https://www.yes3391699.tw/page/26",
-                blankPdf: "https://himori-portal-650268834354.asia-east1.run.app/勞動力工會-入會申請書11501.pdf",
+                blankPdf: "https://www.yes3391699.tw/page/26",
                 lineLink: "https://line.me/R/ti/p/%40yes3391699",
                 lineId: "@yes3391699"
             },
-            sampleDocUrl: "https://himori-portal-650268834354.asia-east1.run.app/勞動力工會-入會申請書11501_範例.pdf"
+            sampleDocUrl: "https://www.yes3391699.tw/page/26"
         }
     };
 
