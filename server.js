@@ -1350,7 +1350,7 @@ app.put('/api/admin/core-constitution', async (req, res) => {
         
         // 全系統最高法規字典自動校正鎖
         correctedText = correctedText
-            .replace(/員工/g, '外勤同仁')
+            .replace(/員工/g, '外勤同仁/夥伴')
             .replace(/打卡/g, '出勤確認')
             .replace(/薪資/g, '接案報酬')
             .replace(/僱傭/g, '承攬合作');

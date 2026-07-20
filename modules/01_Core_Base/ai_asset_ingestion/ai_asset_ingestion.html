@@ -347,17 +347,16 @@
         <!-- 分頁一：全域檔案輸入與中央控台 -->
         <div id="tab1" class="tab-content active">
           
-          <!-- 1. 頂部：【核心記憶】 (優雅條列顯示) -->
-          <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; padding: 20px; margin-bottom: 20px; backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-              <h2 style="margin: 0; font-size: 1.1rem; color: var(--accent); display: flex; align-items: center; gap: 8px;">
-                🧠 核心記憶 (中央憲章與法規鎖)
-              </h2>
-              <div class="btn-group">
-                <button class="btn btn-primary" style="font-size: 0.8rem; padding: 4px 12px;" onclick="openConstitutionEditModal()">✏️ 編輯核心記憶</button>
+          <!-- 1. 頂部：【核心記憶】（全域唯一檔案按鈕） -->
+          <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; padding: 18px 24px; margin-bottom: 20px; backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="font-size: 1.5rem;">🧠</span>
+              <div>
+                <h2 style="margin: 0; font-size: 1.15rem; color: var(--accent); font-weight: 700;">日森精工 AI 行政中心中央大腦</h2>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">法規安全鎖與中央憲章物理保護中</span>
               </div>
             </div>
-            <div id="coreConstitutionList" style="display: flex; flex-direction: column; gap: 8px;"></div>
+            <button class="btn btn-primary" style="font-size: 0.95rem; padding: 10px 22px; font-weight: bold; background: linear-gradient(135deg, #38bdf8, #0ea5e9); border-radius: 8px; box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3); cursor: pointer;" onclick="openConstitutionEditModal()">📂 核心記憶</button>
           </div>
 
           <!-- 2. 中部：【全域拖曳檔案輸入區】 -->
@@ -987,7 +986,6 @@
           </div>
           <div class="btn-group">
             <button class="btn btn-outline" onclick="openOriginalPreview('${realGcsUrl}', '${tpl.name.replace(/'/g, "\\'")}')">[👁️ 預覽原始檔]</button>
-            <button class="btn btn-outline" onclick="openTemplateEditor('${tpl.id}')">[✏️ 在線編輯]</button>
             <button class="btn btn-danger" onclick="deleteTemplate('${tpl.id}')">[🗑️ 物理刪除]</button>
           </div>
         `;
