@@ -64,13 +64,11 @@ const bucket = storage.bucket(bucketName);
 async function seedAiAssets() {
     try {
         const assetsCol = firestore.collection('ai_assets');
-        
-        // 為了確保重置，強制清空集合並重新寫入
         const snapshot = await assetsCol.get();
-        const batch = firestore.batch();
-        snapshot.docs.forEach(doc => batch.delete(doc.ref));
-        await batch.commit();
-        console.log('🗑️ AI資產資料庫已清空。');
+        if (!snapshot.empty) {
+            console.log('ℹ️ AI資產資料庫已有資料，跳過自動初始化以防止刪除復原。');
+            return;
+        }
 
         const seedData = [
             {
@@ -209,12 +207,11 @@ seedAiAssets();
 async function seedDocumentTemplates() {
     try {
         const tempCol = firestore.collection('document_templates');
-        
         const snapshot = await tempCol.get();
-        const batch = firestore.batch();
-        snapshot.docs.forEach(doc => batch.delete(doc.ref));
-        await batch.commit();
-        console.log('🗑️ 輸出文件範本資料庫已清空。');
+        if (!snapshot.empty) {
+            console.log('ℹ️ 輸出文件範本資料庫已有資料，跳過自動初始化以防止刪除復原。');
+            return;
+        }
 
         const seedData = [
             {

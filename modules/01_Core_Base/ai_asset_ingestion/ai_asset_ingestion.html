@@ -365,6 +365,14 @@
             <h2 style="margin: 0; font-size: 1.2rem;">🗃️ 外部資訊接收抽屜</h2>
           </div>
           
+          <!-- Tab 2 獨立上傳區 (兩階段 AI 命名與 Modal 核定入庫) -->
+          <div id="tab2-upload-dropzone" class="upload-area" style="margin-bottom: 16px; transition: all 0.3s ease;">
+            <span style="font-size: 2rem;">📤</span>
+            <p style="margin: 8px 0; font-weight: 600;">拖曳檔案至此 或 點擊選取外部資訊檔案 ➔ 兩階段 AI 命名核定入庫</p>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">檔案將實體寫入 Cloud Storage，並彈出毛玻璃 Modal 供總裁核定名稱後才物理存入</span>
+            <input type="file" id="tab2-file-input" style="display: none;">
+          </div>
+
           <!-- 標籤管理工具區 -->
           <div style="background: rgba(255,255,255,0.02); border: 1px dashed var(--border); padding: 12px; border-radius: 8px; margin-bottom: 16px;">
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 8px;">
@@ -443,16 +451,6 @@
         </div>
       </div>
 
-      <!-- AI 檔案/圖檔入庫區 -->
-      <div class="card" id="aiUploadCard">
-        <h2>📂 雙端 AI 智能體：檔案與圖檔實體入庫</h2>
-        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-          <span style="font-size: 2rem;">📤</span>
-          <p style="margin: 8px 0; font-weight: 600;">拖曳檔案至此或點擊選取檔案</p>
-          <span style="font-size: 0.8rem; color: var(--text-muted);">上傳的檔案將自動物理同步寫入 GCS 儲存桶與 Firestore</span>
-          <input type="file" id="fileInput" style="display: none;" onchange="handleFileUpload(event)">
-        </div>
-      </div>
     </div>
 
     <!-- 右側手機端即時預覽虛擬窗 -->
@@ -1362,12 +1360,12 @@
       openModal('voiceConfirmModal');
     }
 
-    // ── Google Cloud Storage 與 Firestore 雙上傳防災 ──
-    async function handleFileUpload(event) {
-      const file = event.target.files[0];
+    // ── 兩階段 AI 資產上傳與 Modal 核定入庫 ──
+    let currentUploadedFileUrl = '';
+
+    async function processAssetUpload(file) {
       if (!file) return;
 
-      // 1. 上傳實體檔案至 Google Cloud Storage
       const formData = new FormData();
       formData.append('file', file);
       
@@ -1377,40 +1375,68 @@
           body: formData
         });
         const uploadData = await uploadRes.json();
-        
-        let fileUrl = '/勞動力工會-入會申請書11501_範例.pdf';
-        if (uploadData.success && uploadData.url) {
-          fileUrl = uploadData.url;
-        }
+        currentUploadedFileUrl = (uploadData.success && uploadData.url) ? uploadData.url : '/勞動力工會-入會申請書11501_範例.pdf';
 
         const aiParsedName = `日森精工 - ${file.name}`;
         const ext = file.name.split('.').pop().toUpperCase();
-        const category = (ext === 'XLSX' || ext === 'XLS') ? 'Excel' : 'PDF';
+        const category = (ext === 'XLSX' || ext === 'XLS') ? 'Excel' : (ext === 'PNG' || ext === 'JPG' || ext === 'JPEG' ? 'Image' : 'PDF');
 
-        const payload = {
-          name: aiParsedName,
-          category: category,
-          url: fileUrl,
-          aiMetadata: {
-            company: '日森精工有限公司',
-            type: '外包進項單據',
-            status: '實戰數據'
-          }
-        };
+        // 第一階段完成，第二階段彈出毛玻璃確認 Modal 核定
+        document.getElementById('confirmName').value = aiParsedName;
+        document.getElementById('confirmCategory').value = category;
+        document.getElementById('confirmCompany').value = '日森精工有限公司';
+        document.getElementById('confirmType').value = '外包進項單據';
+        document.getElementById('confirmStatus').value = '實戰數據';
 
-        const res = await fetch('/api/admin/ai-assets/upload', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const resData = await res.json();
-        if (resData.success) {
-          alert(`✅ AI 大腦辨識與 Cloud Storage 物理備份完成！成功匯入資產：${resData.doc.name}`);
-          loadAssets();
-        }
+        openModal('voiceConfirmModal');
       } catch (e) {
         alert('⚠️ 上傳至雲端防災 Storage 失敗');
       }
+    }
+
+    function initTab2UploadListeners() {
+      const dropzone = document.getElementById('tab2-upload-dropzone');
+      const tab2FileInput = document.getElementById('tab2-file-input');
+
+      if (!dropzone || !tab2FileInput) return;
+
+      dropzone.addEventListener('click', (e) => {
+        e.stopPropagation();
+        tab2FileInput.click();
+      });
+
+      tab2FileInput.addEventListener('change', (e) => {
+        e.stopPropagation();
+        if (e.target.files && e.target.files[0]) {
+          processAssetUpload(e.target.files[0]);
+          e.target.value = '';
+        }
+      });
+
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.style.borderColor = 'var(--accent)';
+          dropzone.style.background = 'rgba(56, 189, 248, 0.1)';
+        }, false);
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.style.borderColor = 'var(--border)';
+          dropzone.style.background = 'rgba(15, 23, 42, 0.4)';
+        }, false);
+      });
+
+      dropzone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        if (dt && dt.files && dt.files[0]) {
+          processAssetUpload(dt.files[0]);
+        }
+      }, false);
     }
 
     // 手機端語音辨識先彈窗確認防線
@@ -1446,6 +1472,7 @@
       const payload = {
         name: document.getElementById('confirmName').value,
         category: document.getElementById('confirmCategory').value,
+        url: currentUploadedFileUrl || '/勞動力工會-入會申請書11501_範例.pdf',
         aiMetadata: {
           company: document.getElementById('confirmCompany').value,
           type: document.getElementById('confirmType').value,
@@ -1461,9 +1488,11 @@
         });
         const data = await res.json();
         if (data.success) {
-          alert('✅ 語音格式化檔案入庫成功！');
+          alert('✅ 檔案與命名已成功核定並物理寫入資料庫！');
           closeModal('voiceConfirmModal');
-          document.getElementById('voiceInputText').value = '';
+          currentUploadedFileUrl = '';
+          const voiceInput = document.getElementById('voiceInputText');
+          if (voiceInput) voiceInput.value = '';
           loadAssets();
         }
       } catch (e) {
@@ -1565,6 +1594,7 @@
       await loadCoreMemories();
       await loadTemplates();
       initTemplateUploadListeners();
+      initTab2UploadListeners();
     }
     
     init();
