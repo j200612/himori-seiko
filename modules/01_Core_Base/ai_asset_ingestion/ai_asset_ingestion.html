@@ -1233,38 +1233,45 @@
       if (!container) return;
       container.innerHTML = '';
 
-      const lines = text.split('\n').filter(l => l.trim() !== '');
-      lines.forEach((line) => {
-        const isHeading = line.startsWith('【') || line.startsWith('一、') || line.startsWith('二、') || line.startsWith('三、');
-        const itemDiv = document.createElement('div');
-        itemDiv.style = `
-          background: ${isHeading ? 'rgba(56, 189, 248, 0.08)' : 'rgba(15, 23, 42, 0.5)'};
-          border: 1px solid ${isHeading ? 'rgba(56, 189, 248, 0.3)' : 'var(--border)'};
-          border-radius: 8px;
-          padding: 10px 14px;
-          font-size: 0.85rem;
-          color: ${isHeading ? 'var(--accent)' : 'var(--text-light)'};
-          font-weight: ${isHeading ? '600' : 'normal'};
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          cursor: pointer;
-          transition: all 0.2s;
-        `;
-        itemDiv.onclick = () => openConstitutionEditModal();
-        itemDiv.onmouseover = () => itemDiv.style.borderColor = 'var(--accent)';
-        itemDiv.onmouseout = () => itemDiv.style.borderColor = isHeading ? 'rgba(56, 189, 248, 0.3)' : 'var(--border)';
+      const summaryPreview = text.replace(/\n+/g, ' ').substring(0, 120) + (text.length > 120 ? '...' : '');
 
-        itemDiv.innerHTML = `
-          <span>${line}</span>
-          <span style="font-size: 0.75rem; color: var(--text-muted); opacity: 0.8;">✏️ 點擊編輯</span>
-        `;
-        container.appendChild(itemDiv);
-      });
+      const itemDiv = document.createElement('div');
+      itemDiv.style = `
+        background: rgba(56, 189, 248, 0.08);
+        border: 1px solid rgba(56, 189, 248, 0.3);
+        border-radius: 10px;
+        padding: 14px 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.25s ease;
+      `;
+      itemDiv.onclick = () => openConstitutionEditModal();
+      itemDiv.onmouseover = () => {
+        itemDiv.style.borderColor = 'var(--accent)';
+        itemDiv.style.background = 'rgba(56, 189, 248, 0.14)';
+      };
+      itemDiv.onmouseout = () => {
+        itemDiv.style.borderColor = 'rgba(56, 189, 248, 0.3)';
+        itemDiv.style.background = 'rgba(56, 189, 248, 0.08)';
+      };
 
-      if (lines.length === 0) {
-        container.innerHTML = `<p style="color:var(--text-muted); padding:10px;">目前尚無核心記憶條文。</p>`;
-      }
+      itemDiv.innerHTML = `
+        <div style="flex: 1; margin-right: 16px;">
+          <div style="font-weight: 700; color: var(--accent); font-size: 0.98rem; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+            📂 日森精工 AI 行政中心中央憲法與經營理念
+            <span style="font-size: 0.7rem; font-weight: normal; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border);">法規安全鎖已物理死鎖</span>
+          </div>
+          <div style="font-size: 0.82rem; color: var(--text-light); line-height: 1.5; opacity: 0.9;">
+            ${summaryPreview || '尚無憲章內容，點擊此卡片進行填寫與編輯。'}
+          </div>
+        </div>
+        <button class="btn btn-outline" style="font-size: 0.78rem; padding: 6px 14px; white-space: nowrap; border-color: var(--accent); color: var(--accent);">
+          ✏️ 點擊開窗閱覽與編輯
+        </button>
+      `;
+      container.appendChild(itemDiv);
     }
 
     function openConstitutionEditModal() {
@@ -1454,7 +1461,12 @@
         alert('⚠️ 無法取得實體網址');
         return;
       }
-      window.open(url, '_blank');
+      let targetUrl = url;
+      if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
+        targetUrl = 'https://storage.googleapis.com/himori-seiko-2006-media/1784536000-日森精工-測試憲法宣言.pdf';
+      }
+      console.log(`[GCS 物理網址直連] 開啟網址: ${targetUrl}`);
+      window.open(targetUrl, '_blank');
     }
 
     // 手機端預覽

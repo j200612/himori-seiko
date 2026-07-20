@@ -1163,18 +1163,45 @@ async function ensureAssetTagExists(tagName) {
     }
 }
 
-// 兩階段 Modal 核定後正式入庫
+// 兩階段 Modal 核定後正式入庫 (含同檔名實時覆寫防重機制)
 app.post('/api/admin/ai-assets/create', async (req, res) => {
     try {
         const { name, category, url, aiMetadata, tags } = req.body;
         const targetCategory = category || (aiMetadata && aiMetadata.type) || '📂 一般資料';
+        const targetName = name || '新匯入檔案';
         
         await ensureAssetTagExists(targetCategory);
 
+        // 搜尋資料庫中是否有相同檔名之舊紀錄
+        const existingSnap = await firestore.collection('ai_assets').where('name', '==', targetName).get();
+        
+        if (!existingSnap.empty) {
+            // 執行實時覆寫機制：更新已有紀錄
+            const existingDoc = existingSnap.docs[0];
+            const currentData = existingDoc.data();
+            
+            const updatedDoc = {
+                ...currentData,
+                currentUrl: url || currentData.currentUrl,
+                timestamp: new Date().toISOString(),
+                version: (currentData.version || 1) + 1,
+                aiMetadata: {
+                    ...(currentData.aiMetadata || {}),
+                    ...(aiMetadata || {}),
+                    company: '日森精工有限公司',
+                    status: '實戰數據'
+                }
+            };
+            await existingDoc.ref.set(updatedDoc);
+            console.log(`✅ [同檔名覆寫] 實時覆寫既有紀錄: ${targetName} (v${updatedDoc.version})`);
+            return res.json({ success: true, doc: updatedDoc, overwritten: true });
+        }
+
+        // 無同名檔案，建立新紀錄
         const id = 'ASSET-' + Date.now();
         const doc = {
             id,
-            name: name || '新匯入檔案',
+            name: targetName,
             category: targetCategory,
             timestamp: new Date().toISOString(),
             version: 1,
