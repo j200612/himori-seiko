@@ -303,80 +303,56 @@ async function seedCoreMemories() {
             {
                 id: 'MEM-2026-V1',
                 code: 'MEM-2026-V1',
-                name: '【專案唯一合法物理源頭路徑規格】',
-                content: '全案唯一合法源頭路徑為雲端 G:\\我的雲端硬碟\\ai\\日森精工\\。嚴禁於本地電腦 C 槽建立實體資料夾或進行交叉同步，以維持代碼源頭與實體檔案的絕對純淨。',
+                name: '【A. AI 行政中心模組化架構與理念】',
+                content: '全案貫徹「架構先行、功能凍結、模組化抽換、跨模組交叉混拉」的核心開發想法與世界觀。系統底層採用黃金三層架構，實現高度彈性熱插拔與 100% 雲端同步防災機制。',
+                attachedFile: '/01_企業識別與設計/日森精工品牌識別系統與設立白皮書.pdf',
+                attachedFileName: '日森精工品牌識別系統與設立白皮書.pdf',
                 version: 1,
                 timestamp: new Date().toISOString()
             },
             {
                 id: 'MEM-2026-V2',
                 code: 'MEM-2026-V2',
-                name: '【全域防快取地雷剛性流水號鐵律】',
-                content: '每當優化、修復或改寫完實體檔案，必須於全系統腳本與網頁引用端，強制更新後綴流水號標籤（目前最新為 ?v=20260712_v2_IMAGE_MARKETING），藉此徹底踩碎瀏覽器快取地雷。',
+                name: '【B. 跨模組交叉連結與數據對齊概念】',
+                content: '定義 Tab 2 (外部資訊接收) 與 Tab 5 (輸出文件範本管理) 的數據對齊邏輯，以及「入庫即驗收、兩階段毛玻璃 Modal 核定、絕不默默寫庫」的剛性防線規格。上傳與選檔均須經總裁核定。',
                 version: 1,
                 timestamp: new Date().toISOString()
             },
             {
                 id: 'MEM-2026-V3',
                 code: 'MEM-2026-V3',
-                name: '【映向行銷版權防切與機密宣告規範】',
-                content: '所有核心檔案最頂端必須刻上「映向行銷有限公司」專利版權註解。左側選單底部必須 100% 完整渲染 💡 系統開發維護：映向行銷有限公司 © 2026 視覺字樣，縮減登出按鈕至 32px，確保全域防跑格。',
+                name: '【C. 術語自動校正與過濾防線 (核心安全鎖)】',
+                content: '全系統最高法規安全鎖！只要前台、後台或手機端 AI 偵測到具有勞基法風險的敏感字眼（如「員工/打卡/薪資/僱傭」），大腦核心記憶必須強制將其自動校正為：「外勤同仁/夥伴/出勤確認/接案報酬/承攬合作」，確保公司處於絕對安全的承攬架構。',
                 version: 1,
                 timestamp: new Date().toISOString()
             },
             {
                 id: 'MEM-2026-V4',
                 code: 'MEM-2026-V4',
-                name: '【大腦底層防線 A：語音術語自動校正字典】',
-                content: '後台語音解析（/api/admin/ai-assets/parse-voice）時，若聽到台灣國語或環境雜音（如「全田」、「全田機械」、「村田」），系統必須啟動模糊對齊，自動校正並以正確的「村田機械股份有限公司」進行結構化正名入庫。',
+                name: '【D. 版權宣告與商標引用規範】',
+                content: '定義自動生成文件（如對晶廷機械的請款單）頁尾必須強制附帶的版權宣告（映向行銷有限公司 © 2026）、法律免責條款，以及商標（Logo）標準配色與使用規範。',
                 version: 1,
                 timestamp: new Date().toISOString()
             },
             {
                 id: 'MEM-2026-V5',
                 code: 'MEM-2026-V5',
-                name: '【大腦底層防線 B：總裁專屬特權覆蓋鎖機制】',
-                content: '一般同仁進行版本更新或更名若遇並行衝突，後台一律回傳 409 Conflict 阻斷防打架；若偵測操作帳號為最高權限總裁（admin），則直接觸發特權覆蓋鎖強行覆寫，全系統以總裁之最終指令為最高依歸。',
+                name: '【E. 設立公司核心文件與特權正名】',
+                content: '記載日森精工的公司大股東結構、營業登記項目、特約廠商合作白皮書等最高機密經營規則。並以總裁特權覆蓋鎖為全系統最高依歸。',
+                attachedFile: '/01_企業識別與設計/品牌識別綱要.docx',
+                attachedFileName: '品牌識別綱要.docx',
                 version: 1,
                 timestamp: new Date().toISOString()
             },
             {
                 id: 'MEM-2026-V6',
                 code: 'MEM-2026-V6',
-                name: '【模組化黃金三層目錄架構規範】',
-                content: '系統底層目錄採用「黃金三層架構」（01_Core_Base、02_LINE_Office、03_Industry_Modules / 03_Payroll_Office），以模組化方式管理，實現系統功能的熱插拔與高擴展性。',
-                version: 1,
-                timestamp: new Date().toISOString()
-            },
-            {
-                id: 'MEM-2026-V7',
-                code: 'MEM-2026-V7',
-                name: '【勞工法規身分隔離與防呆鐵律】',
-                content: '在員工名冊模組中正式引入 laborType 欄位，嚴格區分「雇傭-有勞健保」與「承攬-無勞健保」。所有系統邏輯與承攬夥伴介面一律正名為「合作報酬、外包商、承攬夥伴、服務工時」等合規字眼，嚴禁僱傭敏感字詞以防法律風險。',
-                version: 1,
-                timestamp: new Date().toISOString()
-            },
-            {
-                id: 'MEM-2026-V8',
-                code: 'MEM-2026-V8',
-                name: '【角色模組授權與權限隔離原則】',
-                content: '基於安全隔離，非管理員角色（如承攬同仁邱冠英、郭怡蘭等）登入時，利用前端 JS 動態過濾，自動隱蔽「🧠 AI大腦模組」與「⚙️ 權限訂閱模組」等敏感入口，確保資料流權限安全。',
-                version: 1,
-                timestamp: new Date().toISOString()
-            },
-            {
-                id: 'MEM-2026-V9',
-                code: 'MEM-2026-V9',
-                name: '【電子名片與企業識別客製化特徵】',
-                content: '電子名片模組（employee_cards.html）內置專為日森精工設計的實體名片前/後背景與動態套印版面。企業識別模組（brand.html）支援 Whitelabel 機制，可一鍵替換 Logo 與品牌色彩。',
-                version: 1,
-                timestamp: new Date().toISOString()
-            },
-            {
-                id: 'MEM-2026-V10',
-                code: 'MEM-2026-V10',
-                name: '【雙端 AI 智能體入庫與確認防線】',
-                content: '語音與拍照等多元資料輸入時，系統必須先彈出確認防線 Modal 供確認/修改結構化資訊後，方可上載入庫；手機端調閱 PDF 時支援預覽、傳送（LINE/Email）與列印三大控制功能。',
+                name: '【F. 標準視覺基石 (Logo 與品牌色彩)】',
+                content: '大腦永久記憶標準視覺基石：配色採微藍灰 (#1e293b) 與亮藍 (#38bdf8) 高亮。未來 AI 自動生成 Google Doc/Sheets 範本時的配色基準，並附帶橫式與直式商標圖檔。',
+                attachedFile: '/01_企業識別與設計/橫式logo.png',
+                attachedFileName: '橫式logo.png',
+                attachedFile2: '/01_企業識別與設計/直式logo.png',
+                attachedFile2Name: '直式logo.png',
                 version: 1,
                 timestamp: new Date().toISOString()
             }
@@ -1168,19 +1144,20 @@ app.post('/api/admin/ai-assets/parse-voice', (req, res) => {
     }
 });
 
-// 語音確認後正式入庫
+// 兩階段 Modal 核定後正式入庫
 app.post('/api/admin/ai-assets/create', async (req, res) => {
     try {
-        const { name, category, aiMetadata } = req.body;
+        const { name, category, url, aiMetadata, tags } = req.body;
         const id = 'ASSET-' + Date.now();
         const doc = {
             id,
-            name: name || '語音匯入檔案',
+            name: name || '新匯入檔案',
             category: category || 'PDF',
             timestamp: new Date().toISOString(),
             version: 1,
-            currentUrl: '/勞動力工會-入會申請書11501_範例.pdf',
-            aiMetadata: aiMetadata || { company: '日森精工有限公司', status: '實戰數據' },
+            currentUrl: url || '/勞動力工會-入會申請書11501_範例.pdf',
+            aiMetadata: aiMetadata || { company: '日森精工有限公司', type: '一般資料', status: '實戰數據' },
+            tags: tags || [(aiMetadata && aiMetadata.type) ? aiMetadata.type : '一般資料'],
             isActive: true,
             history: []
         };
@@ -1378,11 +1355,46 @@ app.post('/api/admin/asset-tags', async (req, res) => {
     }
 });
 
+// 連坐法物理消滅：刪除標籤連同關聯檔案一併抹除
 app.delete('/api/admin/asset-tags/:id', async (req, res) => {
     try {
         const { id } = req.params;
+        const tagDoc = await firestore.collection('asset_tags').doc(id).get();
+        let tagName = '';
+        if (tagDoc.exists) {
+            tagName = tagDoc.data().name || '';
+        }
+
+        // 搜尋並物理刪除連坐關聯檔案
+        if (tagName) {
+            const snap = await firestore.collection('ai_assets').get();
+            const docsToDelete = [];
+            snap.forEach(doc => {
+                const data = doc.data();
+                const type = (data.aiMetadata && data.aiMetadata.type) ? data.aiMetadata.type : '';
+                const tags = data.tags || [];
+                if (type === tagName || tags.includes(tagName) || (data.name && data.name.includes(tagName))) {
+                    docsToDelete.push(doc);
+                }
+            });
+
+            for (const doc of docsToDelete) {
+                const data = doc.data();
+                if (data.currentUrl && data.currentUrl.includes(bucketName)) {
+                    try {
+                        const parts = data.currentUrl.split('/');
+                        const gcsFileName = parts[parts.length - 1];
+                        await bucket.file(gcsFileName).delete();
+                    } catch (err) {
+                        console.warn('Storage file deletion warning:', err.message);
+                    }
+                }
+                await doc.ref.delete();
+            }
+        }
+
         await firestore.collection('asset_tags').doc(id).delete();
-        res.json({ success: true });
+        res.json({ success: true, message: '標籤與連坐關聯檔案已被物理連根拔起。' });
     } catch (e) {
         res.status(500).json({ error: e.message });
     }

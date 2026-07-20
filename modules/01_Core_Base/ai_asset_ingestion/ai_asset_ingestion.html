@@ -765,16 +765,35 @@
       container.innerHTML = '';
       
       cachedMemories.forEach(mem => {
+        let fileChipsHtml = '';
+        if (mem.attachedFile) {
+          fileChipsHtml += `
+            <div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;">
+              <button class="btn btn-outline" style="font-size: 0.75rem; padding: 4px 10px; border-color: var(--accent); color: var(--accent); background: rgba(56, 189, 248, 0.08);" onclick="openOriginalPreview('${mem.attachedFile}', '${(mem.attachedFileName || '實體檔').replace(/'/g, "\\'")}')">
+                📎 實體檔案晶片: ${mem.attachedFileName || '預覽文檔'}
+              </button>
+          `;
+          if (mem.attachedFile2) {
+            fileChipsHtml += `
+              <button class="btn btn-outline" style="font-size: 0.75rem; padding: 4px 10px; border-color: var(--accent); color: var(--accent); background: rgba(56, 189, 248, 0.08);" onclick="openOriginalPreview('${mem.attachedFile2}', '${(mem.attachedFile2Name || '實體檔').replace(/'/g, "\\'")}')">
+                📎 實體檔案晶片: ${mem.attachedFile2Name || '預覽文檔'}
+              </button>
+            `;
+          }
+          fileChipsHtml += `</div>`;
+        }
+
         const row = document.createElement('div');
         row.className = 'file-stream-item';
         row.innerHTML = `
           <div class="file-info" style="flex: 1; margin-right: 16px;">
-            <span class="file-name" style="color: var(--accent);">${mem.code} - ${mem.name} <span style="font-size: 0.72rem; font-weight: normal; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border); margin-left: 6px;">v${mem.version}</span></span>
+            <span class="file-name" style="color: var(--accent);">${mem.code || 'MEM'} - ${mem.name} <span style="font-size: 0.72rem; font-weight: normal; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border); margin-left: 6px;">v${mem.version}</span></span>
             <div style="font-size: 0.85rem; color: var(--text-light); margin-top: 6px; line-height: 1.5; white-space: pre-wrap;">${mem.content}</div>
-            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">更新時間: ${new Date(mem.timestamp).toLocaleString('zh-TW')}</div>
+            ${fileChipsHtml}
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">更新時間: ${new Date(mem.timestamp).toLocaleString('zh-TW')}</div>
           </div>
           <div class="btn-group">
-            <button class="btn btn-outline" onclick="openEditMemoryModal('${mem.id}', '${mem.name.replace(/'/g, "\\'")}', '${mem.content.replace(/\n/g, "\\n").replace(/'/g, "\\'")}')">✏️ 編輯</button>
+            <button class="btn btn-outline" onclick="openEditMemoryModal('${mem.id}', '${(mem.name || '').replace(/'/g, "\\'")}', '${(mem.content || '').replace(/\n/g, "\\n").replace(/'/g, "\\'")}')">✏️ 編輯記憶</button>
             <button class="btn btn-danger" onclick="deleteCoreMemory('${mem.id}')">🗑️ 刪除</button>
           </div>
         `;
