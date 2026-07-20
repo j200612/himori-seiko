@@ -1144,20 +1144,47 @@ app.post('/api/admin/ai-assets/parse-voice', (req, res) => {
     }
 });
 
+// 輔助函式：自動建置動態業務標籤（打字即建資料夾）
+async function ensureAssetTagExists(tagName) {
+    if (!tagName) return;
+    try {
+        const snap = await firestore.collection('asset_tags').get();
+        let exists = false;
+        snap.forEach(doc => {
+            if (doc.data().name === tagName) exists = true;
+        });
+        if (!exists) {
+            const tagId = 'tag-' + Date.now();
+            await firestore.collection('asset_tags').doc(tagId).set({ id: tagId, name: tagName });
+            console.log('✅ [打字即建資料夾] 新增業務標籤:', tagName);
+        }
+    } catch (e) {
+        console.warn('⚠️ 建立動態標籤失敗:', e.message);
+    }
+}
+
 // 兩階段 Modal 核定後正式入庫
 app.post('/api/admin/ai-assets/create', async (req, res) => {
     try {
         const { name, category, url, aiMetadata, tags } = req.body;
+        const targetCategory = category || (aiMetadata && aiMetadata.type) || '📂 一般資料';
+        
+        await ensureAssetTagExists(targetCategory);
+
         const id = 'ASSET-' + Date.now();
         const doc = {
             id,
             name: name || '新匯入檔案',
-            category: category || 'PDF',
+            category: targetCategory,
             timestamp: new Date().toISOString(),
             version: 1,
             currentUrl: url || '/勞動力工會-入會申請書11501_範例.pdf',
-            aiMetadata: aiMetadata || { company: '日森精工有限公司', type: '一般資料', status: '實戰數據' },
-            tags: tags || [(aiMetadata && aiMetadata.type) ? aiMetadata.type : '一般資料'],
+            aiMetadata: {
+                company: (aiMetadata && aiMetadata.company) ? aiMetadata.company : '日森精工有限公司',
+                type: targetCategory,
+                status: (aiMetadata && aiMetadata.status) ? aiMetadata.status : '實戰數據'
+            },
+            tags: tags || [targetCategory],
             isActive: true,
             history: []
         };
@@ -1168,11 +1195,11 @@ app.post('/api/admin/ai-assets/create', async (req, res) => {
     }
 });
 
-// 版本更換 (覆蓋)
+// 版本更換與資產動態搬家 (修改類別 / 覆蓋)
 app.post('/api/admin/ai-assets/:id/replace', async (req, res) => {
     try {
         const { id } = req.params;
-        const { newName, newUrl, newMetadata, currentVersion } = req.body;
+        const { newName, newUrl, newCategory, newMetadata, currentVersion } = req.body;
         
         const userRole = req.headers['x-user-role'] ? decodeURIComponent(req.headers['x-user-role']) : '';
         const userId = req.headers['x-user-id'] || '';
@@ -1191,13 +1218,17 @@ app.post('/api/admin/ai-assets/:id/replace', async (req, res) => {
             return res.status(409).json({ error: '⚠️ 偵測到並行修改衝突！此版本已被其他同仁更新，無法覆蓋。本系統以總裁之指令為最高最终依歸。' });
         }
 
+        const updatedCategory = newCategory || (newMetadata && newMetadata.type) || currentData.category || '📂 一般資料';
+        await ensureAssetTagExists(updatedCategory);
+
         // 將當前版本存入歷史
         const oldVersion = {
             version: currentData.version,
             name: currentData.name,
             timestamp: currentData.timestamp,
             currentUrl: currentData.currentUrl,
-            aiMetadata: currentData.aiMetadata
+            aiMetadata: currentData.aiMetadata,
+            category: currentData.category
         };
 
         const updatedHistory = [...(currentData.history || []), oldVersion];
@@ -1205,8 +1236,14 @@ app.post('/api/admin/ai-assets/:id/replace', async (req, res) => {
         const updatedDoc = {
             ...currentData,
             name: newName || currentData.name,
+            category: updatedCategory,
             currentUrl: newUrl || currentData.currentUrl,
-            aiMetadata: newMetadata || currentData.aiMetadata,
+            aiMetadata: {
+                ...(currentData.aiMetadata || {}),
+                ...(newMetadata || {}),
+                type: updatedCategory
+            },
+            tags: [updatedCategory],
             timestamp: new Date().toISOString(),
             version: currentData.version + 1,
             history: updatedHistory

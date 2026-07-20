@@ -500,37 +500,26 @@
     </div>
   </div>
 
-  <!-- 語音辨識彈窗確認防線 -->
-  <div class="modal" id="voiceConfirmModal">
-    <div class="modal-content">
-      <h3 style="margin-top: 0;">🎙️ AI 語音大腦辨識結果確認</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted);">請確認並修改辨識之結構化資訊，按下「確認格式化入庫」後將正式存檔。</p>
+  <!-- 全域動態資料夾 Datalist -->
+  <datalist id="folderDatalist">
+    <option value="📂 費用類"></option>
+    <option value="📂 人事類"></option>
+    <option value="📂 契約類"></option>
+    <option value="📂 企業理念與核心記憶"></option>
+  </datalist>
+
+  <!-- 資產入庫兩階段確認 Modal (極簡雙欄位) -->
+  <div class="modal" id="voiceConfirmModal" style="backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: rgba(15, 23, 42, 0.4);">
+    <div class="modal-content" style="background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(56, 189, 248, 0.25); box-shadow: 0 8px 32px rgba(56, 189, 248, 0.15);">
+      <h3 style="color: var(--accent); margin-top: 0;">📤 檔案入庫與名稱/資料夾核定</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">請核定檔名與歸屬資料夾，點擊「確認格式化入庫」後將正式寫入資料庫。</p>
       <div class="form-group">
-        <label>檔案名稱</label>
-        <input type="text" id="confirmName">
+        <label>1. 檔案名稱 (可手動自由修改)</label>
+        <input type="text" id="confirmName" style="width: 100%;">
       </div>
       <div class="form-group">
-        <label>類別</label>
-        <select id="confirmCategory">
-          <option value="PDF">PDF 格式</option>
-          <option value="Excel">Excel 格式</option>
-          <option value="Image">Image 圖片</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>公司/對象</label>
-        <input type="text" id="confirmCompany">
-      </div>
-      <div class="form-group">
-        <label>文件屬性</label>
-        <input type="text" id="confirmType">
-      </div>
-      <div class="form-group">
-        <label>狀態評定</label>
-        <select id="confirmStatus">
-          <option value="實戰數據">實戰數據 (保留)</option>
-          <option value="歷史雜訊">歷史雜訊 (過濾/斷捨離)</option>
-        </select>
+        <label>2. 文件類別 / 資料夾 (選取或打字即建新資料夾)</label>
+        <input type="text" id="confirmCategory" list="folderDatalist" placeholder="選擇或輸入資料夾名稱（如：📂 費用類）" style="width: 100%;">
       </div>
       <div class="btn-group" style="justify-content: flex-end; margin-top: 20px;">
         <button class="btn btn-outline" onclick="closeModal('voiceConfirmModal')">取消</button>
@@ -539,18 +528,22 @@
     </div>
   </div>
 
-  <!-- 範本核定 Modal (微藍灰色調毛玻璃) -->
+  <!-- 範本核定 Modal (極簡雙欄位) -->
   <div class="modal" id="templateConfirmModal" style="backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: rgba(15, 23, 42, 0.4);">
     <div class="modal-content" style="background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(56, 189, 248, 0.25); box-shadow: 0 8px 32px rgba(56, 189, 248, 0.15);">
       <h3 style="color: var(--accent); margin-top: 0; display: flex; align-items: center; gap: 8px;">
         🧠 AI 大腦自動通靈範本核定
       </h3>
       <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
-        AI 已完成該檔案的逆向結構分析。請核定此輸出範本的系統建議名稱與初始版本。
+        AI 已完成該檔案的逆向結構分析。請核定輸出範本名稱與歸屬資料夾。
       </p>
       <div class="form-group">
-        <label>系統建議名稱</label>
+        <label>1. 系統建議名稱 (可手動修改)</label>
         <input type="text" id="confirmTemplateName" style="width: 100%;">
+      </div>
+      <div class="form-group">
+        <label>2. 文件類別 / 資料夾 (選取或打字即建新資料夾)</label>
+        <input type="text" id="confirmTemplateCategory" list="folderDatalist" placeholder="選擇或輸入資料夾名稱（如：📂 契約類）" style="width: 100%;">
       </div>
       <div class="form-group">
         <label>預設初始版本號</label>
@@ -565,6 +558,30 @@
       <div class="btn-group" style="justify-content: flex-end; margin-top: 20px;">
         <button class="btn btn-outline" onclick="closeModal('templateConfirmModal')">取消</button>
         <button class="btn btn-primary" onclick="confirmTemplateSave()">沒問題，確認回存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 📦 資產變更分類 / 搬家 Modal -->
+  <div class="modal" id="relocateModal" style="backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: rgba(15, 23, 42, 0.4);">
+    <div class="modal-content" style="background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(56, 189, 248, 0.25); box-shadow: 0 8px 32px rgba(56, 189, 248, 0.15);">
+      <h3 style="color: var(--accent); margin-top: 0; display: flex; align-items: center; gap: 8px;">
+        📦 資產動態搬家 (變更資料夾分類)
+      </h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+        請選擇舊資料夾或輸入全新資料夾名稱，確認後檔案將立即歸位至新分類。
+      </p>
+      <div class="form-group">
+        <label>1. 檔案名稱 (可修改)</label>
+        <input type="text" id="relocateFileName" style="width: 100%;">
+      </div>
+      <div class="form-group">
+        <label>2. 目標資料夾 (選取或手動打字建新資料夾)</label>
+        <input type="text" id="relocateCategory" list="folderDatalist" placeholder="選擇或輸入資料夾名稱（如：📂 費用類）" style="width: 100%;">
+      </div>
+      <div class="btn-group" style="justify-content: flex-end; margin-top: 20px;">
+        <button class="btn btn-outline" onclick="closeModal('relocateModal')">取消</button>
+        <button class="btn btn-primary" id="relocateSaveBtn">📦 確認搬家回存 (版本遞增)</button>
       </div>
     </div>
   </div>
@@ -896,19 +913,21 @@
         const badgeClass = item.aiMetadata.status === '實戰數據' ? 'badge-real' : 'badge-noise';
         const fileBadge = item.category === 'PDF' ? 'badge-pdf' : 'badge-excel';
 
+        const categoryTag = item.category || item.aiMetadata.type || '📂 一般資料';
         const row1 = document.createElement('div');
         row1.className = 'file-stream-item';
         row1.innerHTML = `
           <div class="file-info">
             <span class="file-name">${item.name}</span>
             <div class="file-meta">
-              <span class="badge ${fileBadge}">${item.category}</span>
+              <span class="badge ${fileBadge}">${categoryTag}</span>
               <span class="badge ${badgeClass}">${item.aiMetadata.status}</span>
               <span>上傳時間: ${dateStr}</span>
               <span>版本: v${item.version}</span>
             </div>
           </div>
           <div class="btn-group">
+            <button class="btn btn-outline" onclick="openRelocateModal('${item.id}', '${item.name.replace(/'/g, "\\'")}', '${categoryTag.replace(/'/g, "\\'")}')">📦 變更分類</button>
             <button class="btn btn-outline" onclick="openOriginalPreview('${item.currentUrl}', '${item.name.replace(/'/g, "\\'")}')">[👁️ 預覽原始檔]</button>
           </div>
         `;
@@ -966,6 +985,7 @@
       filtered.forEach(item => {
         const fileBadge = item.category === 'PDF' ? 'badge-pdf' : 'badge-excel';
         const badgeClass = item.aiMetadata.status === '實戰數據' ? 'badge-real' : 'badge-noise';
+        const categoryTag = item.category || item.aiMetadata.type || '📂 一般資料';
         
         const row = document.createElement('div');
         row.className = 'file-stream-item';
@@ -973,14 +993,14 @@
           <div class="file-info">
             <span class="file-name">${item.name}</span>
             <div class="file-meta">
-              <span class="badge ${fileBadge}">${item.category}</span>
+              <span class="badge ${fileBadge}">${categoryTag}</span>
               <span class="badge ${badgeClass}">${item.aiMetadata.status}</span>
               <span>版本: v${item.version}</span>
               <span>對象: ${item.aiMetadata.company || '日森精工'}</span>
             </div>
           </div>
           <div class="btn-group">
-            <button class="btn btn-outline" onclick="openReplaceModal('${item.id}', '${item.name.replace(/'/g, "\\'")}', '${item.aiMetadata.status}')">🔄 更換新版本</button>
+            <button class="btn btn-outline" onclick="openRelocateModal('${item.id}', '${item.name.replace(/'/g, "\\'")}', '${categoryTag.replace(/'/g, "\\'")}')">📦 變更分類</button>
             <button class="btn btn-outline" onclick="openOriginalPreview('${item.currentUrl}', '${item.name.replace(/'/g, "\\'")}')">[👁️ 預覽]</button>
             <button class="btn btn-danger" onclick="deleteAsset('${item.id}')">🗑️ 物理刪除</button>
           </div>
@@ -1283,6 +1303,190 @@
       }
     }
 
+    // ── 兩階段 AI 資產上傳與 Modal 核定入庫 ──
+    let currentUploadedFileUrl = '';
+
+    async function processAssetUpload(file) {
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      try {
+        const uploadRes = await fetch('/api/storage/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const uploadData = await uploadRes.json();
+        currentUploadedFileUrl = (uploadData.success && uploadData.url) ? uploadData.url : '/勞動力工會-入會申請書11501_範例.pdf';
+
+        const aiParsedName = `日森精工 - ${file.name}`;
+        const lower = file.name.toLowerCase();
+        let suggestedCategory = '📂 一般資料';
+        if (lower.includes('請款') || lower.includes('對帳') || lower.includes('發票') || lower.includes('費')) {
+          suggestedCategory = '📂 費用類';
+        } else if (lower.includes('工時') || lower.includes('明細') || lower.includes('勞') || lower.includes('夥伴')) {
+          suggestedCategory = '📂 人事類';
+        } else if (lower.includes('合約') || lower.includes('協議') || lower.includes('條款')) {
+          suggestedCategory = '📂 契約類';
+        } else if (lower.includes('白皮書') || lower.includes('綱要') || lower.includes('理念')) {
+          suggestedCategory = '📂 企業理念與核心記憶';
+        }
+
+        // 第一階段完成，第二階段彈出極簡毛玻璃確認 Modal 核定
+        document.getElementById('confirmName').value = aiParsedName;
+        document.getElementById('confirmCategory').value = suggestedCategory;
+
+        openModal('voiceConfirmModal');
+      } catch (e) {
+        alert('⚠️ 上傳至雲端防災 Storage 失敗');
+      }
+    }
+
+    function initTab2UploadListeners() {
+      const dropzone = document.getElementById('tab2-upload-dropzone');
+      const tab2FileInput = document.getElementById('tab2-file-input');
+
+      if (!dropzone || !tab2FileInput) return;
+
+      dropzone.addEventListener('click', (e) => {
+        e.stopPropagation();
+        tab2FileInput.click();
+      });
+
+      tab2FileInput.addEventListener('change', (e) => {
+        e.stopPropagation();
+        if (e.target.files && e.target.files[0]) {
+          processAssetUpload(e.target.files[0]);
+          e.target.value = '';
+        }
+      });
+
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.style.borderColor = 'var(--accent)';
+          dropzone.style.background = 'rgba(56, 189, 248, 0.1)';
+        }, false);
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.style.borderColor = 'var(--border)';
+          dropzone.style.background = 'rgba(15, 23, 42, 0.4)';
+        }, false);
+      });
+
+      dropzone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        if (dt && dt.files && dt.files[0]) {
+          processAssetUpload(dt.files[0]);
+        }
+      }, false);
+    }
+
+    async function confirmFormatSave() {
+      const name = document.getElementById('confirmName').value.trim();
+      const category = document.getElementById('confirmCategory').value.trim() || '📂 一般資料';
+
+      const payload = {
+        name: name,
+        category: category,
+        url: currentUploadedFileUrl || '/勞動力工會-入會申請書11501_範例.pdf',
+        aiMetadata: {
+          company: '日森精工有限公司',
+          type: category,
+          status: '實戰數據'
+        },
+        tags: [category]
+      };
+
+      try {
+        const res = await fetch('/api/admin/ai-assets/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('✅ 檔案與資料夾分類已成功核定並物理寫入資料庫！');
+          closeModal('voiceConfirmModal');
+          currentUploadedFileUrl = '';
+          const voiceInput = document.getElementById('voiceInputText');
+          if (voiceInput) voiceInput.value = '';
+          await loadAssetTags();
+          await loadAssets();
+        }
+      } catch (e) {
+        alert('⚠️ 入庫失敗');
+      }
+    }
+
+    // 📦 資產動態搬家 (修改類別)
+    let currentRelocateAssetId = '';
+    let currentRelocateAssetVersion = 1;
+
+    function openRelocateModal(id, name, currentCategory) {
+      currentRelocateAssetId = id;
+      const asset = cachedAssets.find(item => item.id === id);
+      currentRelocateAssetVersion = asset ? asset.version : 1;
+
+      document.getElementById('relocateFileName').value = name || '';
+      document.getElementById('relocateCategory').value = currentCategory || asset?.category || '📂 一般資料';
+      openModal('relocateModal');
+
+      document.getElementById('relocateSaveBtn').onclick = saveRelocateAsset;
+    }
+
+    async function saveRelocateAsset() {
+      const newName = document.getElementById('relocateFileName').value.trim();
+      const newCategory = document.getElementById('relocateCategory').value.trim();
+
+      if (!newCategory) {
+        alert('請選擇或輸入資料夾名稱！');
+        return;
+      }
+
+      const payload = {
+        newName: newName,
+        newCategory: newCategory,
+        currentVersion: currentRelocateAssetVersion,
+        newMetadata: {
+          type: newCategory,
+          status: '實戰數據'
+        }
+      };
+
+      try {
+        const res = await fetch(`/api/admin/ai-assets/${currentRelocateAssetId}/replace`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-User-Id': currentUser.empId || '',
+            'X-User-Role': encodeURIComponent(currentUser.role || '')
+          },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (res.status === 409) {
+          alert(data.error || '⚠️ 偵測到衝突！此版本已被其他同仁修改。');
+          return;
+        }
+        if (data.success) {
+          alert('📦 資產分類更換與搬家成功！刷新抽屜分類器中...');
+          closeModal('relocateModal');
+          await loadAssetTags();
+          await loadAssets();
+        } else {
+          alert(`⚠️ 搬家失敗: ${data.error}`);
+        }
+      } catch (e) {
+        alert('⚠️ 更換資料夾失敗');
+      }
+    }
 
     function renderSimulatorLists(data) {
       const partnerFiles = document.getElementById('simPartnerFiles');
@@ -1361,10 +1565,10 @@
     function triggerPhotoParse() {
       const parsed = {
         name: 'photo_receipt_captured.jpg',
-        category: 'Image',
+        category: '📂 費用類',
         aiMetadata: {
           company: '日森精工有限公司',
-          type: '拍照進項憑證',
+          type: '📂 費用類',
           status: '實戰數據'
         }
       };
@@ -1372,151 +1576,8 @@
       // 彈出確認防線 Modal
       document.getElementById('confirmName').value = parsed.name;
       document.getElementById('confirmCategory').value = parsed.category;
-      document.getElementById('confirmCompany').value = parsed.aiMetadata.company;
-      document.getElementById('confirmType').value = parsed.aiMetadata.type;
-      document.getElementById('confirmStatus').value = parsed.aiMetadata.status;
       
       openModal('voiceConfirmModal');
-    }
-
-    // ── 兩階段 AI 資產上傳與 Modal 核定入庫 ──
-    let currentUploadedFileUrl = '';
-
-    async function processAssetUpload(file) {
-      if (!file) return;
-
-      const formData = new FormData();
-      formData.append('file', file);
-      
-      try {
-        const uploadRes = await fetch('/api/storage/upload', {
-          method: 'POST',
-          body: formData
-        });
-        const uploadData = await uploadRes.json();
-        currentUploadedFileUrl = (uploadData.success && uploadData.url) ? uploadData.url : '/勞動力工會-入會申請書11501_範例.pdf';
-
-        const aiParsedName = `日森精工 - ${file.name}`;
-        const ext = file.name.split('.').pop().toUpperCase();
-        const category = (ext === 'XLSX' || ext === 'XLS') ? 'Excel' : (ext === 'PNG' || ext === 'JPG' || ext === 'JPEG' ? 'Image' : 'PDF');
-
-        // 第一階段完成，第二階段彈出毛玻璃確認 Modal 核定
-        document.getElementById('confirmName').value = aiParsedName;
-        document.getElementById('confirmCategory').value = category;
-        document.getElementById('confirmCompany').value = '日森精工有限公司';
-        document.getElementById('confirmType').value = '外包進項單據';
-        document.getElementById('confirmStatus').value = '實戰數據';
-
-        openModal('voiceConfirmModal');
-      } catch (e) {
-        alert('⚠️ 上傳至雲端防災 Storage 失敗');
-      }
-    }
-
-    function initTab2UploadListeners() {
-      const dropzone = document.getElementById('tab2-upload-dropzone');
-      const tab2FileInput = document.getElementById('tab2-file-input');
-
-      if (!dropzone || !tab2FileInput) return;
-
-      dropzone.addEventListener('click', (e) => {
-        e.stopPropagation();
-        tab2FileInput.click();
-      });
-
-      tab2FileInput.addEventListener('change', (e) => {
-        e.stopPropagation();
-        if (e.target.files && e.target.files[0]) {
-          processAssetUpload(e.target.files[0]);
-          e.target.value = '';
-        }
-      });
-
-      ['dragenter', 'dragover'].forEach(eventName => {
-        dropzone.addEventListener(eventName, (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          dropzone.style.borderColor = 'var(--accent)';
-          dropzone.style.background = 'rgba(56, 189, 248, 0.1)';
-        }, false);
-      });
-
-      ['dragleave', 'drop'].forEach(eventName => {
-        dropzone.addEventListener(eventName, (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          dropzone.style.borderColor = 'var(--border)';
-          dropzone.style.background = 'rgba(15, 23, 42, 0.4)';
-        }, false);
-      });
-
-      dropzone.addEventListener('drop', (e) => {
-        const dt = e.dataTransfer;
-        if (dt && dt.files && dt.files[0]) {
-          processAssetUpload(dt.files[0]);
-        }
-      }, false);
-    }
-
-    // 手機端語音辨識先彈窗確認防線
-    async function triggerVoiceParse() {
-      const text = document.getElementById('voiceInputText').value;
-      if (!text.trim()) {
-        alert('請輸入語音指令！');
-        return;
-      }
-
-      try {
-        const res = await fetch('/api/admin/ai-assets/parse-voice', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ voiceText: text })
-        });
-        const data = await res.json();
-        
-        // 彈出確認防線 Modal
-        document.getElementById('confirmName').value = data.name;
-        document.getElementById('confirmCategory').value = data.category;
-        document.getElementById('confirmCompany').value = data.aiMetadata.company;
-        document.getElementById('confirmType').value = data.aiMetadata.type;
-        document.getElementById('confirmStatus').value = data.aiMetadata.status;
-        
-        openModal('voiceConfirmModal');
-      } catch (e) {
-        alert('⚠️ 語音分析失敗');
-      }
-    }
-
-    async function confirmFormatSave() {
-      const payload = {
-        name: document.getElementById('confirmName').value,
-        category: document.getElementById('confirmCategory').value,
-        url: currentUploadedFileUrl || '/勞動力工會-入會申請書11501_範例.pdf',
-        aiMetadata: {
-          company: document.getElementById('confirmCompany').value,
-          type: document.getElementById('confirmType').value,
-          status: document.getElementById('confirmStatus').value
-        }
-      };
-
-      try {
-        const res = await fetch('/api/admin/ai-assets/create', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        if (data.success) {
-          alert('✅ 檔案與命名已成功核定並物理寫入資料庫！');
-          closeModal('voiceConfirmModal');
-          currentUploadedFileUrl = '';
-          const voiceInput = document.getElementById('voiceInputText');
-          if (voiceInput) voiceInput.value = '';
-          loadAssets();
-        }
-      } catch (e) {
-        alert('⚠️ 入庫失敗');
-      }
     }
 
     // 版本更換與歸檔 (防線 B 整合)
