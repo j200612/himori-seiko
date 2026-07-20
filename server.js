@@ -64,12 +64,6 @@ const bucket = storage.bucket(bucketName);
 async function seedAiAssets() {
     try {
         const assetsCol = firestore.collection('ai_assets');
-        const snapshot = await assetsCol.get();
-        if (!snapshot.empty) {
-            console.log('ℹ️ AI資產資料庫已有資料，跳過自動初始化以防止刪除復原。');
-            return;
-        }
-
         const seedData = [
             {
                 id: 'ASSET-HIST-1',
@@ -165,7 +159,7 @@ async function seedAiAssets() {
                 category: 'PDF',
                 timestamp: '2026-07-12T09:40:00+08:00',
                 version: 1,
-                currentUrl: '/勞動力工會-入會申請書11501_範例.pdf',
+                currentUrl: 'https://storage.googleapis.com/himori-seiko-2006-media/1784531190739_2aq85.docx',
                 aiMetadata: { company: '日森精工有限公司', type: '🧾 財務憑證', status: '實戰數據' },
                 isActive: true,
                 history: []
@@ -176,7 +170,7 @@ async function seedAiAssets() {
                 category: 'PDF',
                 timestamp: '2026-07-12T09:45:00+08:00',
                 version: 1,
-                currentUrl: '/勞動力工會-入會申請書11501_範例.pdf',
+                currentUrl: 'https://storage.googleapis.com/himori-seiko-2006-media/1784532023695_ur1rj.docx',
                 aiMetadata: { company: '日森精工有限公司', type: '🧾 財務憑證', status: '實戰數據' },
                 isActive: true,
                 history: []
@@ -187,7 +181,7 @@ async function seedAiAssets() {
                 category: 'PDF',
                 timestamp: '2026-07-12T09:50:00+08:00',
                 version: 1,
-                currentUrl: '/勞動力工會-入會申請書11501_範例.pdf',
+                currentUrl: 'https://storage.googleapis.com/himori-seiko-2006-media/1784533544646_6aes2.docx',
                 aiMetadata: { company: '日森精工有限公司', type: '📄 歷史基本資料', status: '實戰數據' },
                 isActive: true,
                 history: []
@@ -195,9 +189,9 @@ async function seedAiAssets() {
         ];
         
         for (const item of seedData) {
-            await assetsCol.doc(item.id).set(item);
+            await assetsCol.doc(item.id).set(item, { merge: true });
         }
-        console.log('✅ 🧠 AI中控大腦歷史資產初始化置入完畢。');
+        console.log('✅ 🧠 AI中控大腦歷史資產 100% 獨立網址校對更新完畢。');
     } catch (e) {
         console.error('❌ AI中控大腦歷史資產初始化失敗:', e);
     }
@@ -207,18 +201,12 @@ seedAiAssets();
 async function seedDocumentTemplates() {
     try {
         const tempCol = firestore.collection('document_templates');
-        const snapshot = await tempCol.get();
-        if (!snapshot.empty) {
-            console.log('ℹ️ 輸出文件範本資料庫已有資料，跳過自動初始化以防止刪除復原。');
-            return;
-        }
-
         const seedData = [
             {
                 id: 'TEMP-001',
                 name: '【輸出範本】日森精工_2026年6月度_晶廷機械請款總表_v1.0.3.pdf',
                 version: '1.0.3',
-                currentUrl: '/勞動力工會-入會申請書11501_範例.pdf',
+                currentUrl: 'https://storage.googleapis.com/himori-seiko-2006-media/1784537034016_jvc84.docx',
                 variables: [
                     { key: 'company_name', label: '公司名稱', defaultValue: '日森精工有限公司' },
                     { key: 'client_name', label: '請款對象', defaultValue: '晶廷機械股份有限公司' },
@@ -239,7 +227,7 @@ async function seedDocumentTemplates() {
                 id: 'TEMP-002',
                 name: '【輸出範本】日森精工_2026年06月_派遣酬勞會計大總表_v1.0.1.pdf',
                 version: '1.0.1',
-                currentUrl: '/勞動力工會-入會申請書11501_範例.pdf',
+                currentUrl: 'https://storage.googleapis.com/himori-seiko-2006-media/1784537811233_1dbdg.docx',
                 variables: [
                     { key: 'company_name', label: '公司名稱', defaultValue: '日森精工有限公司' },
                     { key: 'billing_month', label: '計費月份', defaultValue: '2026年06月' },

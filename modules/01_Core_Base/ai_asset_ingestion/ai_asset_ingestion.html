@@ -979,18 +979,6 @@
       }
     }
 
-    function resolveTemplateUrl(tpl) {
-      if (tpl.currentUrl && tpl.currentUrl.length > 5) return tpl.currentUrl;
-      if (tpl.url && tpl.url.length > 5) return tpl.url;
-      
-      const match = cachedAssets.find(a => (a.name || '').includes(tpl.name) || (tpl.name || '').includes(a.name));
-      if (match && match.currentUrl && match.currentUrl.length > 5) {
-        return match.currentUrl;
-      }
-      
-      return 'https://storage.googleapis.com/himori-seiko-2006-media/1784531190739_2aq85.docx';
-    }
-
     function renderTemplatesList(customList) {
       const container = document.getElementById('templatesList');
       if (!container) return;
@@ -1000,7 +988,7 @@
 
       list.forEach(tpl => {
         const dateStr = new Date(tpl.timestamp).toLocaleString('zh-TW');
-        const realGcsUrl = resolveTemplateUrl(tpl);
+        const realGcsUrl = tpl.currentUrl || tpl.url || '';
 
         const row = document.createElement('div');
         row.className = 'file-stream-item';
