@@ -373,18 +373,7 @@
             <input type="file" id="tab2-file-input" style="display: none;">
           </div>
 
-          <!-- 標籤管理工具區 -->
-          <div style="background: rgba(255,255,255,0.02); border: 1px dashed var(--border); padding: 12px; border-radius: 8px; margin-bottom: 16px;">
-            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 8px;">
-              <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">🏷️ 業務標籤管理工具：</span>
-              <input type="text" id="newTagNameInput" placeholder="輸入標籤名稱（如：🖼️ 企業識別Logo）" style="width: 240px; padding: 6px 10px; background: rgba(15, 23, 42, 0.6); color: var(--text-light); border: 1px solid var(--border); border-radius: 6px; font-size: 0.8rem;">
-              <button class="btn btn-primary" style="padding: 6px 12px; font-size: 0.8rem;" onclick="addAssetTag()">➕ 新增業務標籤</button>
-            </div>
-            <!-- 列出所有可刪除的標籤 -->
-            <div id="tagsManagerList" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
-          </div>
-
-          <!-- 抽屜手把按鈕區 -->
+          <!-- 抽屜手把資料夾區 -->
           <div id="drawerHandlesList" style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;"></div>
           <div id="categoryDrawerList"></div>
         </div>
@@ -681,13 +670,12 @@
       }
     }
 
-    // ── 標籤載入與維護 ──
+    // ── 資料夾分類把手載入與維護 ──
     async function loadAssetTags() {
       try {
         const res = await fetch('/api/admin/asset-tags');
         cachedTags = await res.json();
         
-        renderTagsManagerList();
         renderDrawerHandlesList();
         
         if (cachedTags.length > 0 && !currentDrawerTab) {
@@ -697,17 +685,6 @@
       } catch (e) {
         console.error('Fetch tags error', e);
       }
-    }
-
-    function renderTagsManagerList() {
-      const container = document.getElementById('tagsManagerList');
-      container.innerHTML = '';
-      cachedTags.forEach(tag => {
-        const span = document.createElement('span');
-        span.style = 'background: rgba(255,255,255,0.05); padding: 4px 8px; border: 1px solid var(--border); border-radius: 4px; font-size: 0.75rem; display: flex; align-items: center; gap: 6px;';
-        span.innerHTML = `${tag.name} <span style="color: #ef4444; cursor: pointer; font-weight: bold;" onclick="deleteAssetTag('${tag.id}')" title="刪除此標籤">❌</span>`;
-        container.appendChild(span);
-      });
     }
 
     function renderDrawerHandlesList() {
@@ -727,29 +704,8 @@
       });
     }
 
-    async function addAssetTag() {
-      const input = document.getElementById('newTagNameInput');
-      const name = input.value.trim();
-      if (!name) return;
-      
-      try {
-        const res = await fetch('/api/admin/asset-tags', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name })
-        });
-        const data = await res.json();
-        if (data.success) {
-          input.value = '';
-          await loadAssetTags();
-        }
-      } catch (e) {
-        alert('新增標籤失敗');
-      }
-    }
-
     async function deleteAssetTag(id) {
-      if (!confirm('是否確定要刪除此業務標籤？')) return;
+      if (!confirm('是否確定要刪除此業務資料夾與連坐關聯檔案？')) return;
       try {
         const res = await fetch(`/api/admin/asset-tags/${id}`, {
           method: 'DELETE'
@@ -760,9 +716,10 @@
             currentDrawerTab = '';
           }
           await loadAssetTags();
+          await loadAssets();
         }
       } catch (e) {
-        alert('刪除標籤失敗');
+        alert('刪除資料夾失敗');
       }
     }
 
@@ -777,28 +734,68 @@
       }
     }
 
+    // 輔助：尋找對應理念的真實 GCS 資產物理網址
+    function resolveMemoryChipUrl(attachedPath, attachedName) {
+      if (!attachedPath && !attachedName) return '';
+      // 搜尋 cachedAssets 中有無匹配之真實資產（含「企業理念與核心記憶」類別）
+      const found = cachedAssets.find(asset => {
+        const name = asset.name || '';
+        const cat = asset.category || (asset.aiMetadata && asset.aiMetadata.type) || '';
+        if (attachedName && name.includes(attachedName)) return true;
+        if (attachedPath && attachedPath.includes(name)) return true;
+        if (cat.includes('核心記憶') || cat.includes('理念')) return true;
+        return false;
+      });
+      if (found && found.currentUrl) {
+        return found.currentUrl;
+      }
+      return attachedPath || '';
+    }
+
     function renderCoreMemoriesList() {
       const container = document.getElementById('coreMemoriesList');
       container.innerHTML = '';
+
+      // 撈取所有上傳至「📂 企業理念與核心記憶」資料夾的動態實體資產
+      const coreCategoryAssets = cachedAssets.filter(item => {
+        const cat = item.category || (item.aiMetadata && item.aiMetadata.type) || '';
+        return cat.includes('核心記憶') || cat.includes('理念');
+      });
       
       cachedMemories.forEach(mem => {
-        let fileChipsHtml = '';
+        let fileChipsHtml = '<div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;">';
+        let hasChip = false;
+
         if (mem.attachedFile) {
+          hasChip = true;
+          const chipUrl = resolveMemoryChipUrl(mem.attachedFile, mem.attachedFileName);
           fileChipsHtml += `
-            <div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;">
-              <button class="btn btn-outline" style="font-size: 0.75rem; padding: 4px 10px; border-color: var(--accent); color: var(--accent); background: rgba(56, 189, 248, 0.08);" onclick="openOriginalPreview('${mem.attachedFile}', '${(mem.attachedFileName || '實體檔').replace(/'/g, "\\'")}')">
-                📎 實體檔案晶片: ${mem.attachedFileName || '預覽文檔'}
-              </button>
+            <button class="btn btn-outline" style="font-size: 0.75rem; padding: 4px 10px; border-color: var(--accent); color: var(--accent); background: rgba(56, 189, 248, 0.08);" onclick="openOriginalPreview('${chipUrl}', '${(mem.attachedFileName || '實體檔').replace(/'/g, "\\'")}')">
+              📎 實體檔案晶片: ${mem.attachedFileName || '預覽文檔'}
+            </button>
           `;
-          if (mem.attachedFile2) {
-            fileChipsHtml += `
-              <button class="btn btn-outline" style="font-size: 0.75rem; padding: 4px 10px; border-color: var(--accent); color: var(--accent); background: rgba(56, 189, 248, 0.08);" onclick="openOriginalPreview('${mem.attachedFile2}', '${(mem.attachedFile2Name || '實體檔').replace(/'/g, "\\'")}')">
-                📎 實體檔案晶片: ${mem.attachedFile2Name || '預覽文檔'}
-              </button>
-            `;
-          }
-          fileChipsHtml += `</div>`;
         }
+        if (mem.attachedFile2) {
+          hasChip = true;
+          const chipUrl2 = resolveMemoryChipUrl(mem.attachedFile2, mem.attachedFile2Name);
+          fileChipsHtml += `
+            <button class="btn btn-outline" style="font-size: 0.75rem; padding: 4px 10px; border-color: var(--accent); color: var(--accent); background: rgba(56, 189, 248, 0.08);" onclick="openOriginalPreview('${chipUrl2}', '${(mem.attachedFile2Name || '實體檔').replace(/'/g, "\\'")}')">
+              📎 實體檔案晶片: ${mem.attachedFile2Name || '預覽文檔'}
+            </button>
+          `;
+        }
+
+        // 動態掛載總裁最新上傳至「📂 企業理念與核心記憶」資料夾的資產
+        coreCategoryAssets.forEach(asset => {
+          hasChip = true;
+          fileChipsHtml += `
+            <button class="btn btn-outline" style="font-size: 0.75rem; padding: 4px 10px; border-color: var(--accent); color: var(--accent); background: rgba(56, 189, 248, 0.12);" onclick="openOriginalPreview('${asset.currentUrl}', '${asset.name.replace(/'/g, "\\'")}')">
+              📎 雲端實體晶片: ${asset.name} (v${asset.version})
+            </button>
+          `;
+        });
+
+        fileChipsHtml += `</div>`;
 
         const row = document.createElement('div');
         row.className = 'file-stream-item';
@@ -806,7 +803,7 @@
           <div class="file-info" style="flex: 1; margin-right: 16px;">
             <span class="file-name" style="color: var(--accent);">${mem.code || 'MEM'} - ${mem.name} <span style="font-size: 0.72rem; font-weight: normal; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border); margin-left: 6px;">v${mem.version}</span></span>
             <div style="font-size: 0.85rem; color: var(--text-light); margin-top: 6px; line-height: 1.5; white-space: pre-wrap;">${mem.content}</div>
-            ${fileChipsHtml}
+            ${hasChip ? fileChipsHtml : ''}
             <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">更新時間: ${new Date(mem.timestamp).toLocaleString('zh-TW')}</div>
           </div>
           <div class="btn-group">
