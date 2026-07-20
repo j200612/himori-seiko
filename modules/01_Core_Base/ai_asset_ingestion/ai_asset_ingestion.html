@@ -373,7 +373,7 @@
               <h3 style="margin: 0; font-size: 1.05rem; color: var(--text-light);">🔍⏳ 條列式時間流檢索牆</h3>
             </div>
             <div class="form-group" style="margin-bottom: 16px;">
-              <input type="text" id="streamSearchInput" placeholder="🔍 輸入關鍵字（如：費用、請款、晶廷、邱冠英、194771）進行全域模糊過濾..." oninput="filterStreamList()">
+              <input type="text" id="streamSearchInput" placeholder="🔍 全域模糊搜尋檔名、類別、公司、出勤對帳或關鍵字..." oninput="filterStreamList()">
             </div>
             <div id="fileStreamList"></div>
           </div>
@@ -645,7 +645,7 @@
     </div>
   </div>
 
-  <script src="/global_shared.js?v=20260720_v3_TESLA_BRAIN"></script>
+  <script src="/global_shared.js?v=20260721_v4_BRAIN_MEMORY"></script>
   <script>
     const currentUser = JSON.parse(sessionStorage.getItem("himori_user")) || { name: "guest", role: "guest" };
     
@@ -990,14 +990,23 @@
         const dateStr = new Date(tpl.timestamp).toLocaleString('zh-TW');
         const realGcsUrl = tpl.currentUrl || tpl.url || '';
 
+        const slotBadgesHtml = (tpl.variables || []).map(v => {
+          const isAuto = v.slotType === 'auto' || v.key.includes('name') || v.key.includes('hours') || v.key.includes('rate') || v.key.includes('pay') || v.key.includes('company');
+          if (isAuto) {
+            return `<span style="font-size: 0.7rem; color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); padding: 2px 6px; border-radius: 4px; font-weight:600;">[自動撈庫: ${v.label}]</span>`;
+          } else {
+            return `<span style="font-size: 0.7rem; color: #c084fc; background: rgba(192, 132, 252, 0.12); border: 1px solid rgba(192, 132, 252, 0.3); padding: 2px 6px; border-radius: 4px; font-weight:600;">[即時輸入: ${v.label}]</span>`;
+          }
+        }).join(' ');
+
         const row = document.createElement('div');
         row.className = 'file-stream-item';
         row.innerHTML = `
           <div class="file-info" style="flex: 1;">
             <span class="file-name" style="color: var(--accent); font-weight: 600; font-size: 0.95rem;">${tpl.name} <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(v${tpl.version || '1.0.0'})</span></span>
-            <div class="file-meta" style="font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; display: flex; gap: 12px;">
-              <span>變數數量: ${tpl.variables ? tpl.variables.length : 0}</span>
+            <div class="file-meta" style="font-size: 0.78rem; color: var(--text-muted); margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
               <span>更新時間: ${dateStr}</span>
+              ${slotBadgesHtml}
             </div>
           </div>
           <div class="btn-group">
@@ -1316,6 +1325,7 @@
     // ── 📥 翼一：全域拖曳檔案輸入與極簡單一欄位 Modal ──
     let currentUploadedFileUrl = '';
 
+    // 🧠 拖曳檔案上傳實體 GCS 並調用 AI 歷史模式叢集比對預判命名
     async function processIngestUpload(file) {
       if (!file) return;
 
@@ -1336,7 +1346,15 @@
           return;
         }
 
-        const aiParsedName = `日森精工 - ${file.name}`;
+        // 🧠 呼叫 AI 歷史模式叢集比對與動態預判命名 (徹底廢除「日森精工 - 」 Hardcode 贅字)
+        const autoNameRes = await fetch('/api/admin/ai-assets/auto-name', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fileName: file.name, fileUrl: currentUploadedFileUrl })
+        });
+        const autoNameData = await autoNameRes.json();
+
+        const aiParsedName = (autoNameData.success && autoNameData.predictedName) ? autoNameData.predictedName : file.name.replace(/\.[^/.]+$/, '');
         document.getElementById('ingestFileName').value = aiParsedName;
 
         openModal('ingestModal');
@@ -1390,8 +1408,8 @@
       }, false);
     }
 
-    // 🚨 剛性修正：確認核定入庫時，必須百分之百將 currentUploadedFileUrl 傳給後端！
-    async function submitIngestAsset() {
+    // 🚨 剛性修正：主官核定入庫 (支援同名覆寫遞增版本與另存新檔雙選項)
+    async function submitIngestAsset(action) {
       const name = document.getElementById('ingestFileName').value.trim();
       const category = document.getElementById('ingestCategory')?.value || '📂 一般資料';
       
@@ -1404,11 +1422,11 @@
         return;
       }
 
-      // 核心死鎖：如果全域變數裡有剛剛上傳成功的網址，強制帶入！
       const payload = {
         name: name,
         category: category,
-        url: currentUploadedFileUrl, // 👈 焊死這個欄位！絕不允許再傳 undefined 導致空字串！
+        url: currentUploadedFileUrl,
+        action: action || null,
         aiMetadata: {
           type: category,
           company: '日森精工有限公司',
@@ -1423,11 +1441,26 @@
           body: JSON.stringify(payload)
         });
         const result = await res.json();
+        
+        // ⚠️ 同名上傳剛性強制提示
+        if (!result.success && result.isDuplicate) {
+          const userChoice = confirm(`${result.message}\n\n【確定】: 覆寫既有檔案並遞增版本 (v${result.currentVersion + 1})\n【取消】: 另存為新檔案紀錄 (v1)`);
+          if (userChoice) {
+            return await submitIngestAsset('overwrite');
+          } else {
+            return await submitIngestAsset('saveAsNew');
+          }
+        }
+
         if (result.success) {
           closeModal('ingestModal');
           currentUploadedFileUrl = '';
-          // 重新加載檔案清單，確保最新覆寫/新增的檔案網址即時動態刷新
-          await fetchAssetsAndTemplates(); 
+          await fetchAssetsAndTemplates();
+          if (result.overwritten) {
+            alert(`✅ 同名文檔【${name}】已成功實時覆寫，版本號已遞增！`);
+          } else {
+            alert(`✅ 檔案【${name}】已成功融入大腦全域記憶！`);
+          }
         } else {
           alert(`⚠️ 入庫失敗: ${result.error}`);
         }

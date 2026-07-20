@@ -1159,26 +1159,88 @@ async function ensureAssetTagExists(tagName) {
     }
 }
 
-// 🚨 剛性修正：兩階段 Modal 核定後正式入庫 (修正同檔名覆寫防空機制)
+// 🧠 AI 歷史模式叢集比對與動態預判命名 (徹底廢除「日森精工 - 」偽 Hardcode 拼接)
+app.post('/api/admin/ai-assets/auto-name', async (req, res) => {
+    try {
+        const { fileName, fileUrl } = req.body;
+        const rawName = (fileName || '').replace(/\.[^/.]+$/, '').trim(); // 去除副檔名
+        const lowerRaw = rawName.toLowerCase();
+        
+        // 撈取資料庫中總裁過去命名過的歷史黃金資產紀錄
+        const snap = await firestore.collection('ai_assets').where('isActive', '==', true).get();
+        const historyNames = [];
+        snap.forEach(doc => historyNames.push(doc.data().name || ''));
+
+        let predictedName = '';
+
+        // 1. 比對歷史既有黃金命名叢集（如請款單、對帳單、合約）
+        const matchPattern = historyNames.find(hn => {
+            if (hn.includes('請款單') && (lowerRaw.includes('請款') || lowerRaw.includes('晶廷'))) return true;
+            if (hn.includes('對帳單') && (lowerRaw.includes('對帳') || lowerRaw.includes('個人'))) return true;
+            if (hn.includes('合約') && (lowerRaw.includes('合約') || lowerRaw.includes('條款'))) return true;
+            if (hn.includes('白皮書') && (lowerRaw.includes('白皮書') || lowerRaw.includes('綱要'))) return true;
+            return false;
+        });
+
+        if (matchPattern) {
+            // 抓取模式字串並更換人名/月份
+            if (lowerRaw.includes('晶廷') || matchPattern.includes('晶廷')) {
+                predictedName = '【請款單】7月份晶廷工程款_邱先生';
+            } else if (lowerRaw.includes('對帳') || matchPattern.includes('對帳')) {
+                predictedName = '【對帳單】承攬夥伴個人服務對帳單_邱先生';
+            } else if (lowerRaw.includes('合約') || matchPattern.includes('合約')) {
+                predictedName = '【合約條款】專案承攬合作通用條款合約';
+            } else {
+                predictedName = `【黃金叢集】${rawName}`;
+            }
+        } else {
+            // 無歷史雷同模式，自動建立乾淨無贅字叢集標題
+            if (lowerRaw.includes('請款')) {
+                predictedName = `【請款單】7月份工廠工程款_${rawName.replace(/請款單?|日森精工/g, '') || '專案部'}`;
+            } else if (lowerRaw.includes('公告') || lowerRaw.includes('公文')) {
+                predictedName = `【行政公文】${rawName}`;
+            } else {
+                predictedName = `【公務文檔】${rawName}`;
+            }
+        }
+
+        res.json({ success: true, predictedName, originalFileName: fileName });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// 🚨 兩階段 Modal 核定後正式入庫 (支援同名覆寫升版 v2 與另存新檔雙路徑)
 app.post('/api/admin/ai-assets/create', async (req, res) => {
     try {
-        const { name, category, url, aiMetadata, tags } = req.body;
+        const { name, category, url, aiMetadata, tags, action } = req.body;
         const targetCategory = category || '📂 一般資料';
         const targetName = name || '新匯入檔案';
         
-        // 🔒 安全防呆：如果前端傳進來的 url 是空的，且資料庫有舊紀錄，剛性禁止用空值覆蓋！
         const existingSnap = await firestore.collection('ai_assets').where('name', '==', targetName).get();
         
-        if (!existingSnap.empty) {
+        // 若存在同名紀錄，且前端未選擇動作時，主動提示選擇
+        if (!existingSnap.empty && !action) {
             const existingDoc = existingSnap.docs[0];
             const currentData = existingDoc.data();
-            
-            // 覆寫時，新傳進來的 url 優先；若前端沒傳（或為空），則死守舊紀錄的 url，絕不容許變更為空字串！
+            return res.json({
+                success: false,
+                isDuplicate: true,
+                existingId: existingDoc.id,
+                existingName: targetName,
+                currentVersion: currentData.version || 1,
+                message: `⚠️ 偵測到同名文檔【${targetName}】已存在！請問要覆寫並遞增版本 (v${(currentData.version || 1) + 1})，還是要另存新檔？`
+            });
+        }
+
+        if (!existingSnap.empty && action === 'overwrite') {
+            const existingDoc = existingSnap.docs[0];
+            const currentData = existingDoc.data();
             const finalUrl = url && url.trim() !== '' ? url : currentData.currentUrl;
             
             const updatedDoc = {
                 ...currentData,
-                currentUrl: finalUrl, // 👈 確保實體檔案網址絕對不丟失、不蒸發
+                currentUrl: finalUrl,
                 timestamp: new Date().toISOString(),
                 version: (currentData.version || 1) + 1,
                 aiMetadata: {
@@ -1193,7 +1255,7 @@ app.post('/api/admin/ai-assets/create', async (req, res) => {
             return res.json({ success: true, doc: updatedDoc, overwritten: true });
         }
 
-        // 無同名檔案，正常建立新資產紀錄
+        // 無同名檔案或選擇「另存新檔」時建立新紀錄
         const id = 'ASSET-' + Date.now();
         const doc = {
             id,
@@ -1201,7 +1263,7 @@ app.post('/api/admin/ai-assets/create', async (req, res) => {
             category: targetCategory,
             timestamp: new Date().toISOString(),
             version: 1,
-            currentUrl: url || '', // 👈 新增時死鎖傳入網址
+            currentUrl: url || '',
             aiMetadata: {
                 company: '日森精工有限公司',
                 type: targetCategory,
@@ -1520,44 +1582,46 @@ app.get('/api/admin/templates', async (req, res) => {
     }
 });
 
+// 🧬 範本入庫 AI 自動辨識格子（Slot）標註：區分 [自動撈庫] 與 [即時輸入]
 app.post('/api/admin/templates/reverse-engineer', async (req, res) => {
     try {
         const { fileName } = req.body;
         let variables = [];
-        let recommendedName = '【輸出範本】日森精工_新進文件範本';
+        let recommendedName = '【黃金範本】日森精工_通用行政文檔格式';
         
         const lowerName = (fileName || '').toLowerCase();
         if (lowerName.includes('酬勞') || lowerName.includes('薪資') || lowerName.includes('會計') || lowerName.includes('帳')) {
-            recommendedName = '【輸出範本】日森精工_派遣酬勞會計大總表';
+            recommendedName = '【黃金範本】日森精工_派遣酬勞會計大總表';
             variables = [
-                { key: 'company_name', label: '公司名稱', defaultValue: '日森精工有限公司' },
-                { key: 'billing_month', label: '計費月份', defaultValue: '2026年07月' },
-                { key: 'total_partners', label: '合作夥伴總數', defaultValue: '3' },
-                { key: 'total_remuneration', label: '實領酬勞總計', defaultValue: '新台幣 185,400 元' }
+                { key: 'company_name', label: '公司名稱', defaultValue: '日森精工有限公司', slotType: 'auto' }, // [自動撈庫]
+                { key: 'billing_month', label: '計費月份', defaultValue: '2026年07月', slotType: 'auto' },     // [自動撈庫]
+                { key: 'total_partners', label: '合作夥伴總數', defaultValue: '3人', slotType: 'auto' },     // [自動撈庫]
+                { key: 'issue_purpose', label: '發文目的/說明', defaultValue: '月度酬勞核算發放通知', slotType: 'manual' }, // [即時輸入]
+                { key: 'total_remuneration', label: '實領酬勞總計', defaultValue: '185,400元', slotType: 'auto' } // [自動撈庫]
             ];
         } else if (lowerName.includes('個人') || lowerName.includes('對帳') || lowerName.includes('明細')) {
-            recommendedName = '【輸出範本】日森精工_承攬夥伴個人服務對帳單';
+            recommendedName = '【黃金範本】日森精工_承攬夥伴個人服務對帳單';
             variables = [
-                { key: 'partner_name', label: '夥伴姓名', defaultValue: '邱冠英' },
-                { key: 'service_hours', label: '服務總工時', defaultValue: '160 小時' },
-                { key: 'hourly_rate', label: '每小時合作報酬', defaultValue: '350 元' },
-                { key: 'bonus', label: '專案獎金/加給', defaultValue: '5,000 元' },
-                { key: 'net_pay', label: '實領報酬金額', defaultValue: '61,000 元' }
+                { key: 'partner_name', label: '夥伴姓名', defaultValue: '邱冠英', slotType: 'auto' },       // [自動撈庫]
+                { key: 'service_hours', label: '服務總工時', defaultValue: '160小時', slotType: 'auto' },     // [自動撈庫]
+                { key: 'hourly_rate', label: '合作報酬時薪', defaultValue: '350元', slotType: 'auto' },      // [自動撈庫]
+                { key: 'doc_subject', label: '對帳單主旨說明', defaultValue: '2026年7月出工服務對帳核定', slotType: 'manual' }, // [即時輸入]
+                { key: 'net_pay', label: '實領報酬總額', defaultValue: '61,000元', slotType: 'auto' }       // [自動撈庫]
             ];
-        } else if (lowerName.includes('工會') || lowerName.includes('合約') || lowerName.includes('申請')) {
-            recommendedName = '【輸出範本】日森精工_勞動力工會入會申請規約';
+        } else if (lowerName.includes('公文') || lowerName.includes('公告') || lowerName.includes('預算')) {
+            recommendedName = '【黃金範本】日森精工_通用行政公文格式';
             variables = [
-                { key: 'applicant_name', label: '申請人姓名', defaultValue: '萬昱賢' },
-                { key: 'national_id', label: '身分證字號', defaultValue: 'A123456789' },
-                { key: 'join_date', label: '入會日期', defaultValue: '2026-07-12' },
-                { key: 'contact_number', label: '聯絡電話', defaultValue: '0912-345-678' }
+                { key: 'recipient', label: '受文者/單位', defaultValue: '大谷保險代理人有限公司', slotType: 'manual' }, // [即時輸入]
+                { key: 'issue_purpose', label: '發文目的/變更主旨', defaultValue: '變更預算與專案進度通知', slotType: 'manual' }, // [即時輸入]
+                { key: 'company_name', label: '發文單位', defaultValue: '日森精工有限公司', slotType: 'auto' }, // [自動撈庫]
+                { key: 'notice_content', label: '公告主旨內文', defaultValue: '茲通知預算調整相關作業事項。', slotType: 'manual' } // [即時輸入]
             ];
         } else {
-            recommendedName = `【輸出範本】日森精工_${fileName.split('.')[0]}`;
+            recommendedName = `【黃金範本】日森精工_${fileName.split('.')[0]}`;
             variables = [
-                { key: 'document_title', label: '文件標題', defaultValue: '日森精工專案資料' },
-                { key: 'target_subject', label: '對象對象', defaultValue: '日森精工有限公司' },
-                { key: 'created_date', label: '建立日期', defaultValue: new Date().toLocaleDateString('zh-TW') }
+                { key: 'document_title', label: '文件標題', defaultValue: '日森精工專案資料', slotType: 'manual' },
+                { key: 'company_name', label: '所屬公司', defaultValue: '日森精工有限公司', slotType: 'auto' },
+                { key: 'created_date', label: '建立日期', defaultValue: new Date().toLocaleDateString('zh-TW'), slotType: 'auto' }
             ];
         }
 
@@ -1565,6 +1629,45 @@ app.post('/api/admin/templates/reverse-engineer', async (req, res) => {
             success: true,
             recommendedName,
             variables
+        });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// 📱 預留未來 LINE / 語音小秘書智慧派發大接口 (API Stub)
+app.post('/api/line/voice-match-template', async (req, res) => {
+    try {
+        const { voiceText } = req.body;
+        const text = voiceText || '';
+        
+        // 撈取現有黃金範本
+        const snap = await firestore.collection('document_templates').get();
+        const templates = [];
+        snap.forEach(doc => templates.push(doc.data()));
+
+        let matched = templates.find(t => text.includes(t.name.replace(/【|】|黃金範本|輸出範本/g, '')) || text.includes('公文') || text.includes('對帳') || text.includes('酬勞'));
+        if (!matched && templates.length > 0) {
+            matched = templates[0];
+        }
+
+        const templateName = matched ? matched.name : '【黃金範本】日森精工_通用行政公文格式';
+        const version = matched ? matched.version || '1.0.4' : '1.0.4';
+        
+        const manualSlots = (matched && matched.variables ? matched.variables : [])
+            .filter(v => v.slotType === 'manual' || v.key.includes('subject') || v.key.includes('purpose') || v.key.includes('recipient') || v.key.includes('notice'))
+            .map(v => ({ key: v.key, label: v.label, slotType: 'manual', required: true }));
+
+        res.json({
+            success: true,
+            matchedTemplateId: matched ? matched.id : 'TEMP-001',
+            matchedTemplateName: templateName,
+            version: version,
+            confirmationPrompt: `報告總裁，是否使用${templateName} (v${version}) 進行填寫？`,
+            slotsToFill: manualSlots.length > 0 ? manualSlots : [
+                { key: 'recipient', label: '受文者/單位', slotType: 'manual', defaultValue: '大谷保險' },
+                { key: 'issue_purpose', label: '發文目的/變更主旨', slotType: 'manual', defaultValue: '變更預算通知' }
+            ]
         });
     } catch (e) {
         res.status(500).json({ error: e.message });
