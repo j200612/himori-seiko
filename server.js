@@ -1587,11 +1587,11 @@ app.post('/api/admin/templates/reverse-engineer', async (req, res) => {
     try {
         const { fileName } = req.body;
         let variables = [];
-        let recommendedName = '【黃金範本】日森精工_通用行政文檔格式';
+        let recommendedName = '通用行政文檔格式';
         
         const lowerName = (fileName || '').toLowerCase();
         if (lowerName.includes('酬勞') || lowerName.includes('薪資') || lowerName.includes('會計') || lowerName.includes('帳')) {
-            recommendedName = '【黃金範本】日森精工_派遣酬勞會計大總表';
+            recommendedName = '派遣酬勞會計大總表';
             variables = [
                 { key: 'company_name', label: '公司名稱', defaultValue: '日森精工有限公司', slotType: 'auto' }, // [自動撈庫]
                 { key: 'billing_month', label: '計費月份', defaultValue: '2026年07月', slotType: 'auto' },     // [自動撈庫]
@@ -1600,7 +1600,7 @@ app.post('/api/admin/templates/reverse-engineer', async (req, res) => {
                 { key: 'total_remuneration', label: '實領酬勞總計', defaultValue: '185,400元', slotType: 'auto' } // [自動撈庫]
             ];
         } else if (lowerName.includes('個人') || lowerName.includes('對帳') || lowerName.includes('明細')) {
-            recommendedName = '【黃金範本】日森精工_承攬夥伴個人服務對帳單';
+            recommendedName = '承攬夥伴個人服務對帳單';
             variables = [
                 { key: 'partner_name', label: '夥伴姓名', defaultValue: '邱冠英', slotType: 'auto' },       // [自動撈庫]
                 { key: 'service_hours', label: '服務總工時', defaultValue: '160小時', slotType: 'auto' },     // [自動撈庫]
@@ -1609,7 +1609,7 @@ app.post('/api/admin/templates/reverse-engineer', async (req, res) => {
                 { key: 'net_pay', label: '實領報酬總額', defaultValue: '61,000元', slotType: 'auto' }       // [自動撈庫]
             ];
         } else if (lowerName.includes('公文') || lowerName.includes('公告') || lowerName.includes('預算')) {
-            recommendedName = '【黃金範本】日森精工_通用行政公文格式';
+            recommendedName = '通用行政公文格式';
             variables = [
                 { key: 'recipient', label: '受文者/單位', defaultValue: '大谷保險代理人有限公司', slotType: 'manual' }, // [即時輸入]
                 { key: 'issue_purpose', label: '發文目的/變更主旨', defaultValue: '變更預算與專案進度通知', slotType: 'manual' }, // [即時輸入]
@@ -1617,9 +1617,9 @@ app.post('/api/admin/templates/reverse-engineer', async (req, res) => {
                 { key: 'notice_content', label: '公告主旨內文', defaultValue: '茲通知預算調整相關作業事項。', slotType: 'manual' } // [即時輸入]
             ];
         } else {
-            recommendedName = `【黃金範本】日森精工_${fileName.split('.')[0]}`;
+            recommendedName = (fileName || '新進文件範本').split('.')[0].replace(/【|】|黃金範本|日森精工 - /g, '').trim();
             variables = [
-                { key: 'document_title', label: '文件標題', defaultValue: '日森精工專案資料', slotType: 'manual' },
+                { key: 'document_title', label: '文件標題', defaultValue: '專案資料', slotType: 'manual' },
                 { key: 'company_name', label: '所屬公司', defaultValue: '日森精工有限公司', slotType: 'auto' },
                 { key: 'created_date', label: '建立日期', defaultValue: new Date().toLocaleDateString('zh-TW'), slotType: 'auto' }
             ];

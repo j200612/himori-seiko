@@ -543,6 +543,65 @@
         <button class="btn btn-primary" onclick="saveTemplateModalFromModal()">💾 保存範本變更 (版本遞增)</button>
       </div>
     </div>
+  <!-- 🎨 所見即所得二合一：範本預覽、動態發光膠囊與滑鼠圈選挖空 Modal -->
+  <div class="modal" id="wysiwygModal" style="backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); background: rgba(15, 23, 42, 0.75); display: none;">
+    <div class="modal-content" style="background: rgba(30, 41, 59, 0.95); border: 1px solid rgba(56, 189, 248, 0.35); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5); width: 920px; max-width: 95%; max-height: 90vh; display: flex; flex-direction: column;">
+      
+      <!-- Modal Header -->
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; margin-bottom: 16px;">
+        <h3 style="color: var(--accent); margin: 0; display: flex; align-items: center; gap: 10px; font-size: 1.15rem;">
+          👁️ 預覽與編輯範本 (WYSIWYG 所見即所得視覺化控制面板)
+        </h3>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <button class="btn btn-outline" style="font-size: 0.8rem;" onclick="openOriginalPreview(currentWysiwygTplUrl)">📄 原始實體檔</button>
+          <button class="btn btn-outline" onclick="closeModal('wysiwygModal')">✕ 關閉</button>
+        </div>
+      </div>
+
+      <!-- Modal Body Grid (Left: WYSIWYG Preview Paper, Right: Variables & Controls) -->
+      <div style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; flex: 1; min-height: 400px; max-height: calc(90vh - 120px); overflow: hidden;">
+        
+        <!-- Left Column: Document Preview Paper with Glowing Capsules -->
+        <div style="display: flex; flex-direction: column; overflow: hidden;">
+          <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+            <span>📄 原樣視覺化文檔 (可用滑鼠圈選文字「抹黑挖空」為新格子)</span>
+            <span style="font-size: 0.75rem; color: #38bdf8;">點擊膠囊切換 [自動撈庫] / [即時輸入]</span>
+          </div>
+          
+          <!-- Document Content Paper Container -->
+          <div id="wysiwygDocumentPaper" style="flex: 1; background: #0f172a; border: 1px solid var(--border); border-radius: 8px; padding: 24px; overflow-y: auto; color: var(--text-light); font-size: 0.9rem; line-height: 1.8; position: relative; user-select: text; -webkit-user-select: text;">
+            <!-- Content rendered dynamically with glowing capsule badges -->
+          </div>
+        </div>
+
+        <!-- Right Column: Controls & Variable Slot List -->
+        <div style="display: flex; flex-direction: column; background: rgba(15, 23, 42, 0.5); border: 1px solid var(--border); border-radius: 8px; padding: 16px; overflow-y: auto;">
+          <h4 style="margin-top: 0; color: var(--accent); font-size: 0.95rem; margin-bottom: 12px;">⚙️ 範本屬性與 Slot 動態宣告列表</h4>
+          
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label style="font-size: 0.8rem;">範本名稱 (純淨命名無贅字)</label>
+            <input type="text" id="wysiwygTplName" style="width: 100%; font-size: 0.85rem;">
+          </div>
+
+          <div style="margin-bottom: 12px; flex: 1; overflow-y: auto;">
+            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 6px;">Slot 欄位動態宣告清單:</label>
+            <div id="wysiwygVariablesList" style="display: flex; flex-direction: column; gap: 8px;">
+              <!-- Dynamically populated variable slot controls -->
+            </div>
+          </div>
+
+          <div style="margin-top: auto; padding-top: 12px; border-top: 1px solid var(--border); display: flex; gap: 10px;">
+            <button class="btn btn-primary" style="flex: 1;" onclick="saveWysiwygTemplate()">💾 保存範本變更 (版本遞增)</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- 懸浮「➕ 將此區塊新增為動態格子」小按鈕 (Highlight to Slot Tooltip) -->
+  <div id="wysiwygSelectionTooltip" style="position: absolute; display: none; z-index: 10000; background: linear-gradient(135deg, #0284c7, #0369a1); border: 1px solid #38bdf8; color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4); backdrop-filter: blur(10px);">
+    ➕ 將此區塊新增為動態格子
   </div>
 
   <!-- 範本核定 Modal (極簡雙欄位) -->
@@ -645,7 +704,7 @@
     </div>
   </div>
 
-  <script src="/global_shared.js?v=20260721_v4_BRAIN_MEMORY"></script>
+  <script src="/global_shared.js?v=20260721_v5_WYSIWYG_TOTAL"></script>
   <script>
     const currentUser = JSON.parse(sessionStorage.getItem("himori_user")) || { name: "guest", role: "guest" };
     
@@ -710,18 +769,28 @@
 
     function renderDrawerHandlesList() {
       const container = document.getElementById('drawerHandlesList');
-      container.innerHTML = '';
+      const folderDatalist = document.getElementById('folderDatalist');
+      if (folderDatalist) folderDatalist.innerHTML = '';
+      if (container) container.innerHTML = '';
+      
       cachedTags.forEach(tag => {
-        const btn = document.createElement('button');
-        btn.className = `btn btn-outline drawer-btn ${currentDrawerTab === tag.name ? 'active' : ''}`;
-        btn.textContent = tag.name;
-        btn.onclick = () => {
-          currentDrawerTab = tag.name;
-          document.querySelectorAll('.drawer-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          filterCategoryDrawer(tag.name);
-        };
-        container.appendChild(btn);
+        if (folderDatalist) {
+          const opt = document.createElement('option');
+          opt.value = tag.name;
+          folderDatalist.appendChild(opt);
+        }
+        if (container) {
+          const btn = document.createElement('button');
+          btn.className = `btn btn-outline drawer-btn ${currentDrawerTab === tag.name ? 'active' : ''}`;
+          btn.textContent = tag.name;
+          btn.onclick = () => {
+            currentDrawerTab = tag.name;
+            document.querySelectorAll('.drawer-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filterCategoryDrawer(tag.name);
+          };
+          container.appendChild(btn);
+        }
       });
     }
 
@@ -1010,8 +1079,7 @@
             </div>
           </div>
           <div class="btn-group">
-            <button class="btn btn-outline" onclick="openOriginalPreview('${realGcsUrl}', '${tpl.name.replace(/'/g, "\\'")}')">[👁️ 預覽原始檔]</button>
-            <button class="btn btn-outline" onclick="openTemplateEditorModal('${tpl.id}')">[✏️ 編輯範本]</button>
+            <button class="btn btn-outline" style="border-color: var(--accent); color: var(--accent);" onclick="openWysiwygTemplateModal('${tpl.id}')">[👁️ 預覽與編輯範本]</button>
             <button class="btn btn-danger" onclick="deleteTemplate('${tpl.id}')">[🗑️ 物理刪除]</button>
           </div>
         `;
@@ -1185,6 +1253,161 @@
       document.getElementById('templateEditorCard').style.display = 'none';
       currentEditTemplateId = '';
     }
+
+    // 🎨 所見即所得二合一 (WYSIWYG) 範本預覽與編輯器邏輯
+    let currentWysiwygTplId = '';
+    let currentWysiwygTplUrl = '';
+    let currentWysiwygTplObj = null;
+
+    function openWysiwygTemplateModal(id) {
+      currentWysiwygTplId = id;
+      const tpl = cachedTemplates.find(t => t.id === id);
+      if (!tpl) {
+        alert('⚠️ 找不到該範本紀錄');
+        return;
+      }
+      currentWysiwygTplObj = JSON.parse(JSON.stringify(tpl));
+      currentWysiwygTplUrl = tpl.currentUrl || tpl.url || '';
+
+      document.getElementById('wysiwygTplName').value = (currentWysiwygTplObj.name || '').replace(/【|】|黃金範本|日森精工 - /g, '').trim();
+      renderWysiwygPaperAndControls();
+      openModal('wysiwygModal');
+    }
+
+    function renderWysiwygPaperAndControls() {
+      if (!currentWysiwygTplObj) return;
+
+      const paper = document.getElementById('wysiwygDocumentPaper');
+      const varsContainer = document.getElementById('wysiwygVariablesList');
+
+      if (!paper || !varsContainer) return;
+
+      paper.innerHTML = '';
+      varsContainer.innerHTML = '';
+
+      let docText = currentWysiwygTplObj.content || `【${currentWysiwygTplObj.name}】公文發布與作業規範宣告標準格式範本。以下為開箱辨識定位之動態填空格子區塊：`;
+      
+      (currentWysiwygTplObj.variables || []).forEach(v => {
+        const isAuto = v.slotType === 'auto' || v.key.includes('name') || v.key.includes('hours') || v.key.includes('rate') || v.key.includes('pay') || v.key.includes('company');
+        const badgeColor = isAuto ? '#38bdf8' : '#c084fc';
+        const bgAlpha = isAuto ? 'rgba(56, 189, 248, 0.2)' : 'rgba(192, 132, 252, 0.2)';
+        const borderColor = isAuto ? '#38bdf8' : '#c084fc';
+        const labelTag = isAuto ? '[自動撈庫]' : '[即時輸入]';
+
+        const capsuleHtml = `<span class="wysiwyg-capsule" onclick="toggleWysiwygSlotType('${v.key}')" style="display: inline-block; cursor: pointer; padding: 2px 8px; border-radius: 12px; font-size: 0.82rem; font-weight: 600; background: ${bgAlpha}; border: 1px solid ${borderColor}; color: ${badgeColor}; box-shadow: 0 0 8px ${bgAlpha}; margin: 0 4px; transition: all 0.2s ease;" title="點擊切換 [自動撈庫] / [即時輸入]">${labelTag}: ${v.label}</span>`;
+
+        if (docText.includes(`{{${v.key}}}`)) {
+          docText = docText.replace(new RegExp(`{{${v.key}}}`, 'g'), capsuleHtml);
+        } else {
+          docText += `<br><br><span style="color:var(--text-muted); font-size:0.8rem;">📍 ${v.label} 定位區:</span> ${capsuleHtml}`;
+        }
+
+        const itemDiv = document.createElement('div');
+        itemDiv.style = 'background: rgba(30, 41, 59, 0.8); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; font-size: 0.8rem;';
+        itemDiv.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-weight: 600; color: ${badgeColor};">${v.label}</span>
+            <button class="btn btn-outline" style="font-size:0.68rem; padding: 2px 6px; color:${badgeColor}; border-color:${borderColor};" onclick="toggleWysiwygSlotType('${v.key}')">${labelTag}</button>
+          </div>
+          <div style="font-size:0.72rem; color:var(--text-muted);">Key: ${v.key}</div>
+        `;
+        varsContainer.appendChild(itemDiv);
+      });
+
+      paper.innerHTML = `<div style="font-family: inherit; font-size: 0.92rem;">${docText}</div>`;
+    }
+
+    function toggleWysiwygSlotType(key) {
+      if (!currentWysiwygTplObj || !currentWysiwygTplObj.variables) return;
+      const v = currentWysiwygTplObj.variables.find(item => item.key === key);
+      if (v) {
+        v.slotType = (v.slotType === 'auto') ? 'manual' : 'auto';
+        renderWysiwygPaperAndControls();
+      }
+    }
+
+    async function saveWysiwygTemplate() {
+      if (!currentWysiwygTplObj) return;
+      const name = document.getElementById('wysiwygTplName').value.trim().replace(/【|】|黃金範本|日森精工 - /g, '');
+      if (!name) {
+        alert('請輸入範本名稱！');
+        return;
+      }
+      currentWysiwygTplObj.name = name;
+
+      try {
+        const res = await fetch(`/api/admin/templates/${currentWysiwygTplId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: currentWysiwygTplObj.name,
+            content: currentWysiwygTplObj.content,
+            variables: currentWysiwygTplObj.variables
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('✅ 範本「所見即所得」視覺化宣告保存成功！版本號已遞增。');
+          closeModal('wysiwygModal');
+          await loadTemplates();
+        }
+      } catch (e) {
+        alert('⚠️ 保存範本失敗: ' + e.message);
+      }
+    }
+
+    // 🖱️ 滑鼠抹黑圈選挖空 (Highlight to Slot) 全域捕捉處理器
+    let wysiwygSelectionText = '';
+    function initWysiwygSelectionHandler() {
+      const paper = document.getElementById('wysiwygDocumentPaper');
+      const tooltip = document.getElementById('wysiwygSelectionTooltip');
+      if (!paper || !tooltip) return;
+
+      document.addEventListener('mouseup', (e) => {
+        const selection = window.getSelection();
+        const str = selection ? selection.toString().trim() : '';
+
+        if (str && paper.contains(selection.anchorNode)) {
+          wysiwygSelectionText = str;
+          tooltip.style.left = `${e.pageX + 10}px`;
+          tooltip.style.top = `${e.pageY - 35}px`;
+          tooltip.style.display = 'block';
+        } else {
+          setTimeout(() => {
+            if (!window.getSelection().toString().trim()) {
+              tooltip.style.display = 'none';
+            }
+          }, 200);
+        }
+      });
+
+      tooltip.addEventListener('click', (e) => {
+        e.stopPropagation();
+        tooltip.style.display = 'none';
+        if (!wysiwygSelectionText || !currentWysiwygTplObj) return;
+
+        const slotLabel = prompt(`⚡ 請輸入新挖空欄位之名稱（如：發文日期、受文者）：`, wysiwygSelectionText);
+        if (!slotLabel || !slotLabel.trim()) return;
+
+        const newKey = 'slot_' + Date.now().toString().slice(-6);
+        const newVar = {
+          key: newKey,
+          label: slotLabel.trim(),
+          defaultValue: wysiwygSelectionText,
+          slotType: 'manual'
+        };
+
+        if (!currentWysiwygTplObj.variables) currentWysiwygTplObj.variables = [];
+        currentWysiwygTplObj.variables.push(newVar);
+
+        renderWysiwygPaperAndControls();
+        alert(`✅ 成功將「${wysiwygSelectionText}」劃設為全新發光動態 Slot 膠囊！`);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initWysiwygSelectionHandler();
+    });
 
     async function saveTemplateEditor() {
       const name = document.getElementById('editorTemplateName').value.trim();
