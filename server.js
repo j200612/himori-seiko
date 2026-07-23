@@ -1429,37 +1429,54 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
                 // 依副檔名設定正確標稱 MimeType (例如 .jpg -> image/jpeg, .pdf -> application/pdf)
                 let mimeType = getMimeType(fileName || fileUrl);
 
-                // 1. 優先從 GCS 儲存桶直接下載實體檔案 Buffer
+                // 1. 優先從 GCS 儲存桶直接下載實體檔案 Buffer (強制進行 URI 解碼與 Unicode NFC 正規化)
                 let gcsFileName = '';
                 if (fileUrl) {
-                    if (fileUrl.includes('/api/storage/preview/')) {
-                        gcsFileName = decodeURIComponent(fileUrl.split('/api/storage/preview/')[1]);
-                    } else if (fileUrl.includes('storage.googleapis.com')) {
-                        gcsFileName = decodeURIComponent(fileUrl.split('/').pop().split('?')[0]);
-                    } else if (!fileUrl.startsWith('http')) {
-                        gcsFileName = decodeURIComponent(fileUrl.replace(/^\//, ''));
+                    let cleanUrl = decodeURIComponent(fileUrl).normalize('NFC');
+                    if (cleanUrl.includes('/api/storage/preview/')) {
+                        gcsFileName = cleanUrl.split('/api/storage/preview/')[1];
+                    } else if (cleanUrl.includes('storage.googleapis.com')) {
+                        gcsFileName = cleanUrl.split('/').pop().split('?')[0];
+                    } else if (!cleanUrl.startsWith('http')) {
+                        gcsFileName = cleanUrl.replace(/^\//, '');
                     }
                 }
                 if (!gcsFileName && fileName) {
-                    gcsFileName = fileName;
+                    gcsFileName = decodeURIComponent(fileName).normalize('NFC');
                 }
 
                 if (gcsFileName) {
                     try {
-                        const fileObj = bucket.file(gcsFileName);
-                        const [exists] = await fileObj.exists();
+                        let cleanPath = decodeURIComponent(gcsFileName).normalize('NFC');
+                        let fileObj = bucket.file(cleanPath);
+                        let [exists] = await fileObj.exists();
+
+                        // 備用防護：若帶有完整 URL 路徑檔名，嘗試純檔名檢索
+                        if (!exists && cleanPath.includes('/')) {
+                            const baseOnly = cleanPath.split('/').pop();
+                            const fallbackObj = bucket.file(baseOnly);
+                            const [fallbackExists] = await fallbackObj.exists();
+                            if (fallbackExists) {
+                                fileObj = fallbackObj;
+                                exists = true;
+                                cleanPath = baseOnly;
+                            }
+                        }
+
                         if (exists) {
                             [fileBuffer] = await fileObj.download();
                             const [meta] = await fileObj.getMetadata().catch(() => [{}]);
                             if (meta.contentType && meta.contentType !== 'application/octet-stream') {
                                 mimeType = meta.contentType;
                             } else {
-                                mimeType = getMimeType(gcsFileName);
+                                mimeType = getMimeType(cleanPath);
                             }
-                            console.log(`📦 [GCS Bucket Direct Download Success]: ${gcsFileName} (${fileBuffer.length} bytes, Mime: ${mimeType})`);
+                            console.log(`📦 [GCS Bucket Direct Download Success]: ${cleanPath} (${fileBuffer.length} bytes, Mime: ${mimeType})`);
+                        } else {
+                            console.warn(`⚠️ [GCS Bucket File Exists Check False]: ${cleanPath}`);
                         }
                     } catch (gcsErr) {
-                        console.warn(`⚠️ [GCS Bucket Direct Download Warning]: ${gcsFileName}`, gcsErr.message);
+                        console.warn(`⚠️ [GCS Bucket Direct Download Warning]: ${gcsFileName}`, gcsErr.stack || gcsErr.message);
                     }
                 }
 
@@ -1598,9 +1615,9 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
             success: true,
             ...parsedResult
         });
-    } catch (e) {
-        console.error('❌ [Extract Schema Exception]:', e);
-        res.status(500).json({ error: e.message });
+    } catch (err) {
+        console.error('❌ [Extract-Schema Fatal Error]:', err.stack || err);
+        res.status(500).json({ error: err.message, stack: err.stack });
     }
 });
 
