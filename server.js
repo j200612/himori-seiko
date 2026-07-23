@@ -1405,7 +1405,7 @@ app.post('/api/admin/ai-assets/auto-name', async (req, res) => {
 // 🧠 辨識輸入端：多模態 Vision / Schema 數據結構化抽取 API (全真實 Gemini Vision 解析，零假 Metadata)
 app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
     try {
-        const { fileName, fileUrl, rawText } = req.body;
+        const { assetId, fileName, fileUrl, rawText } = req.body;
         const apiKey = process.env.GEMINI_API_KEY;
 
         const rawName = (fileName || '').replace(/\.[^/.]+$/, '').trim();
@@ -1421,19 +1421,14 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
         let fetchedMimeType = 'image/jpeg';
         let extractedDocxText = '';
 
-        if (fileUrl || fileName) {
+        if (fileUrl || fileName || assetId) {
             const checkStr = (fileName || fileUrl || '').toLowerCase();
             const isDocx = checkStr.endsWith('.docx') || checkStr.endsWith('.doc');
             try {
                 let fileBuffer = null;
-                // 依副檔名設定正確標稱 MimeType (若無副檔名預設強制帶入 image/jpeg)
-                let mimeType = getMimeType(fileName || fileUrl);
-                if (!mimeType || mimeType === 'application/octet-stream') {
-                    mimeType = 'image/jpeg';
-                }
+                let mimeType = getMimeType(fileName || fileUrl) || 'image/jpeg';
+                if (!mimeType || mimeType === 'application/octet-stream') mimeType = 'image/jpeg';
 
-                // 1. 優先從 GCS 儲存桶直接下載實體檔案 Buffer (多重 URI 解碼與 Unicode NFC 正規化強鎖)
-                let gcsFileName = '';
                 const safeDecode = (str) => {
                     if (!str) return '';
                     let res = str;
@@ -1447,47 +1442,61 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
                     return res.normalize('NFC').trim();
                 };
 
-                if (fileUrl) {
-                    let cleanUrl = safeDecode(fileUrl);
-                    if (cleanUrl.includes('/api/storage/preview/')) {
-                        gcsFileName = cleanUrl.split('/api/storage/preview/')[1];
-                    } else if (cleanUrl.includes('storage.googleapis.com')) {
-                        gcsFileName = cleanUrl.split('/').pop().split('?')[0];
-                    } else if (!cleanUrl.startsWith('http')) {
-                        gcsFileName = cleanUrl.replace(/^\//, '');
+                // 1. 若傳入 assetId 或檔名，優先從 Firestore 撈取真實 URL 紀錄
+                let targetDoc = null;
+                const cols = ['ai_assets', 'document_assets', 'document_templates'];
+
+                if (assetId) {
+                    for (const c of cols) {
+                        const snap = await firestore.collection(c).doc(assetId).get().catch(() => null);
+                        if (snap && snap.exists) {
+                            targetDoc = snap.data();
+                            break;
+                        }
                     }
                 }
-                if (!gcsFileName && fileName) {
-                    gcsFileName = safeDecode(fileName);
+
+                if (!targetDoc && (fileName || rawName)) {
+                    const searchName = fileName || rawName;
+                    for (const c of cols) {
+                        const snap = await firestore.collection(c).where('name', '==', searchName).limit(1).get().catch(() => null);
+                        if (snap && !snap.empty) {
+                            targetDoc = snap.docs[0].data();
+                            break;
+                        }
+                    }
                 }
 
-                if (gcsFileName) {
+                const candidateUrls = [
+                    fileUrl,
+                    targetDoc ? (targetDoc.currentUrl || targetDoc.previewUrl || targetDoc.url || targetDoc.gcsUrl || targetDoc.fileUrl) : null,
+                    fileName
+                ].filter(Boolean);
+
+                // 2. 依次試圖下載 GCS 實體檔案
+                for (const u of candidateUrls) {
+                    let cleanUrl = safeDecode(u);
+                    let fn = cleanUrl;
+                    if (cleanUrl.includes('/api/storage/preview/')) {
+                        fn = cleanUrl.split('/api/storage/preview/')[1];
+                    } else if (cleanUrl.includes('storage.googleapis.com')) {
+                        fn = cleanUrl.split('/').pop().split('?')[0];
+                    } else if (!cleanUrl.startsWith('http')) {
+                        fn = cleanUrl.replace(/^\//, '');
+                    }
+
                     try {
-                        let cleanPath = safeDecode(gcsFileName);
-                        let fileObj = bucket.file(cleanPath);
+                        let fileObj = bucket.file(fn);
                         let [exists] = await fileObj.exists();
 
-                        // 二階段備用防護：若帶有路徑，嘗試純檔名檢索
-                        if (!exists && cleanPath.includes('/')) {
-                            const baseOnly = cleanPath.split('/').pop();
+                        if (!exists && fn.includes('/')) {
+                            const baseOnly = fn.split('/').pop();
                             const fallbackObj = bucket.file(baseOnly);
-                            const [fallbackExists] = await fallbackObj.exists();
-                            if (fallbackExists) {
+                            const [fbExists] = await fallbackObj.exists();
+                            if (fbExists) {
                                 fileObj = fallbackObj;
                                 exists = true;
-                                cleanPath = baseOnly;
-                            }
-                        }
-
-                        // 三階段備用防護：若傳入 fileName，嘗試用 fileName 檢索
-                        if (!exists && fileName) {
-                            const fnClean = safeDecode(fileName);
-                            const fnObj = bucket.file(fnClean);
-                            const [fnExists] = await fnObj.exists();
-                            if (fnExists) {
-                                fileObj = fnObj;
-                                exists = true;
-                                cleanPath = fnClean;
+                                fn = baseOnly;
                             }
                         }
 
@@ -1497,36 +1506,35 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
                             if (meta.contentType && meta.contentType !== 'application/octet-stream') {
                                 mimeType = meta.contentType;
                             } else {
-                                mimeType = getMimeType(cleanPath) || 'image/jpeg';
+                                mimeType = getMimeType(fn) || 'image/jpeg';
                             }
-                            if (!mimeType || mimeType === 'application/octet-stream') {
-                                mimeType = 'image/jpeg';
-                            }
-                            console.log(`📦 [GCS Bucket Direct Download Success]: ${cleanPath} (${fileBuffer.length} bytes, Mime: ${mimeType})`);
+                            if (!mimeType || mimeType === 'application/octet-stream') mimeType = 'image/jpeg';
+                            console.log(`📦 [GCS Bucket Direct Download Success]: ${fn} (${fileBuffer.length} bytes, Mime: ${mimeType})`);
+                            break;
                         } else {
-                            console.warn(`⚠️ [GCS Bucket File Exists Check False]: ${cleanPath}`);
+                            console.warn(`⚠️ [GCS Bucket Check Failed for Candidate]: ${fn}`);
                         }
                     } catch (gcsErr) {
-                        console.warn(`⚠️ [GCS Bucket Direct Download Warning]: ${gcsFileName}`, gcsErr.stack || gcsErr.message);
+                        console.warn(`⚠️ [GCS Bucket Download Candidate Warning]: ${fn}`, gcsErr.message);
                     }
                 }
 
-                // 2. 若 GCS 未抓到，發動 HTTP Fetch 備用機制
+                // 3. 若 GCS 未抓到，發動 HTTP Fetch 備用機制
                 if (!fileBuffer && fileUrl && fileUrl.startsWith('http')) {
-                    const fetchRes = await fetch(fileUrl);
-                    if (fetchRes.ok) {
+                    const fetchRes = await fetch(fileUrl).catch(() => null);
+                    if (fetchRes && fetchRes.ok) {
                         const arrayBuf = await fetchRes.arrayBuffer();
                         fileBuffer = Buffer.from(arrayBuf);
                         const contentType = fetchRes.headers.get('content-type') || '';
                         if (contentType && !contentType.includes('octet-stream')) {
                             mimeType = contentType.split(';')[0].trim();
                         } else {
-                            mimeType = getMimeType(fileUrl);
+                            mimeType = getMimeType(fileUrl) || 'image/jpeg';
                         }
                     }
                 }
 
-                // 3. 轉為 Base64 餵給 Gemini Vision AI
+                // 4. 轉為 Base64 餵給 Gemini Vision AI
                 if (fileBuffer && !isDocx) {
                     visionContents.push({
                         inlineData: {
@@ -1581,17 +1589,16 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
         let parsedResult = null;
 
         if (apiKey) {
-            for (let attempt = 1; attempt <= 2; attempt++) {
+            const candidateModels = ["gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-1.5-flash", "gemini-1.5-pro"];
+            for (const modelName of candidateModels) {
                 try {
                     const genAI = new GoogleGenerativeAI(apiKey);
-                    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+                    const model = genAI.getGenerativeModel({ model: modelName });
                     const result = await model.generateContent(visionContents);
                     const replyText = result.response.text().trim();
                     
-                    // 🚨 印出原始 response
-                    console.log(`🤖 [Gemini Vision Raw Reply Attempt ${attempt}]:\n${replyText}`);
+                    console.log(`🤖 [Gemini Vision Raw Reply (${modelName})]:\n${replyText}`);
 
-                    // 🚨 在 JSON.parse 之前，把 Gemini 回傳結果裡的 ```json 標記與 Markdown 區塊過濾乾淨
                     const cleanJson = replyText
                         .replace(/^```(?:json)?\s*/i, '')
                         .replace(/\s*```$/i, '')
@@ -1601,12 +1608,11 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
 
                     parsedResult = JSON.parse(cleanJson);
                     if (parsedResult && Array.isArray(parsedResult.extractedFields)) {
-                        console.log(`✅ [Gemini Vision Success on Attempt ${attempt}]:`, JSON.stringify(parsedResult, null, 2));
+                        console.log(`✅ [Gemini Vision Success with ${modelName}]:`, JSON.stringify(parsedResult, null, 2));
                         break;
                     }
                 } catch (geminiErr) {
-                    console.warn(`⚠️ [Gemini Vision Call Attempt ${attempt} Warning]:`, geminiErr.message);
-                    if (attempt < 2) await new Promise(r => setTimeout(r, 1000));
+                    console.warn(`⚠️ [Gemini Vision Call (${modelName}) Warning]:`, geminiErr.message);
                 }
             }
         }
