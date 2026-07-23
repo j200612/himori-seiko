@@ -1426,8 +1426,9 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
             const isDocx = checkStr.endsWith('.docx') || checkStr.endsWith('.doc');
             try {
                 let fileBuffer = null;
-                let mimeType = 'image/jpeg';
-                
+                // 依副檔名設定正確標稱 MimeType (例如 .jpg -> image/jpeg, .pdf -> application/pdf)
+                let mimeType = getMimeType(fileName || fileUrl);
+
                 // 1. 優先從 GCS 儲存桶直接下載實體檔案 Buffer
                 let gcsFileName = '';
                 if (fileUrl) {
@@ -1450,13 +1451,12 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
                         if (exists) {
                             [fileBuffer] = await fileObj.download();
                             const [meta] = await fileObj.getMetadata().catch(() => [{}]);
-                            if (meta.contentType) {
+                            if (meta.contentType && meta.contentType !== 'application/octet-stream') {
                                 mimeType = meta.contentType;
-                            } else if (gcsFileName.toLowerCase().endsWith('.png')) mimeType = 'image/png';
-                            else if (gcsFileName.toLowerCase().endsWith('.pdf')) mimeType = 'application/pdf';
-                            else if (gcsFileName.toLowerCase().endsWith('.webp')) mimeType = 'image/webp';
-                            else mimeType = 'image/jpeg';
-                            console.log(`📦 [GCS Bucket Direct Download Success]: ${gcsFileName} (${fileBuffer.length} bytes)`);
+                            } else {
+                                mimeType = getMimeType(gcsFileName);
+                            }
+                            console.log(`📦 [GCS Bucket Direct Download Success]: ${gcsFileName} (${fileBuffer.length} bytes, Mime: ${mimeType})`);
                         }
                     } catch (gcsErr) {
                         console.warn(`⚠️ [GCS Bucket Direct Download Warning]: ${gcsFileName}`, gcsErr.message);
@@ -1470,10 +1470,11 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
                         const arrayBuf = await fetchRes.arrayBuffer();
                         fileBuffer = Buffer.from(arrayBuf);
                         const contentType = fetchRes.headers.get('content-type') || '';
-                        if (contentType.includes('pdf')) mimeType = 'application/pdf';
-                        else if (contentType.includes('png')) mimeType = 'image/png';
-                        else if (contentType.includes('webp')) mimeType = 'image/webp';
-                        else mimeType = 'image/jpeg';
+                        if (contentType && !contentType.includes('octet-stream')) {
+                            mimeType = contentType.split(';')[0].trim();
+                        } else {
+                            mimeType = getMimeType(fileUrl);
+                        }
                     }
                 }
 
@@ -1538,10 +1539,21 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
                     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
                     const result = await model.generateContent(visionContents);
                     const replyText = result.response.text().trim();
-                    const cleanJson = replyText.replace(/```json/g, '').replace(/```/g, '').trim();
+                    
+                    // 🚨 印出原始 response
+                    console.log(`🤖 [Gemini Vision Raw Reply Attempt ${attempt}]:\n${replyText}`);
+
+                    // 🚨 在 JSON.parse 之前，把 Gemini 回傳結果裡的 ```json 標記與 Markdown 區塊過濾乾淨
+                    const cleanJson = replyText
+                        .replace(/^```(?:json)?\s*/i, '')
+                        .replace(/\s*```$/i, '')
+                        .replace(/```json/gi, '')
+                        .replace(/```/g, '')
+                        .trim();
+
                     parsedResult = JSON.parse(cleanJson);
                     if (parsedResult && Array.isArray(parsedResult.extractedFields)) {
-                        console.log(`✅ [Gemini Vision Success on Attempt ${attempt}]`);
+                        console.log(`✅ [Gemini Vision Success on Attempt ${attempt}]:`, JSON.stringify(parsedResult, null, 2));
                         break;
                     }
                 } catch (geminiErr) {
@@ -2985,13 +2997,18 @@ app.post('/api/inbox-media/add', async (req, res) => {
     }
 });
 
-// Helper: 取得 Mime Type
+// Helper: 依副檔名取得標準 Mime Type
 function getMimeType(fileName) {
-    const ext = path.extname(fileName).toLowerCase();
+    if (!fileName) return 'image/jpeg';
+    const cleanFn = fileName.split('?')[0];
+    const ext = path.extname(cleanFn).toLowerCase();
     if (ext === '.pdf') return 'application/pdf';
     if (ext === '.jpg' || ext === '.jpeg') return 'image/jpeg';
     if (ext === '.png') return 'image/png';
-    return null;
+    if (ext === '.webp') return 'image/webp';
+    if (ext === '.gif') return 'image/gif';
+    if (ext === '.bmp') return 'image/bmp';
+    return 'image/jpeg';
 }
 
 // 清空收件匣
