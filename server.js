@@ -197,7 +197,7 @@ async function seedAiAssets() {
         console.error('❌ AI中控大腦歷史資產初始化失敗:', e);
     }
 }
-seedAiAssets();
+// seedAiAssets(); // 🚨 依使用者指令關閉自動寫入歷史預設檔案腳本
 
 async function seedDocumentTemplates() {
     try {
@@ -1422,42 +1422,70 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
         let extractedDocxText = '';
 
         if (fileUrl || fileName) {
-            const isDocx = (fileName || '').toLowerCase().endsWith('.docx') || (fileName || '').toLowerCase().endsWith('.doc');
+            const checkStr = (fileName || fileUrl || '').toLowerCase();
+            const isDocx = checkStr.endsWith('.docx') || checkStr.endsWith('.doc');
             try {
                 let fileBuffer = null;
-                if (fileUrl && fileUrl.startsWith('/api/storage/preview/')) {
-                    const cleanPath = decodeURIComponent(fileUrl.replace('/api/storage/preview/', ''));
-                    const fileObj = bucket.file(cleanPath);
-                    [fileBuffer] = await fileObj.download();
-                    const [meta] = await fileObj.getMetadata().catch(() => [{}]);
-                    if (!isDocx) {
-                        visionContents.push({
-                            inlineData: {
-                                data: fileBuffer.toString('base64'),
-                                mimeType: meta.contentType || 'image/jpeg'
-                            }
-                        });
+                let mimeType = 'image/jpeg';
+                
+                // 1. 優先從 GCS 儲存桶直接下載實體檔案 Buffer
+                let gcsFileName = '';
+                if (fileUrl) {
+                    if (fileUrl.includes('/api/storage/preview/')) {
+                        gcsFileName = decodeURIComponent(fileUrl.split('/api/storage/preview/')[1]);
+                    } else if (fileUrl.includes('storage.googleapis.com')) {
+                        gcsFileName = decodeURIComponent(fileUrl.split('/').pop().split('?')[0]);
+                    } else if (!fileUrl.startsWith('http')) {
+                        gcsFileName = decodeURIComponent(fileUrl.replace(/^\//, ''));
                     }
-                } else if (fileUrl) {
+                }
+                if (!gcsFileName && fileName) {
+                    gcsFileName = fileName;
+                }
+
+                if (gcsFileName) {
+                    try {
+                        const fileObj = bucket.file(gcsFileName);
+                        const [exists] = await fileObj.exists();
+                        if (exists) {
+                            [fileBuffer] = await fileObj.download();
+                            const [meta] = await fileObj.getMetadata().catch(() => [{}]);
+                            if (meta.contentType) {
+                                mimeType = meta.contentType;
+                            } else if (gcsFileName.toLowerCase().endsWith('.png')) mimeType = 'image/png';
+                            else if (gcsFileName.toLowerCase().endsWith('.pdf')) mimeType = 'application/pdf';
+                            else if (gcsFileName.toLowerCase().endsWith('.webp')) mimeType = 'image/webp';
+                            else mimeType = 'image/jpeg';
+                            console.log(`📦 [GCS Bucket Direct Download Success]: ${gcsFileName} (${fileBuffer.length} bytes)`);
+                        }
+                    } catch (gcsErr) {
+                        console.warn(`⚠️ [GCS Bucket Direct Download Warning]: ${gcsFileName}`, gcsErr.message);
+                    }
+                }
+
+                // 2. 若 GCS 未抓到，發動 HTTP Fetch 備用機制
+                if (!fileBuffer && fileUrl && fileUrl.startsWith('http')) {
                     const fetchRes = await fetch(fileUrl);
                     if (fetchRes.ok) {
                         const arrayBuf = await fetchRes.arrayBuffer();
                         fileBuffer = Buffer.from(arrayBuf);
                         const contentType = fetchRes.headers.get('content-type') || '';
-                        if (contentType.includes('pdf')) fetchedMimeType = 'application/pdf';
-                        else if (contentType.includes('png')) fetchedMimeType = 'image/png';
-                        else if (contentType.includes('webp')) fetchedMimeType = 'image/webp';
-                        else fetchedMimeType = 'image/jpeg';
-
-                        if (!isDocx) {
-                            visionContents.push({
-                                inlineData: {
-                                    data: fileBuffer.toString('base64'),
-                                    mimeType: fetchedMimeType
-                                }
-                            });
-                        }
+                        if (contentType.includes('pdf')) mimeType = 'application/pdf';
+                        else if (contentType.includes('png')) mimeType = 'image/png';
+                        else if (contentType.includes('webp')) mimeType = 'image/webp';
+                        else mimeType = 'image/jpeg';
                     }
+                }
+
+                // 3. 轉為 Base64 餵給 Gemini Vision AI
+                if (fileBuffer && !isDocx) {
+                    visionContents.push({
+                        inlineData: {
+                            data: fileBuffer.toString('base64'),
+                            mimeType: mimeType
+                        }
+                    });
+                    console.log(`🖼️ [Vision AI Input Ready]: 成功打包 Base64 實體影像資料給 Gemini (${fileBuffer.length} bytes, Mime: ${mimeType})`);
                 }
 
                 if (isDocx && fileBuffer) {
@@ -2867,19 +2895,44 @@ app.post('/api/inbox-media/add', async (req, res) => {
                 
                 const parts = [promptText];
 
-                // 嘗試處理實體 GCS 圖片或 PDF
+                // 嘗試直接從 GCS 下載實體檔案 Base64 餵給 Gemini AI
                 const mimeType = getMimeType(item.type || '');
                 if (item.fileUrl && item.fileUrl !== '#' && mimeType) {
                     try {
-                        const fileRes = await fetch(item.fileUrl);
-                        const arrayBuffer = await fileRes.arrayBuffer();
-                        const base64 = Buffer.from(arrayBuffer).toString('base64');
-                        parts.push({
-                            inlineData: {
-                                data: base64,
-                                mimeType: mimeType
+                        let fileBuffer = null;
+                        let gcsFileName = '';
+                        if (item.fileUrl.includes('/api/storage/preview/')) {
+                            gcsFileName = decodeURIComponent(item.fileUrl.split('/api/storage/preview/')[1]);
+                        } else if (item.fileUrl.includes('storage.googleapis.com')) {
+                            gcsFileName = decodeURIComponent(item.fileUrl.split('/').pop().split('?')[0]);
+                        } else if (!item.fileUrl.startsWith('http')) {
+                            gcsFileName = decodeURIComponent(item.fileUrl.replace(/^\//, ''));
+                        }
+
+                        if (gcsFileName) {
+                            const fileObj = bucket.file(gcsFileName);
+                            const [exists] = await fileObj.exists();
+                            if (exists) {
+                                [fileBuffer] = await fileObj.download();
                             }
-                        });
+                        }
+
+                        if (!fileBuffer && item.fileUrl.startsWith('http')) {
+                            const fileRes = await fetch(item.fileUrl);
+                            if (fileRes.ok) {
+                                const arrayBuffer = await fileRes.arrayBuffer();
+                                fileBuffer = Buffer.from(arrayBuffer);
+                            }
+                        }
+
+                        if (fileBuffer) {
+                            parts.push({
+                                inlineData: {
+                                    data: fileBuffer.toString('base64'),
+                                    mimeType: mimeType
+                                }
+                            });
+                        }
                     } catch (fileErr) {
                         console.warn('GCS file fetch failed for Gemini, using metadata instead:', fileErr);
                     }
