@@ -783,7 +783,7 @@ ${text}
 
     try {
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
         const result = await model.generateContent(prompt);
         const replyText = result.response.text().trim();
         
@@ -1589,7 +1589,7 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
         let parsedResult = null;
 
         if (apiKey) {
-            const candidateModels = ["gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-1.5-flash", "gemini-1.5-pro"];
+            const candidateModels = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-3.0-flash", "gemini-3.5-flash", "gemini-1.5-flash-latest", "gemini-1.5-flash"];
             for (const modelName of candidateModels) {
                 try {
                     const genAI = new GoogleGenerativeAI(apiKey);
@@ -2990,7 +2990,7 @@ app.post('/api/inbox-media/add', async (req, res) => {
         if (apiKey) {
             try {
                 const genAI = new GoogleGenerativeAI(apiKey);
-                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+                const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
                 
                 const parts = [promptText];
 
