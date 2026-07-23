@@ -340,8 +340,8 @@
       <!-- 極簡白話兩大分頁 -->
       <div class="card">
         <div class="tabs-header">
-          <button class="tab-btn active" id="tab1Btn" onclick="switchTab(1)">【辨識輸入端】（全域資產與知識結構化抽取庫）</button>
-          <button class="tab-btn" id="tab2Btn" onclick="switchTab(2)">【格式輸出端】（黃金範本與 Slot 動態變數標定庫）</button>
+          <button class="tab-btn active" id="tab1Btn" onclick="switchTab(1)">分頁一：全域檔案輸入與中央控台</button>
+          <button class="tab-btn" id="tab2Btn" onclick="switchTab(2)">分頁二：輸出格式資料庫</button>
         </div>
 
         <!-- 分頁一：全域檔案輸入與中央控台 -->
@@ -364,7 +364,7 @@
             <span style="font-size: 2.2rem;">📥</span>
             <p style="margin: 8px 0; font-weight: 600; font-size: 1rem; color: var(--text-light);">拖曳任何實體檔案至此 或 點擊選取檔案 ➔ 融入大腦記憶</p>
             <span style="font-size: 0.8rem; color: var(--text-muted);">檔案將自動上傳至 Cloud Storage 物理備份，並記錄於全域記憶池</span>
-            <input type="file" id="tab1-file-input" multiple accept="image/*,.pdf,.docx" style="display: none;">
+            <input type="file" id="tab1-file-input" style="display: none;">
           </div>
 
           <!-- 3. 底部：【條列式時間流模糊檢索牆】 -->
@@ -439,16 +439,14 @@
           <!-- 語音/拍照格式化入庫 -->
           <div class="card" style="padding: 12px; margin-bottom: 12px; border-top: 3px solid var(--accent); background: rgba(15,23,42,0.4);">
             <h4 style="margin: 0 0 8px 0; font-size: 0.9rem;">🎙️ AI 語音/拍照格式化入庫</h4>
-            <textarea id="voiceInputText" placeholder="請輸入或語音輸入指令..." style="width:100%; height: 50px; font-size: 0.8rem; padding: 6px; box-sizing: border-box; border-radius: 6px; border: 1px solid var(--border); background: rgba(15,23,42,0.6); color: var(--text-light); outline: none;"></textarea>
+            <textarea id="voiceInputText" placeholder="說點什麼...例如：『新增大谷保險考勤規則技術分析』..." style="width:100%; height: 50px; font-size: 0.8rem; padding: 6px; box-sizing: border-box; border-radius: 6px; border: 1px solid var(--border); background: rgba(15,23,42,0.6); color: var(--text-light); outline: none;"></textarea>
             <div style="display: flex; gap: 8px; margin-top: 6px;">
               <button class="btn btn-danger" style="flex: 1; font-size: 0.8rem; padding: 6px;" onclick="triggerVoiceParse()">🎙️ 語音入庫</button>
-              <button class="btn btn-primary" style="flex: 1; font-size: 0.8rem; padding: 6px; background-color: var(--success);" onclick="document.getElementById('mobilePhotoInput').click()">📸 拍照辨識</button>
-              <input type="file" id="mobilePhotoInput" multiple accept="image/*,.pdf,.docx" capture="environment" style="display: none;" onchange="window.handleMobilePhotoUpload(event)">
+              <button class="btn btn-primary" style="flex: 1; font-size: 0.8rem; padding: 6px; background-color: var(--success);" onclick="triggerPhotoParse()">📸 拍照辨識</button>
             </div>
           </div>
           <!-- 核心資產時間流簡表 -->
-          <h4 style="margin: 12px 0 6px 0; font-size: 0.9rem; color: var(--accent);">🔍 條列式時間流檢索牆</h4>
-          <input type="text" id="simPresidentSearchInput" placeholder="🔍 搜尋手機端檔案名稱/關鍵字..." oninput="window.loadAssets(true)" style="width:100%; padding: 6px 10px; margin-bottom: 10px; box-sizing: border-box; border-radius: 6px; border: 1px solid rgba(56,189,248,0.4); background: rgba(15,23,42,0.8); color: var(--text-light); font-size: 0.8rem;">
+          <h4 style="margin: 12px 0 6px 0; font-size: 0.9rem; color: var(--accent);">📂 歷史資產盤點與淨化流</h4>
           <div id="simPresidentFiles"></div>
         </div>
 
@@ -545,98 +543,61 @@
         <button class="btn btn-primary" onclick="saveTemplateModalFromModal()">💾 保存範本變更 (版本遞增)</button>
       </div>
     </div>
-  </div>
-
-  <!-- 🎯 【格式輸出端】視覺化 Slot 劃詞標定控制台 Modal -->
-  <div class="modal" id="visualSlotModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 999999; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(10px); align-items: center; justify-content: center;">
-    <div style="width: 95vw; height: 92vh; background: #0f172a; border-radius: 14px; border: 1px solid rgba(56, 189, 248, 0.3); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);">
+  <!-- 🎨 所見即所得二合一：範本預覽、動態發光膠囊與滑鼠圈選挖空 Modal -->
+  <div class="modal" id="wysiwygModal" style="backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); background: rgba(15, 23, 42, 0.75); display: none;">
+    <div class="modal-content" style="background: rgba(30, 41, 59, 0.95); border: 1px solid rgba(56, 189, 248, 0.35); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5); width: 920px; max-width: 95%; max-height: 90vh; display: flex; flex-direction: column;">
       
       <!-- Modal Header -->
-      <div style="padding: 16px 24px; background: #1e293b; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center;">
-        <div>
-          <h3 style="margin: 0; color: var(--accent); font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 10px;">
-            <span>🎯 【格式輸出端】視覺化 Slot 劃詞標定控制台</span>
-          </h3>
-          <span style="font-size: 0.8rem; color: #94a3b8;">請在左側劃詞選取文件文字，連動右側【辨識輸入端】標準欄位與資料型態標定 Slot 填空位</span>
-        </div>
-        <div style="display: flex; gap: 12px; align-items: center;">
-          <button class="btn" style="background: linear-gradient(135deg, #38bdf8, #0ea5e9); color: white; font-weight: bold; padding: 8px 20px; border-radius: 8px; border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(56,189,248,0.3);" onclick="saveVisualSlotConfig()">💾 儲存 Slot 標定 Schema</button>
-          <button onclick="closeModal('visualSlotModal')" style="background: transparent; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer;">✕</button>
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; margin-bottom: 16px;">
+        <h3 style="color: var(--accent); margin: 0; display: flex; align-items: center; gap: 10px; font-size: 1.15rem;">
+          👁️ 預覽與編輯範本 (WYSIWYG 所見即所得視覺化控制面板)
+        </h3>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <button class="btn btn-outline" style="font-size: 0.8rem;" onclick="openOriginalPreview(currentWysiwygTplUrl)">📄 原始實體檔</button>
+          <button class="btn btn-outline" onclick="closeModal('wysiwygModal')">✕ 關閉</button>
         </div>
       </div>
 
-      <!-- Modal Body: Split Screen -->
-      <div style="flex: 1; display: flex; overflow: hidden;">
+      <!-- Modal Body Grid (Left: WYSIWYG Preview Paper, Right: Variables & Controls) -->
+      <div style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; flex: 1; min-height: 400px; max-height: calc(90vh - 120px); overflow: hidden;">
         
-        <!-- Left Panel: Document Preview & Highlight Section -->
-        <div style="flex: 1.2; border-right: 1px solid #334155; display: flex; flex-direction: column; background: #0b1120;">
-          <div style="padding: 10px 16px; background: rgba(30,41,59,0.5); border-bottom: 1px solid #1e293b; font-size: 0.82rem; color: #38bdf8; font-weight: 600; display: flex; justify-content: space-between;">
-            <span>📄 劃詞標定區 (用滑鼠劃詞選取內文文字即可觸發標定)</span>
-            <span style="color: #94a3b8;">雙擊或劃詞自動選取標定</span>
+        <!-- Left Column: Document Preview Paper with Glowing Capsules -->
+        <div style="display: flex; flex-direction: column; overflow: hidden;">
+          <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+            <span>📄 原樣視覺化文檔 (可用滑鼠圈選文字「抹黑挖空」為新格子)</span>
+            <span style="font-size: 0.75rem; color: #38bdf8;">點擊膠囊切換 [自動撈庫] / [即時輸入]</span>
           </div>
-          <div id="slotDocPreviewText" style="flex: 1; padding: 24px; overflow-y: auto; color: #e2e8f0; font-size: 0.92rem; line-height: 1.8; user-select: text; white-space: pre-wrap; font-family: monospace;" onmouseup="handleSlotTextSelection()"></div>
-        </div>
-
-        <!-- Right Panel: Slot Dynamic Variables Panel -->
-        <div style="flex: 1; padding: 20px; overflow-y: auto; background: #1e293b; display: flex; flex-direction: column;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h4 style="margin: 0; color: white; font-size: 1rem; font-weight: 700;">⚡ Slot 動態變數對照表</h4>
-            <button class="btn" style="background: #334155; color: white; font-size: 0.8rem; padding: 6px 12px; border-radius: 6px; border: none; cursor: pointer;" onclick="addEmptySlotVariable()">➕ 新增 Slot 變數</button>
-          </div>
-
-          <div id="slotVariablesContainer" style="display: flex; flex-direction: column; gap: 12px; flex: 1;"></div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-  <!-- 📊 【辨識輸入端】大尺寸 AI 數據結構卡與專屬控制台 Modal -->
-  <div class="modal" id="assetSchemaModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 999999; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(10px); align-items: center; justify-content: center;">
-    <div style="width: 88vw; height: 86vh; background: #0f172a; border-radius: 14px; border: 1px solid rgba(56, 189, 248, 0.3); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);">
-      
-      <!-- Modal Header -->
-      <div style="padding: 16px 24px; background: #1e293b; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center;">
-        <div>
-          <h3 style="margin: 0; color: var(--accent); font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 10px;">
-            <span>📊 【辨識輸入端】AI 數據結構卡控制台</span>
-            <span id="modalAssetVersionTag" style="font-size: 0.75rem; padding: 2px 8px; background: #0284c7; color: white; border-radius: 12px;">v1</span>
-          </h3>
-          <span id="modalAssetNameSub" style="font-size: 0.82rem; color: #94a3b8; margin-top: 4px; display: block;">檔案名稱...</span>
-        </div>
-        <div style="display: flex; gap: 12px; align-items: center;">
-          <button class="btn" style="background: #334155; color: white; padding: 6px 12px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.8rem;" onclick="addSchemaRowFromModal()">➕ 新增欄位</button>
-          <button class="btn" style="background: linear-gradient(135deg, #38bdf8, #0ea5e9); color: white; font-weight: bold; padding: 8px 20px; border-radius: 8px; border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(56,189,248,0.3);" onclick="saveAssetSchemaFromModal()">💾 儲存數據結構</button>
-          <button onclick="closeModal('assetSchemaModal')" style="background: transparent; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer; margin-left: 8px;">✕</button>
-        </div>
-      </div>
-
-      <!-- Modal Body -->
-      <div style="flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; background: #0b1120;">
-        
-        <!-- 大腦摘要專區 -->
-        <div>
-          <div style="font-size: 0.85rem; font-weight: 700; color: #38bdf8; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">🧠 AI 大腦理解摘要 (Brain Summary)</div>
-          <div id="modalBrainSummaryContent" style="font-size: 0.9rem; color: #a5f3fc; background: rgba(6, 182, 212, 0.12); border-left: 4px solid #06b6d4; padding: 12px 16px; border-radius: 6px; line-height: 1.6;">
-            載入中...
+          
+          <!-- Document Content Paper Container -->
+          <div id="wysiwygDocumentPaper" style="flex: 1; background: #0f172a; border: 1px solid var(--border); border-radius: 8px; padding: 24px; overflow-y: auto; color: var(--text-light); font-size: 0.9rem; line-height: 1.8; position: relative; user-select: text; -webkit-user-select: text;">
+            <!-- Content rendered dynamically with glowing capsule badges -->
           </div>
         </div>
 
-        <!-- 數據結構卡欄位對照網格 -->
-        <div style="flex: 1; display: flex; flex-direction: column;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <div style="font-size: 0.85rem; font-weight: 700; color: #e2e8f0;">⚡ 萃取實體欄位與信心度對照表</div>
-            <span style="font-size: 0.78rem; color: #94a3b8;">只顯示自【內文與畫面】抽取之真實欄位，絕不拿 Metadata 假冒</span>
+        <!-- Right Column: Controls & Variable Slot List -->
+        <div style="display: flex; flex-direction: column; background: rgba(15, 23, 42, 0.5); border: 1px solid var(--border); border-radius: 8px; padding: 16px; overflow-y: auto;">
+          <h4 style="margin-top: 0; color: var(--accent); font-size: 0.95rem; margin-bottom: 12px;">⚙️ 範本屬性與 Slot 動態宣告列表</h4>
+          
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label style="font-size: 0.8rem;">範本名稱 (純淨命名無贅字)</label>
+            <input type="text" id="wysiwygTplName" style="width: 100%; font-size: 0.85rem;">
           </div>
 
-          <div id="modalSchemaRowsContainer" class="schema-rows-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 12px; align-content: start;">
+          <div style="margin-bottom: 12px; flex: 1; overflow-y: auto;">
+            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 6px;">Slot 欄位動態宣告清單:</label>
+            <div id="wysiwygVariablesList" style="display: flex; flex-direction: column; gap: 8px;">
+              <!-- Dynamically populated variable slot controls -->
+            </div>
+          </div>
+
+          <div style="margin-top: auto; padding-top: 12px; border-top: 1px solid var(--border); display: flex; gap: 10px;">
+            <button class="btn btn-primary" style="flex: 1;" onclick="saveWysiwygTemplate()">💾 保存範本變更 (版本遞增)</button>
           </div>
         </div>
 
       </div>
     </div>
   </div>
-
 
   <!-- 懸浮「➕ 將此區塊新增為動態格子」小按鈕 (Highlight to Slot Tooltip) -->
   <div id="wysiwygSelectionTooltip" style="position: absolute; display: none; z-index: 10000; background: linear-gradient(135deg, #0284c7, #0369a1); border: 1px solid #38bdf8; color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4); backdrop-filter: blur(10px);">
@@ -777,12 +738,10 @@
       document.getElementById(`tab${idx}Btn`).classList.add('active');
     }
 
-    async function loadAssets(silent = false) {
+    async function loadAssets() {
       try {
         const res = await fetch(`/api/admin/ai-assets`);
-        const rawData = await res.json();
-        const list = rawData.assets || rawData.items || rawData.documents || (Array.isArray(rawData) ? rawData : []);
-        cachedAssets = list;
+        cachedAssets = await res.json();
         
         renderTab1List(cachedAssets);
         renderSimulatorLists(cachedAssets);
@@ -1040,36 +999,16 @@
         const dateStr = new Date(item.timestamp).toLocaleString('zh-TW');
         const row1 = document.createElement('div');
         row1.className = 'file-stream-item';
-        row1.setAttribute('data-asset-id', item.id);
-        row1.style = 'display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; margin-bottom: 10px; background: rgba(30, 41, 59, 0.75); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
-
-        const categoryTag = item.category || (item.aiMetadata && item.aiMetadata.type) || '📂 一般資料';
-        const versionTag = item.version ? `v${item.version}` : 'v1';
-
-          const previewUrl = window.getSmartPreviewUrl(item.previewUrl || item.currentUrl || item.url || item.gcsUrl, item.name);
-
-          row1.innerHTML = `
-          <div class="file-info" style="flex: 1; text-align: left; display: flex; flex-direction: column; gap: 6px;">
-            <div style="display: flex; align-items: center; gap: 8px; justify-content: flex-start; text-align: left;">
-              <span class="file-name" style="font-weight: 700; color: var(--text-light); font-size: 0.98rem; text-align: left;">${item.name}</span>
-              <span style="font-size: 0.72rem; padding: 2px 8px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; font-weight: 600;">${categoryTag}</span>
-              <span style="font-size: 0.72rem; padding: 2px 6px; background: #0284c7; color: white; border-radius: 10px; font-weight: 700;">${versionTag}</span>
-            </div>
-            <div class="file-meta" style="font-size: 0.78rem; color: var(--text-muted); text-align: left;">
+        row1.innerHTML = `
+          <div class="file-info" style="flex: 1;">
+            <span class="file-name" style="font-weight: 600; color: var(--text-light); font-size: 0.95rem;">${item.name}</span>
+            <div class="file-meta" style="font-size: 0.78rem; color: var(--text-muted); margin-top: 4px;">
               <span>📅 入庫時間: ${dateStr}</span>
             </div>
           </div>
-
-          <div class="btn-group" style="align-items: center; display: flex; gap: 8px;">
-            <a href="${previewUrl}" target="_blank" style="display: inline-flex; align-items: center; gap: 4px; padding: 7px 14px; background: #0284c7; color: white; border-radius: 6px; font-weight: bold; text-decoration: none; font-size: 0.82rem; box-shadow: 0 2px 8px rgba(2,132,199,0.3);">
-                🔗 開新分頁檢視檔案
-            </a>
-            <button class="btn" style="display: inline-flex; align-items: center; gap: 4px; padding: 7px 14px; background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border-radius: 6px; font-weight: bold; border: 1px solid #38bdf8; font-size: 0.82rem; cursor: pointer; box-shadow: 0 2px 8px rgba(56,189,248,0.2);" onclick="window.openAssetSchemaModal('${item.id}')">
-                📊 AI 數據結構卡
-            </button>
-            <button class="btn btn-danger" style="padding: 7px 14px; font-size: 0.82rem;" onclick="window.deleteAssetWithConfirm('${item.id}', this)">
-                🗑️ 刪除
-            </button>
+          <div class="btn-group">
+            <button class="btn btn-outline" onclick="openOriginalPreview('${item.currentUrl}', '${item.name.replace(/'/g, "\\'")}')">[👁️ 預覽原始檔]</button>
+            <button class="btn btn-danger" onclick="deleteAsset('${item.id}')">[🗑️ 物理刪除]</button>
           </div>
         `;
         t1.appendChild(row1);
@@ -1118,28 +1057,22 @@
 
       list.forEach(tpl => {
         const dateStr = new Date(tpl.timestamp).toLocaleString('zh-TW');
-        const displayName = tpl.name || '未命名範本';
+        const cleanName = (tpl.name || '未命名範本').replace(/【|】|黃金範本|輸出範本|日森精工 - |日森精工_/g, '').trim();
         const varCount = tpl.variables ? tpl.variables.length : 0;
-        const descHtml = tpl.description ? `<span style="color: #94a3b8; font-size: 0.78rem; margin-top: 2px; display: block;">📝 備註: ${tpl.description}</span>` : '';
 
         const row = document.createElement('div');
         row.className = 'file-stream-item';
         row.innerHTML = `
           <div class="file-info" style="flex: 1;">
-            <span class="file-name" style="color: var(--accent); font-weight: 600; font-size: 0.95rem;">${displayName} <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(v${tpl.version || '1.0.0'})</span></span>
-            <div class="file-meta" style="font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+            <span class="file-name" style="color: var(--accent); font-weight: 600; font-size: 0.95rem;">${cleanName} <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(v${tpl.version || '1.0.0'})</span></span>
+            <div class="file-meta" style="font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; display: flex; gap: 16px; align-items: center;">
               <span>📅 更新時間: ${dateStr}</span>
               <span>⚡ 定位 Slot 數量: ${varCount} 個</span>
             </div>
-            ${descHtml}
           </div>
-          <div class="btn-group" style="align-items: center; display: flex;">
-            <a href="${tpl.gcsUrl || tpl.url || tpl.currentUrl || '#'}" target="_blank" style="display: inline-block; padding: 6px 12px; background: #0284c7; color: white; border-radius: 6px; font-weight: bold; text-decoration: none; margin-right: 8px; font-size: 0.85rem;">
-                🔗 開新分頁檢視檔案
-            </a>
-            <button class="btn" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: white; padding: 6px 12px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; margin-right: 8px; font-size: 0.85rem;" onclick="window.openVisualSlotModal('${tpl.id}')">🎯 劃詞標定 Slot</button>
-            <button class="btn" style="background: #3b82f6; color: white; padding: 6px 12px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; margin-right: 8px; font-size: 0.85rem;" onclick="window.openEditTemplateModal('${tpl.id}')">✏️ 編輯/重命名</button>
-            <button class="btn btn-danger" onclick="window.deleteSingleTemplate('${tpl.id}', 'template')">🗑️ 刪除</button>
+          <div class="btn-group">
+            <button class="btn btn-outline" style="border-color: var(--accent); color: var(--accent);" onclick="openWysiwygTemplateModal('${tpl.id}')">[👁️ 預覽與編輯範本]</button>
+            <button class="btn btn-danger" onclick="deleteTemplate('${tpl.id}')">[🗑️ 物理刪除]</button>
           </div>
         `;
         container.appendChild(row);
@@ -1208,51 +1141,31 @@
 
     function initTemplateUploadListeners() {
       const dropzone = document.getElementById('template-upload-dropzone');
-      const templateFileInput = document.getElementById('template-file-input') || document.getElementById('templateFileInput');
+      const templateFileInput = document.getElementById('template-file-input');
 
       if (!dropzone || !templateFileInput) return;
 
+      // 獨立點擊上傳，切斷冒泡
       dropzone.addEventListener('click', (e) => {
         e.stopPropagation();
         templateFileInput.click();
       });
 
-      templateFileInput.addEventListener('click', (e) => {
+      templateFileInput.addEventListener('change', (e) => {
         e.stopPropagation();
-      });
-
-      templateFileInput.addEventListener('change', async function(e) {
-        e.stopPropagation();
-        const file = e.target.files[0];
-        if (!file) return;
-
-        console.log(`[範本檔案實體上傳開始] 檔名: ${file.name}`);
-        const formData = new FormData();
-        formData.append('file', file);
-
-        try {
-          const res = await fetch('/api/admin/templates/upload', { method: 'POST', body: formData });
-          if (res.ok) {
-            const data = await res.json();
-            console.log('✅ 範本直連上傳完工成功:', data);
-            if (typeof loadTemplates === 'function') await loadTemplates();
-          } else {
-            await processTemplateUpload(file);
-          }
-        } catch (err) {
-          console.error('上傳請求例外:', err);
-          await processTemplateUpload(file);
+        if (e.target.files && e.target.files[0]) {
+          processTemplateUpload(e.target.files[0]);
+          e.target.value = '';
         }
-        e.target.value = '';
       });
 
-      // 拖曳 (Drag & Drop) 事件隔離
+      // 拖曳 (Drag & Drop) 事件隔離與高亮樣式
       ['dragenter', 'dragover'].forEach(eventName => {
         dropzone.addEventListener(eventName, (e) => {
           e.preventDefault();
           e.stopPropagation();
           dropzone.style.borderColor = 'var(--accent)';
-          dropzone.style.background = 'rgba(56, 189, 248, 0.15)';
+          dropzone.style.background = 'rgba(56, 189, 248, 0.1)';
         }, false);
       });
 
@@ -1265,27 +1178,10 @@
         }, false);
       });
 
-      dropzone.addEventListener('drop', async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
+      dropzone.addEventListener('drop', (e) => {
         const dt = e.dataTransfer;
         if (dt && dt.files && dt.files[0]) {
-          const file = dt.files[0];
-          console.log(`[拖曳檔案實體上傳開始] 檔名: ${file.name}`);
-          const formData = new FormData();
-          formData.append('file', file);
-          try {
-            const res = await fetch('/api/admin/templates/upload', { method: 'POST', body: formData });
-            if (res.ok) {
-              const data = await res.json();
-              console.log('✅ 拖曳上傳完工成功:', data);
-              if (typeof loadTemplates === 'function') await loadTemplates();
-            } else {
-              await processTemplateUpload(file);
-            }
-          } catch (err) {
-            await processTemplateUpload(file);
-          }
+          processTemplateUpload(dt.files[0]);
         }
       }, false);
     }
@@ -1327,7 +1223,6 @@
         }
       } catch (e) {
         alert(`⚠️ 請求儲存範本時發生例外: ${e.message}`);
-      }
     }
 
     let currentEditTemplateId = '';
@@ -1374,96 +1269,19 @@
     let currentWysiwygTplUrl = '';
     let currentWysiwygTplObj = null;
 
-    function switchWysiwygMode(mode) {
-      const iframeBox = document.getElementById('wysiwygIframeContainer');
-      const paperBox = document.getElementById('wysiwygDocumentPaper');
-      const btnIframe = document.getElementById('btnModeIframe');
-      const btnCapsule = document.getElementById('btnModeCapsule');
-
-      if (!iframeBox || !paperBox) return;
-
-      if (mode === 'iframe') {
-        iframeBox.style.display = 'block';
-        paperBox.style.display = 'none';
-        if (btnIframe) {
-          btnIframe.style.borderColor = 'var(--accent)';
-          btnIframe.style.color = 'var(--accent)';
-          btnIframe.style.background = 'rgba(56,189,248,0.15)';
-        }
-        if (btnCapsule) {
-          btnCapsule.style.borderColor = 'var(--border)';
-          btnCapsule.style.color = 'var(--text-light)';
-          btnCapsule.style.background = 'transparent';
-        }
-      } else {
-        iframeBox.style.display = 'none';
-        paperBox.style.display = 'block';
-        if (btnCapsule) {
-          btnCapsule.style.borderColor = 'var(--accent)';
-          btnCapsule.style.color = 'var(--accent)';
-          btnCapsule.style.background = 'rgba(56,189,248,0.15)';
-        }
-        if (btnIframe) {
-          btnIframe.style.borderColor = 'var(--border)';
-          btnIframe.style.color = 'var(--text-light)';
-          btnIframe.style.background = 'transparent';
-        }
+    function openWysiwygTemplateModal(id) {
+      currentWysiwygTplId = id;
+      const tpl = cachedTemplates.find(t => t.id === id);
+      if (!tpl) {
+        alert('⚠️ 找不到該範本紀錄');
+        return;
       }
-    }
+      currentWysiwygTplObj = JSON.parse(JSON.stringify(tpl));
+      currentWysiwygTplUrl = tpl.currentUrl || tpl.url || '';
 
-    function openWysiwygTemplateModal(templateId) {
-      // 1. 取得實體 DOM 節點
-      const modal = document.getElementById('wysiwygModal');
-      const iframe = document.getElementById('wysiwygIframePreview');
-      if (!modal) return console.error('❌ DOM 找不到 wysiwygModal');
-
-      // 2. 無條件強制實體顯影（絕不使用 alert 阻塞）
-      modal.style.display = 'flex';
-      modal.style.position = 'fixed';
-      modal.style.top = '0';
-      modal.style.left = '0';
-      modal.style.width = '100vw';
-      modal.style.height = '100vh';
-      modal.style.zIndex = '9999999';
-      modal.style.backgroundColor = 'rgba(0, 0, 0, 0.85)';
-      modal.style.alignItems = 'center';
-      modal.style.justifyContent = 'center';
-
-      // 3. 尋找模板資料 (相容 cachedTemplates 與 allTemplatesCache 雙全域快取)
-      const list = (typeof cachedTemplates !== 'undefined' && cachedTemplates.length) 
-        ? cachedTemplates 
-        : ((typeof allTemplatesCache !== 'undefined') ? allTemplatesCache : []);
-
-      const tmpl = list.find(t => t.id === templateId) || (list.length > 0 ? list[0] : null);
-
-      if (tmpl) {
-        currentWysiwygTplObj = JSON.parse(JSON.stringify(tmpl));
-        currentWysiwygTplId = tmpl.id || templateId;
-        const gcsUrl = tmpl.currentUrl || tmpl.url || tmpl.gcsUrl || '';
-        currentWysiwygTplUrl = gcsUrl;
-
-        const nameInput = document.getElementById('wysiwygTplName');
-        if (nameInput) {
-          nameInput.value = (currentWysiwygTplObj.name || '').replace(/【|】|黃金範本|日森精工 - /g, '').trim();
-        }
-
-        if (typeof renderWysiwygPaperAndControls === 'function') {
-          renderWysiwygPaperAndControls();
-        }
-
-        if (gcsUrl) {
-          const lowerUrl = gcsUrl.toLowerCase();
-          const isDocx = lowerUrl.includes('.doc') || lowerUrl.includes('.xls') || lowerUrl.includes('.ppt');
-          const finalUrl = isDocx 
-            ? `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(gcsUrl)}`
-            : gcsUrl;
-          if (iframe) iframe.src = finalUrl;
-        }
-      }
-
-      if (typeof switchWysiwygMode === 'function') {
-        switchWysiwygMode('iframe');
-      }
+      document.getElementById('wysiwygTplName').value = (currentWysiwygTplObj.name || '').replace(/【|】|黃金範本|日森精工 - /g, '').trim();
+      renderWysiwygPaperAndControls();
+      openModal('wysiwygModal');
     }
 
     function renderWysiwygPaperAndControls() {
@@ -1739,186 +1557,42 @@
 
     // ── 📥 翼一：全域拖曳檔案輸入與極簡單一欄位 Modal ──
     let currentUploadedFileUrl = '';
-    let currentVisionResult = null;
 
-    // 🧠 拖曳檔案上傳實體 GCS 並調用 Gemini Vision 進行多模態開箱與欄位抽取
+    // 🧠 拖曳檔案上傳實體 GCS 並調用 AI 歷史模式叢集比對預判命名
     async function processIngestUpload(file) {
       if (!file) return;
-      return processBatchIngestUpload([file]);
-    }
 
-    window.isBatchIngesting = false;
-
-    function uploadFileWithProgress(file, onProgress) {
-      return new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        const formData = new FormData();
-        formData.append('file', file);
-
-        xhr.upload.onUploadProgress = (e) => {
-          if (e.lengthComputable) {
-            const percent = Math.round((e.loaded / e.total) * 100);
-            onProgress(percent);
-          }
-        };
-
-        xhr.onload = () => {
-          if (xhr.status >= 200 && xhr.status < 300) {
-            try {
-              resolve(JSON.parse(xhr.responseText));
-            } catch (err) {
-              reject(err);
-            }
-          } else {
-            reject(new Error('HTTP Error ' + xhr.status));
-          }
-        };
-        xhr.onerror = () => reject(new Error('Network Error'));
-        xhr.open('POST', '/api/storage/upload', true);
-        xhr.send(formData);
-      });
-    }
-
-    // 🧠 支援單檔與多檔拖曳選取 Gemini Vision 批次開箱池 (多檔佇列獨立 DOM 卡片列)
-    async function processBatchIngestUpload(files) {
-      if (!files || files.length === 0) return;
-      const fileList = Array.from(files);
-
-      window.isBatchIngesting = true;
-      const dropzone = document.getElementById('tab1-upload-dropzone');
-      const originalDropzoneHtml = dropzone ? dropzone.innerHTML : '';
-
-      let successCount = 0;
-      let failCount = 0;
-      let upgradedCount = 0;
-
-      // 1. 動態渲染 N 個獨立 DOM 進度卡片列 (絕不共享共用 UI 文字)
-      if (dropzone) {
-        let queueHtml = `
-          <div style="text-align: left; max-height: 300px; overflow-y: auto; padding: 4px;">
-            <div style="font-weight: 700; color: #38bdf8; margin-bottom: 10px; font-size: 0.92rem; display: flex; align-items: center; gap: 6px;">
-              ⚡ 正在進行 Gemini Vision 多檔獨立批次開箱 (共 ${fileList.length} 個檔案)
-            </div>
-        `;
-        fileList.forEach((file, idx) => {
-          queueHtml += `
-            <div id="batch-progress-row-${idx}" style="background: rgba(15, 23, 42, 0.85); border: 1px solid #334155; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; box-sizing: border-box;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                <span style="font-weight: 600; color: #f8fafc; font-size: 0.86rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60%;">📄 (${idx+1}/${fileList.length}) ${file.name}</span>
-                <span id="batch-status-text-${idx}" style="font-size: 0.78rem; color: #a5f3fc; font-family: monospace;">排隊等待中...</span>
-              </div>
-              <div style="background: #1e293b; height: 6px; border-radius: 3px; overflow: hidden; width: 100%;">
-                <div id="batch-status-bar-${idx}" style="background: linear-gradient(90deg, #0284c7, #38bdf8); width: 0%; height: 100%; transition: width 0.2s;"></div>
-              </div>
-            </div>
-          `;
-        });
-        queueHtml += `</div>`;
-        dropzone.innerHTML = queueHtml;
-      }
-
+      const formData = new FormData();
+      formData.append('file', file);
+      
       try {
-        for (let i = 0; i < fileList.length; i++) {
-          const file = fileList[i];
-          const fileRowBar = document.getElementById(`batch-status-bar-${i}`);
-          const fileRowText = document.getElementById(`batch-status-text-${i}`);
-          const fileStartTime = Date.now();
-
-          const updateSingleUI = (pct, statusStr) => {
-            if (fileRowBar) fileRowBar.style.width = `${pct}%`;
-            if (fileRowText) {
-              const fileElapsed = Math.floor((Date.now() - fileStartTime) / 1000);
-              const pad = (s) => String(Math.max(0, s)).padStart(2, '0');
-              fileRowText.innerText = `${statusStr} | 已耗時: ${pad(fileElapsed)}秒`;
-            }
-          };
-
-          updateSingleUI(0, '準備上傳...');
-
-          try {
-            // 階段一：0% ~ 40% 獨立檔案傳輸
-            const uploadData = await uploadFileWithProgress(file, (rawPercent) => {
-              const displayPct = Math.round(rawPercent * 0.4);
-              updateSingleUI(displayPct, `傳輸中 (${rawPercent}%)`);
-            });
-
-            const fileUrl = uploadData.url;
-            if (!fileUrl) {
-              failCount++;
-              updateSingleUI(0, '❌ 上傳失敗');
-              continue;
-            }
-
-            // 階段二：40% ~ 95% 獨立 Gemini Vision AI 開箱 (每檔獨立定時器)
-            let currentPct = 40;
-            updateSingleUI(40, 'Gemini Vision AI 開箱中');
-
-            let singleTimer = setInterval(() => {
-              if (currentPct < 95) {
-                currentPct += 1;
-              }
-              updateSingleUI(currentPct, 'Gemini Vision AI 開箱中');
-            }, 1000);
-
-            try {
-              // 呼叫 Gemini Vision / mammoth 實體多模態開箱
-              const visionRes = await fetch('/api/admin/ai-assets/extract-schema', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ fileName: file.name, fileUrl })
-              });
-              const visionData = await visionRes.json();
-
-              // 自動寫入 DB 存庫 (含同名 v2 自動覆蓋升級)
-              const saveRes = await fetch('/api/admin/ai-assets/create', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  name: visionData.suggestedName || file.name.replace(/\.[^/.]+$/, ''),
-                  category: visionData.fileType || '批次開箱',
-                  currentUrl: fileUrl,
-                  extractedFields: visionData.extractedFields || [],
-                  brainSummary: visionData.brainSummary || `來自多檔批次開箱（原檔名: ${file.name}）`
-                })
-              });
-              const saveData = await saveRes.json();
-
-              if (saveRes.ok && saveData.success) {
-                successCount++;
-                if (saveData.autoUpgraded || saveData.overwritten) {
-                  upgradedCount++;
-                }
-              } else {
-                failCount++;
-              }
-            } finally {
-              clearInterval(singleTimer);
-            }
-
-            // 階段三：100% 開箱完工並【立即發動實體卡片 DOM 繪製】
-            updateSingleUI(100, '✅ 融入大腦');
-            await loadAssets(true);
-          } catch (err) {
-            console.warn(`⚠️ [Batch Vision Ingest Fail]: ${file.name}`, err.message);
-            failCount++;
-            updateSingleUI(0, '❌ 解析失敗');
-          }
-        }
-      } finally {
-        if (dropzone) {
-          dropzone.innerHTML = originalDropzoneHtml;
-        }
-        window.isBatchIngesting = false;
+        const uploadRes = await fetch('/api/storage/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const uploadData = await uploadRes.json();
         
-        let msg = `✅ 批次 Vision 多模態開箱完成！\n成功融入大腦: ${successCount} 個檔案`;
-        if (upgradedCount > 0) {
-          msg += `\n（包含 ${upgradedCount} 個重複檔案已自動升級為 v2+ 覆蓋更新）`;
+        if (uploadData.url || (uploadData.success && uploadData.url)) {
+          currentUploadedFileUrl = uploadData.url;
+        } else {
+          alert(`⚠️ 上傳至雲端失敗: ${uploadData.error || '無法取得 GCS 實體網址'}`);
+          return;
         }
-        if (failCount > 0) {
-          msg += `\n失敗/跳過: ${failCount} 個檔案`;
-        }
-        alert(msg);
-        await loadAssets();
+
+        // 🧠 呼叫 AI 歷史模式叢集比對與動態預判命名 (徹底廢除「日森精工 - 」 Hardcode 贅字)
+        const autoNameRes = await fetch('/api/admin/ai-assets/auto-name', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fileName: file.name, fileUrl: currentUploadedFileUrl })
+        });
+        const autoNameData = await autoNameRes.json();
+
+        const aiParsedName = (autoNameData.success && autoNameData.predictedName) ? autoNameData.predictedName : file.name.replace(/\.[^/.]+$/, '');
+        document.getElementById('ingestFileName').value = aiParsedName;
+
+        openModal('ingestModal');
+      } catch (e) {
+        alert('⚠️ 上傳至雲端 Storage 失敗: ' + e.message);
       }
     }
 
@@ -1935,8 +1609,8 @@
 
       tab1FileInput.addEventListener('change', (e) => {
         e.stopPropagation();
-        if (e.target.files && e.target.files.length > 0) {
-          processBatchIngestUpload(e.target.files);
+        if (e.target.files && e.target.files[0]) {
+          processIngestUpload(e.target.files[0]);
           e.target.value = '';
         }
       });
@@ -1961,8 +1635,8 @@
 
       dropzone.addEventListener('drop', (e) => {
         const dt = e.dataTransfer;
-        if (dt && dt.files && dt.files.length > 0) {
-          processBatchIngestUpload(dt.files);
+        if (dt && dt.files && dt.files[0]) {
+          processIngestUpload(dt.files[0]);
         }
       }, false);
     }
@@ -1986,10 +1660,8 @@
         category: category,
         url: currentUploadedFileUrl,
         action: action || null,
-        brainSummary: currentVisionResult?.brainSummary || '',
-        extractedFields: currentVisionResult?.extractedFields || [],
         aiMetadata: {
-          type: currentVisionResult?.fileType || category,
+          type: category,
           company: '日森精工有限公司',
           status: '實戰數據'
         }
@@ -2046,13 +1718,11 @@
       renderTemplatesList(filtered);
     }
 
-    function renderSimulatorLists(rawData) {
+    function renderSimulatorLists(data) {
       const partnerFiles = document.getElementById('simPartnerFiles');
       const presidentFiles = document.getElementById('simPresidentFiles');
       
       if (!partnerFiles || !presidentFiles) return;
-
-      const data = (rawData || []).filter(item => item && !window.deletedAssetIds.has(item.id) && !window.deletedAssetIds.has(item.name));
 
       partnerFiles.innerHTML = '';
       presidentFiles.innerHTML = '';
@@ -2063,135 +1733,44 @@
         const row = document.createElement('div');
         row.style = 'background: #1e293b; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-size: 0.8rem;';
         row.innerHTML = `
-          <div style="font-weight:600; margin-bottom:4px; color:var(--text-light); text-align:left;">${item.name}</div>
-          <div style="color:var(--text-muted); text-align:left;">時間: ${new Date(item.timestamp).toLocaleDateString()} (v${item.version || 1})</div>
-          <button class="btn btn-outline" style="font-size:0.7rem; padding: 4px 8px; margin-top: 6px;" onclick="openOriginalPreview('${item.currentUrl || item.gcsUrl || item.url}')">👁️ 預覽</button>
+          <div style="font-weight:600; margin-bottom:4px; color:var(--text-light);">${item.name}</div>
+          <div style="color:var(--text-muted);">時間: ${new Date(item.timestamp).toLocaleDateString()} (v${item.version})</div>
+          <button class="btn btn-outline" style="font-size:0.7rem; padding: 4px 8px; margin-top: 6px;" onclick="openMobilePreview('${item.currentUrl}')">👁️ 預覽</button>
         `;
         partnerFiles.appendChild(row);
       });
 
-      // 總裁手機檔案列表 (支援搜尋框即時過濾、拔除贅字標籤、三按鈕與雙向抹除)
-      const searchQ = (document.getElementById('simPresidentSearchInput')?.value || '').toLowerCase().trim();
-      let filteredData = data;
-      if (searchQ) {
-        filteredData = data.filter(item => (item.name || '').toLowerCase().includes(searchQ));
-      }
-
-      filteredData.forEach(item => {
-        const fileUrl = item.currentUrl || item.gcsUrl || item.url || '#';
-        const categoryTag = item.category || (item.aiMetadata && item.aiMetadata.type) || '📂 一般資料';
-        const versionTag = item.version ? `v${item.version}` : 'v1';
-
+      // 總裁手機檔案列表
+      data.forEach(item => {
+        const badgeColor = (item.aiMetadata && item.aiMetadata.status === '實戰數據') ? 'var(--success)' : 'var(--accent)';
         const row = document.createElement('div');
-        row.className = 'mobile-file-item';
-        row.setAttribute('data-asset-id', item.id);
-        row.style = 'background: #1e293b; border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 8px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); font-size: 0.8rem; display: flex; flex-direction: column; gap: 6px; text-align: left;';
+        row.style = 'background: #1e293b; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-size: 0.8rem;';
         row.innerHTML = `
-          <div style="font-weight:700; color:var(--text-light); font-size: 0.88rem; text-align: left;">${item.name}</div>
-          <div style="display: flex; gap: 6px; align-items: center; justify-content: flex-start;">
-            <span style="font-size: 0.68rem; padding: 1px 6px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 10px; font-weight: 600;">${categoryTag}</span>
-            <span style="font-size: 0.68rem; padding: 1px 5px; background: #0284c7; color: white; border-radius: 8px; font-weight: 700;">${versionTag}</span>
-          </div>
-          <div style="display:flex; justify-content:flex-end; align-items:center; margin-top: 6px; gap: 6px;">
-            <button class="btn btn-outline" style="font-size:0.75rem; padding: 4px 8px; background: #0284c7; color: white; border: none; font-weight: bold;" onclick="openOriginalPreview('${fileUrl}', '${(item.name || '').replace(/'/g, "\\'")}')">👁️ 預覽</button>
-            <button class="btn" style="font-size:0.75rem; padding: 4px 8px; background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border: 1px solid #38bdf8; font-weight: bold; border-radius: 4px;" onclick="window.openAssetSchemaModal('${item.id}')">📊 數據卡</button>
-            <button class="btn btn-danger" style="font-size:0.75rem; padding: 4px 8px; border-radius: 4px;" onclick="window.deleteAssetWithConfirm('${item.id}', this)">🗑️ 物理刪除</button>
+          <div style="font-weight:600; margin-bottom:4px; color:var(--text-light);">${item.name}</div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top: 6px;">
+            <span style="font-size: 0.7rem; color: ${badgeColor}; font-weight:700;">● ${item.aiMetadata ? item.aiMetadata.status : '實戰數據'}</span>
+            <div style="display:flex; gap: 4px;">
+              <button class="btn btn-outline" style="font-size:0.7rem; padding: 3px 6px;" onclick="openOriginalPreview('${item.currentUrl}', '${item.name.replace(/'/g, "\\'")}')">預覽</button>
+              <button class="btn btn-danger" style="font-size:0.7rem; padding: 3px 6px;" onclick="deleteAsset('${item.id}')">物理刪除</button>
+            </div>
           </div>
         `;
         presidentFiles.appendChild(row);
       });
-
-      if (filteredData.length === 0) {
-        presidentFiles.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding: 16px; font-size:0.8rem;">查無匹配檔案</div>`;
-      }
     }
 
-    // 📸 手機端拍照/選擇實體圖片連動 Gemini Vision API 解析
-    window.handleMobilePhotoUpload = async function(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      try {
-        const formData = new FormData();
-        formData.append('file', file);
-        const uploadRes = await fetch('/api/storage/upload', {
-          method: 'POST',
-          body: formData
-        });
-        const uploadData = await uploadRes.json();
-        if (!uploadData.url) {
-          return alert('❌ 雲端 Storage 上傳失敗: ' + (uploadData.error || '未取得網址'));
-        }
-        const fileUrl = uploadData.url;
-
-        // 呼叫 Gemini Vision 實體開箱
-        const extractRes = await fetch('/api/admin/ai-assets/extract-schema', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            fileName: file.name,
-            fileUrl: fileUrl
-          })
-        });
-        const extractData = await extractRes.json();
-
-        // 寫入 ai_assets 集合
-        const saveRes = await fetch('/api/admin/ai-assets/create', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: extractData.suggestedName || file.name,
-            category: extractData.fileType || '拍照解析',
-            currentUrl: fileUrl,
-            extractedFields: extractData.extractedFields || [],
-            brainSummary: extractData.brainSummary || '來自手機端拍照 Vision 解析'
-          })
-        });
-        const saveData = await saveRes.json();
-        if (saveData.success) {
-          alert('✅ 拍照 Vision OCR 解析成功！已同步至 AI 行政大腦');
-          await loadAssets();
-        } else {
-          alert('❌ 寫入資料庫失敗: ' + (saveData.error || '未知錯誤'));
-        }
-      } catch (e) {
-        alert('❌ 拍照解析例外錯位: ' + e.message);
-      }
-    };
-
-    window.getSmartPreviewUrl = function(rawUrl, rawName) {
-      if (rawUrl && typeof rawUrl === 'string' && rawUrl.length > 5 && rawUrl !== 'undefined' && rawUrl !== 'null' && rawUrl !== '#') {
-        let url = rawUrl.trim();
-        if (/\.[a-zA-Z0-9]{2,5}(\?.*)?$/.test(url) || url.startsWith('/api/storage/preview/')) {
-          return url;
-        }
-      }
-      
-      if (rawName && /\.[a-zA-Z0-9]{2,5}$/.test(rawName.trim())) {
-        return `/api/storage/preview/${encodeURIComponent(rawName.trim())}`;
-      }
-
-      if (rawUrl && rawUrl !== '#' && rawUrl !== 'undefined') return rawUrl.trim();
-      if (rawName) return `/api/storage/preview/${encodeURIComponent(rawName.trim())}`;
-      return '#';
-    };
-
-    // 🚨 預覽按鈕防呆：全動態綁定，帶入 Office Viewer / PDF 代理分流鐵律
+    // 🚨 預覽按鈕防呆：全動態綁定，絕不允許拿空字串去拼儲存桶根目錄
     function openOriginalPreview(url, name) {
-      if (!url && !name) {
-        return console.error('⚠️ 系統提示：實體網址與檔名為空值，無法開啟預覽');
+      if (!url || url === 'undefined' || url === 'null' || url.trim() === '') {
+        alert('⚠️ 系統提示：該檔案在資料庫中的 currentUrl 欄位為空值，代表上傳時未成功寫入網址，請刪除該項目重新上傳！');
+        return;
       }
-      let targetUrl = window.getSmartPreviewUrl(url, name);
+      let targetUrl = url.trim();
       if (targetUrl.startsWith('/')) {
         targetUrl = window.location.origin + targetUrl;
       }
-      const lowerUrl = targetUrl.toLowerCase();
-      let finalUrl = targetUrl;
-      if (lowerUrl.includes('.docx') || lowerUrl.includes('.xlsx') || lowerUrl.includes('.doc') || lowerUrl.includes('.xls') || lowerUrl.includes('.pptx')) {
-        finalUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(targetUrl)}`;
-      }
-      console.log(`[動態實體網址分流 200 OK] 開啟網址: ${finalUrl}`);
-      window.open(finalUrl, '_blank');
+      console.log(`[動態實體網址直連] 開啟網址: ${targetUrl}`);
+      window.open(targetUrl, '_blank');
     }
 
     // ── ✏️ 分頁二：黃金範本編輯彈窗開關與保存 ──
@@ -2199,17 +1778,14 @@
 
     function openTemplateEditorModal(id) {
       currentEditingTemplateId = id;
-      const cache = (typeof cachedTemplates !== 'undefined' && Array.isArray(cachedTemplates) && cachedTemplates.length)
-        ? cachedTemplates
-        : ((typeof allTemplatesCache !== 'undefined' && Array.isArray(allTemplatesCache)) ? allTemplatesCache : []);
-      const tpl = cache.find(t => t.id === id);
+      const tpl = cachedTemplates.find(t => t.id === id);
       if (!tpl) {
         alert('⚠️ 找不到該範本紀錄');
         return;
       }
 
       document.getElementById('editTemplateModalName').value = tpl.name || '';
-      document.getElementById('editTemplateModalContent').value = tpl.description || tpl.content || `【${tpl.name}】黃金輸出格式，宣告變數共 ${(tpl.variables || []).length} 項。`;
+      document.getElementById('editTemplateModalContent').value = tpl.content || `【${tpl.name}】黃金輸出格式，宣告變數共 ${(tpl.variables || []).length} 項。`;
 
       const varsContainer = document.getElementById('editTemplateModalVarsContainer');
       varsContainer.innerHTML = '';
@@ -2237,15 +1813,11 @@
       openModal('editTemplateModal');
     }
 
-    window.openEditTemplateModal = openTemplateEditorModal;
-    window.openTemplateEditorModal = openTemplateEditorModal;
-
     async function saveTemplateModalFromModal() {
       if (!currentEditingTemplateId) return;
 
       const name = document.getElementById('editTemplateModalName').value.trim();
       const content = document.getElementById('editTemplateModalContent').value.trim();
-      const description = content;
       const keys = document.getElementsByClassName('modal-tpl-key');
       const labels = document.getElementsByClassName('modal-tpl-label');
       const defaults = document.getElementsByClassName('modal-tpl-default');
@@ -2272,14 +1844,13 @@
             'X-User-Id': currentUser.empId || '',
             'X-User-Role': encodeURIComponent(currentUser.role || '')
           },
-          body: JSON.stringify({ name, description, content, variables })
+          body: JSON.stringify({ name, content, variables })
         });
         const data = await res.json();
         if (data.success) {
           alert(`✅ 黃金範本【${data.doc.name}】覆寫成功！版本已自動遞增為 v${data.doc.version}`);
           closeModal('editTemplateModal');
-          if (typeof loadTemplates === 'function') await loadTemplates();
-          else location.reload();
+          await loadTemplates();
         } else {
           alert(`⚠️ 保存失敗: ${data.error || '未授權'}`);
         }
@@ -2306,58 +1877,33 @@
       mobilePreviewUrl = '';
     }
 
-    // 物理毀滅級徹底刪除 (Async Queue UI & Cascade Eraser 雙向清創)
+    // 物理毀滅級徹底刪除 (帶上身份校驗標頭)
     async function deleteAsset(id) {
-      if (!confirm('⚠️ 警告：特權物理毀滅級刪除！將連同 Firestore 三大集合與 GCS 實體檔案一併連根拔起，確定執行嗎？')) {
-        return;
-      }
-
-      try {
-        // 1. 介面無阻塞渲染：DOM 元素瞬間先行隱藏/移除，絕不死白不延遲
-        const targetRows = document.querySelectorAll(`[data-asset-id="${id}"]`);
-        targetRows.forEach(el => el.remove());
-
-        // 2. 發送 API 執行連帶物理清創
-        const res = await fetch(`/api/admin/ai-assets/${id}`, {
-          method: 'DELETE',
-          headers: {
-            'X-User-Id': (typeof currentUser !== 'undefined' && currentUser.empId) || 'admin',
-            'X-User-Role': encodeURIComponent((typeof currentUser !== 'undefined' && currentUser.role) || 'admin')
+      if (confirm('⚠️ 警告：特權物理毀滅級刪除！此操作將連同 Firestore 容器與 Storage 儲存桶內的實體檔案一併連根拔起且無法還原！確定要執行嗎？')) {
+        try {
+          const res = await fetch(`/api/admin/ai-assets/${id}`, {
+            method: 'DELETE',
+            headers: {
+              'X-User-Id': currentUser.empId || '',
+              'X-User-Role': encodeURIComponent(currentUser.role || '')
+            }
+          });
+          const data = await res.json();
+          if (data.success) {
+            alert('🔥 檔案與紀錄已完全從資料庫與雲端桶中物理抹除！');
+            loadAssets();
+          } else {
+            alert(`⚠️ 刪除失敗: ${data.error || '未授權'}`);
           }
-        });
-
-        const data = await res.json();
-
-        if (data.success) {
-          // 3. 強制清空全域前端快取與重新撈取最新 SSOT
-          if (typeof cachedAssets !== 'undefined') {
-            cachedAssets = cachedAssets.filter(item => item.id !== id);
-          }
-          
-          // 刷更新頁面列表
-          if (typeof loadAssets === 'function') await loadAssets();
-          if (typeof loadTemplates === 'function') await loadTemplates();
-          
-          alert('🔥 檔案與紀錄已完全從三大資料庫集合與雲端 Storage 物理抹除，無殘影！');
-        } else {
-          alert(`⚠️ 刪除失敗: ${data.error || '權限不足'}`);
-          if (typeof loadAssets === 'function') await loadAssets(); // 失敗時重新刷出 DOM
+        } catch (e) {
+          alert('⚠️ 物理刪除失敗');
         }
-      } catch (e) {
-        alert('⚠️ 物理刪除過程發生例外，請重試: ' + e.message);
-        if (typeof loadAssets === 'function') await loadAssets();
       }
     }
-    window.deleteAsset = deleteAsset;
 
-    // Modal 輔助 (z-index 999999 頂層鎖定與肉眼 100% 可見)
+    // Modal 輔助
     function openModal(id) {
-      const el = document.getElementById(id);
-      if (el) {
-        el.style.display = 'flex';
-        el.style.zIndex = '999999';
-        el.style.position = 'fixed';
-      }
+      document.getElementById(id).style.display = 'flex';
     }
     function closeModal(id) {
       document.getElementById(id).style.display = 'none';
@@ -2366,133 +1912,6 @@
       }
     }
 
-    let currentModalAssetId = null;
-
-    window.openAssetSchemaModal = function(assetId) {
-      currentModalAssetId = assetId;
-      const asset = cachedAssets.find(a => a.id === assetId);
-      if (!asset) return alert('⚠️ 找不到該檔案紀錄');
-
-      document.getElementById('modalAssetNameSub').innerText = asset.name || '未命名文檔';
-      document.getElementById('modalAssetVersionTag').innerText = asset.version ? `v${asset.version}` : 'v1';
-
-      const summaryDiv = document.getElementById('modalBrainSummaryContent');
-      summaryDiv.innerText = asset.brainSummary || '已自內文萃取完成，尚無大腦特別摘要。';
-
-      renderModalAssetSchema(asset);
-      openModal('assetSchemaModal');
-    };
-
-    function renderModalAssetSchema(asset) {
-      const container = document.getElementById('modalSchemaRowsContainer');
-      if (!container) return;
-      container.innerHTML = '';
-
-      let fieldsList = [];
-      if (Array.isArray(asset.extractedFields)) {
-        fieldsList = asset.extractedFields.filter(f => f && f.key && f.key !== '檔案名稱' && f.key !== '入庫時間' && f.key !== '上傳時間');
-      } else if (asset.extractedFields && typeof asset.extractedFields === 'object') {
-        fieldsList = Object.keys(asset.extractedFields)
-          .filter(k => k !== '檔案名稱' && k !== '入庫時間' && k !== '上傳時間')
-          .map(k => ({
-            key: k,
-            value: typeof asset.extractedFields[k] === 'object' ? asset.extractedFields[k].value : asset.extractedFields[k],
-            confidence: (typeof asset.extractedFields[k] === 'object' && asset.extractedFields[k].confidence) ? asset.extractedFields[k].confidence : 'HIGH'
-          }));
-      }
-
-      if (fieldsList.length === 0) {
-        container.innerHTML = `<div style="color: #94a3b8; font-size: 0.85rem; padding: 20px; grid-column: 1 / -1; font-style: italic; background: rgba(15, 23, 42, 0.5); border-radius: 8px; text-align: center;">未從文檔【內文與畫面】自動擷取到明確業務欄位，點擊右上角【➕ 新增欄位】即可手動標定。</div>`;
-        return;
-      }
-
-      fieldsList.forEach(f => {
-        const k = f.key || '';
-        const v = f.value !== undefined && f.value !== null ? f.value : '';
-        const conf = (f.confidence || 'HIGH').toUpperCase();
-        let badgeHtml = '<span style="font-size:0.72rem; background:#166534; color:#4ade80; padding:2px 8px; border-radius:4px; font-weight:bold; border: 1px solid rgba(74,222,128,0.3);">✅ 高信心</span>';
-        if (conf === 'MEDIUM') badgeHtml = '<span style="font-size:0.72rem; background:#854d0e; color:#fde047; padding:2px 8px; border-radius:4px; font-weight:bold; border: 1px solid rgba(253,224,71,0.3);">⚠️ 待覆核</span>';
-        if (conf === 'LOW') badgeHtml = '<span style="font-size:0.72rem; background:#991b1b; color:#fca5a5; padding:2px 8px; border-radius:4px; font-weight:bold; border: 1px solid rgba(252,165,165,0.3);">🚨 低信心</span>';
-
-        const itemDiv = document.createElement('div');
-        itemDiv.className = 'schema-kv-row';
-        itemDiv.style = 'display: flex; gap: 8px; align-items: center; background: rgba(15, 23, 42, 0.85); padding: 10px 12px; border-radius: 8px; border: 1px solid #334155; box-sizing: border-box; width: 100%;';
-        itemDiv.innerHTML = `
-          <input type="text" class="kv-key" value="${k}" placeholder="欄位名稱" style="width: 110px; min-width: 90px; flex-shrink: 0; padding: 6px 8px; background: #0f172a; border: 1px solid #475569; border-radius: 4px; color: #38bdf8; font-size: 0.82rem; font-weight: 600; box-sizing: border-box;">
-          <span style="color: #64748b; font-size: 0.85rem; flex-shrink: 0;">:</span>
-          <input type="text" class="kv-val" value="${v}" placeholder="欄位值" style="flex: 1; min-width: 110px; padding: 6px 8px; background: #0f172a; border: 1px solid #475569; border-radius: 4px; color: white; font-size: 0.82rem; box-sizing: border-box;">
-          <div style="flex-shrink: 0; margin-left: auto; display: flex; align-items: center; gap: 6px;">
-            ${badgeHtml}
-            <button onclick="this.closest('.schema-kv-row').remove()" style="background: transparent; border: none; color: #ef4444; font-size: 1.1rem; cursor: pointer; padding: 0 4px;" title="刪除欄位">✕</button>
-          </div>
-        `;
-        container.appendChild(itemDiv);
-      });
-    }
-
-    window.addSchemaRowFromModal = function(defaultKey = '', defaultVal = '') {
-      const container = document.getElementById('modalSchemaRowsContainer');
-      if (!container) return;
-      const emptyHint = container.querySelector('div[style*="font-style: italic"]');
-      if (emptyHint) emptyHint.remove();
-
-      const itemDiv = document.createElement('div');
-      itemDiv.className = 'schema-kv-row';
-      itemDiv.style = 'display: flex; gap: 8px; align-items: center; background: rgba(15, 23, 42, 0.85); padding: 10px 12px; border-radius: 8px; border: 1px solid #334155; box-sizing: border-box; width: 100%;';
-      itemDiv.innerHTML = `
-        <input type="text" class="kv-key" value="${defaultKey}" placeholder="欄位名稱" style="width: 110px; min-width: 90px; flex-shrink: 0; padding: 6px 8px; background: #0f172a; border: 1px solid #475569; border-radius: 4px; color: #38bdf8; font-size: 0.82rem; font-weight: 600; box-sizing: border-box;">
-        <span style="color: #64748b; font-size: 0.85rem; flex-shrink: 0;">:</span>
-        <input type="text" class="kv-val" value="${defaultVal}" placeholder="欄位值" style="flex: 1; min-width: 110px; padding: 6px 8px; background: #0f172a; border: 1px solid #475569; border-radius: 4px; color: white; font-size: 0.82rem; box-sizing: border-box;">
-        <div style="flex-shrink: 0; margin-left: auto; display: flex; align-items: center; gap: 6px;">
-          <span style="font-size:0.72rem; background:#166534; color:#4ade80; padding:2px 8px; border-radius:4px; font-weight:bold; border: 1px solid rgba(74,222,128,0.3);">✅ 自訂欄位</span>
-          <button onclick="this.closest('.schema-kv-row').remove()" style="background: transparent; border: none; color: #ef4444; font-size: 1.1rem; cursor: pointer; padding: 0 4px;" title="刪除欄位">✕</button>
-        </div>
-      `;
-      container.appendChild(itemDiv);
-    };
-
-    window.saveAssetSchemaFromModal = async function() {
-      if (!currentModalAssetId) return;
-      const container = document.getElementById('modalSchemaRowsContainer');
-      if (!container) return;
-      const rows = container.querySelectorAll('.schema-kv-row');
-      const extractedFields = [];
-      rows.forEach(row => {
-        const key = row.querySelector('.kv-key')?.value.trim();
-        const val = row.querySelector('.kv-val')?.value.trim();
-        if (key) {
-          extractedFields.push({ key, value: val || '', confidence: 'HIGH' });
-        }
-      });
-
-      try {
-        const res = await fetch(`/api/admin/ai-assets/update-fields/${currentModalAssetId}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ extractedFields })
-        });
-        const data = await res.json();
-        if (res.ok && data.success) {
-          alert('✅ 數據結構儲存成功！已同步至 AI 行政大腦知識庫');
-          closeModal('assetSchemaModal');
-          if (typeof loadAssets === 'function') await loadAssets();
-          else location.reload();
-        } else {
-          alert('❌ 儲存失敗: ' + (data.error || '未知錯誤'));
-        }
-      } catch (e) {
-        alert('❌ 儲存網路例外');
-      }
-    };
-
-    window.deleteAssetWithConfirm = async function(id, btnEl) {
-      if (btnEl) {
-        const itemRow = btnEl.closest('.file-stream-item') || btnEl.closest('.mobile-file-item');
-        if (itemRow) itemRow.remove();
-      }
-      return await deleteAsset(id);
-    };
-
     // 初始化自動載入
     async function init() {
       await loadCoreConstitution();
@@ -2500,208 +1919,9 @@
       await loadTemplates();
       initTab1UploadListeners();
       initTemplateUploadListeners();
-
-      // 🔄 跨端 2 秒極速無縫動態輪詢 (競態鎖定防護，網頁端 ✕ 手機端 雙向即時刷新與刷除)
-      setInterval(async () => {
-        if (!document.hidden && !window.isBatchIngesting) {
-          await loadAssets(true);
-        }
-      }, 2000);
     }
     
-    // 🧠 【辨識輸入端】AI 數據結構卡 Key-Value 動態欄位與存庫
-    window.addSchemaRow = function(assetId, defaultKey = '', defaultVal = '') {
-      const container = document.getElementById(`schemaRows-${assetId}`);
-      if (!container) return;
-      const itemDiv = document.createElement('div');
-      itemDiv.className = 'schema-kv-row';
-      itemDiv.style = 'display: flex; gap: 6px; align-items: center; background: rgba(15, 23, 42, 0.7); padding: 4px 8px; border-radius: 6px; border: 1px solid #334155;';
-      itemDiv.innerHTML = `
-        <input type="text" class="kv-key" value="${defaultKey}" placeholder="欄位名稱" style="width: 85px; padding: 4px 6px; background: #0f172a; border: 1px solid #475569; border-radius: 4px; color: #38bdf8; font-size: 0.78rem; font-weight: 600;">
-        <span style="color: #64748b; font-size: 0.8rem;">:</span>
-        <input type="text" class="kv-val" value="${defaultVal}" placeholder="欄位值" style="flex: 1; padding: 4px 6px; background: #0f172a; border: 1px solid #475569; border-radius: 4px; color: white; font-size: 0.78rem;">
-        <button onclick="this.parentElement.remove()" style="background: transparent; border: none; color: #ef4444; font-size: 0.85rem; cursor: pointer; padding: 0 4px;" title="刪除欄位">✕</button>
-      `;
-      container.appendChild(itemDiv);
-    };
-
-    window.saveAssetSchema = async function(assetId) {
-      const container = document.getElementById(`schemaRows-${assetId}`);
-      if (!container) return;
-      const rows = container.querySelectorAll('.schema-kv-row');
-      const extractedFields = {};
-      rows.forEach(row => {
-        const key = row.querySelector('.kv-key')?.value.trim();
-        const val = row.querySelector('.kv-val')?.value.trim();
-        if (key) {
-          extractedFields[key] = val || '';
-        }
-      });
-
-      try {
-        const res = await fetch(`/api/admin/ai-assets/update-fields/${assetId}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ extractedFields })
-        });
-        const data = await res.json();
-        if (res.ok && data.success) {
-          alert('✅ 數據結構儲存成功！已同步至 AI 行政大腦知識庫');
-        } else {
-          alert('❌ 儲存失敗: ' + (data.error || '未知錯誤'));
-        }
-      } catch (e) {
-        alert('❌ 儲存網路例外');
-      }
-    };
-
-    // 🎯 【格式輸出端】視覺化 Slot 劃詞標定控制台腳本
-    let currentSlotTplId = null;
-    let currentSlotVariables = [];
-
-    window.openVisualSlotModal = function(tplId) {
-      currentSlotTplId = tplId;
-      const cache = (typeof cachedTemplates !== 'undefined' && Array.isArray(cachedTemplates) && cachedTemplates.length)
-        ? cachedTemplates
-        : ((typeof allTemplatesCache !== 'undefined' && Array.isArray(allTemplatesCache)) ? allTemplatesCache : []);
-      const tpl = cache.find(t => t.id === tplId);
-      if (!tpl) return alert('⚠️ 找不到該範本紀錄');
-
-      const previewDiv = document.getElementById('slotDocPreviewText');
-      const sampleContent = tpl.content || `【${tpl.name}】黃金格式範本\n客戶抬頭：晶廷機械股份有限公司\n統一編號：65026883\n總金額：128,500 元\n專案負責人：邱冠英\n電話：0937-581-112\n地址：新竹市東區光復路二段100號\n備註說明：請協助開立三聯式發票並於月底前完成對帳核銷。`;
-      if (previewDiv) previewDiv.innerText = sampleContent;
-
-      currentSlotVariables = Array.isArray(tpl.variables) && tpl.variables.length > 0
-        ? JSON.parse(JSON.stringify(tpl.variables))
-        : [
-            { key: 'customerName', label: '客戶名稱/抬頭', standardField: '抬頭', dataType: 'text', defaultValue: '晶廷機械股份有限公司' },
-            { key: 'taxId', label: '統一編號', standardField: '統一編號', dataType: 'text', defaultValue: '65026883' },
-            { key: 'totalAmount', label: '總金額', standardField: '總金額', dataType: 'currency', defaultValue: '128500' },
-            { key: 'contactPhone', label: '聯絡電話', standardField: '電話', dataType: 'text', defaultValue: '0937-581-112' }
-          ];
-
-      renderSlotVariablesPanel();
-      openModal('visualSlotModal');
-    };
-
-    function renderSlotVariablesPanel() {
-      const container = document.getElementById('slotVariablesContainer');
-      if (!container) return;
-      container.innerHTML = '';
-
-      const standardFields = ['請選擇連動標準欄位', '客戶名稱', '抬頭', '統一編號', '總金額', '電話', '地址', '日期', '公司名稱', 'Email', '職稱', '負責人', '明細', '備註'];
-      const dataTypes = [
-        { value: 'text', label: '純文字' },
-        { value: 'currency', label: '金額/數字 (自動千分位)' },
-        { value: 'date', label: '日期 (YYYY/MM/DD)' },
-        { value: 'textarea', label: '多行文字' }
-      ];
-
-      currentSlotVariables.forEach((v, idx) => {
-        const card = document.createElement('div');
-        card.style = 'background: #0f172a; padding: 14px; border-radius: 8px; border: 1px solid rgba(56,189,248,0.25); display: flex; flex-direction: column; gap: 10px;';
-        
-        card.innerHTML = `
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-size: 0.85rem; font-weight: 700; color: #38bdf8;">Slot #${idx + 1}: ${v.label || v.key}</span>
-            <button onclick="removeSlotVariable(${idx})" style="background: transparent; border: none; color: #ef4444; font-size: 0.85rem; cursor: pointer;" title="刪除 Slot">✕ 移除</button>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-            <div>
-              <label style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 4px;">連動輸入端標準欄位</label>
-              <select onchange="updateSlotProp(${idx}, 'standardField', this.value)" style="width: 100%; padding: 6px; background: #1e293b; border: 1px solid #334155; border-radius: 4px; color: white; font-size: 0.8rem;">
-                ${standardFields.map(sf => `<option value="${sf}" ${v.standardField === sf ? 'selected' : ''}>${sf}</option>`).join('')}
-              </select>
-            </div>
-
-            <div>
-              <label style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 4px;">資料型態設定</label>
-              <select onchange="updateSlotProp(${idx}, 'dataType', this.value)" style="width: 100%; padding: 6px; background: #1e293b; border: 1px solid #334155; border-radius: 4px; color: white; font-size: 0.8rem;">
-                ${dataTypes.map(dt => `<option value="${dt.value}" ${v.dataType === dt.value ? 'selected' : ''}>[${dt.label}]</option>`).join('')}
-              </select>
-            </div>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-            <div>
-              <label style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 4px;">欄位標籤 / 自訂名稱</label>
-              <input type="text" value="${v.label || ''}" onchange="updateSlotProp(${idx}, 'label', this.value)" style="width: 100%; padding: 6px; background: #1e293b; border: 1px solid #334155; border-radius: 4px; color: white; font-size: 0.8rem;" placeholder="如：客戶名稱">
-            </div>
-            <div>
-              <label style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 4px;">劃詞選取預設值</label>
-              <input type="text" value="${v.defaultValue || ''}" onchange="updateSlotProp(${idx}, 'defaultValue', this.value)" style="width: 100%; padding: 6px; background: #1e293b; border: 1px solid #334155; border-radius: 4px; color: #38bdf8; font-size: 0.8rem;" placeholder="劃詞劃定文字">
-            </div>
-          </div>
-        `;
-        container.appendChild(card);
-      });
-    }
-
-    window.handleSlotTextSelection = function() {
-      const sel = window.getSelection();
-      const selectedText = sel ? sel.toString().trim() : '';
-      if (!selectedText) return;
-
-      if (confirm(`🎯 偵測到您劃詞選取文字【${selectedText}】\n是否立即將此文字新增為 Slot 動態填空位？`)) {
-        currentSlotVariables.push({
-          key: 'slot_' + Date.now().toString().slice(-4),
-          label: selectedText,
-          standardField: '請選擇連動標準欄位',
-          dataType: 'text',
-          defaultValue: selectedText
-        });
-        renderSlotVariablesPanel();
-      }
-    };
-
-    window.updateSlotProp = function(idx, prop, value) {
-      if (currentSlotVariables[idx]) {
-        currentSlotVariables[idx][prop] = value;
-        if (prop === 'standardField' && value !== '請選擇連動標準欄位' && !currentSlotVariables[idx].label) {
-          currentSlotVariables[idx].label = value;
-        }
-      }
-    };
-
-    window.addEmptySlotVariable = function() {
-      currentSlotVariables.push({
-        key: 'slot_' + Date.now().toString().slice(-4),
-        label: '新 Slot 欄位',
-        standardField: '請選擇連動標準欄位',
-        dataType: 'text',
-        defaultValue: ''
-      });
-      renderSlotVariablesPanel();
-    };
-
-    window.removeSlotVariable = function(idx) {
-      currentSlotVariables.splice(idx, 1);
-      renderSlotVariablesPanel();
-    };
-
-    window.saveVisualSlotConfig = async function() {
-      if (!currentSlotTplId) return;
-      try {
-        const res = await fetch(`/api/admin/templates/${currentSlotTplId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ variables: currentSlotVariables })
-        });
-        const data = await res.json();
-        if (res.ok && data.success) {
-          alert(`✅ 【格式輸出端】Slot 變數動態標定成功！共標定 ${currentSlotVariables.length} 個填空 Slot`);
-          closeModal('visualSlotModal');
-          if (typeof loadTemplates === 'function') await loadTemplates();
-          else location.reload();
-        } else {
-          alert('❌ 標定失敗: ' + (data.error || '未知錯誤'));
-        }
-      } catch (e) {
-        alert('❌ 儲存網路例外');
-      }
-    };
-
     init();
-  </script></body>
+  </script>
+</body>
 </html>
