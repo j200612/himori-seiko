@@ -1633,6 +1633,38 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
             parsedResult.suggestedName = parsedResult.suggestedName.replace(/^([【\[].*?[】\]])\s*/, '').trim();
         }
 
+        // 🚨 剛性覆蓋資料庫：當成功拿到 Gemini 辨識結果後，立即更新 Firestore 資料庫，將「待補充真實內文」徹底抹除
+        if (parsedResult && parsedResult.brainSummary && !parsedResult.brainSummary.includes('待補充真實內文')) {
+            (async () => {
+                try {
+                    const updateObj = {
+                        brainSummary: parsedResult.brainSummary,
+                        extractedFields: parsedResult.extractedFields || [],
+                        category: parsedResult.fileType || undefined
+                    };
+                    Object.keys(updateObj).forEach(k => updateObj[k] === undefined && delete updateObj[k]);
+
+                    const cols = ['ai_assets', 'document_assets', 'document_templates'];
+                    
+                    if (assetId) {
+                        await Promise.all(cols.map(c => firestore.collection(c).doc(assetId).update(updateObj).catch(() => {})));
+                    }
+
+                    if (fileName || rawName) {
+                        const searchName = fileName || rawName;
+                        for (const col of cols) {
+                            const snap = await firestore.collection(col).where('name', '==', searchName).get().catch(() => null);
+                            if (snap && !snap.empty) {
+                                await Promise.all(snap.docs.map(d => d.ref.update(updateObj).catch(() => {})));
+                            }
+                        }
+                    }
+                } catch (dbErr) {
+                    console.warn('⚠️ [Extract-Schema DB Overwrite Warning]:', dbErr.message);
+                }
+            })();
+        }
+
         // 🚨 實彈驗收標誌 Console Log (剛性需求)
         console.log('[Real Vision Content Parsing]:', JSON.stringify(parsedResult, null, 2));
 
@@ -1646,23 +1678,24 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
     }
 });
 
-// 💾 結構化 Key-Value 更新接口 (即時寫入 document_assets & ai_assets)
+// 💾 結構化 Key-Value 更新接口 (即時寫入 document_assets, ai_assets & document_templates)
 app.post('/api/admin/ai-assets/update-fields/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { extractedFields } = req.body;
+        const { extractedFields, brainSummary } = req.body;
 
-        const ref1 = firestore.collection('document_assets').doc(id);
-        const snap1 = await ref1.get();
-        if (snap1.exists) {
-            await ref1.update({ extractedFields, timestamp: new Date().toISOString() });
-        }
+        const updateData = { timestamp: new Date().toISOString() };
+        if (extractedFields !== undefined) updateData.extractedFields = extractedFields;
+        if (brainSummary !== undefined && !brainSummary.includes('待補充真實內文')) updateData.brainSummary = brainSummary;
 
-        const ref2 = firestore.collection('ai_assets').doc(id);
-        const snap2 = await ref2.get();
-        if (snap2.exists) {
-            await ref2.update({ extractedFields, timestamp: new Date().toISOString() });
-        }
+        const cols = ['document_assets', 'ai_assets', 'document_templates'];
+        await Promise.all(cols.map(async c => {
+            const ref = firestore.collection(c).doc(id);
+            const snap = await ref.get().catch(() => null);
+            if (snap && snap.exists) {
+                await ref.update(updateData).catch(() => {});
+            }
+        }));
 
         res.json({ success: true, message: 'Fields updated successfully' });
     } catch (e) {

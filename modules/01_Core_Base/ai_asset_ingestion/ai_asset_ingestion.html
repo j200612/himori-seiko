@@ -2377,24 +2377,34 @@
       document.getElementById('modalAssetVersionTag').innerText = asset.version ? `v${asset.version}` : 'v1';
 
       const summaryDiv = document.getElementById('modalBrainSummaryContent');
-      summaryDiv.innerText = asset.brainSummary || '已自內文萃取完成，尚無大腦特別摘要。';
 
-      renderModalAssetSchema(asset);
-      openModal('assetSchemaModal');
+      // 🚨 剛性判定：如果 brainSummary 包含「待補充真實內文」或 extractedFields 為空陣列，一律判定為未辨識！
+      const isNotIdentified = !asset.extractedFields || 
+                             asset.extractedFields.length === 0 || 
+                             (asset.brainSummary && asset.brainSummary.includes('待補充真實內文'));
 
-      // 🚨 剛性需求：若當前資產尚未有 extractedFields 欄位，即刻發起 extract-schema 精準辨識並驅動 DOM 實體顯影刷新
-      if (!asset.extractedFields || asset.extractedFields.length === 0) {
+      if (isNotIdentified) {
+        summaryDiv.innerText = '⚡ Vision AI 正在精準辨識解析內文實體欄位中，請稍候...';
         const container = document.getElementById('modalSchemaRowsContainer');
         if (container) {
           container.innerHTML = `<div style="color: #38bdf8; font-size: 0.85rem; padding: 20px; grid-column: 1 / -1; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; text-align: center;">⚡ Vision AI 正在自【畫面與內文】精準辨識業務實體欄位中，請稍候...</div>`;
         }
+      } else {
+        summaryDiv.innerText = asset.brainSummary || '已自內文萃取完成，尚無大腦特別摘要。';
+        renderModalAssetSchema(asset);
+      }
 
+      openModal('assetSchemaModal');
+
+      // 🚨 剛性需求：若屬未辨識或含舊預設廢話字串，強制發起 extract-schema 絕不顯示舊預設字串
+      if (isNotIdentified) {
         try {
           const rawUrl = asset.previewUrl || asset.currentUrl || asset.url || asset.gcsUrl;
           const res = await fetch('/api/admin/ai-assets/extract-schema', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
+              assetId: asset.id,
               fileName: asset.name,
               fileUrl: rawUrl
             })
@@ -2419,6 +2429,10 @@
                 body: JSON.stringify({ extractedFields: data.extractedFields, brainSummary: data.brainSummary })
               }).catch(() => {});
             } else {
+              if (data.brainSummary && !data.brainSummary.includes('待補充真實內文')) {
+                asset.brainSummary = data.brainSummary;
+                summaryDiv.innerText = data.brainSummary;
+              }
               renderModalAssetSchema(asset);
             }
           } else {
