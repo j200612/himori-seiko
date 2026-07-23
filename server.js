@@ -1426,7 +1426,8 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
             const isDocx = checkStr.endsWith('.docx') || checkStr.endsWith('.doc');
             try {
                 let fileBuffer = null;
-                let mimeType = getMimeType(fileName || fileUrl) || 'image/jpeg';
+                // 無副檔名 (如 晶廷_96218_邱冠英) 預設強制帶入 image/jpeg
+                let mimeType = getMimeType(fileName || fileUrl);
                 if (!mimeType || mimeType === 'application/octet-stream') mimeType = 'image/jpeg';
 
                 const safeDecode = (str) => {
@@ -1534,7 +1535,10 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
                     }
                 }
 
-                // 4. 轉為 Base64 餵給 Gemini Vision AI
+                // 4. 無論如何保障 MimeType 非空 (名片等無副檔名檔名保底 image/jpeg)
+                if (!mimeType || mimeType === 'application/octet-stream') mimeType = 'image/jpeg';
+
+                // 5. 轉為 Base64 餵給 Gemini Vision AI
                 if (fileBuffer && !isDocx) {
                     visionContents.push({
                         inlineData: {
@@ -1587,9 +1591,10 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
         visionContents.push(promptText);
 
         let parsedResult = null;
+        let lastError = null;
 
         if (apiKey) {
-            const candidateModels = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-3.0-flash", "gemini-3.5-flash", "gemini-1.5-flash-latest", "gemini-1.5-flash"];
+            const candidateModels = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-3.0-flash", "gemini-3.5-flash"];
             for (const modelName of candidateModels) {
                 try {
                     const genAI = new GoogleGenerativeAI(apiKey);
@@ -1612,7 +1617,16 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
                         break;
                     }
                 } catch (geminiErr) {
+                    lastError = geminiErr.message;
                     console.warn(`⚠️ [Gemini Vision Call (${modelName}) Warning]:`, geminiErr.message);
+                    if (geminiErr.message && geminiErr.message.includes('Quota exceeded')) {
+                        console.error(`🚨 [Gemini Quota Exceeded 429]:`, geminiErr.message);
+                        return res.status(429).json({
+                            success: false,
+                            error: 'Gemini API 配額已滿 (429 Quota Exceeded)，請稍後再試或檢查 API Key 配額。',
+                            stack: geminiErr.stack
+                        });
+                    }
                 }
             }
         }

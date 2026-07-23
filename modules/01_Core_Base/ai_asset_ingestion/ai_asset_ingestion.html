@@ -2377,12 +2377,12 @@
       const container = document.getElementById('modalSchemaRowsContainer');
       const summaryDiv = document.getElementById('modalBrainSummaryContent');
 
-      // 1. 100% 清空畫面 DOM
-      if (container) container.innerHTML = '';
-      summaryDiv.innerText = '⚡ [強制 Vision 重新開箱中] 正在向 gemini-2.5-flash 發起即時多模態 OCR 解析，請稍候...';
-
+      // 1. 100% 清空畫面 DOM 並顯示 Loading 提示
       if (container) {
-        container.innerHTML = `<div id="schemaLoadingHint" style="color: #38bdf8; font-size: 0.85rem; padding: 20px; grid-column: 1 / -1; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; text-align: center;">⚡ [強制 Vision 重新開箱中] 正在向 gemini-2.5-flash 自【畫面與實體內文】進行極致數據抽取...</div>`;
+        container.innerHTML = `<div id="schemaLoadingHint" style="color: #38bdf8; font-size: 0.85rem; padding: 20px; grid-column: 1 / -1; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; text-align: center;">⚡ [強制 Vision 重新開箱中] 正在向 gemini-2.5-flash 自【畫面與實體內文】進行極致數據抽取，請稍候...</div>`;
+      }
+      if (summaryDiv) {
+        summaryDiv.innerText = '⚡ [強制 Vision 重新開箱中] 正在向 gemini-2.5-flash 發起即時多模態 OCR 解析，請稍候...';
       }
 
       try {
@@ -2401,7 +2401,7 @@
         if (data && data.success) {
           asset.extractedFields = data.extractedFields || [];
           asset.brainSummary = data.brainSummary || '';
-          summaryDiv.innerText = asset.brainSummary || '已成功完成 gemini-2.5-flash Vision 多模態數據開箱。';
+          if (summaryDiv) summaryDiv.innerText = asset.brainSummary || '已成功完成 gemini-2.5-flash Vision 多模態數據開箱。';
 
           // 🚨 立刻呼叫 DOM 重繪，將欄位繪製至螢幕上
           renderModalAssetSchema(asset);
@@ -2413,10 +2413,10 @@
             body: JSON.stringify({ extractedFields: data.extractedFields, brainSummary: data.brainSummary })
           }).catch(() => {});
         } else {
-          // 🚨 徹底移除預設廢話 Fallback：如果 API 失敗，直接在畫面上印出紅字 Error Stack
+          // 🚨 徹底移除預設廢話 Fallback：如果 API 失敗，直接在畫面上印出紅字 Error Stack 並跳彈窗
           const errorMsg = (data && (data.error || data.message)) ? (data.error || data.message) : 'API 回傳失敗';
           const errorStack = (data && data.stack) ? `<pre style="font-size:0.75rem; color:#fca5a5; overflow-x:auto; margin-top:8px; background:rgba(0,0,0,0.4); padding:8px; border-radius:4px;">${data.stack}</pre>` : '';
-          summaryDiv.innerHTML = `<span style="color: #ef4444; font-weight: bold;">❌ [Extract-Schema 失敗]: ${errorMsg}</span>`;
+          if (summaryDiv) summaryDiv.innerHTML = `<span style="color: #ef4444; font-weight: bold;">❌ [Extract-Schema 失敗]: ${errorMsg}</span>`;
           if (container) {
             container.innerHTML = `<div style="color: #ef4444; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); padding: 16px; border-radius: 8px; grid-column: 1 / -1;">
               <strong>❌ [Extract-Schema 呼叫異常 (HTTP ${res.status})]</strong><br>
@@ -2424,10 +2424,11 @@
               ${errorStack}
             </div>`;
           }
+          alert('辨識發起失敗: ' + errorMsg);
         }
       } catch (err) {
-        console.error('❌ [forceExtractSchema Exception]:', err);
-        summaryDiv.innerHTML = `<span style="color: #ef4444; font-weight: bold;">❌ [Extract-Schema 網路/系統例外]: ${err.message}</span>`;
+        console.error('❌ Force Extract Error:', err);
+        if (summaryDiv) summaryDiv.innerHTML = `<span style="color: #ef4444; font-weight: bold;">❌ [Extract-Schema 網路/系統例外]: ${err.message}</span>`;
         if (container) {
           container.innerHTML = `<div style="color: #ef4444; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); padding: 16px; border-radius: 8px; grid-column: 1 / -1;">
             <strong>❌ [Extract-Schema 網路/系統例外]</strong><br>
@@ -2435,8 +2436,9 @@
             <pre style="font-size:0.75rem; color:#fca5a5; overflow-x:auto; margin-top:8px; background:rgba(0,0,0,0.4); padding:8px; border-radius:4px;">${err.stack || ''}</pre>
           </div>`;
         }
+        alert('辨識發起失敗: ' + err.message);
       } finally {
-        // 🚨 100% 強制清除 Loading 提示
+        // 🚨 100% 強制銷毀 Loading DOM 提示！
         const loadingHint = document.getElementById('schemaLoadingHint');
         if (loadingHint) loadingHint.remove();
       }
