@@ -783,7 +783,7 @@ ${text}
 
     try {
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
         const result = await model.generateContent(prompt);
         const replyText = result.response.text().trim();
         
@@ -1507,7 +1507,7 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
             for (let attempt = 1; attempt <= 2; attempt++) {
                 try {
                     const genAI = new GoogleGenerativeAI(apiKey);
-                    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+                    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
                     const result = await model.generateContent(visionContents);
                     const replyText = result.response.text().trim();
                     const cleanJson = replyText.replace(/```json/g, '').replace(/```/g, '').trim();
@@ -2467,7 +2467,7 @@ app.post('/api/admin/internal-agent', async (req, res) => {
             '"' + text + '"';
 
             const genAI = new GoogleGenerativeAI(apiKey);
-            const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+            const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
             const result = await model.generateContent(prompt);
             const replyText = result.response.text().trim();
             
@@ -2863,7 +2863,7 @@ app.post('/api/inbox-media/add', async (req, res) => {
         if (apiKey) {
             try {
                 const genAI = new GoogleGenerativeAI(apiKey);
-                const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
                 
                 const parts = [promptText];
 
