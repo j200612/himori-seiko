@@ -1641,34 +1641,34 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
 
         // 🚨 剛性覆蓋資料庫：當成功拿到 Gemini 辨識結果後，立即更新 Firestore 資料庫，將「待補充真實內文」徹底抹除
         if (parsedResult && parsedResult.brainSummary && !parsedResult.brainSummary.includes('待補充真實內文')) {
-            (async () => {
-                try {
-                    const updateObj = {
-                        brainSummary: parsedResult.brainSummary,
-                        extractedFields: parsedResult.extractedFields || [],
-                        category: parsedResult.fileType || undefined
-                    };
-                    Object.keys(updateObj).forEach(k => updateObj[k] === undefined && delete updateObj[k]);
+            try {
+                const updateObj = {
+                    brainSummary: parsedResult.brainSummary,
+                    extractedFields: parsedResult.extractedFields || [],
+                    category: parsedResult.fileType || undefined,
+                    timestamp: new Date().toISOString()
+                };
+                Object.keys(updateObj).forEach(k => updateObj[k] === undefined && delete updateObj[k]);
 
-                    const cols = ['ai_assets', 'document_assets', 'document_templates'];
-                    
-                    if (assetId) {
-                        await Promise.all(cols.map(c => firestore.collection(c).doc(assetId).update(updateObj).catch(() => {})));
-                    }
+                const cols = ['ai_assets', 'document_assets', 'document_templates'];
+                
+                if (assetId) {
+                    await Promise.all(cols.map(c => firestore.collection(c).doc(assetId).update(updateObj).catch(() => {})));
+                }
 
-                    if (fileName || rawName) {
-                        const searchName = fileName || rawName;
-                        for (const col of cols) {
-                            const snap = await firestore.collection(col).where('name', '==', searchName).get().catch(() => null);
-                            if (snap && !snap.empty) {
-                                await Promise.all(snap.docs.map(d => d.ref.update(updateObj).catch(() => {})));
-                            }
+                if (fileName || rawName) {
+                    const searchName = fileName || rawName;
+                    for (const col of cols) {
+                        const snap = await firestore.collection(col).where('name', '==', searchName).get().catch(() => null);
+                        if (snap && !snap.empty) {
+                            await Promise.all(snap.docs.map(d => d.ref.update(updateObj).catch(() => {})));
                         }
                     }
-                } catch (dbErr) {
-                    console.warn('⚠️ [Extract-Schema DB Overwrite Warning]:', dbErr.message);
                 }
-            })();
+                console.log(`💾 [Firestore DB Overwritten Success]: ${assetId || fileName || rawName}`);
+            } catch (dbErr) {
+                console.warn('⚠️ [Extract-Schema DB Overwrite Warning]:', dbErr.message);
+            }
         }
 
         // 🚨 實彈驗收標誌 Console Log (剛性需求)

@@ -605,6 +605,7 @@
           <span id="modalAssetNameSub" style="font-size: 0.82rem; color: #94a3b8; margin-top: 4px; display: block;">檔案名稱...</span>
         </div>
         <div style="display: flex; gap: 12px; align-items: center;">
+          <button id="btnForceReExtract" class="btn" style="background: linear-gradient(135deg, #d97706, #b45309); color: white; font-weight: bold; padding: 6px 14px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.8rem; box-shadow: 0 4px 12px rgba(217,119,6,0.3);" onclick="forceExtractSchema()">⚡ 強制 Vision 重新開箱</button>
           <button class="btn" style="background: #334155; color: white; padding: 6px 12px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.8rem;" onclick="addSchemaRowFromModal()">➕ 新增欄位</button>
           <button class="btn" style="background: linear-gradient(135deg, #38bdf8, #0ea5e9); color: white; font-weight: bold; padding: 8px 20px; border-radius: 8px; border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(56,189,248,0.3);" onclick="saveAssetSchemaFromModal()">💾 儲存數據結構</button>
           <button onclick="closeModal('assetSchemaModal')" style="background: transparent; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer; margin-left: 8px;">✕</button>
@@ -2368,6 +2369,78 @@
 
     let currentModalAssetId = null;
 
+    window.forceExtractSchema = async function() {
+      if (!currentModalAssetId) return alert('⚠️ 找不到當前檔案紀錄 ID');
+      const asset = cachedAssets.find(a => a.id === currentModalAssetId);
+      if (!asset) return alert('⚠️ 快取中找不到當前檔案紀錄');
+
+      const container = document.getElementById('modalSchemaRowsContainer');
+      const summaryDiv = document.getElementById('modalBrainSummaryContent');
+
+      // 1. 100% 清空畫面 DOM
+      if (container) container.innerHTML = '';
+      summaryDiv.innerText = '⚡ [強制 Vision 重新開箱中] 正在向 Gemini 1.5 Flash 發起即時多模態 OCR 解析，請稍候...';
+
+      if (container) {
+        container.innerHTML = `<div id="schemaLoadingHint" style="color: #38bdf8; font-size: 0.85rem; padding: 20px; grid-column: 1 / -1; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; text-align: center;">⚡ [強制 Vision 重新開箱中] 正在自【畫面與實體內文】進行極致數據抽取...</div>`;
+      }
+
+      try {
+        const rawUrl = asset.previewUrl || asset.currentUrl || asset.url || asset.gcsUrl;
+        const res = await fetch('/api/admin/ai-assets/extract-schema', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            assetId: asset.id,
+            fileName: asset.name,
+            fileUrl: rawUrl
+          })
+        });
+
+        const data = await res.json();
+        if (data && data.success) {
+          asset.extractedFields = data.extractedFields || [];
+          asset.brainSummary = data.brainSummary || '';
+          summaryDiv.innerText = asset.brainSummary || '已成功完工開箱。';
+
+          // 🚨 立刻呼叫 DOM 重繪，將欄位繪製至螢幕上
+          renderModalAssetSchema(asset);
+
+          // 寫回 DB 持久化
+          fetch(`/api/admin/ai-assets/update-fields/${currentModalAssetId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ extractedFields: data.extractedFields, brainSummary: data.brainSummary })
+          }).catch(() => {});
+        } else {
+          // 🚨 徹底移除預設廢話 Fallback：如果 API 失敗，直接在畫面上印出紅字 Error Stack
+          const errorMsg = (data && (data.error || data.message)) ? (data.error || data.message) : 'API 回傳失敗';
+          const errorStack = (data && data.stack) ? `<pre style="font-size:0.75rem; color:#fca5a5; overflow-x:auto; margin-top:8px; background:rgba(0,0,0,0.4); padding:8px; border-radius:4px;">${data.stack}</pre>` : '';
+          summaryDiv.innerHTML = `<span style="color: #ef4444; font-weight: bold;">❌ [Extract-Schema 失敗]: ${errorMsg}</span>`;
+          if (container) {
+            container.innerHTML = `<div style="color: #ef4444; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); padding: 16px; border-radius: 8px; grid-column: 1 / -1;">
+              <strong>❌ [Extract-Schema 呼叫異常 (HTTP ${res.status})]</strong><br>
+              ${errorMsg}
+              ${errorStack}
+            </div>`;
+          }
+        }
+      } catch (err) {
+        console.error('❌ [forceExtractSchema Exception]:', err);
+        summaryDiv.innerHTML = `<span style="color: #ef4444; font-weight: bold;">❌ [Extract-Schema 網路/系統例外]: ${err.message}</span>`;
+        if (container) {
+          container.innerHTML = `<div style="color: #ef4444; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); padding: 16px; border-radius: 8px; grid-column: 1 / -1;">
+            <strong>❌ [Extract-Schema 網路/系統例外]</strong><br>
+            ${err.message}
+            <pre style="font-size:0.75rem; color:#fca5a5; overflow-x:auto; margin-top:8px; background:rgba(0,0,0,0.4); padding:8px; border-radius:4px;">${err.stack || ''}</pre>
+          </div>`;
+        }
+      } finally {
+        const loadingHint = document.getElementById('schemaLoadingHint');
+        if (loadingHint) loadingHint.remove();
+      }
+    };
+
     window.openAssetSchemaModal = async function(assetId) {
       currentModalAssetId = assetId;
       const asset = cachedAssets.find(a => a.id === assetId);
@@ -2384,68 +2457,12 @@
                              (asset.brainSummary && asset.brainSummary.includes('待補充真實內文'));
 
       if (isNotIdentified) {
-        summaryDiv.innerText = '⚡ Vision AI 正在精準辨識解析內文實體欄位中，請稍候...';
-        const container = document.getElementById('modalSchemaRowsContainer');
-        if (container) {
-          container.innerHTML = `<div id="schemaLoadingHint" style="color: #38bdf8; font-size: 0.85rem; padding: 20px; grid-column: 1 / -1; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; text-align: center;">⚡ Vision AI 正在自【畫面與內文】精準辨識業務實體欄位中，請稍候...</div>`;
-        }
+        openModal('assetSchemaModal');
+        forceExtractSchema();
       } else {
         summaryDiv.innerText = asset.brainSummary || '已自內文萃取完成，尚無大腦特別摘要。';
         renderModalAssetSchema(asset);
-      }
-
-      openModal('assetSchemaModal');
-
-      // 🚨 剛性需求：若屬未辨識或含舊預設廢言字串，強制發起 extract-schema 絕不顯示舊預設字串
-      if (isNotIdentified) {
-        try {
-          const rawUrl = asset.previewUrl || asset.currentUrl || asset.url || asset.gcsUrl;
-          const res = await fetch('/api/admin/ai-assets/extract-schema', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              assetId: asset.id,
-              fileName: asset.name,
-              fileUrl: rawUrl
-            })
-          });
-
-          const data = await res.json();
-          if (data && data.success) {
-            asset.extractedFields = data.extractedFields || [];
-            if (data.brainSummary && !data.brainSummary.includes('待補充真實內文')) {
-              asset.brainSummary = data.brainSummary;
-            }
-            summaryDiv.innerText = asset.brainSummary || '已完成 Vision AI 多模態辨識。';
-
-            // 🚨 一拿到 extractedFields，立刻呼叫 DOM 重繪，將欄位繪製至螢幕上！
-            renderModalAssetSchema(asset);
-
-            if (data.extractedFields && data.extractedFields.length > 0) {
-              fetch(`/api/admin/ai-assets/update-fields/${assetId}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ extractedFields: data.extractedFields, brainSummary: data.brainSummary })
-              }).catch(() => {});
-            }
-          } else {
-            console.warn('⚠️ [Extract Schema API Response Error]:', data ? data.error : 'Unknown');
-            if (asset.brainSummary && asset.brainSummary.includes('待補充真實內文')) {
-              summaryDiv.innerText = `已接收檔案【${asset.name}】，點擊右上角【➕ 新增欄位】即可進行標定。`;
-            }
-            renderModalAssetSchema(asset);
-          }
-        } catch (err) {
-          console.error('❌ [openAssetSchemaModal Extract Exception]:', err.message);
-          if (asset.brainSummary && asset.brainSummary.includes('待補充真實內文')) {
-            summaryDiv.innerText = `已接收檔案【${asset.name}】，點擊右上角【➕ 新增欄位】即可進行標定。`;
-          }
-          renderModalAssetSchema(asset);
-        } finally {
-          // 🚨 不論成功或失敗 (.finally())，必須清除 請稍候... 提示
-          const loadingHint = document.getElementById('schemaLoadingHint');
-          if (loadingHint) loadingHint.remove();
-        }
+        openModal('assetSchemaModal');
       }
     };
 
