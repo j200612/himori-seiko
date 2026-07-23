@@ -1429,10 +1429,23 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
                 // 依副檔名設定正確標稱 MimeType (例如 .jpg -> image/jpeg, .pdf -> application/pdf)
                 let mimeType = getMimeType(fileName || fileUrl);
 
-                // 1. 優先從 GCS 儲存桶直接下載實體檔案 Buffer (強制進行 URI 解碼與 Unicode NFC 正規化)
+                // 1. 優先從 GCS 儲存桶直接下載實體檔案 Buffer (多重 URI 解碼與 Unicode NFC 正規化強鎖)
                 let gcsFileName = '';
+                const safeDecode = (str) => {
+                    if (!str) return '';
+                    let res = str;
+                    try {
+                        while (res.includes('%')) {
+                            const decoded = decodeURIComponent(res);
+                            if (decoded === res) break;
+                            res = decoded;
+                        }
+                    } catch (e) {}
+                    return res.normalize('NFC').trim();
+                };
+
                 if (fileUrl) {
-                    let cleanUrl = decodeURIComponent(fileUrl).normalize('NFC');
+                    let cleanUrl = safeDecode(fileUrl);
                     if (cleanUrl.includes('/api/storage/preview/')) {
                         gcsFileName = cleanUrl.split('/api/storage/preview/')[1];
                     } else if (cleanUrl.includes('storage.googleapis.com')) {
@@ -1442,16 +1455,16 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
                     }
                 }
                 if (!gcsFileName && fileName) {
-                    gcsFileName = decodeURIComponent(fileName).normalize('NFC');
+                    gcsFileName = safeDecode(fileName);
                 }
 
                 if (gcsFileName) {
                     try {
-                        let cleanPath = decodeURIComponent(gcsFileName).normalize('NFC');
+                        let cleanPath = safeDecode(gcsFileName);
                         let fileObj = bucket.file(cleanPath);
                         let [exists] = await fileObj.exists();
 
-                        // 備用防護：若帶有完整 URL 路徑檔名，嘗試純檔名檢索
+                        // 二階段備用防護：若帶有路徑，嘗試純檔名檢索
                         if (!exists && cleanPath.includes('/')) {
                             const baseOnly = cleanPath.split('/').pop();
                             const fallbackObj = bucket.file(baseOnly);
@@ -1460,6 +1473,18 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
                                 fileObj = fallbackObj;
                                 exists = true;
                                 cleanPath = baseOnly;
+                            }
+                        }
+
+                        // 三階段備用防護：若傳入 fileName，嘗試用 fileName 檢索
+                        if (!exists && fileName) {
+                            const fnClean = safeDecode(fileName);
+                            const fnObj = bucket.file(fnClean);
+                            const [fnExists] = await fnObj.exists();
+                            if (fnExists) {
+                                fileObj = fnObj;
+                                exists = true;
+                                cleanPath = fnClean;
                             }
                         }
 
