@@ -2379,10 +2379,10 @@
 
       // 1. 100% 清空畫面 DOM
       if (container) container.innerHTML = '';
-      summaryDiv.innerText = '⚡ [強制 Vision 重新開箱中] 正在向 Gemini 1.5 Flash 發起即時多模態 OCR 解析，請稍候...';
+      summaryDiv.innerText = '⚡ [強制 Vision 重新開箱中] 正在向 gemini-2.5-flash 發起即時多模態 OCR 解析，請稍候...';
 
       if (container) {
-        container.innerHTML = `<div id="schemaLoadingHint" style="color: #38bdf8; font-size: 0.85rem; padding: 20px; grid-column: 1 / -1; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; text-align: center;">⚡ [強制 Vision 重新開箱中] 正在自【畫面與實體內文】進行極致數據抽取...</div>`;
+        container.innerHTML = `<div id="schemaLoadingHint" style="color: #38bdf8; font-size: 0.85rem; padding: 20px; grid-column: 1 / -1; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; text-align: center;">⚡ [強制 Vision 重新開箱中] 正在向 gemini-2.5-flash 自【畫面與實體內文】進行極致數據抽取...</div>`;
       }
 
       try {
@@ -2401,7 +2401,7 @@
         if (data && data.success) {
           asset.extractedFields = data.extractedFields || [];
           asset.brainSummary = data.brainSummary || '';
-          summaryDiv.innerText = asset.brainSummary || '已成功完工開箱。';
+          summaryDiv.innerText = asset.brainSummary || '已成功完成 gemini-2.5-flash Vision 多模態數據開箱。';
 
           // 🚨 立刻呼叫 DOM 重繪，將欄位繪製至螢幕上
           renderModalAssetSchema(asset);
@@ -2436,6 +2436,7 @@
           </div>`;
         }
       } finally {
+        // 🚨 100% 強制清除 Loading 提示
         const loadingHint = document.getElementById('schemaLoadingHint');
         if (loadingHint) loadingHint.remove();
       }
@@ -2469,6 +2470,10 @@
     function renderModalAssetSchema(asset) {
       const container = document.getElementById('modalSchemaRowsContainer');
       if (!container) return;
+
+      const loadingHint = document.getElementById('schemaLoadingHint');
+      if (loadingHint) loadingHint.remove();
+
       container.innerHTML = '';
 
       let fieldsList = [];
@@ -2491,7 +2496,8 @@
 
       fieldsList.forEach(f => {
         const k = f.key || '';
-        const v = f.value !== undefined && f.value !== null ? f.value : '';
+        const rawV = f.value !== undefined && f.value !== null ? f.value : '';
+        const v = typeof rawV === 'object' ? JSON.stringify(rawV) : rawV;
         const conf = (f.confidence || 'HIGH').toUpperCase();
         let badgeHtml = '<span style="font-size:0.72rem; background:#166534; color:#4ade80; padding:2px 8px; border-radius:4px; font-weight:bold; border: 1px solid rgba(74,222,128,0.3);">✅ 高信心</span>';
         if (conf === 'MEDIUM') badgeHtml = '<span style="font-size:0.72rem; background:#854d0e; color:#fde047; padding:2px 8px; border-radius:4px; font-weight:bold; border: 1px solid rgba(253,224,71,0.3);">⚠️ 待覆核</span>';
