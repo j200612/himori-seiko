@@ -2368,7 +2368,7 @@
 
     let currentModalAssetId = null;
 
-    window.openAssetSchemaModal = function(assetId) {
+    window.openAssetSchemaModal = async function(assetId) {
       currentModalAssetId = assetId;
       const asset = cachedAssets.find(a => a.id === assetId);
       if (!asset) return alert('⚠️ 找不到該檔案紀錄');
@@ -2381,6 +2381,54 @@
 
       renderModalAssetSchema(asset);
       openModal('assetSchemaModal');
+
+      // 🚨 剛性需求：若當前資產尚未有 extractedFields 欄位，即刻發起 extract-schema 精準辨識並驅動 DOM 實體顯影刷新
+      if (!asset.extractedFields || asset.extractedFields.length === 0) {
+        const container = document.getElementById('modalSchemaRowsContainer');
+        if (container) {
+          container.innerHTML = `<div style="color: #38bdf8; font-size: 0.85rem; padding: 20px; grid-column: 1 / -1; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; text-align: center;">⚡ Vision AI 正在自【畫面與內文】精準辨識業務實體欄位中，請稍候...</div>`;
+        }
+
+        try {
+          const rawUrl = asset.previewUrl || asset.currentUrl || asset.url || asset.gcsUrl;
+          const res = await fetch('/api/admin/ai-assets/extract-schema', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              fileName: asset.name,
+              fileUrl: rawUrl
+            })
+          });
+
+          const data = await res.json();
+          if (data && data.success) {
+            if (Array.isArray(data.extractedFields) && data.extractedFields.length > 0) {
+              asset.extractedFields = data.extractedFields;
+              if (data.brainSummary) {
+                asset.brainSummary = data.brainSummary;
+                summaryDiv.innerText = data.brainSummary;
+              }
+
+              // 🚨 欄位即時渲染至 Modal 畫面，驅動 DOM 實體顯影
+              renderModalAssetSchema(asset);
+
+              // 寫回 DB 持久化更新
+              fetch(`/api/admin/ai-assets/update-fields/${assetId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ extractedFields: data.extractedFields, brainSummary: data.brainSummary })
+              }).catch(() => {});
+            } else {
+              renderModalAssetSchema(asset);
+            }
+          } else {
+            renderModalAssetSchema(asset);
+          }
+        } catch (err) {
+          console.warn('⚠️ [openAssetSchemaModal Extract Warning]:', err.message);
+          renderModalAssetSchema(asset);
+        }
+      }
     };
 
     function renderModalAssetSchema(asset) {
