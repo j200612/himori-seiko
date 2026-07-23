@@ -1426,8 +1426,11 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
             const isDocx = checkStr.endsWith('.docx') || checkStr.endsWith('.doc');
             try {
                 let fileBuffer = null;
-                // 依副檔名設定正確標稱 MimeType (例如 .jpg -> image/jpeg, .pdf -> application/pdf)
+                // 依副檔名設定正確標稱 MimeType (若無副檔名預設強制帶入 image/jpeg)
                 let mimeType = getMimeType(fileName || fileUrl);
+                if (!mimeType || mimeType === 'application/octet-stream') {
+                    mimeType = 'image/jpeg';
+                }
 
                 // 1. 優先從 GCS 儲存桶直接下載實體檔案 Buffer (多重 URI 解碼與 Unicode NFC 正規化強鎖)
                 let gcsFileName = '';
@@ -1494,7 +1497,10 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
                             if (meta.contentType && meta.contentType !== 'application/octet-stream') {
                                 mimeType = meta.contentType;
                             } else {
-                                mimeType = getMimeType(cleanPath);
+                                mimeType = getMimeType(cleanPath) || 'image/jpeg';
+                            }
+                            if (!mimeType || mimeType === 'application/octet-stream') {
+                                mimeType = 'image/jpeg';
                             }
                             console.log(`📦 [GCS Bucket Direct Download Success]: ${cleanPath} (${fileBuffer.length} bytes, Mime: ${mimeType})`);
                         } else {
@@ -1674,7 +1680,7 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
         });
     } catch (err) {
         console.error('❌ [Extract-Schema Fatal Error]:', err.stack || err);
-        res.status(500).json({ error: err.message, stack: err.stack });
+        res.status(500).json({ success: false, error: err.message, stack: err.stack });
     }
 });
 
