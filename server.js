@@ -3475,6 +3475,51 @@ app.post('/api/line/webhook', verifyLineSignature, async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+// 📱 移動端 / LINE Webhook 同步與系統健康檢測 API (預檢專用)
+app.get('/api/system/version', (req, res) => {
+    res.json({
+        status: 'online',
+        system: '日森精工中控系統',
+        version: 'v2.5.0',
+        environment: 'Cloud Run / Node.js 18-slim',
+        timestamp: new Date().toISOString(),
+        modules: {
+            aiBrain: 'Gemini 2.5 Flash Multi-modal Vision AI',
+            lineWebhook: 'Active (LINE Messaging API v2)',
+            rwdStatus: 'Optimized (375px - 430px Mobile Touch Compatible)'
+        }
+    });
+});
+
+app.get('/api/line/health', (req, res) => {
+    res.json({
+        status: 'healthy',
+        service: 'LINE Webhook & Mobile Synchronization Gateway',
+        channelId: process.env.LINE_CHANNEL_ID || '2010235006',
+        version: 'v2.5.0',
+        timestamp: new Date().toISOString()
+    });
+});
+
+app.post('/api/line/voice-match-template', async (req, res) => {
+    try {
+        const { voiceText } = req.body;
+        const text = voiceText || '';
+        let matchedTemplate = '通用行政對帳單';
+        if (text.includes('請款') || text.includes('工程款')) matchedTemplate = '7月份晶廷工程款';
+        if (text.includes('合約') || text.includes('條款')) matchedTemplate = '專案承攬合作通用條款合約';
+
+        res.json({
+            success: true,
+            version: 'v2.5.0',
+            matchedTemplate,
+            voiceText: text,
+            timestamp: new Date().toISOString()
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
 
 
 // 啟動伺服器
