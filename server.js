@@ -1594,40 +1594,53 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
         let lastError = null;
 
         if (apiKey) {
-            const candidateModels = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-3.0-flash", "gemini-3.5-flash"];
+            // 🚨 剛性鎖定：首選 gemini-2.5-flash 作為預設 Vision 模型，並搭配平滑 fallback 與 429 Try-Again 提示
+            const candidateModels = ["gemini-2.5-flash", "gemini-1.5-flash", "gemini-2.5-pro", "gemini-3.0-flash"];
             for (const modelName of candidateModels) {
-                try {
-                    const genAI = new GoogleGenerativeAI(apiKey);
-                    const model = genAI.getGenerativeModel({ model: modelName });
-                    const result = await model.generateContent(visionContents);
-                    const replyText = result.response.text().trim();
-                    
-                    console.log(`🤖 [Gemini Vision Raw Reply (${modelName})]:\n${replyText}`);
+                let successInModel = false;
+                for (let attempt = 1; attempt <= 2; attempt++) {
+                    try {
+                        const genAI = new GoogleGenerativeAI(apiKey);
+                        const model = genAI.getGenerativeModel({ model: modelName });
+                        const result = await model.generateContent(visionContents);
+                        const replyText = result.response.text().trim();
+                        
+                        console.log(`🤖 [Gemini Vision Raw Reply (${modelName} Attempt ${attempt})]:\n${replyText}`);
 
-                    const cleanJson = replyText
-                        .replace(/^```(?:json)?\s*/i, '')
-                        .replace(/\s*```$/i, '')
-                        .replace(/```json/gi, '')
-                        .replace(/```/g, '')
-                        .trim();
+                        const cleanJson = replyText
+                            .replace(/^```(?:json)?\s*/i, '')
+                            .replace(/\s*```$/i, '')
+                            .replace(/```json/gi, '')
+                            .replace(/```/g, '')
+                            .trim();
 
-                    parsedResult = JSON.parse(cleanJson);
-                    if (parsedResult && Array.isArray(parsedResult.extractedFields)) {
-                        console.log(`✅ [Gemini Vision Success with ${modelName}]:`, JSON.stringify(parsedResult, null, 2));
-                        break;
-                    }
-                } catch (geminiErr) {
-                    lastError = geminiErr.message;
-                    console.warn(`⚠️ [Gemini Vision Call (${modelName}) Warning]:`, geminiErr.message);
-                    if (geminiErr.message && geminiErr.message.includes('Quota exceeded')) {
-                        console.error(`🚨 [Gemini Quota Exceeded 429]:`, geminiErr.message);
-                        return res.status(429).json({
-                            success: false,
-                            error: 'Gemini API 配額已滿 (429 Quota Exceeded)，請稍後再試或檢查 API Key 配額。',
-                            stack: geminiErr.stack
-                        });
+                        parsedResult = JSON.parse(cleanJson);
+                        if (parsedResult && Array.isArray(parsedResult.extractedFields)) {
+                            console.log(`✅ [Gemini Vision Success with ${modelName}]:`, JSON.stringify(parsedResult, null, 2));
+                            successInModel = true;
+                            break;
+                        }
+                    } catch (geminiErr) {
+                        lastError = geminiErr.message;
+                        console.warn(`⚠️ [Gemini Vision Call (${modelName} Attempt ${attempt}) Warning]:`, geminiErr.message);
+                        
+                        // 🚨 當遇到 HTTP 429 / Quota Exceeded 時，發動 Try-Again 重試與 Catch 捕捉
+                        if (geminiErr.message && (geminiErr.message.includes('Quota exceeded') || geminiErr.message.includes('429'))) {
+                            console.error(`🚨 [Gemini Quota Exceeded 429]:`, geminiErr.message);
+                            if (attempt < 2) {
+                                console.log(`🔄 [429 Quota Auto-Retry]: 稍候 1.5 秒後進行重試 (Attempt 2)...`);
+                                await new Promise(r => setTimeout(r, 1500));
+                            } else {
+                                return res.status(429).json({
+                                    success: false,
+                                    error: 'Gemini API 請求過於頻繁或配額已滿 (429 Quota Exceeded)，請稍後再試 (Try Again) 或檢查 API 金鑰配額。',
+                                    stack: geminiErr.stack
+                                });
+                            }
+                        }
                     }
                 }
+                if (successInModel) break;
             }
         }
 
