@@ -1918,6 +1918,157 @@ app.delete('/api/admin/ai-assets/:id', async (req, res) => {
   }
 });
 
+// 🔒 SSOT 檔案預覽與 Signed URL 分流 API (原生 <iframe> 限 .pdf，Office 格式自動帶入 Office Viewer 網址，實體不存在回傳 success:false 避免死白)
+app.get('/api/admin/ai-assets/:id/preview-url', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const cols = ['ai_assets', 'document_assets', 'document_templates'];
+        let docData = null;
+
+        for (const c of cols) {
+            const snap = await firestore.collection(c).doc(id).get().catch(() => null);
+            if (snap && snap.exists) {
+                docData = snap.data();
+                break;
+            }
+        }
+
+        if (!docData) {
+            return res.status(404).json({ success: false, error: '⚠️ 找不到該資產紀錄 ID' });
+        }
+
+        const rawUrl = docData.currentUrl || docData.previewUrl || docData.url || docData.fileUrl || docData.gcsUrl || '';
+        if (!rawUrl) {
+            return res.status(404).json({ success: false, error: '⚠️ 該資產尚無實體檔案網址 (URL 遺失)' });
+        }
+
+        const safeDecode = (str) => {
+            if (!str) return '';
+            let r = str;
+            try {
+                while (r.includes('%')) {
+                    const d = decodeURIComponent(r);
+                    if (d === r) break;
+                    r = d;
+                }
+            } catch (e) {}
+            return r.normalize('NFC').trim();
+        };
+
+        let cleanUrl = safeDecode(rawUrl);
+        let gcsFileName = cleanUrl;
+        if (cleanUrl.includes('/api/storage/preview/')) {
+            gcsFileName = cleanUrl.split('/api/storage/preview/')[1];
+        } else if (cleanUrl.includes('storage.googleapis.com')) {
+            gcsFileName = cleanUrl.split('/').pop().split('?')[0];
+        } else if (!cleanUrl.startsWith('http')) {
+            gcsFileName = cleanUrl.replace(/^\//, '');
+        }
+
+        let fileObj = bucket.file(gcsFileName);
+        let [exists] = await fileObj.exists().catch(() => [false]);
+
+        if (!exists && gcsFileName.includes('/')) {
+            const baseOnly = gcsFileName.split('/').pop();
+            const fbObj = bucket.file(baseOnly);
+            const [fbExists] = await fbObj.exists().catch(() => [false]);
+            if (fbExists) {
+                fileObj = fbObj;
+                exists = true;
+                gcsFileName = baseOnly;
+            }
+        }
+
+        if (!exists && docData.name) {
+            const fnClean = safeDecode(docData.name);
+            const fnObj = bucket.file(fnClean);
+            const [fnExists] = await fnObj.exists().catch(() => [false]);
+            if (fnExists) {
+                fileObj = fnObj;
+                exists = true;
+                gcsFileName = fnClean;
+            }
+        }
+
+        // 若實體檔案在 GCS 中不存在，回傳優雅 JSON 錯誤提示，嚴禁前端死白
+        if (!exists) {
+            return res.status(404).json({
+                success: false,
+                error: `⚠️ GCS 儲存桶中找不到實體檔案 [${gcsFileName}]，請重新上傳實體檔。`,
+                rawUrl
+            });
+        }
+
+        // 產生 15 分鐘有效之 GCS Signed URL
+        const [signedUrl] = await fileObj.getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 15 * 60 * 1000
+        });
+
+        const fn = (docData.name || gcsFileName).toLowerCase();
+        const isOffice = fn.endsWith('.docx') || fn.endsWith('.doc') || fn.endsWith('.xlsx') || fn.endsWith('.xls') || fn.endsWith('.pptx') || fn.endsWith('.ppt');
+
+        if (isOffice) {
+            const officeViewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(signedUrl)}`;
+            return res.json({
+                success: true,
+                isOffice: true,
+                previewUrl: officeViewerUrl,
+                originalSignedUrl: signedUrl,
+                fileName: docData.name || gcsFileName
+            });
+        }
+
+        return res.json({
+            success: true,
+            isOffice: false,
+            previewUrl: signedUrl,
+            originalSignedUrl: signedUrl,
+            fileName: docData.name || gcsFileName
+        });
+    } catch (err) {
+        console.error('❌ [Preview URL Exception]:', err);
+        return res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// 📤 全域 Multer 實體檔案上傳 API (強鎖 latin1 -> utf8 轉碼，徹底修復中文檔名亂碼)
+app.post('/api/upload', upload.single('file'), async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ success: false, error: 'No file uploaded' });
+
+        // 🚨 剛性修正：強制將原始檔名進行拉丁轉碼 Buffer.from(file.originalname, 'latin1').toString('utf8')
+        const safeFileName = Buffer.from(req.file.originalname, 'latin1').toString('utf8');
+        const gcsFileName = `${Date.now()}_${safeFileName}`;
+        const blob = bucket.file(gcsFileName);
+        const blobStream = blob.createWriteStream({ resumable: false });
+
+        blobStream.on('error', err => res.status(500).json({ success: false, error: err.message }));
+        blobStream.on('finish', async () => {
+            const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
+            const id = 'ASSET-' + Date.now();
+            const doc = {
+                id,
+                name: safeFileName,
+                category: getMimeType(safeFileName).includes('pdf') ? 'PDF' : (safeFileName.endsWith('.docx') ? 'DOCX' : 'Image'),
+                timestamp: new Date().toISOString(),
+                version: 1,
+                currentUrl: publicUrl,
+                url: publicUrl,
+                previewUrl: publicUrl,
+                aiMetadata: { company: '日森精工有限公司', status: '實戰數據' },
+                isActive: true,
+                history: []
+            };
+            await firestore.collection('ai_assets').doc(id).set(doc);
+            res.json({ success: true, url: publicUrl, fileName: safeFileName, doc });
+        });
+        blobStream.end(req.file.buffer);
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
 
 // ── 中央控台：核心記憶與憲法草案 ──
 app.get('/api/admin/core-constitution', async (req, res) => {
