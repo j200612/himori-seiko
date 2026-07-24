@@ -436,17 +436,19 @@
         <!-- 總裁端視角 -->
         <div id="simPresidentView" style="display: none;">
           <h3 style="font-size: 1.1rem; color: var(--text-light); background: var(--secondary-bg); padding: 8px; border-radius: 6px;">👑 總裁 AI 中控簡板</h3>
-          <!-- 語音/拍照格式化入庫 -->
+          <!-- 辨識輸入端 (手機快速上傳/暫存) -->
           <div class="card" style="padding: 12px; margin-bottom: 12px; border-top: 3px solid var(--accent); background: rgba(15,23,42,0.4);">
-            <h4 style="margin: 0 0 8px 0; font-size: 0.9rem;">🎙️ AI 語音/拍照格式化入庫</h4>
-            <textarea id="voiceInputText" placeholder="說點什麼...例如：『新增大谷保險考勤規則技術分析』..." style="width:100%; height: 50px; font-size: 0.8rem; padding: 6px; box-sizing: border-box; border-radius: 6px; border: 1px solid var(--border); background: rgba(15,23,42,0.6); color: var(--text-light); outline: none;"></textarea>
+            <h4 style="margin: 0 0 4px 0; font-size: 0.9rem; color: var(--accent);">📥 辨識輸入端 (手機快速上傳/暫存)</h4>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px;">現場人員快速上傳/語音暫存，上傳後需待最高授權審核。</div>
+            <textarea id="voiceInputText" placeholder="請輸入或語音輸入暫存指令..." style="width:100%; height: 50px; font-size: 0.8rem; padding: 6px; box-sizing: border-box; border-radius: 6px; border: 1px solid var(--border); background: rgba(15,23,42,0.6); color: var(--text-light); outline: none;"></textarea>
             <div style="display: flex; gap: 8px; margin-top: 6px;">
-              <button class="btn btn-danger" style="flex: 1; font-size: 0.8rem; padding: 6px;" onclick="triggerVoiceParse()">🎙️ 語音入庫</button>
-              <button class="btn btn-primary" style="flex: 1; font-size: 0.8rem; padding: 6px; background-color: var(--success);" onclick="triggerPhotoParse()">📸 拍照辨識</button>
+              <button class="btn btn-danger" style="flex: 1; font-size: 0.82rem; min-height: 44px; padding: 10px 6px;" onclick="triggerVoiceParse()">🎙️ 語音暫存</button>
+              <button class="btn btn-primary" style="flex: 1; font-size: 0.82rem; min-height: 44px; padding: 10px 6px; background-color: var(--success);" onclick="triggerPhotoParse()">📷 拍照/上傳文件</button>
             </div>
           </div>
-          <!-- 核心資產時間流簡表 -->
-          <h4 style="margin: 12px 0 6px 0; font-size: 0.9rem; color: var(--accent);">📂 歷史資產盤點與淨化流</h4>
+          <!-- 條列式時間流檢索牆 -->
+          <h4 style="margin: 12px 0 6px 0; font-size: 0.9rem; color: var(--accent);">🔍 條列式時間流檢索牆</h4>
+          <input type="text" id="simPresidentSearchInput" placeholder="搜尋暫存/待審核檔案名稱..." oninput="window.loadAssets(true)" style="width:100%; padding: 8px 10px; margin-bottom: 10px; box-sizing: border-box; border-radius: 6px; border: 1px solid rgba(56,189,248,0.4); background: rgba(15,23,42,0.8); color: var(--text-light); font-size: 0.82rem; min-height: 44px;">
           <div id="simPresidentFiles"></div>
         </div>
 

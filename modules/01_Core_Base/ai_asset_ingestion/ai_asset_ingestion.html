@@ -436,19 +436,20 @@
         <!-- 總裁端視角 -->
         <div id="simPresidentView" style="display: none;">
           <h3 style="font-size: 1.1rem; color: var(--text-light); background: var(--secondary-bg); padding: 8px; border-radius: 6px;">👑 總裁 AI 中控簡板</h3>
-          <!-- 語音/拍照格式化入庫 -->
+          <!-- 辨識輸入端 (手機快速上傳/暫存) -->
           <div class="card" style="padding: 12px; margin-bottom: 12px; border-top: 3px solid var(--accent); background: rgba(15,23,42,0.4);">
-            <h4 style="margin: 0 0 8px 0; font-size: 0.9rem;">🎙️ AI 語音/拍照格式化入庫</h4>
-            <textarea id="voiceInputText" placeholder="請輸入或語音輸入指令..." style="width:100%; height: 50px; font-size: 0.8rem; padding: 6px; box-sizing: border-box; border-radius: 6px; border: 1px solid var(--border); background: rgba(15,23,42,0.6); color: var(--text-light); outline: none;"></textarea>
+            <h4 style="margin: 0 0 4px 0; font-size: 0.9rem; color: var(--accent);">📥 辨識輸入端 (手機快速上傳/暫存)</h4>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px;">現場人員快速上傳/語音暫存，上傳後需待最高授權審核。</div>
+            <textarea id="voiceInputText" placeholder="請輸入或語音輸入暫存指令..." style="width:100%; height: 50px; font-size: 0.8rem; padding: 6px; box-sizing: border-box; border-radius: 6px; border: 1px solid var(--border); background: rgba(15,23,42,0.6); color: var(--text-light); outline: none;"></textarea>
             <div style="display: flex; gap: 8px; margin-top: 6px;">
-              <button class="btn btn-danger" style="flex: 1; font-size: 0.8rem; padding: 6px;" onclick="triggerVoiceParse()">🎙️ 語音入庫</button>
-              <button class="btn btn-primary" style="flex: 1; font-size: 0.8rem; padding: 6px; background-color: var(--success);" onclick="document.getElementById('mobilePhotoInput').click()">📸 拍照辨識</button>
+              <button class="btn btn-danger" style="flex: 1; font-size: 0.82rem; min-height: 44px; padding: 10px 6px;" onclick="triggerVoiceParse()">🎙️ 語音暫存</button>
+              <button class="btn btn-primary" style="flex: 1; font-size: 0.82rem; min-height: 44px; padding: 10px 6px; background-color: var(--success);" onclick="document.getElementById('mobilePhotoInput').click()">📷 拍照/上傳文件</button>
               <input type="file" id="mobilePhotoInput" multiple accept="image/*,.pdf,.docx" capture="environment" style="display: none;" onchange="window.handleMobilePhotoUpload(event)">
             </div>
           </div>
           <!-- 核心資產時間流簡表 -->
           <h4 style="margin: 12px 0 6px 0; font-size: 0.9rem; color: var(--accent);">🔍 條列式時間流檢索牆</h4>
-          <input type="text" id="simPresidentSearchInput" placeholder="🔍 搜尋手機端檔案名稱/關鍵字..." oninput="window.loadAssets(true)" style="width:100%; padding: 6px 10px; margin-bottom: 10px; box-sizing: border-box; border-radius: 6px; border: 1px solid rgba(56,189,248,0.4); background: rgba(15,23,42,0.8); color: var(--text-light); font-size: 0.8rem;">
+          <input type="text" id="simPresidentSearchInput" placeholder="搜尋暫存/待審核檔案名稱..." oninput="window.loadAssets(true)" style="width:100%; padding: 8px 10px; margin-bottom: 10px; box-sizing: border-box; border-radius: 6px; border: 1px solid rgba(56,189,248,0.4); background: rgba(15,23,42,0.8); color: var(--text-light); font-size: 0.82rem; min-height: 44px;">
           <div id="simPresidentFiles"></div>
         </div>
 
@@ -2089,9 +2090,10 @@
         row.style = 'background: #1e293b; border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 8px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); font-size: 0.8rem; display: flex; flex-direction: column; gap: 6px; text-align: left;';
         row.innerHTML = `
           <div style="font-weight:700; color:var(--text-light); font-size: 0.88rem; text-align: left;">${item.name}</div>
-          <div style="display: flex; gap: 6px; align-items: center; justify-content: flex-start;">
+          <div style="display: flex; gap: 6px; align-items: center; justify-content: flex-start; flex-wrap: wrap;">
             <span style="font-size: 0.68rem; padding: 1px 6px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 10px; font-weight: 600;">${categoryTag}</span>
             <span style="font-size: 0.68rem; padding: 1px 5px; background: #0284c7; color: white; border-radius: 8px; font-weight: 700;">${versionTag}</span>
+            <span style="font-size: 0.68rem; padding: 1px 6px; background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 10px; font-weight: 600;">⏳ 待最高授權審核存入</span>
           </div>
           <div style="display:flex; justify-content:flex-end; align-items:center; margin-top: 6px; gap: 6px;">
             <button class="btn btn-outline" style="font-size:0.75rem; padding: 4px 8px; background: #0284c7; color: white; border: none; font-weight: bold;" onclick="openOriginalPreview('${fileUrl}', '${(item.name || '').replace(/'/g, "\\'")}')">👁️ 預覽</button>
