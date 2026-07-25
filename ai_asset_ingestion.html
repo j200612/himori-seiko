@@ -1574,7 +1574,8 @@
       container.appendChild(itemDiv);
     }
 
-    function openConstitutionEditModal() {
+    async function openConstitutionEditModal() {
+      await loadCoreConstitution();
       document.getElementById('modalConstitutionText').value = currentConstitutionText;
       openModal('editConstitutionModal');
     }

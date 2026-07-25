@@ -2105,13 +2105,38 @@ app.get('/api/admin/core-constitution', async (req, res) => {
     try {
         const docRef = firestore.collection('core_constitution').doc('main');
         const docSnap = await docRef.get();
+
+        const latestConstitutionText = `【日森精工 AI 行政中心中央憲法與經營理念】
+
+一、 核心經營哲學與開發架構
+1. 貫徹「架構先行、功能凍結、模組化抽換、跨模組交叉混拉」的世界觀。
+2. 系統採用黃金三層架構，實現高度彈性熱插拔與 100% 雲端同步防災機制。
+
+二、 剛性安全防線 (法規字典自動校正鎖)
+全系統（前台、後台、手機端）偵測到具有勞基法風險的敏感字眼時，強制自動發動語意校正：
+• 「員工 / 打卡」 ➔ 剛性自動校正為 「外勤同仁 / 夥伴 / 出勤確認」
+• 「薪資 / 僱傭」 ➔ 剛性自動校正為 「接案報酬 / 承攬合作」
+
+三、 辨識輸入端與全域記憶審核門禁
+所有經由【辨識輸入端】進入之資產與數據結構，預設標記為『⏳ 待最高授權審核』。僅有最高授權管理員審核儲存後，方可提升為『🧠 全域核心記憶』供【格式輸出端】Slot 變數錨定調用。
+
+四、 特權覆蓋與數據正名
+1. 所有財務請款與對帳數據均以總裁手動上傳、AI 通靈寫入之真實數據為唯一依歸。
+2. 所有範本與檔案預覽一律剛性咬定 Cloud Storage 公開實體網址，開箱辨識命名時徹底去除「輸出範本」、「範本檔」等無意義贅字。`;
+
         if (!docSnap.exists) {
-            const defaultText = `【日森精工 AI 行政中心中央憲法與經營理念】\n\n一、 核心經營哲學與開發架構\n1. 貫徹「架構先行、功能凍結、模組化抽換、跨模組交叉混拉」的世界觀。\n2. 系統採用黃金三層架構，實現高度彈性熱插拔與 100% 雲端同步防災機制。\n\n二、 剛性安全防線 (法規字典自動校正鎖)\n全系統（前台、後台、手機端）偵測到具有勞基法風險的敏感字眼時，強制自動發動語意校正：\n• 「員工 / 打卡」 ➔ 剛性自動校正為 「外勤同仁 / 夥伴 / 出勤確認」\n• 「薪資 / 僱傭」 ➔ 剛性自動校正為 「接案報酬 / 承攬合作」\n\n三、 特權覆蓋與數據正名\n1. 所有財務請款與對帳數據均以總裁手動上傳、AI 通靈寫入之真實數據為唯一依歸。\n2. 所有範本與檔案預覽一律剛性咬定 Cloud Storage 公開實體網址，切斷所有斷線與錯位。`;
-            const initDoc = { text: defaultText, version: 1, timestamp: new Date().toISOString() };
+            const initDoc = { text: latestConstitutionText, version: 1, timestamp: new Date().toISOString() };
             await docRef.set(initDoc);
             return res.json(initDoc);
         }
-        res.json(docSnap.data());
+
+        const data = docSnap.data();
+        if (!data.text || !data.text.includes('三、 辨識輸入端與全域記憶審核門禁')) {
+            data.text = latestConstitutionText;
+            data.timestamp = new Date().toISOString();
+            await docRef.set(data).catch(() => {});
+        }
+        res.json(data);
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
