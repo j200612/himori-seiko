@@ -1744,11 +1744,13 @@
       container.appendChild(itemDiv);
     }
 
-    async function openConstitutionEditModal() {
+    window.openConstitutionEditModal = async function openConstitutionEditModal() {
+      console.log('🧠 [CORE_MEMORY_CLICK] 核心記憶按鈕被觸發');
       await loadCoreConstitution();
-      document.getElementById('modalConstitutionText').value = currentConstitutionText;
-      openModal('editConstitutionModal');
-    }
+      const textarea = document.getElementById('modalConstitutionText');
+      if (textarea) textarea.value = currentConstitutionText;
+      window.openModal('editConstitutionModal');
+    };
 
     async function saveConstitutionFromModal() {
       const text = document.getElementById('modalConstitutionText').value.trim();
@@ -2864,6 +2866,8 @@
       } catch (e) {
         alert('❌ 儲存網路例外');
       }
+    };
+
     // 🍞 全域浮動 Toast 提示介面 (嚴禁靜默吞錯與硬 alert 體驗)
     window.showCustomToast = function(msg, type = 'info') {
       let toast = document.getElementById('globalSystemToast');
@@ -2945,6 +2949,8 @@
       } catch (e) {
         window.showCustomToast(`❌ 網路連線例外: ${e.message}`, 'error');
       }
+    };
+
     window.triggerDesktopUpload = function() {
       console.log('👉 [DESKTOP_UPLOAD_CLICK] 電腦版上傳區被點擊');
       const input = document.getElementById('global-desktop-file-input') || document.getElementById('tab1-file-input');
