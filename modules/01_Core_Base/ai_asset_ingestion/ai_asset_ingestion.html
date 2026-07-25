@@ -1074,6 +1074,7 @@
           <div class="file-info" style="flex: 1; text-align: left; display: flex; flex-direction: column; gap: 6px;">
             <div style="display: flex; align-items: center; gap: 8px; justify-content: flex-start; text-align: left; flex-wrap: wrap;">
               <span class="file-name" style="font-weight: 700; color: var(--text-light); font-size: 0.98rem; text-align: left;">${item.name}</span>
+              <button class="btn btn-outline" style="font-size: 0.72rem; padding: 2px 7px; background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 6px; cursor: pointer;" onclick="window.renameAssetPrompt('${item.id}', '${(item.name || '').replace(/'/g, "\\'")}')" title="修改檔案名稱">✏️ 重命名</button>
               <span style="font-size: 0.72rem; padding: 2px 8px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; font-weight: 600;">${categoryTag}</span>
               <span style="font-size: 0.72rem; padding: 2px 6px; background: #0284c7; color: white; border-radius: 10px; font-weight: 700;">${versionTag}</span>
               ${statusBadge}
@@ -2142,7 +2143,10 @@
         row.setAttribute('data-asset-id', item.id);
         row.style = 'background: #1e293b; border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 8px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); font-size: 0.8rem; display: flex; flex-direction: column; gap: 6px; text-align: left;';
         row.innerHTML = `
-          <div style="font-weight:700; color:var(--text-light); font-size: 0.88rem; text-align: left;">${item.name}</div>
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+            <div style="font-weight:700; color:var(--text-light); font-size: 0.88rem; text-align: left; flex: 1;">${item.name}</div>
+            <button class="btn btn-outline" style="font-size:0.68rem; padding: 2px 6px; background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 4px; flex-shrink: 0;" onclick="window.renameAssetPrompt('${item.id}', '${(item.name || '').replace(/'/g, "\\'")}')" title="修改檔名">✏️ 重命名</button>
+          </div>
           <div style="display: flex; gap: 6px; align-items: center; justify-content: flex-start; flex-wrap: wrap;">
             <span style="font-size: 0.68rem; padding: 1px 6px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 10px; font-weight: 600;">${categoryTag}</span>
             <span style="font-size: 0.68rem; padding: 1px 5px; background: #0284c7; color: white; border-radius: 8px; font-weight: 700;">${versionTag}</span>
@@ -2151,6 +2155,7 @@
           </div>
           <div style="display:flex; justify-content:flex-end; align-items:center; margin-top: 6px; gap: 6px;">
             <button class="btn btn-outline" style="font-size:0.75rem; padding: 4px 8px; background: #0284c7; color: white; border: none; font-weight: bold;" onclick="openOriginalPreview('${fileUrl}', '${(item.name || '').replace(/'/g, "\\'")}')">👁️ 預覽</button>
+            <button class="btn btn-outline" style="font-size:0.75rem; padding: 4px 8px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-weight: bold; border-radius: 4px;" onclick="window.renameAssetPrompt('${item.id}', '${(item.name || '').replace(/'/g, "\\'")}')">✏️ 檔名</button>
             <button class="btn" style="font-size:0.75rem; padding: 4px 8px; background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border: 1px solid #38bdf8; font-weight: bold; border-radius: 4px;" onclick="window.openAssetSchemaModal('${item.id}')">📊 數據卡</button>
             <button class="btn btn-danger" style="font-size:0.75rem; padding: 4px 8px; border-radius: 4px;" onclick="window.deleteAssetWithConfirm('${item.id}', this)">🗑️ 物理刪除</button>
           </div>
@@ -2848,6 +2853,87 @@
         }
       } catch (e) {
         alert('❌ 儲存網路例外');
+      }
+    // 🍞 全域浮動 Toast 提示介面 (嚴禁靜默吞錯與硬 alert 體驗)
+    window.showCustomToast = function(msg, type = 'info') {
+      let toast = document.getElementById('globalSystemToast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'globalSystemToast';
+        toast.style = 'position: fixed; bottom: 24px; right: 24px; z-index: 999999; padding: 12px 20px; border-radius: 8px; font-weight: bold; font-size: 0.88rem; box-shadow: 0 4px 15px rgba(0,0,0,0.4); backdrop-filter: blur(10px); transition: all 0.3s ease; opacity: 0; pointer-events: none; transform: translateY(10px);';
+        document.body.appendChild(toast);
+      }
+
+      if (type === 'error') {
+        toast.style.background = 'rgba(225, 29, 72, 0.95)';
+        toast.style.color = '#ffffff';
+        toast.style.border = '1px solid #f43f5e';
+      } else if (type === 'success') {
+        toast.style.background = 'rgba(16, 185, 129, 0.95)';
+        toast.style.color = '#ffffff';
+        toast.style.border = '1px solid #34d399';
+      } else {
+        toast.style.background = 'rgba(14, 165, 233, 0.95)';
+        toast.style.color = '#ffffff';
+        toast.style.border = '1px solid #38bdf8';
+      }
+
+      toast.innerHTML = msg;
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateY(0)';
+      toast.style.pointerEvents = 'auto';
+
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        toast.style.pointerEvents = 'none';
+      }, 3200);
+    };
+
+    // ✏️ 前端檔案重命名 (Rename) 交互邏輯 (與後端 /api/storage/rename 100% 同步)
+    window.renameAssetPrompt = async function(id, currentName) {
+      if (!id) return;
+      const newName = prompt('✏️ 請輸入修改後的新檔案名稱：', currentName || '');
+      if (newName === null) return; // 使用者取消
+
+      const trimmedName = newName.trim();
+      if (!trimmedName) {
+        window.showCustomToast('⚠️ 修改失敗：檔案名稱不可為空白！', 'error');
+        return;
+      }
+
+      // 🛡️ 清理非法字元 / \ : * ? " < > |
+      let sanitized = trimmedName.replace(/[/\\:*?"<>|]/g, '').trim();
+      if (!sanitized) {
+        window.showCustomToast('⚠️ 檔名含有不安全字元，清理後不可為空！', 'error');
+        return;
+      }
+      sanitized = sanitized.replace(/輸出範本|範本檔|範本|輸出檔/g, '').trim() || sanitized;
+
+      try {
+        const res = await fetch(`/api/storage/rename/${id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ assetId: id, newFilename: sanitized })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          window.showCustomToast(`✅ 檔名已成功修改為：「${data.newFilename}」`, 'success');
+          // 即時更新快取
+          const cache = (typeof cachedAssets !== 'undefined' && Array.isArray(cachedAssets)) ? cachedAssets : [];
+          const asset = cache.find(a => a.id === id);
+          if (asset) {
+            asset.name = data.newFilename;
+            asset.displayName = data.newFilename;
+          }
+          if (typeof loadAssets === 'function') await loadAssets(true);
+          else location.reload();
+        } else {
+          window.showCustomToast(`❌ 檔名修改失敗: ${data.error || '未知錯誤'}`, 'error');
+        }
+      } catch (e) {
+        window.showCustomToast(`❌ 網路連線例外: ${e.message}`, 'error');
       }
     };
 

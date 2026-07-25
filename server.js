@@ -1772,6 +1772,64 @@ app.post('/api/admin/ai-assets/update-fields/:id', async (req, res) => {
     }
 });
 
+// ✏️ 檔案名稱修改 (Rename) API (同步更新 document_assets, ai_assets & document_templates)
+app.post(['/api/storage/rename', '/api/storage/rename/:id'], async (req, res) => {
+    try {
+        const id = req.params.id || req.body.assetId || req.body.id;
+        let { newFilename } = req.body;
+
+        if (!id) return res.status(400).json({ success: false, error: 'Missing assetId parameter' });
+        if (!newFilename || typeof newFilename !== 'string' || !newFilename.trim()) {
+            return res.status(400).json({ success: false, error: '新檔名不可為空白' });
+        }
+
+        // 🛡️ 防護 1：過濾不安全字元 ( / \ : * ? " < > | )
+        let sanitized = newFilename.replace(/[/\\:*?"<>|]/g, '').trim();
+        if (!sanitized) {
+            return res.status(400).json({ success: false, error: '檔名含有不安全字元，清理後不可為空' });
+        }
+
+        // 🛡️ 防護 2：徹底抹除無意義贅字「輸出範本」、「範本檔」、「範本」、「輸出檔」
+        sanitized = sanitized.replace(/輸出範本|範本檔|範本|輸出檔/g, '').trim();
+        if (!sanitized) sanitized = newFilename.replace(/[/\\:*?"<>|]/g, '').trim();
+
+        const updateData = {
+            name: sanitized,
+            displayName: sanitized,
+            originalName: sanitized,
+            customName: sanitized,
+            timestamp: new Date().toISOString()
+        };
+
+        const cols = ['ai_assets', 'document_assets', 'document_templates'];
+        let updatedCount = 0;
+
+        await Promise.all(cols.map(async c => {
+            const ref = firestore.collection(c).doc(id);
+            const snap = await ref.get().catch(() => null);
+            if (snap && snap.exists) {
+                await ref.update(updateData).catch(() => {});
+                updatedCount++;
+            }
+        }));
+
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+
+        return res.json({
+            success: true,
+            assetId: id,
+            newFilename: sanitized,
+            message: '檔名修改成功',
+            updatedCount
+        });
+    } catch (e) {
+        console.error('❌ Rename API Error:', e);
+        return res.status(500).json({ success: false, error: e.message });
+    }
+});
+
 // 🚨 兩階段 Modal 核定後正式入庫 (支援同名覆寫升版 v2 與另存新檔雙路徑，SSOT 副檔名完全保留)
 app.post('/api/admin/ai-assets/create', async (req, res) => {
     try {
