@@ -356,7 +356,7 @@
                 <span style="font-size: 0.8rem; color: var(--text-muted);">法規安全鎖與中央憲章物理保護中</span>
               </div>
             </div>
-            <button class="btn btn-primary" style="font-size: 0.95rem; padding: 10px 22px; font-weight: bold; background: linear-gradient(135deg, #38bdf8, #0ea5e9); border-radius: 8px; box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3); cursor: pointer;" onclick="openConstitutionEditModal()">📂 核心記憶</button>
+            <button id="btn-core-memory" class="btn btn-primary btn-core-memory" data-action="core-memory" style="font-size: 0.95rem; padding: 10px 22px; font-weight: bold; background: linear-gradient(135deg, #38bdf8, #0ea5e9); border-radius: 8px; box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3); cursor: pointer;" onclick="openConstitutionEditModal()">🧠 核心記憶</button>
           </div>
 
           <!-- 2. 中部：【全域拖曳檔案輸入區】 -->
@@ -365,7 +365,8 @@
             <p style="margin: 8px 0; font-weight: 600; font-size: 1rem; color: var(--text-light);">拖曳任何實體檔案至此 或 點擊選取檔案 ➔ 融入大腦記憶</p>
             <span style="font-size: 0.8rem; color: var(--text-muted);">檔案將自動上傳至 Cloud Storage 物理備份，並記錄於全域記憶池</span>
           </div>
-          <input type="file" id="tab1-file-input" multiple accept="image/*,.pdf,.docx,.xlsx,.doc,.xls" style="display: none;">
+          <input type="file" id="global-desktop-file-input" name="file" multiple accept="image/*,.pdf,.docx,.xlsx,.doc,.xls" style="display: none;">
+          <input type="file" id="tab1-file-input" name="file" multiple accept="image/*,.pdf,.docx,.xlsx,.doc,.xls" style="display: none;">
 
           <!-- 3. 底部：【條列式時間流模糊檢索牆】 -->
           <div style="margin-bottom: 16px;">
@@ -443,8 +444,9 @@
             <textarea id="voiceInputText" placeholder="請輸入或語音輸入暫存指令..." style="width:100%; height: 50px; font-size: 0.8rem; padding: 6px; box-sizing: border-box; border-radius: 6px; border: 1px solid var(--border); background: rgba(15,23,42,0.6); color: var(--text-light); outline: none;"></textarea>
             <div style="display: flex; gap: 8px; margin-top: 6px;">
               <button class="btn btn-danger" style="flex: 1; font-size: 0.82rem; min-height: 44px; padding: 10px 6px;" onclick="triggerVoiceParse()">🎙️ 語音暫存</button>
-              <button class="btn btn-primary" style="flex: 1; font-size: 0.82rem; min-height: 44px; padding: 10px 6px; background-color: var(--success);" onclick="document.getElementById('mobilePhotoInput').click()">📷 拍照/上傳文件</button>
-              <input type="file" id="mobilePhotoInput" multiple accept="image/*,.pdf,.docx" capture="environment" style="display: none;" onchange="window.handleMobilePhotoUpload(event)">
+              <button id="btn-mobile-upload" class="btn btn-primary btn-mobile-upload" data-action="mobile-upload" style="flex: 1; font-size: 0.82rem; min-height: 44px; padding: 10px 6px; background-color: var(--success);" onclick="window.triggerMobileQuickUpload()">📷 拍照/上傳文件</button>
+              <input type="file" id="mobile-quick-file-input" name="file" multiple accept="image/*,.pdf,.docx,.xlsx,.doc,.xls" capture="environment" style="display: none;" onchange="window.handleMobilePhotoUpload(event)">
+              <input type="file" id="mobilePhotoInput" name="file" multiple accept="image/*,.pdf,.docx,.xlsx,.doc,.xls" capture="environment" style="display: none;" onchange="window.handleMobilePhotoUpload(event)">
             </div>
           </div>
           <!-- 條列式時間流檢索牆 -->
@@ -481,7 +483,7 @@
   </datalist>
 
   <!-- 單一欄位極簡融入大腦 Modal -->
-  <div class="modal" id="ingestModal" style="backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: rgba(15, 23, 42, 0.4);">
+  <div class="modal" id="ingestModal" style="display: none; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: rgba(15, 23, 42, 0.4);">
     <div class="modal-content" style="background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(56, 189, 248, 0.25); box-shadow: 0 8px 32px rgba(56, 189, 248, 0.15);">
       <h3 style="color: var(--accent); margin-top: 0; display: flex; align-items: center; gap: 8px;">
         🧠 融入大腦全域記憶
@@ -501,7 +503,7 @@
   </div>
 
   <!-- 編輯核心記憶毛玻璃 Modal -->
-  <div class="modal" id="editConstitutionModal" style="backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: rgba(15, 23, 42, 0.4);">
+  <div class="modal" id="editConstitutionModal" style="display: none; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: rgba(15, 23, 42, 0.4);">
     <div class="modal-content" style="background: rgba(30, 41, 59, 0.9); border: 1px solid rgba(56, 189, 248, 0.3); box-shadow: 0 8px 32px rgba(56, 189, 248, 0.2); width: 680px; max-width: 90%;">
       <h3 style="color: var(--accent); margin-top: 0; display: flex; align-items: center; gap: 8px;">
         ✏️ 編輯核心記憶與全系統法規安全鎖
@@ -521,7 +523,7 @@
   </div>
 
   <!-- ✏️ 編輯輸出黃金範本毛玻璃 Modal -->
-  <div class="modal" id="editTemplateModal" style="backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: rgba(15, 23, 42, 0.4);">
+  <div class="modal" id="editTemplateModal" style="display: none; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: rgba(15, 23, 42, 0.4);">
     <div class="modal-content" style="background: rgba(30, 41, 59, 0.9); border: 1px solid rgba(56, 189, 248, 0.3); box-shadow: 0 8px 32px rgba(56, 189, 248, 0.2); width: 680px; max-width: 90%;">
       <h3 style="color: var(--accent); margin-top: 0; display: flex; align-items: center; gap: 8px;">
         ✏️ 編輯輸出黃金範本與變數宣告
@@ -646,7 +648,7 @@
   </div>
 
   <!-- 範本核定 Modal (極簡雙欄位) -->
-  <div class="modal" id="templateConfirmModal" style="backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: rgba(15, 23, 42, 0.4);">
+  <div class="modal" id="templateConfirmModal" style="display: none; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: rgba(15, 23, 42, 0.4);">
     <div class="modal-content" style="background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(56, 189, 248, 0.25); box-shadow: 0 8px 32px rgba(56, 189, 248, 0.15);">
       <h3 style="color: var(--accent); margin-top: 0; display: flex; align-items: center; gap: 8px;">
         🧠 AI 大腦自動通靈範本核定
@@ -680,7 +682,7 @@
   </div>
 
   <!-- 📦 資產變更分類 / 搬家 Modal -->
-  <div class="modal" id="relocateModal" style="backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: rgba(15, 23, 42, 0.4);">
+  <div class="modal" id="relocateModal" style="display: none; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: rgba(15, 23, 42, 0.4);">
     <div class="modal-content" style="background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(56, 189, 248, 0.25); box-shadow: 0 8px 32px rgba(56, 189, 248, 0.15);">
       <h3 style="color: var(--accent); margin-top: 0; display: flex; align-items: center; gap: 8px;">
         📦 資產動態搬家 (變更資料夾分類)
@@ -704,7 +706,7 @@
   </div>
 
   <!-- 版本更換 Modal -->
-  <div class="modal" id="replaceModal">
+  <div class="modal" id="replaceModal" style="display: none;">
     <div class="modal-content">
       <h3>🔄 更換檔案新版本與歸檔</h3>
       <p style="font-size: 0.85rem; color: var(--text-muted);">上傳新版本後，舊版本將自動留存歷史軌跡封存。總裁特權覆蓋鎖將全程保護防止衝突。</p>
@@ -727,7 +729,7 @@
   </div>
 
   <!-- 編輯自我核心記憶 Modal -->
-  <div class="modal" id="editMemoryModal">
+  <div class="modal" id="editMemoryModal" style="display: none;">
     <div class="modal-content">
       <h3>✏️ 編輯自我核心記憶</h3>
       <div class="form-group">
@@ -2943,7 +2945,49 @@
       } catch (e) {
         window.showCustomToast(`❌ 網路連線例外: ${e.message}`, 'error');
       }
+    window.triggerDesktopUpload = function() {
+      console.log('👉 [DESKTOP_UPLOAD_CLICK] 電腦版上傳區被點擊');
+      const input = document.getElementById('global-desktop-file-input') || document.getElementById('tab1-file-input');
+      if (input) input.click();
     };
+
+    window.triggerMobileQuickUpload = function() {
+      console.log('📷 [MOBILE_UPLOAD_CLICK] 手機端拍照/上傳文件按鈕被點擊');
+      const input = document.getElementById('mobile-quick-file-input') || document.getElementById('mobilePhotoInput');
+      if (input) input.click();
+    };
+
+    // 🛡️ 全頁面 Event Delegation 全域防禦與強制響應綁定
+    document.addEventListener('click', function(e) {
+      const target = e.target;
+      if (!target) return;
+
+      // 🧠 1. 「核心記憶」按鈕點擊觸發
+      const coreBtn = target.closest('#btn-core-memory, .btn-core-memory, [data-action="core-memory"]');
+      if (coreBtn) {
+        console.log('🧠 [CORE_MEMORY_CLICK] 核心記憶按鈕被觸發');
+        if (typeof window.openConstitutionEditModal === 'function') {
+          window.openConstitutionEditModal();
+        } else if (typeof window.openModal === 'function') {
+          window.openModal('editConstitutionModal');
+        }
+        return;
+      }
+
+      // 📥 2. 電腦版拖曳/上傳區點擊觸發
+      const desktopDropzone = target.closest('#tab1-upload-dropzone, .upload-area');
+      if (desktopDropzone && !target.matches('input[type="file"]')) {
+        window.triggerDesktopUpload();
+        return;
+      }
+
+      // 📷 3. 手機版「📷 拍照/上傳文件」按鈕觸發
+      const mobileBtn = target.closest('#btn-mobile-upload, .btn-mobile-upload, [data-action="mobile-upload"]');
+      if (mobileBtn && !target.matches('input[type="file"]')) {
+        window.triggerMobileQuickUpload();
+        return;
+      }
+    });
 
     init();
   </script></body>
