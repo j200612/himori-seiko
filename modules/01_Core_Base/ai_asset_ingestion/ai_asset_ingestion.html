@@ -2108,6 +2108,7 @@
         presidentFiles.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding: 16px; font-size:0.8rem;">查無匹配檔案</div>`;
       }
     }
+    window.renderMobileStream = renderSimulatorLists;
 
     // 📸 手機端拍照/選擇實體圖片連動 Gemini Vision API 解析
     window.handleMobilePhotoUpload = async function(event) {

@@ -1720,46 +1720,68 @@
       renderTemplatesList(filtered);
     }
 
-    function renderSimulatorLists(data) {
+    function renderSimulatorLists(rawData) {
       const partnerFiles = document.getElementById('simPartnerFiles');
       const presidentFiles = document.getElementById('simPresidentFiles');
       
-      if (!partnerFiles || !presidentFiles) return;
+      const list = rawData || cachedAssets || [];
+      const data = list.filter(item => item && (!window.deletedAssetIds || !window.deletedAssetIds.has(item.id)));
 
-      partnerFiles.innerHTML = '';
-      presidentFiles.innerHTML = '';
+      if (partnerFiles) partnerFiles.innerHTML = '';
+      if (presidentFiles) presidentFiles.innerHTML = '';
 
-      // 模擬同仁個人文件
-      const partnerData = data.filter(item => item.name.includes(currentUser.name) || (item.aiMetadata && item.aiMetadata.type === '個人對帳單'));
-      partnerData.forEach(item => {
-        const row = document.createElement('div');
-        row.style = 'background: #1e293b; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-size: 0.8rem;';
-        row.innerHTML = `
-          <div style="font-weight:600; margin-bottom:4px; color:var(--text-light);">${item.name}</div>
-          <div style="color:var(--text-muted);">時間: ${new Date(item.timestamp).toLocaleDateString()} (v${item.version})</div>
-          <button class="btn btn-outline" style="font-size:0.7rem; padding: 4px 8px; margin-top: 6px;" onclick="openMobilePreview('${item.currentUrl}')">👁️ 預覽</button>
-        `;
-        partnerFiles.appendChild(row);
-      });
+      if (partnerFiles) {
+        const partnerData = data.filter(item => item.name.includes(currentUser.name) || (item.aiMetadata && item.aiMetadata.type === '個人對帳單'));
+        partnerData.forEach(item => {
+          const row = document.createElement('div');
+          row.style = 'background: #1e293b; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-size: 0.8rem;';
+          row.innerHTML = `
+            <div style="font-weight:600; margin-bottom:4px; color:var(--text-light); text-align:left;">${item.name}</div>
+            <div style="color:var(--text-muted); text-align:left;">時間: ${new Date(item.timestamp).toLocaleDateString()} (v${item.version || 1})</div>
+            <button class="btn btn-outline" style="font-size:0.7rem; padding: 4px 8px; margin-top: 6px;" onclick="openOriginalPreview('${item.currentUrl || item.gcsUrl || item.url}')">👁️ 預覽</button>
+          `;
+          partnerFiles.appendChild(row);
+        });
+      }
 
-      // 總裁手機檔案列表
-      data.forEach(item => {
-        const badgeColor = (item.aiMetadata && item.aiMetadata.status === '實戰數據') ? 'var(--success)' : 'var(--accent)';
-        const row = document.createElement('div');
-        row.style = 'background: #1e293b; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-size: 0.8rem;';
-        row.innerHTML = `
-          <div style="font-weight:600; margin-bottom:4px; color:var(--text-light);">${item.name}</div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-top: 6px;">
-            <span style="font-size: 0.7rem; color: ${badgeColor}; font-weight:700;">● ${item.aiMetadata ? item.aiMetadata.status : '實戰數據'}</span>
-            <div style="display:flex; gap: 4px;">
-              <button class="btn btn-outline" style="font-size:0.7rem; padding: 3px 6px;" onclick="openOriginalPreview('${item.currentUrl}', '${item.name.replace(/'/g, "\\'")}')">預覽</button>
-              <button class="btn btn-danger" style="font-size:0.7rem; padding: 3px 6px;" onclick="deleteAsset('${item.id}')">物理刪除</button>
+      if (presidentFiles) {
+        const searchQ = (document.getElementById('simPresidentSearchInput')?.value || '').toLowerCase().trim();
+        let filteredData = data;
+        if (searchQ) {
+          filteredData = data.filter(item => (item.name || '').toLowerCase().includes(searchQ));
+        }
+
+        filteredData.forEach(item => {
+          const fileUrl = item.currentUrl || item.gcsUrl || item.url || '#';
+          const categoryTag = item.category || (item.aiMetadata && item.aiMetadata.type) || '📂 一般資料';
+          const versionTag = item.version ? `v${item.version}` : 'v1';
+
+          const row = document.createElement('div');
+          row.className = 'mobile-file-item';
+          row.setAttribute('data-asset-id', item.id);
+          row.style = 'background: #1e293b; border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 8px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); font-size: 0.8rem; display: flex; flex-direction: column; gap: 6px; text-align: left;';
+          row.innerHTML = `
+            <div style="font-weight:700; color:var(--text-light); font-size: 0.88rem; text-align: left;">${item.name}</div>
+            <div style="display: flex; gap: 6px; align-items: center; justify-content: flex-start; flex-wrap: wrap;">
+              <span style="font-size: 0.68rem; padding: 1px 6px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 10px; font-weight: 600;">${categoryTag}</span>
+              <span style="font-size: 0.68rem; padding: 1px 5px; background: #0284c7; color: white; border-radius: 8px; font-weight: 700;">${versionTag}</span>
+              <span style="font-size: 0.68rem; padding: 1px 6px; background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 10px; font-weight: 600;">⏳ 待最高授權審核存入</span>
             </div>
-          </div>
-        `;
-        presidentFiles.appendChild(row);
-      });
+            <div style="display:flex; justify-content:flex-end; align-items:center; margin-top: 6px; gap: 6px;">
+              <button class="btn btn-outline" style="font-size:0.75rem; padding: 4px 8px; background: #0284c7; color: white; border: none; font-weight: bold;" onclick="openOriginalPreview('${fileUrl}', '${(item.name || '').replace(/'/g, "\\'")}')">👁️ 預覽</button>
+              <button class="btn" style="font-size:0.75rem; padding: 4px 8px; background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border: 1px solid #38bdf8; font-weight: bold; border-radius: 4px;" onclick="window.openAssetSchemaModal('${item.id}')">📊 數據卡</button>
+              <button class="btn btn-danger" style="font-size:0.75rem; padding: 4px 8px; border-radius: 4px;" onclick="window.deleteAssetWithConfirm('${item.id}', this)">🗑️ 物理刪除</button>
+            </div>
+          `;
+          presidentFiles.appendChild(row);
+        });
+
+        if (filteredData.length === 0) {
+          presidentFiles.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding: 16px; font-size:0.8rem;">查無匹配檔案</div>`;
+        }
+      }
     }
+    window.renderMobileStream = renderSimulatorLists;
 
     // 🚨 預覽按鈕防呆：全動態綁定，絕不允許拿空字串去拼儲存桶根目錄
     function openOriginalPreview(url, name) {

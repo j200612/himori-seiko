@@ -344,6 +344,14 @@ async function seedCoreMemories() {
                 attachedFile2Name: '直式logo.png',
                 version: 1,
                 timestamp: new Date().toISOString()
+            },
+            {
+                id: 'MEM-2026-V7',
+                code: 'MEM-2026-V7',
+                name: '【G. AI 大腦核心記憶憲法與審核晉升規則】',
+                content: '日森精工 AI 行政中心大腦記憶憲法：所有經由【辨識輸入端】進入之資產與數據結構，預設標記為『⏳ 待最高授權審核』。僅有最高授權管理員審核儲存後，方可提升為『全域核心記憶』供【格式輸出端】Slot 變數錨定調用。AI 開箱辨識命名時必須徹底去除「輸出範本」、「範本檔」等無意義贅字。',
+                version: 1,
+                timestamp: new Date().toISOString()
             }
         ];
         for (const item of seedData) {
@@ -1573,6 +1581,7 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
 3. 每個提取出的欄位請評估 confidence ("HIGH" | "MEDIUM" | "LOW")。
 4. 若影像或內文中完全無法識別出上述真實業務欄位，請將 extractedFields 設定為空陣列 []，絕不可以偽造或拿檔案名稱與時間填補！
 5. 建議檔名 (suggestedName):
+   - 徹底去除『輸出範本』、『範本檔』、『範本』、『輸出檔』等無意義贅字！
    - 若原檔名 "${rawName}" 已有業務意義請 100% 保留。
    - 若原檔名為純數字或預設無意義檔名 (如 IMG_xxx, Scan_xxx)，請依據解析內文產生乾淨檔名。
    - 嚴禁在檔名前面加上 [類別] 或 【類別】 等方括弧前綴。
@@ -1667,9 +1676,12 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
             });
         }
 
-        // 剛性清除方括弧贅字
+        // 剛性清除方括弧與「輸出範本/範本檔/範本/輸出檔」無意義贅字
         if (parsedResult.suggestedName) {
-            parsedResult.suggestedName = parsedResult.suggestedName.replace(/^([【\[].*?[】\]])\s*/, '').trim();
+            parsedResult.suggestedName = parsedResult.suggestedName
+                .replace(/^([【\[].*?[】\]])\s*/, '')
+                .replace(/輸出範本|範本檔|範本|輸出檔/g, '')
+                .trim();
         }
 
         // 🚨 剛性覆蓋資料庫：當成功拿到 Gemini 辨識結果後，立即更新 Firestore 資料庫，將「待補充真實內文」徹底抹除
