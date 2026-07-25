@@ -1843,18 +1843,25 @@
     }
     window.renderMobileStream = renderSimulatorLists;
 
-    // 🚨 預覽按鈕防呆：全動態綁定，絕不允許拿空字串去拼儲存桶根目錄
+    // 🚨 預覽按鈕防呆：全動態綁定，帶入 Office Viewer / PDF 代理分流與防快取鐵律
     function openOriginalPreview(url, name) {
-      if (!url || url === 'undefined' || url === 'null' || url.trim() === '') {
-        alert('⚠️ 系統提示：該檔案在資料庫中的 currentUrl 欄位為空值，代表上傳時未成功寫入網址，請刪除該項目重新上傳！');
-        return;
+      if (!url && !name) {
+        return console.error('⚠️ 系統提示：實體網址與檔名為空值，無法開啟預覽');
       }
-      let targetUrl = url.trim();
+      let targetUrl = (typeof window.getSmartPreviewUrl === 'function') ? window.getSmartPreviewUrl(url, name) : (url || '').trim();
       if (targetUrl.startsWith('/')) {
         targetUrl = window.location.origin + targetUrl;
       }
-      console.log(`[動態實體網址直連] 開啟網址: ${targetUrl}`);
-      window.open(targetUrl, '_blank');
+      const lowerUrl = targetUrl.toLowerCase();
+      let finalUrl = targetUrl;
+      if (lowerUrl.includes('.docx') || lowerUrl.includes('.xlsx') || lowerUrl.includes('.doc') || lowerUrl.includes('.xls') || lowerUrl.includes('.pptx')) {
+        finalUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(targetUrl)}`;
+      }
+      if (typeof window.addCacheBuster === 'function') {
+        finalUrl = window.addCacheBuster(finalUrl);
+      }
+      console.log(`[防快取動態實體網址 200 OK] 開啟網址: ${finalUrl}`);
+      window.open(finalUrl, '_blank');
     }
 
     // ── ✏️ 分頁二：黃金範本編輯彈窗開關與保存 ──

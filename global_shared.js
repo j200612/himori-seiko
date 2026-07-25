@@ -492,11 +492,52 @@
         configurable: true
     });
     
-    // 綁定 window 儲存異動事件監聽（供跨視窗同步）
-    window.addEventListener("storage", function(e) {
-        HimoriDb.load();
-        const event = new CustomEvent("himori_db_updated");
-        window.dispatchEvent(event);
-    });
+    // 🚫 全域防快取 (Cache-Busting) window.fetch 攔截器
+    (function() {
+        if (typeof window === 'undefined' || !window.fetch) return;
+        if (window.__cacheBusterPatched) return;
+        window.__cacheBusterPatched = true;
+
+        window.addCacheBuster = function(url) {
+            if (!url || typeof url !== 'string' || url === '#' || url.startsWith('data:')) return url;
+            if (url.includes('_t=')) return url;
+            const sep = url.includes('?') ? '&' : '?';
+            return `${url}${sep}_t=${Date.now()}`;
+        };
+
+        const originalFetch = window.fetch;
+        window.fetch = function(resource, init) {
+            init = init || {};
+            const headersObj = {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0'
+            };
+
+            if (!init.headers) {
+                init.headers = headersObj;
+            } else if (typeof Headers !== 'undefined' && init.headers instanceof Headers) {
+                init.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+                init.headers.set('Pragma', 'no-cache');
+                init.headers.set('Expires', '0');
+            } else if (Array.isArray(init.headers)) {
+                init.headers.push(['Cache-Control', 'no-cache, no-store, must-revalidate']);
+                init.headers.push(['Pragma', 'no-cache']);
+                init.headers.push(['Expires', '0']);
+            } else {
+                Object.assign(init.headers, headersObj);
+            }
+
+            if (typeof resource === 'string') {
+                const method = (init.method || 'GET').toUpperCase();
+                if (method === 'GET' && !resource.includes('_t=') && !resource.startsWith('data:')) {
+                    const sep = resource.includes('?') ? '&' : '?';
+                    resource = `${resource}${sep}_t=${Date.now()}`;
+                }
+            }
+
+            return originalFetch.call(this, resource, init);
+        };
+    })();
 
 })(typeof window !== "undefined" ? window : global);

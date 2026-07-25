@@ -41,6 +41,15 @@ const app = express();
 const port = process.env.PORT || 8080;
 
 app.use(cors());
+
+// 🚫 全域防快取 (Cache-Busting) Response Header Middleware
+app.use((req, res, next) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    next();
+});
+
 app.use(express.json({ verify: (req, res, buf) => { req.rawBody = buf; } }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -1206,7 +1215,9 @@ app.get('/api/storage/preview/:filename(*)', async (req, res) => {
 
         res.setHeader('Content-Type', contentType);
         res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(decodedName)}"`);
-        res.setHeader('Cache-Control', 'public, max-age=86400');
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
         file.createReadStream().pipe(res);
     } catch (e) {
         console.error('❌ GCS Preview Proxy Error:', e.message);
@@ -1228,7 +1239,9 @@ app.get('/api/storage/file-proxy', async (req, res) => {
         const file = bucket.file(objectPath);
         const [meta] = await file.getMetadata();
         res.setHeader('Content-Type', meta.contentType || 'application/octet-stream');
-        res.setHeader('Cache-Control', 'public, max-age=86400');
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
         file.createReadStream().pipe(res);
     } catch (e) {
         res.status(500).send('Proxy error: ' + e.message);

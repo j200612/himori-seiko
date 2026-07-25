@@ -2205,23 +2205,25 @@
     };
 
     window.getSmartPreviewUrl = function(rawUrl, rawName) {
+      let finalUrl = '#';
       if (rawUrl && typeof rawUrl === 'string' && rawUrl.length > 5 && rawUrl !== 'undefined' && rawUrl !== 'null' && rawUrl !== '#') {
         let url = rawUrl.trim();
         if (/\.[a-zA-Z0-9]{2,5}(\?.*)?$/.test(url) || url.startsWith('/api/storage/preview/')) {
-          return url;
+          finalUrl = url;
         }
       }
       
-      if (rawName && /\.[a-zA-Z0-9]{2,5}$/.test(rawName.trim())) {
-        return `/api/storage/preview/${encodeURIComponent(rawName.trim())}`;
+      if (finalUrl === '#' && rawName && /\.[a-zA-Z0-9]{2,5}$/.test(rawName.trim())) {
+        finalUrl = `/api/storage/preview/${encodeURIComponent(rawName.trim())}`;
       }
 
-      if (rawUrl && rawUrl !== '#' && rawUrl !== 'undefined') return rawUrl.trim();
-      if (rawName) return `/api/storage/preview/${encodeURIComponent(rawName.trim())}`;
-      return '#';
+      if (finalUrl === '#' && rawUrl && rawUrl !== '#' && rawUrl !== 'undefined') finalUrl = rawUrl.trim();
+      if (finalUrl === '#' && rawName) finalUrl = `/api/storage/preview/${encodeURIComponent(rawName.trim())}`;
+
+      return (typeof window.addCacheBuster === 'function') ? window.addCacheBuster(finalUrl) : finalUrl;
     };
 
-    // 🚨 預覽按鈕防呆：全動態綁定，帶入 Office Viewer / PDF 代理分流鐵律
+    // 🚨 預覽按鈕防呆：全動態綁定，帶入 Office Viewer / PDF 代理分流與防快取鐵律
     function openOriginalPreview(url, name) {
       if (!url && !name) {
         return console.error('⚠️ 系統提示：實體網址與檔名為空值，無法開啟預覽');
@@ -2235,7 +2237,10 @@
       if (lowerUrl.includes('.docx') || lowerUrl.includes('.xlsx') || lowerUrl.includes('.doc') || lowerUrl.includes('.xls') || lowerUrl.includes('.pptx')) {
         finalUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(targetUrl)}`;
       }
-      console.log(`[動態實體網址分流 200 OK] 開啟網址: ${finalUrl}`);
+      if (typeof window.addCacheBuster === 'function') {
+        finalUrl = window.addCacheBuster(finalUrl);
+      }
+      console.log(`[防快取動態實體網址 200 OK] 開啟網址: ${finalUrl}`);
       window.open(finalUrl, '_blank');
     }
 
