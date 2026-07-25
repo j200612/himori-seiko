@@ -1733,9 +1733,14 @@ app.post('/api/admin/ai-assets/extract-schema', async (req, res) => {
 app.post('/api/admin/ai-assets/update-fields/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { extractedFields, brainSummary } = req.body;
+        const { extractedFields, brainSummary, status } = req.body;
 
-        const updateData = { timestamp: new Date().toISOString() };
+        const updateData = { 
+            timestamp: new Date().toISOString(),
+            status: status || 'approved',
+            isApproved: true,
+            'aiMetadata.status': '實戰數據'
+        };
         if (extractedFields !== undefined) updateData.extractedFields = extractedFields;
         if (brainSummary !== undefined && !brainSummary.includes('待補充真實內文')) updateData.brainSummary = brainSummary;
 
