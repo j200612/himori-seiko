@@ -462,7 +462,16 @@ app.post('/api/storage/upload', upload.single('file'), async (req, res) => {
         if (!req.file) {
             return res.status(400).json({ error: 'No file uploaded.' });
         }
-        const ext = path.extname(req.file.originalname);
+
+        // 🛡️ Multer 繁體中文檔名防亂碼還原處理
+        let originalName = req.file.originalname;
+        try {
+            originalName = Buffer.from(req.file.originalname, 'latin1').toString('utf8');
+        } catch (e) {
+            console.warn('⚠️ Latin1 to UTF8 decoding fallback:', e.message);
+        }
+
+        const ext = path.extname(originalName);
         const gcsFileName = `${Date.now()}_${Math.random().toString(36).substring(2, 7)}${ext}`;
         const blob = bucket.file(gcsFileName);
         
@@ -490,8 +499,11 @@ app.post('/api/storage/upload', upload.single('file'), async (req, res) => {
             blobStream.end(req.file.buffer);
         });
 
-        console.log(`✅ [GCS 物理同步鎖完工] 實體檔名: ${req.file.originalname} -> 代理與直連網址: ${publicUrl}`);
-        res.json({ success: true, url: publicUrl, previewUrl: publicUrl, gcsUrl: `https://storage.googleapis.com/${bucketName}/${gcsFileName}`, fileName: req.file.originalname, gcsFileName });
+        console.log(`✅ [GCS 物理同步鎖完工] 實體檔名: ${originalName} -> 代理與直連網址: ${publicUrl}`);
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        res.json({ success: true, url: publicUrl, previewUrl: publicUrl, gcsUrl: `https://storage.googleapis.com/${bucketName}/${gcsFileName}`, fileName: originalName, originalName, gcsFileName });
     } catch (e) {
         console.error('❌ GCS 實體上傳失敗:', e);
         res.status(500).json({ error: e.message });
@@ -1075,7 +1087,16 @@ app.post('/api/storage/upload', upload.single('file'), async (req, res) => {
         if (!req.file) {
             return res.status(400).json({ error: 'No file uploaded.' });
         }
-        const ext = path.extname(req.file.originalname);
+
+        // 🛡️ Multer 繁體中文檔名防亂碼還原處理
+        let originalName = req.file.originalname;
+        try {
+            originalName = Buffer.from(req.file.originalname, 'latin1').toString('utf8');
+        } catch (e) {
+            console.warn('⚠️ Latin1 to UTF8 decoding fallback:', e.message);
+        }
+
+        const ext = path.extname(originalName);
         const gcsFileName = `${Date.now()}_${Math.random().toString(36).substring(2, 7)}${ext}`;
         const blob = bucket.file(gcsFileName);
         
@@ -1103,8 +1124,11 @@ app.post('/api/storage/upload', upload.single('file'), async (req, res) => {
             blobStream.end(req.file.buffer);
         });
 
-        console.log(`✅ [GCS 物理同步鎖完工] 實體檔名: ${req.file.originalname} -> 預覽網址: ${publicUrl}`);
-        res.json({ success: true, url: publicUrl, fileName: req.file.originalname, gcsFileName });
+        console.log(`✅ [GCS 物理同步鎖完工] 實體檔名: ${originalName} -> 預覽網址: ${publicUrl}`);
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        res.json({ success: true, url: publicUrl, previewUrl: publicUrl, gcsUrl: `https://storage.googleapis.com/${bucketName}/${gcsFileName}`, fileName: originalName, originalName, gcsFileName });
     } catch (e) {
         console.error('❌ GCS 實體上傳失敗:', e);
         res.status(500).json({ error: e.message });

@@ -360,12 +360,12 @@
           </div>
 
           <!-- 2. 中部：【全域拖曳檔案輸入區】 -->
-          <div id="tab1-upload-dropzone" class="upload-area" style="margin-bottom: 24px; transition: all 0.3s ease;">
+          <div id="tab1-upload-dropzone" class="upload-area" style="margin-bottom: 24px; transition: all 0.3s ease; cursor: pointer;">
             <span style="font-size: 2.2rem;">📥</span>
             <p style="margin: 8px 0; font-weight: 600; font-size: 1rem; color: var(--text-light);">拖曳任何實體檔案至此 或 點擊選取檔案 ➔ 融入大腦記憶</p>
             <span style="font-size: 0.8rem; color: var(--text-muted);">檔案將自動上傳至 Cloud Storage 物理備份，並記錄於全域記憶池</span>
-            <input type="file" id="tab1-file-input" style="display: none;">
           </div>
+          <input type="file" id="tab1-file-input" multiple accept="image/*,.pdf,.docx,.xlsx,.doc,.xls" style="display: none;">
 
           <!-- 3. 底部：【條列式時間流模糊檢索牆】 -->
           <div style="margin-bottom: 16px;">
@@ -389,12 +389,12 @@
           </p>
           
           <!-- 獨立範本上傳區 -->
-          <div id="template-upload-dropzone" class="upload-area" style="margin-bottom: 20px; transition: all 0.3s ease;">
+          <div id="template-upload-dropzone" class="upload-area" style="margin-bottom: 20px; transition: all 0.3s ease; cursor: pointer;">
             <span style="font-size: 2rem;">📝</span>
             <p style="margin: 8px 0; font-weight: 600;">拖曳歷史範本至此 或 點擊選取 ➔ 逆向通靈轉輸出黃金格式</p>
             <span style="font-size: 0.8rem; color: var(--text-muted);">系統會自動提取文件內文，並定位可變填空參數</span>
-            <input type="file" id="template-file-input" style="display: none;">
           </div>
+          <input type="file" id="template-file-input" style="display: none;">
 
           <!-- 模糊搜尋列 -->
           <div class="form-group" style="margin-bottom: 16px;">
@@ -1625,7 +1625,11 @@
         if (uploadData.url || (uploadData.success && uploadData.url)) {
           currentUploadedFileUrl = uploadData.url;
         } else {
-          alert(`⚠️ 上傳至雲端失敗: ${uploadData.error || '無法取得 GCS 實體網址'}`);
+          if (typeof window.showCustomToast === 'function') {
+            window.showCustomToast(`⚠️ 上傳至雲端失敗: ${uploadData.error || '無法取得 GCS 實體網址'}`, 'error');
+          } else {
+            alert(`⚠️ 上傳至雲端失敗: ${uploadData.error || '無法取得 GCS 實體網址'}`);
+          }
           return;
         }
 
@@ -1642,7 +1646,11 @@
 
         openModal('ingestModal');
       } catch (e) {
-        alert('⚠️ 上傳至雲端 Storage 失敗: ' + e.message);
+        if (typeof window.showCustomToast === 'function') {
+          window.showCustomToast(`⚠️ 上傳至雲端 Storage 失敗: ${e.message}`, 'error');
+        } else {
+          alert('⚠️ 上傳至雲端 Storage 失敗: ' + e.message);
+        }
       }
     }
 
@@ -1650,17 +1658,25 @@
       const dropzone = document.getElementById('tab1-upload-dropzone');
       const tab1FileInput = document.getElementById('tab1-file-input');
 
-      if (!dropzone || !tab1FileInput) return;
+      if (!dropzone || !tab1FileInput) {
+        console.warn('⚠️ [UPLOAD_DEBUG] 上傳區 DOM 元素缺失: dropzone=', dropzone, 'fileInput=', tab1FileInput);
+        return;
+      }
 
       dropzone.addEventListener('click', (e) => {
-        e.stopPropagation();
+        console.log('👉 [UPLOAD_DEBUG] 上傳區被點擊', e.target);
+        if (e.target === tab1FileInput) return;
         tab1FileInput.click();
       });
 
       tab1FileInput.addEventListener('change', (e) => {
-        e.stopPropagation();
-        if (e.target.files && e.target.files[0]) {
-          processIngestUpload(e.target.files[0]);
+        console.log('👉 [UPLOAD_DEBUG] 選擇的檔案:', e.target.files);
+        if (e.target.files && e.target.files.length > 0) {
+          if (typeof processBatchIngestUpload === 'function') {
+            processBatchIngestUpload(e.target.files);
+          } else if (e.target.files[0]) {
+            processIngestUpload(e.target.files[0]);
+          }
           e.target.value = '';
         }
       });
