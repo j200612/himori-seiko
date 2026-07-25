@@ -448,7 +448,7 @@
           </div>
           <!-- 條列式時間流檢索牆 -->
           <h4 style="margin: 12px 0 6px 0; font-size: 0.9rem; color: var(--accent);">🔍 條列式時間流檢索牆</h4>
-          <input type="text" id="simPresidentSearchInput" placeholder="搜尋暫存/待審核檔案名稱..." oninput="window.loadAssets(true)" style="width:100%; padding: 8px 10px; margin-bottom: 10px; box-sizing: border-box; border-radius: 6px; border: 1px solid rgba(56,189,248,0.4); background: rgba(15,23,42,0.8); color: var(--text-light); font-size: 0.82rem; min-height: 44px;">
+          <input type="text" id="simPresidentSearchInput" placeholder="🔍 全域模糊搜尋檔名、類別、公司、出勤對帳或關鍵字..." oninput="window.loadAssets(true)" style="width:100%; padding: 8px 10px; margin-bottom: 10px; box-sizing: border-box; border-radius: 6px; border: 1px solid rgba(56,189,248,0.4); background: rgba(15,23,42,0.8); color: var(--text-light); font-size: 0.82rem; min-height: 44px;">
           <div id="simPresidentFiles"></div>
         </div>
 
@@ -1058,7 +1058,12 @@
       });
 
       if (filtered.length === 0) {
-        t1.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding: 30px;">查無檔案資產，請重新整理或匯入檔案。</p>`;
+        const searchInputVal = (document.getElementById('streamSearchInput')?.value || '').trim();
+        if (searchInputVal) {
+          t1.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding: 30px;">查無匹配檔案</p>`;
+        } else {
+          t1.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding: 30px;">查無檔案資產，請重新整理或匯入檔案。</p>`;
+        }
       }
     }
 
@@ -1798,7 +1803,11 @@
       }
 
       if (filteredData.length === 0) {
-        mobileContainer.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding: 16px; font-size:0.8rem;">查無匹配檔案</div>`;
+        if (searchQ) {
+          mobileContainer.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding: 24px 16px; font-size:0.85rem;">查無匹配檔案</div>`;
+        } else {
+          mobileContainer.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding: 24px 16px; font-size:0.85rem;">查無檔案資產，請重新整理或匯入檔案。</div>`;
+        }
         return;
       }
 
