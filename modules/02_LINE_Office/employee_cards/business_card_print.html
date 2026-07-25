@@ -337,16 +337,13 @@
         }
 
         function resolveCardImagePath(pathOrBase64, defaultVal) {
-            if (!pathOrBase64) return `url('${defaultVal}')`;
+            if (!pathOrBase64) return `url('/modules/02_LINE_Office/employee_cards/${defaultVal.replace(/^\.\//, '')}')`;
             if (pathOrBase64.startsWith("data:") || pathOrBase64.startsWith("http")) {
                 return `url('${pathOrBase64}')`;
             }
             let cleanPath = pathOrBase64;
-            const prefix = "modules/02_LINE_Office/employee_cards/";
-            if (cleanPath.startsWith(prefix)) {
-                cleanPath = "./" + cleanPath.substring(prefix.length);
-            } else if (!cleanPath.startsWith("./") && !cleanPath.startsWith("../")) {
-                cleanPath = "../../../" + cleanPath;
+            if (!cleanPath.startsWith("/")) {
+                cleanPath = "/" + cleanPath;
             }
             return `url('${cleanPath}')`;
         }
