@@ -1763,18 +1763,31 @@
     }
 
     function renderSimulatorLists(rawData) {
-      const presidentFiles = document.getElementById('simPresidentFiles');
-      const partnerFiles = document.getElementById('simPartnerFiles');
-      const mobileStreamContainer = document.getElementById('mobileStreamContainer');
-      const simAssetList = document.getElementById('simAssetList');
+      const mobileContainer = document.getElementById('simPresidentFiles') || 
+                              document.getElementById('mobileStreamContainer') || 
+                              document.getElementById('simAssetList') ||
+                              document.getElementById('simPartnerFiles');
       
-      const targets = [presidentFiles, partnerFiles, mobileStreamContainer, simAssetList].filter(Boolean);
-      if (targets.length === 0) return;
+      if (!mobileContainer) return;
 
-      const list = rawData || cachedAssets || [];
-      const data = list.filter(item => item && (!window.deletedAssetIds || !window.deletedAssetIds.has(item.id)));
+      // 🚨 剛性防護 1：繪製 DOM 前先徹底清空容器
+      mobileContainer.innerHTML = '';
 
-      // 強制將視角容器顯影
+      const rawList = rawData || cachedAssets || [];
+
+      // 🚨 剛性防護 2：使用 item.id 建立 Set 唯一性過濾器，確保同一筆 ID 僅會繪製 1 張卡片
+      const seenIds = new Set();
+      const data = [];
+      for (const item of rawList) {
+        if (!item || !item.id) continue;
+        if (window.deletedAssetIds && window.deletedAssetIds.has(item.id)) continue;
+        if (!seenIds.has(item.id)) {
+          seenIds.add(item.id);
+          data.push(item);
+        }
+      }
+
+      // 強制視角顯影
       const presView = document.getElementById('simPresidentView');
       if (presView) presView.style.display = 'block';
 
@@ -1784,40 +1797,48 @@
         filteredData = data.filter(item => (item.name || '').toLowerCase().includes(searchQ));
       }
 
-      targets.forEach(container => {
-        container.innerHTML = '';
+      if (filteredData.length === 0) {
+        mobileContainer.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding: 16px; font-size:0.8rem;">查無匹配檔案</div>`;
+        return;
+      }
 
-        if (filteredData.length === 0) {
-          container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding: 16px; font-size:0.8rem;">查無匹配檔案</div>`;
-          return;
-        }
+      filteredData.forEach(item => {
+        const fileUrl = item.currentUrl || item.gcsUrl || item.url || '#';
+        const categoryTag = item.category || (item.aiMetadata && item.aiMetadata.type) || '📂 一般資料';
+        const versionTag = item.version ? `v${item.version}` : 'v1';
+        const formattedDate = item.timestamp ? new Date(item.timestamp).toLocaleDateString() : new Date().toLocaleDateString();
 
-        filteredData.forEach(item => {
-          const fileUrl = item.currentUrl || item.gcsUrl || item.url || '#';
-          const categoryTag = item.category || (item.aiMetadata && item.aiMetadata.type) || '📂 一般資料';
-          const versionTag = item.version ? `v${item.version}` : 'v1';
-          const formattedDate = item.timestamp ? new Date(item.timestamp).toLocaleDateString() : new Date().toLocaleDateString();
+        // 🚨 剛性防護 3：網頁與手機端狀態標籤 100% 同步 (Status Sync)
+        const isApproved = item.status === 'approved' || 
+                           item.status === '全域記憶' || 
+                           item.isApproved === true || 
+                           item.isCoreMemory === true || 
+                           (item.aiMetadata && (item.aiMetadata.status === '實戰數據' || item.aiMetadata.status === 'approved')) ||
+                           (item.id && item.id.toString().startsWith('ASSET-HIST-'));
 
-          const row = document.createElement('div');
-          row.className = 'mobile-file-item';
-          row.setAttribute('data-asset-id', item.id);
-          row.style = 'background: #1e293b; border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 8px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); font-size: 0.8rem; display: flex; flex-direction: column; gap: 6px; text-align: left;';
-          row.innerHTML = `
-            <div style="font-weight:700; color:var(--text-light); font-size: 0.88rem; text-align: left;">${item.name}</div>
-            <div style="display: flex; gap: 6px; align-items: center; justify-content: flex-start; flex-wrap: wrap;">
-              <span style="font-size: 0.68rem; padding: 1px 6px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 10px; font-weight: 600;">${categoryTag}</span>
-              <span style="font-size: 0.68rem; padding: 1px 5px; background: #0284c7; color: white; border-radius: 8px; font-weight: 700;">${versionTag}</span>
-              <span style="font-size: 0.68rem; color: #94a3b8;">📅 ${formattedDate}</span>
-              <span style="font-size: 0.68rem; padding: 1px 6px; background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 10px; font-weight: 600;">⏳ 待最高授權審核</span>
-            </div>
-            <div style="display:flex; justify-content:flex-end; align-items:center; margin-top: 6px; gap: 6px;">
-              <button class="btn btn-outline" style="font-size:0.75rem; padding: 4px 8px; background: #0284c7; color: white; border: none; font-weight: bold;" onclick="openOriginalPreview('${fileUrl}', '${(item.name || '').replace(/'/g, "\\'")}')">👁️ 預覽</button>
-              <button class="btn" style="font-size:0.75rem; padding: 4px 8px; background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border: 1px solid #38bdf8; font-weight: bold; border-radius: 4px;" onclick="window.openAssetSchemaModal('${item.id}')">📊 數據卡</button>
-              <button class="btn btn-danger" style="font-size:0.75rem; padding: 4px 8px; border-radius: 4px;" onclick="window.deleteAssetWithConfirm('${item.id}', this)">🗑️ 物理刪除</button>
-            </div>
-          `;
-          container.appendChild(row);
-        });
+        const statusBadge = isApproved
+          ? `<span style="font-size: 0.68rem; padding: 2px 7px; background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 10px; font-weight: 700;">🧠 全域記憶</span>`
+          : `<span style="font-size: 0.68rem; padding: 2px 7px; background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 10px; font-weight: 700;">⏳ 待最高授權審核</span>`;
+
+        const row = document.createElement('div');
+        row.className = 'mobile-file-item';
+        row.setAttribute('data-asset-id', item.id);
+        row.style = 'background: #1e293b; border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 8px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); font-size: 0.8rem; display: flex; flex-direction: column; gap: 6px; text-align: left;';
+        row.innerHTML = `
+          <div style="font-weight:700; color:var(--text-light); font-size: 0.88rem; text-align: left;">${item.name}</div>
+          <div style="display: flex; gap: 6px; align-items: center; justify-content: flex-start; flex-wrap: wrap;">
+            <span style="font-size: 0.68rem; padding: 1px 6px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 10px; font-weight: 600;">${categoryTag}</span>
+            <span style="font-size: 0.68rem; padding: 1px 5px; background: #0284c7; color: white; border-radius: 8px; font-weight: 700;">${versionTag}</span>
+            <span style="font-size: 0.68rem; color: #94a3b8;">📅 ${formattedDate}</span>
+            ${statusBadge}
+          </div>
+          <div style="display:flex; justify-content:flex-end; align-items:center; margin-top: 6px; gap: 6px;">
+            <button class="btn btn-outline" style="font-size:0.75rem; padding: 4px 8px; background: #0284c7; color: white; border: none; font-weight: bold;" onclick="openOriginalPreview('${fileUrl}', '${(item.name || '').replace(/'/g, "\\'")}')">👁️ 預覽</button>
+            <button class="btn" style="font-size:0.75rem; padding: 4px 8px; background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border: 1px solid #38bdf8; font-weight: bold; border-radius: 4px;" onclick="window.openAssetSchemaModal('${item.id}')">📊 數據卡</button>
+            <button class="btn btn-danger" style="font-size:0.75rem; padding: 4px 8px; border-radius: 4px;" onclick="window.deleteAssetWithConfirm('${item.id}', this)">🗑️ 物理刪除</button>
+          </div>
+        `;
+        mobileContainer.appendChild(row);
       });
     }
     window.renderMobileStream = renderSimulatorLists;
