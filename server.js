@@ -2794,7 +2794,7 @@ async function deleteGCSFileFromUrl(fileUrl) {
 app.put('/api/admin/templates/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, description, content, variables } = req.body;
+        const { name, description, content, variables, version, effectiveMonth } = req.body;
         
         const docRef = firestore.collection('document_templates').doc(id);
         const docSnap = await docRef.get();
@@ -2804,11 +2804,16 @@ app.put('/api/admin/templates/:id', async (req, res) => {
 
         const currentData = docSnap.data();
 
-        let newVersion = '1.0.0';
-        if (currentData.version) {
-            const parts = currentData.version.replace('v', '').split('.');
-            const major = parseInt(parts[0]) || 1;
-            newVersion = `${major + 1}.0.0`;
+        let newVersion = version;
+        if (!newVersion) {
+            if (currentData.version) {
+                const parts = currentData.version.replace('v', '').split('.');
+                const major = parseInt(parts[0]) || 1;
+                const minor = parseInt(parts[1]) || 0;
+                newVersion = `${major}.${minor + 1}.0`;
+            } else {
+                newVersion = '1.1.0';
+            }
         }
 
         const updated = {
@@ -2818,6 +2823,7 @@ app.put('/api/admin/templates/:id', async (req, res) => {
             content: content !== undefined ? content : (currentData.content || ''),
             variables: variables !== undefined ? variables : (currentData.variables || []),
             version: newVersion,
+            effectiveMonth: effectiveMonth || currentData.effectiveMonth || '2026-06',
             timestamp: new Date().toISOString()
         };
 
