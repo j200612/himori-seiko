@@ -1216,7 +1216,7 @@
             </div>
           </div>
           <div class="btn-group">
-            <button class="btn btn-outline" style="border-color: var(--accent); color: var(--accent);" onclick="openWysiwygTemplateModal('${tpl.id}')">[👁️ 預覽與編輯範本]</button>
+            <button class="btn btn-outline" style="border-color: var(--accent); color: var(--accent); font-weight: 600;" onclick="openWysiwygTemplateModal('${tpl.id}')">[⚙️ 範本設定]</button>
             <button class="btn btn-danger" onclick="deleteTemplate('${tpl.id}')">[🗑️ 物理刪除]</button>
           </div>
         `;
@@ -2068,8 +2068,10 @@
       const lowerUrl = targetUrl.toLowerCase();
       let finalUrl = targetUrl;
       if (lowerUrl.includes('.docx') || lowerUrl.includes('.xlsx') || lowerUrl.includes('.doc') || lowerUrl.includes('.xls') || lowerUrl.includes('.pptx')) {
-        finalUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(targetUrl)}`;
+        finalUrl = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(targetUrl)}`;
       }
+      const ts = `_t=${Date.now()}`;
+      finalUrl += (finalUrl.includes('?') ? '&' : '?') + ts;
       if (typeof window.addCacheBuster === 'function') {
         finalUrl = window.addCacheBuster(finalUrl);
       }

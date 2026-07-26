@@ -522,74 +522,151 @@
     </div>
   </div>
 
-  <!-- ✏️ 編輯輸出黃金範本毛玻璃 Modal -->
-  <div class="modal" id="editTemplateModal" style="display: none; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: rgba(15, 23, 42, 0.4);">
-    <div class="modal-content" style="background: rgba(30, 41, 59, 0.9); border: 1px solid rgba(56, 189, 248, 0.3); box-shadow: 0 8px 32px rgba(56, 189, 248, 0.2); width: 680px; max-width: 90%;">
-      <h3 style="color: var(--accent); margin-top: 0; display: flex; align-items: center; gap: 8px;">
-        ✏️ 編輯輸出黃金範本與變數宣告
-      </h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">
-        總裁可在此編修黃金格式範本名稱與內文變數宣告，儲存後物理寫庫覆寫生效。
-      </p>
-      <div class="form-group">
-        <label>範本名稱</label>
-        <input type="text" id="editTemplateModalName" style="width: 100%;">
+  <!-- 🎨 一站式範本設定全螢幕視窗 (WYSIWYG 範本設定控制台) -->
+  <div class="modal" id="wysiwygModal" style="backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); background: rgba(15, 23, 42, 0.85); display: none;">
+    <div class="modal-content" style="background: rgba(30, 41, 59, 0.95); border: 1px solid rgba(56, 189, 248, 0.4); box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6); width: 96%; max-width: 1400px; height: 92vh; display: flex; flex-direction: column; padding: 20px;">
+      
+      <!-- 頂部一站式導覽列 -->
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 14px; margin-bottom: 16px; gap: 12px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
+          <h3 style="color: var(--accent); margin: 0; display: flex; align-items: center; gap: 8px; font-size: 1.15rem; white-space: nowrap;">
+            ⚙️ 範本設定全螢幕控制台
+          </h3>
+          <input type="text" id="wysiwygTplName" style="background: rgba(15,23,42,0.8); color: #ffffff; border: 1px solid rgba(56,189,248,0.5); border-radius: 6px; padding: 6px 12px; font-weight: 600; width: 260px; font-size: 0.9rem;" placeholder="範本名稱">
+          <span id="wysiwygTplVersionBadge" class="badge" style="background: rgba(56,189,248,0.2); border: 1px solid #38bdf8; color: #38bdf8; padding: 4px 10px; border-radius: 12px; font-size: 0.82rem; font-weight: bold;">v2.6.0</span>
+          
+          <!-- 生效月份選單 (Effective Month Guard) -->
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <label style="font-size: 0.8rem; color: var(--text-muted); white-space: nowrap;">🗓️ 生效月份:</label>
+            <select id="wysiwygEffectiveMonth" style="background: rgba(15,23,42,0.9); color: #38bdf8; border: 1px solid #38bdf8; padding: 6px 10px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; outline: none;">
+              <option value="2026-06">2026-06 (當前結算/立即生效)</option>
+              <option value="2026-07">2026-07 起套用</option>
+              <option value="2026-08">2026-08 起套用</option>
+              <option value="2026-09">2026-09 起套用</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <button class="btn btn-outline" style="font-size: 0.82rem; border-color: var(--accent); color: var(--accent);" onclick="openOriginalPreview(currentWysiwygTplUrl)">📄 開新分頁檢視檔案</button>
+          <button class="btn btn-primary" style="font-size: 0.82rem;" onclick="saveWysiwygTemplate()">💾 保存範本設定</button>
+          <button class="btn btn-outline" onclick="closeModal('wysiwygModal')">✕ 關閉</button>
+        </div>
       </div>
-      <div class="form-group">
-        <label>範本宣告內文 / 描述</label>
-        <textarea id="editTemplateModalContent" style="width: 100%; height: 120px; background: rgba(15, 23, 42, 0.8); color: var(--text-light); border: 1px solid var(--border); border-radius: 8px; padding: 10px; box-sizing: border-box; font-size: 0.88rem; outline: none; resize: vertical;"></textarea>
-      </div>
-      <div class="form-group">
-        <label>動態填空變數列表 (Variables)</label>
-        <div id="editTemplateModalVarsContainer" style="background: rgba(15,23,42,0.5); padding: 12px; border-radius: 8px; border: 1px solid var(--border); max-height: 200px; overflow-y: auto;"></div>
-      </div>
-      <div class="btn-group" style="justify-content: flex-end; margin-top: 20px;">
-        <button class="btn btn-outline" onclick="closeModal('editTemplateModal')">取消</button>
-        <button class="btn btn-primary" onclick="saveTemplateModalFromModal()">💾 保存範本變更 (版本遞增)</button>
+
+      <!-- Modal Body Grid (Left: 擬真畫布, Right: 屬性面板 Slot Inspector) -->
+      <div style="display: grid; grid-template-columns: 1fr 380px; gap: 20px; flex: 1; min-height: 0; overflow: hidden;">
+        
+        <!-- 左側擬真畫布 (100% 渲染 HTML與表格結構，支援滑鼠劃詞標定) -->
+        <div style="display: flex; flex-direction: column; overflow: hidden; background: #0b1120; border: 1px solid var(--border); border-radius: 8px;">
+          <div style="font-size: 0.8rem; color: var(--text-muted); background: rgba(15,23,42,0.8); padding: 8px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+            <span>🎨 左側擬真畫布 (可用滑鼠圈選文字「標記挖空」或點擊膠囊進行檢視)</span>
+            <span style="font-size: 0.75rem; color: #38bdf8;">✨ 100% 擬真排版 & 動態 Slot 膠囊</span>
+          </div>
+          
+          <div id="wysiwygDocumentPaper" style="flex: 1; padding: 24px; overflow-y: auto; color: var(--text-light); font-size: 0.92rem; line-height: 1.8; position: relative; user-select: text; -webkit-user-select: text;">
+            <!-- Content rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- 右側屬性面板 (Slot Inspector Panel) -->
+        <div style="display: flex; flex-direction: column; background: rgba(15, 23, 42, 0.7); border: 1px solid var(--border); border-radius: 8px; padding: 16px; overflow-y: auto;">
+          <h4 style="margin-top: 0; color: var(--accent); font-size: 0.98rem; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+            🎛️ 屬性面板 (Slot Inspector)
+          </h4>
+          
+          <!-- Slot 屬性聯動編輯卡片 -->
+          <div id="slotInspectorCard" style="background: rgba(30, 41, 59, 0.9); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 14px; margin-bottom: 16px;">
+            <div style="font-size: 0.8rem; font-weight: bold; color: var(--accent); margin-bottom: 10px;">📌 當前圈選 Slot 屬性標定:</div>
+            
+            <div class="form-group" style="margin-bottom: 10px;">
+              <label style="font-size: 0.78rem;">① 欄位標籤/名稱</label>
+              <input type="text" id="slotInspectorLabel" style="width: 100%; font-size: 0.85rem;" placeholder="例如: 本月實發酬勞小計">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 10px;">
+              <label style="font-size: 0.78rem;">欄位識別 Key</label>
+              <input type="text" id="slotInspectorKey" style="width: 100%; font-size: 0.85rem;" placeholder="例如: subtotal_amount">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 10px;">
+              <label style="font-size: 0.78rem;">② 資料類型選擇</label>
+              <select id="slotInspectorDataType" style="width: 100%; font-size: 0.85rem; background: rgba(15,23,42,0.9); color: white; border: 1px solid var(--border); border-radius: 4px; padding: 6px;">
+                <option value="text">純文字 (text)</option>
+                <option value="currency">金額與數字 (currency)</option>
+                <option value="array">動態補貼陣列 (array)</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 10px;">
+              <label style="font-size: 0.78rem;">數據源/撈庫模式</label>
+              <select id="slotInspectorSlotType" style="width: 100%; font-size: 0.85rem; background: rgba(15,23,42,0.9); color: white; border: 1px solid var(--border); border-radius: 4px; padding: 6px;">
+                <option value="auto">自動撈庫 (auto)</option>
+                <option value="manual">即時輸入 (manual)</option>
+              </select>
+            </div>
+
+            <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--border);">
+              <label style="font-size: 0.8rem; color: #f59e0b; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="slotInspectorTax10" style="width: 16px; height: 16px; cursor: pointer;">
+                ③ ☑ 啟用超過 20,000 預扣 10% 所得稅
+              </label>
+            </div>
+          </div>
+
+          <div style="flex: 1; overflow-y: auto;">
+            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 6px;">全頁 Slot 宣告列表 (點擊更新 Inspector):</label>
+            <div id="wysiwygVariablesList" style="display: flex; flex-direction: column; gap: 8px;">
+              <!-- Dynamically populated variable slot controls -->
+            </div>
+          </div>
+
+          <div style="margin-top: auto; padding-top: 12px; border-top: 1px solid var(--border);">
+            <button class="btn btn-primary" style="width: 100%;" onclick="saveWysiwygTemplate()">💾 保存範本設定 (版本智聯遞增)</button>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
 
-  <!-- 🎯 【格式輸出端】視覺化 Slot 劃詞標定控制台 Modal -->
-  <div class="modal" id="visualSlotModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 999999; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(10px); align-items: center; justify-content: center;">
-    <div style="width: 95vw; height: 92vh; background: #0f172a; border-radius: 14px; border: 1px solid rgba(56, 189, 248, 0.3); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);">
+  <!-- 🔀 版本與生效月份對衝處置 Modal (Version & Effective Month Collision Guard) -->
+  <div class="modal" id="templateVersionConflictModal" style="backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: rgba(15, 23, 42, 0.7); display: none;">
+    <div class="modal-content" style="background: rgba(30, 41, 59, 0.95); border: 1px solid rgba(56, 189, 248, 0.4); box-shadow: 0 12px 36px rgba(0,0,0,0.5); width: 560px; max-width: 90%;">
+      <h3 style="color: var(--accent); margin-top: 0; display: flex; align-items: center; gap: 8px;">
+        🔀 範本版本與生效時機智聯防護
+      </h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+        後端解析比對發現相似範本格式。請選擇處置方案與生效月份時機門檻：
+      </p>
       
-      <!-- Modal Header -->
-      <div style="padding: 16px 24px; background: #1e293b; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center;">
-        <div>
-          <h3 style="margin: 0; color: var(--accent); font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 10px;">
-            <span>🎯 【格式輸出端】視覺化 Slot 劃詞標定控制台</span>
-          </h3>
-          <span style="font-size: 0.8rem; color: #94a3b8;">請在左側劃詞選取文件文字，連動右側【辨識輸入端】標準欄位與資料型態標定 Slot 填空位</span>
-        </div>
-        <div style="display: flex; gap: 12px; align-items: center;">
-          <button class="btn" style="background: linear-gradient(135deg, #38bdf8, #0ea5e9); color: white; font-weight: bold; padding: 8px 20px; border-radius: 8px; border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(56,189,248,0.3);" onclick="saveVisualSlotConfig()">💾 儲存 Slot 標定 Schema</button>
-          <button onclick="closeModal('visualSlotModal')" style="background: transparent; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer;">✕</button>
+      <div style="background: rgba(15,23,42,0.6); padding: 14px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 16px;">
+        <label style="display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: white; cursor: pointer; margin-bottom: 10px;">
+          <input type="radio" name="conflictActionOption" value="upgrade" checked style="width:16px; height:16px;">
+          ① 升級為新版本 <span id="conflictNewVersionBadge" style="color: #38bdf8; font-weight: bold; margin-left: 4px;">v2.7.0</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: white; cursor: pointer;">
+          <input type="radio" name="conflictActionOption" value="new" style="width:16px; height:16px;">
+          ② 建立為獨立新範本 (全新版本 v1.0.0)
+        </label>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label style="font-size: 0.85rem; color: var(--text-light);">② 選擇生效月份 (Effective Month Guard):</label>
+        <select id="conflictEffectiveMonthSelect" style="width: 100%; background: rgba(15,23,42,0.9); color: #38bdf8; border: 1px solid var(--accent); padding: 8px; border-radius: 6px; font-size: 0.88rem; font-weight: 600;">
+          <option value="2026-06">2026-06 (當前結算月份/立即生效)</option>
+          <option value="2026-07">2026-07 起套用</option>
+          <option value="2026-08">2026-08 起套用 (指定未來月份)</option>
+          <option value="2026-09">2026-09 起套用 (指定未來月份)</option>
+        </select>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">
+          🔒 歷史結算紀錄產出之 PDF/Snapshot 將硬性凍結於當時套用之範本版本，絕不影響歷史帳目。
         </div>
       </div>
 
-      <!-- Modal Body: Split Screen -->
-      <div style="flex: 1; display: flex; overflow: hidden;">
-        
-        <!-- Left Panel: Document Preview & Highlight Section -->
-        <div style="flex: 1.2; border-right: 1px solid #334155; display: flex; flex-direction: column; background: #0b1120;">
-          <div style="padding: 10px 16px; background: rgba(30,41,59,0.5); border-bottom: 1px solid #1e293b; font-size: 0.82rem; color: #38bdf8; font-weight: 600; display: flex; justify-content: space-between;">
-            <span>📄 劃詞標定區 (用滑鼠劃詞選取內文文字即可觸發標定)</span>
-            <span style="color: #94a3b8;">雙擊或劃詞自動選取標定</span>
-          </div>
-          <div id="slotDocPreviewText" style="flex: 1; padding: 24px; overflow-y: auto; color: #e2e8f0; font-size: 0.92rem; line-height: 1.8; user-select: text; white-space: pre-wrap; font-family: monospace;" onmouseup="handleSlotTextSelection()"></div>
-        </div>
-
-        <!-- Right Panel: Slot Dynamic Variables Panel -->
-        <div style="flex: 1; padding: 20px; overflow-y: auto; background: #1e293b; display: flex; flex-direction: column;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h4 style="margin: 0; color: white; font-size: 1rem; font-weight: 700;">⚡ Slot 動態變數對照表</h4>
-            <button class="btn" style="background: #334155; color: white; font-size: 0.8rem; padding: 6px 12px; border-radius: 6px; border: none; cursor: pointer;" onclick="addEmptySlotVariable()">➕ 新增 Slot 變數</button>
-          </div>
-
-          <div id="slotVariablesContainer" style="display: flex; flex-direction: column; gap: 12px; flex: 1;"></div>
-        </div>
-
+      <div class="btn-group" style="justify-content: flex-end; gap: 10px;">
+        <button class="btn btn-outline" onclick="closeModal('templateVersionConflictModal')">取消</button>
+        <button class="btn btn-primary" onclick="confirmVersionConflictResolution()">確認並套用</button>
       </div>
     </div>
   </div>
@@ -1164,13 +1241,9 @@
             </div>
             ${descHtml}
           </div>
-          <div class="btn-group" style="align-items: center; display: flex;">
-            <a href="${tpl.gcsUrl || tpl.url || tpl.currentUrl || '#'}" target="_blank" style="display: inline-block; padding: 6px 12px; background: #0284c7; color: white; border-radius: 6px; font-weight: bold; text-decoration: none; margin-right: 8px; font-size: 0.85rem;">
-                🔗 開新分頁檢視檔案
-            </a>
-            <button class="btn" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: white; padding: 6px 12px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; margin-right: 8px; font-size: 0.85rem;" onclick="window.openVisualSlotModal('${tpl.id}')">🎯 劃詞標定 Slot</button>
-            <button class="btn" style="background: #3b82f6; color: white; padding: 6px 12px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; margin-right: 8px; font-size: 0.85rem;" onclick="window.openEditTemplateModal('${tpl.id}')">✏️ 編輯/重命名</button>
-            <button class="btn btn-danger" onclick="window.deleteSingleTemplate('${tpl.id}', 'template')">🗑️ 刪除</button>
+          <div class="btn-group" style="align-items: center; display: flex; gap: 8px;">
+            <button class="btn btn-outline" style="border-color: var(--accent); color: var(--accent); font-weight: 600;" onclick="openWysiwygTemplateModal('${tpl.id}')">[⚙️ 範本設定]</button>
+            <button class="btn btn-danger" onclick="window.deleteSingleTemplate('${tpl.id}', 'template')">[🗑️ 物理刪除]</button>
           </div>
         `;
         container.appendChild(row);
@@ -2261,8 +2334,10 @@
       const lowerUrl = targetUrl.toLowerCase();
       let finalUrl = targetUrl;
       if (lowerUrl.includes('.docx') || lowerUrl.includes('.xlsx') || lowerUrl.includes('.doc') || lowerUrl.includes('.xls') || lowerUrl.includes('.pptx')) {
-        finalUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(targetUrl)}`;
+        finalUrl = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(targetUrl)}`;
       }
+      const ts = `_t=${Date.now()}`;
+      finalUrl += (finalUrl.includes('?') ? '&' : '?') + ts;
       if (typeof window.addCacheBuster === 'function') {
         finalUrl = window.addCacheBuster(finalUrl);
       }
