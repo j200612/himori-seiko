@@ -1109,7 +1109,7 @@
 
       list.forEach(tpl => {
         const dateStr = new Date(tpl.timestamp).toLocaleString('zh-TW');
-        const cleanName = (tpl.name || '未命名範本').replace(/【|】|黃金範本|輸出範本|日森精工 - |日森精工_/g, '').trim();
+        const cleanName = tpl.name || '未命名範本';
         const varCount = tpl.variables ? tpl.variables.length : 0;
 
         const row = document.createElement('div');

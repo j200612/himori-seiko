@@ -1323,7 +1323,7 @@
 
     async function confirmTemplateSave() {
       const rawName = document.getElementById('confirmTemplateName').value.trim();
-      const cleanName = rawName.replace(/【|】|黃金範本|輸出範本|日森精工 - |日森精工_/g, '').trim();
+      const cleanName = rawName || '新進輸出範本';
 
       if (!cleanName) {
         alert('請輸入範本名稱！');
