@@ -856,6 +856,13 @@
       
       document.getElementById(`tab${idx}`).classList.add('active');
       document.getElementById(`tab${idx}Btn`).classList.add('active');
+
+      if (idx === 2) {
+        const activeTpl = (typeof currentWysiwygTplObj !== 'undefined' && currentWysiwygTplObj) ? currentWysiwygTplObj : (cachedTemplates && cachedTemplates[0]);
+        renderMobileOutputPreviewCard(activeTpl);
+      } else if (idx === 1) {
+        renderSimulatorLists(cachedAssets);
+      }
     }
 
     async function loadAssets(silent = false) {
@@ -1515,59 +1522,103 @@
       }
     }
 
-    function openWysiwygTemplateModal(templateId) {
-      // 1. 取得實體 DOM 節點
-      const modal = document.getElementById('wysiwygModal');
-      const iframe = document.getElementById('wysiwygIframePreview');
-      if (!modal) return console.error('❌ DOM 找不到 wysiwygModal');
-
-      // 2. 無條件強制實體顯影（絕不使用 alert 阻塞）
-      modal.style.display = 'flex';
-      modal.style.position = 'fixed';
-      modal.style.top = '0';
-      modal.style.left = '0';
-      modal.style.width = '100vw';
-      modal.style.height = '100vh';
-      modal.style.zIndex = '9999999';
-      modal.style.backgroundColor = 'rgba(0, 0, 0, 0.85)';
-      modal.style.alignItems = 'center';
-      modal.style.justifyContent = 'center';
-
-      // 3. 尋找模板資料 (相容 cachedTemplates 與 allTemplatesCache 雙全域快取)
-      const list = (typeof cachedTemplates !== 'undefined' && cachedTemplates.length) 
-        ? cachedTemplates 
-        : ((typeof allTemplatesCache !== 'undefined') ? allTemplatesCache : []);
-
-      const tmpl = list.find(t => t.id === templateId) || (list.length > 0 ? list[0] : null);
-
-      if (tmpl) {
-        currentWysiwygTplObj = JSON.parse(JSON.stringify(tmpl));
-        currentWysiwygTplId = tmpl.id || templateId;
-        const gcsUrl = tmpl.currentUrl || tmpl.url || tmpl.gcsUrl || '';
-        currentWysiwygTplUrl = gcsUrl;
-
-        const nameInput = document.getElementById('wysiwygTplName');
-        if (nameInput) {
-          nameInput.value = (currentWysiwygTplObj.name || '').replace(/【|】|黃金範本|日森精工 - /g, '').trim();
-        }
-
-        if (typeof renderWysiwygPaperAndControls === 'function') {
-          renderWysiwygPaperAndControls();
-        }
-
-        if (gcsUrl) {
-          const lowerUrl = gcsUrl.toLowerCase();
-          const isDocx = lowerUrl.includes('.doc') || lowerUrl.includes('.xls') || lowerUrl.includes('.ppt');
-          const finalUrl = isDocx 
-            ? `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(gcsUrl)}`
-            : gcsUrl;
-          if (iframe) iframe.src = finalUrl;
-        }
+    function openWysiwygTemplateModal(id) {
+      currentWysiwygTplId = id;
+      const list = (typeof cachedTemplates !== 'undefined' && cachedTemplates.length) ? cachedTemplates : ((typeof allTemplatesCache !== 'undefined') ? allTemplatesCache : []);
+      const tpl = list.find(t => t.id === id) || (list.length > 0 ? list[0] : null);
+      if (!tpl) {
+        alert('⚠️ 找不到該範本紀錄');
+        return;
       }
+      currentWysiwygTplObj = JSON.parse(JSON.stringify(tpl));
+      currentWysiwygTplUrl = tpl.currentUrl || tpl.url || tpl.gcsUrl || '';
 
-      if (typeof switchWysiwygMode === 'function') {
-        switchWysiwygMode('iframe');
-      }
+      const nameInput = document.getElementById('wysiwygTplName');
+      if (nameInput) nameInput.value = currentWysiwygTplObj.name || '';
+      
+      const badge = document.getElementById('wysiwygTplVersionBadge');
+      if (badge) badge.innerText = 'v' + (currentWysiwygTplObj.version || '2.6.0');
+      
+      const monthSel = document.getElementById('wysiwygEffectiveMonth');
+      if (monthSel) monthSel.value = currentWysiwygTplObj.effectiveMonth || '2026-06';
+      
+      renderWysiwygPaperAndControls();
+      renderMobileOutputPreviewCard(currentWysiwygTplObj);
+      openModal('wysiwygModal');
+    }
+
+    function renderMobileOutputPreviewCard(tpl) {
+      const container = document.getElementById('mobileStreamContainer') || document.getElementById('simAssetList');
+      if (!container) return;
+      
+      container.innerHTML = '';
+      const name = (tpl && tpl.name) ? tpl.name : '派遣承攬報酬總表 (v2.6.0 雙聯單)';
+      const version = (tpl && tpl.version) ? tpl.version : '2.6.0';
+      const month = (tpl && tpl.effectiveMonth) ? tpl.effectiveMonth : '2026-06';
+      const url = (tpl && tpl.currentUrl) ? tpl.currentUrl : '';
+
+      const card = document.createElement('div');
+      card.className = 'mobile-card';
+      card.style = 'background: rgba(30, 41, 59, 0.95); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 12px; padding: 14px; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);';
+      card.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="font-size:0.75rem; background:rgba(6,182,212,0.2); color:#22d3ee; padding:2px 8px; border-radius:10px; font-weight:bold;">📄 輸出檔簽核卡片</span>
+          <span style="font-size:0.72rem; color:#94a3b8;">${month} 生效 (v${version})</span>
+        </div>
+        <div style="font-weight:bold; font-size:0.9rem; color:#ffffff; margin-bottom:6px;">${name}</div>
+        <div style="font-size:0.75rem; color:#94a3b8; margin-bottom:12px;">✅ 萬能 Slot 轉換完成 | 簽核狀態: 待總裁核准</div>
+        <div style="display:flex; gap:6px;">
+          <button class="btn btn-outline" style="flex:1; font-size:0.75rem; padding:4px;" onclick="openOriginalPreview('${url}')">👁️ 預覽檔案</button>
+          <button class="btn btn-primary" style="flex:1; font-size:0.75rem; padding:4px;" onclick="alert('✅ 簽核核准下載完成')">✍️ 簽核下載</button>
+        </div>
+      `;
+      container.appendChild(card);
+    }
+
+    function selectSlotForInspector(key) {
+      if (!currentWysiwygTplObj || !currentWysiwygTplObj.variables) return;
+      const slot = currentWysiwygTplObj.variables.find(v => v.key === key);
+      if (!slot) return;
+
+      const labelInput = document.getElementById('slotInspectorLabel');
+      const keyInput = document.getElementById('slotInspectorKey');
+      const dataTypeSelect = document.getElementById('slotInspectorDataType');
+      const slotTypeSelect = document.getElementById('slotInspectorSlotType');
+      const taxCheckbox = document.getElementById('slotInspectorTax10');
+
+      if (!labelInput || !keyInput || !dataTypeSelect || !slotTypeSelect || !taxCheckbox) return;
+
+      labelInput.value = slot.label || '';
+      keyInput.value = slot.key || '';
+      dataTypeSelect.value = slot.dataType || (slot.key.includes('amount') || slot.key.includes('total') || slot.key.includes('pay') || slot.key.includes('tax') ? 'currency' : slot.key.includes('row') || slot.key.includes('list') || slot.key.includes('allowance') ? 'array' : 'text');
+      slotTypeSelect.value = slot.slotType || 'auto';
+      taxCheckbox.checked = !!slot.taxWithheld10 || slot.key === 'tax_10pct_row';
+
+      document.querySelectorAll('.slot-variable-item').forEach(el => {
+        if (el.dataset.key === key) {
+          el.style.border = '1.5px solid #38bdf8';
+          el.style.background = 'rgba(56, 189, 248, 0.2)';
+        } else {
+          el.style.border = '1px solid var(--border)';
+          el.style.background = 'rgba(30, 41, 59, 0.8)';
+        }
+      });
+
+      document.querySelectorAll('.wysiwyg-capsule').forEach(cap => {
+        if (cap.dataset.slotKey === key) {
+          cap.style.boxShadow = '0 0 16px #38bdf8';
+          cap.style.borderWidth = '2px';
+        } else {
+          cap.style.boxShadow = '0 0 8px rgba(56,189,248,0.2)';
+          cap.style.borderWidth = '1px';
+        }
+      });
+
+      labelInput.oninput = function() { slot.label = this.value; renderWysiwygPaperAndControls(); };
+      keyInput.oninput = function() { slot.key = this.value; renderWysiwygPaperAndControls(); };
+      dataTypeSelect.onchange = function() { slot.dataType = this.value; renderWysiwygPaperAndControls(); };
+      slotTypeSelect.onchange = function() { slot.slotType = this.value; renderWysiwygPaperAndControls(); };
+      taxCheckbox.onchange = function() { slot.taxWithheld10 = this.checked; renderWysiwygPaperAndControls(); };
     }
 
     function renderWysiwygPaperAndControls() {
@@ -1578,39 +1629,184 @@
 
       if (!paper || !varsContainer) return;
 
-      paper.innerHTML = '';
       varsContainer.innerHTML = '';
 
-      let docText = currentWysiwygTplObj.content || `【${currentWysiwygTplObj.name}】公文發布與作業規範宣告標準格式範本。以下為開箱辨識定位之動態填空格子區塊：`;
-      
-      (currentWysiwygTplObj.variables || []).forEach(v => {
-        const isAuto = v.slotType === 'auto' || v.key.includes('name') || v.key.includes('hours') || v.key.includes('rate') || v.key.includes('pay') || v.key.includes('company');
+      const tplId = currentWysiwygTplObj.id || currentWysiwygTplObj.code || '';
+      const name = currentWysiwygTplObj.name || '';
+      const month = currentWysiwygTplObj.effectiveMonth || '2026-06';
+      const version = currentWysiwygTplObj.version || '2.6.0';
+      const vars = currentWysiwygTplObj.variables || [];
+
+      function makeCapsuleHtml(key, defaultLabel) {
+        const v = vars.find(item => item.key === key);
+        const label = v ? v.label : defaultLabel;
+        const dataType = (v && v.dataType) ? v.dataType : (key.includes('amount') || key.includes('total') || key.includes('pay') || key.includes('tax') ? 'currency' : key.includes('row') || key.includes('list') || key.includes('allowance') ? 'array' : 'text');
+        const isAuto = !v || v.slotType === 'auto' || key.includes('name') || key.includes('hours') || key.includes('company');
+        const taxBadge = (v && (v.taxWithheld10 || key === 'tax_10pct_row')) ? ' <span style="color:#f59e0b; font-size:0.7rem;">[☑預扣10%]</span>' : '';
         const badgeColor = isAuto ? '#38bdf8' : '#c084fc';
-        const bgAlpha = isAuto ? 'rgba(56, 189, 248, 0.2)' : 'rgba(192, 132, 252, 0.2)';
+        const bgAlpha = isAuto ? 'rgba(56, 189, 248, 0.25)' : 'rgba(192, 132, 252, 0.25)';
         const borderColor = isAuto ? '#38bdf8' : '#c084fc';
         const labelTag = isAuto ? '[自動撈庫]' : '[即時輸入]';
 
-        const capsuleHtml = `<span class="wysiwyg-capsule" onclick="toggleWysiwygSlotType('${v.key}')" style="display: inline-block; cursor: pointer; padding: 2px 8px; border-radius: 12px; font-size: 0.82rem; font-weight: 600; background: ${bgAlpha}; border: 1px solid ${borderColor}; color: ${badgeColor}; box-shadow: 0 0 8px ${bgAlpha}; margin: 0 4px; transition: all 0.2s ease;" title="點擊切換 [自動撈庫] / [即時輸入]">${labelTag}: ${v.label}</span>`;
+        return `<span class="wysiwyg-capsule" data-slot-key="${key}" onclick="event.stopPropagation(); selectSlotForInspector('${key}')" style="display: inline-block; cursor: pointer; padding: 3px 10px; border-radius: 12px; font-size: 0.84rem; font-weight: 700; background: ${bgAlpha}; border: 1.5px solid ${borderColor}; color: ${badgeColor}; box-shadow: 0 0 10px ${bgAlpha}; margin: 2px 4px; transition: all 0.2s ease;" title="點擊載入 Inspector 屬性">${labelTag}: ${label} (${dataType})${taxBadge}</span>`;
+      }
 
-        if (docText.includes(`{{${v.key}}}`)) {
-          docText = docText.replace(new RegExp(`{{${v.key}}}`, 'g'), capsuleHtml);
-        } else {
-          docText += `<br><br><span style="color:var(--text-muted); font-size:0.8rem;">📍 ${v.label} 定位區:</span> ${capsuleHtml}`;
-        }
+      let richHtml = '';
+
+      if (tplId === 'TEMP-001' || name.includes('派遣承攬報酬總表') || name.includes('雙聯單')) {
+        richHtml = `
+          <div style="background: #0f172a; border: 2px solid rgba(56, 189, 248, 0.4); border-radius: 12px; padding: 24px; color: white; font-family: 'Segoe UI', Arial, sans-serif; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <div style="text-align: center; border-bottom: 2px solid #38bdf8; padding-bottom: 12px; margin-bottom: 20px;">
+              <h2 style="margin: 0; color: #38bdf8; font-size: 1.4rem; letter-spacing: 2px;">日森精工企業股份有限公司</h2>
+              <h3 style="margin: 6px 0 0 0; color: #e2e8f0; font-size: 1.1rem;">【派遣承攬報酬總表 (v${version} 雙聯單)】</h3>
+              <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 4px;">生效結算月份：${month} | 單號: SETTLE-${month.replace('-', '')}-001</div>
+            </div>
+
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 0.9rem; border: 1px solid #334155;">
+              <tr style="background: #1e293b;">
+                <td style="padding: 10px 14px; border: 1px solid #334155; width: 25%; font-weight: bold; color: #94a3b8;">承攬人員 (Contractor):</td>
+                <td style="padding: 10px 14px; border: 1px solid #334155; width: 25%;">${makeCapsuleHtml('contractor_name', '承攬同仁姓名')}</td>
+                <td style="padding: 10px 14px; border: 1px solid #334155; width: 25%; font-weight: bold; color: #94a3b8;">服務月份 (Service Month):</td>
+                <td style="padding: 10px 14px; border: 1px solid #334155; width: 25%;">${makeCapsuleHtml('service_month', '服務月份')}</td>
+              </tr>
+            </table>
+
+            <div style="margin-bottom: 16px;">
+              <h4 style="margin: 0 0 8px 0; color: #38bdf8; font-size: 0.95rem;">📊 動態津貼補貼明細 (Dynamic Allowances):</h4>
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem; border: 1px solid #334155;">
+                <thead>
+                  <tr style="background: #1e293b; color: #38bdf8;">
+                    <th style="padding: 8px; border: 1px solid #334155; text-align: left;">補貼項目名稱</th>
+                    <th style="padding: 8px; border: 1px solid #334155; text-align: right;">金額 (NT$)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td colspan="2" style="padding: 12px; border: 1px solid #334155; background: rgba(30, 41, 59, 0.5);">${makeCapsuleHtml('allowances', '動態補貼明細陣列')}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div style="background: rgba(30, 41, 59, 0.8); border: 1px solid #38bdf8; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+              <h4 style="margin: 0 0 12px 0; color: #f59e0b; font-size: 0.95rem; border-bottom: 1px solid rgba(245,158,11,0.3); padding-bottom: 6px;">💰 彈性三階酬勞金額結算區:</h4>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="color: #cbd5e1;">① 本月實發酬勞小計:</span>
+                <span>${makeCapsuleHtml('subtotal_amount', '實發酬勞小計')}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; background: rgba(245,158,11,0.1); padding: 6px 10px; border-radius: 6px;">
+                <span style="color: #f59e0b; font-weight: bold;">② 預扣個人所得稅 (10%):</span>
+                <span>${makeCapsuleHtml('tax_10pct_row', '預扣所得稅 10% 列')}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 8px; border-top: 2px solid #38bdf8;">
+                <span style="color: #38bdf8; font-weight: bold; font-size: 1.05rem;">③ 本月實發酬勞總計 (NT$):</span>
+                <span>${makeCapsuleHtml('grand_total_amount', '實發酬勞總計')}</span>
+              </div>
+            </div>
+
+            <div style="border-top: 2px dashed #94a3b8; margin: 24px 0 16px 0; padding-top: 8px; text-align: center; color: #94a3b8; font-size: 0.78rem;">
+              ✂️ 裁切線 (存根聯 / 存查聯 雙聯雙存)
+            </div>
+
+            <div style="display: flex; justify-content: space-between; margin-top: 16px; font-size: 0.85rem; color: #94a3b8;">
+              <div>簽核負責人: __________________</div>
+              <div>總裁審核: 【日森精工 AI 智聯發放】</div>
+            </div>
+          </div>
+        `;
+      } else if (tplId === 'TEMP-002' || name.includes('個人出勤工時')) {
+        richHtml = `
+          <div style="background: #0f172a; border: 2px solid rgba(56, 189, 248, 0.4); border-radius: 12px; padding: 24px; color: white;">
+            <h3 style="color: #38bdf8; margin-top: 0; text-align: center;">【個人出勤工時明細表 (v${version})】</h3>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 0.88rem; border: 1px solid #334155;">
+              <tr style="background: #1e293b;">
+                <td style="padding: 8px; border: 1px solid #334155; font-weight: bold;">同仁姓名:</td>
+                <td style="padding: 8px; border: 1px solid #334155;">${makeCapsuleHtml('contractor_name', '同仁姓名')}</td>
+                <td style="padding: 8px; border: 1px solid #334155; font-weight: bold;">服務月份:</td>
+                <td style="padding: 8px; border: 1px solid #334155;">${makeCapsuleHtml('service_month', '服務月份')}</td>
+              </tr>
+            </table>
+
+            <h4 style="margin: 16px 0 8px 0; color: #38bdf8;">📅 每日打卡記錄明細:</h4>
+            <div style="background: rgba(30,41,59,0.5); padding: 12px; border: 1px solid #334155; border-radius: 6px; margin-bottom: 16px;">
+              ${makeCapsuleHtml('daily_rows', '每日打卡列明細陣列')}
+            </div>
+
+            <div style="display: flex; justify-content: space-between; background: rgba(56,189,248,0.1); padding: 12px; border-radius: 6px; border: 1px solid #38bdf8;">
+              <span style="font-weight: bold; color: #38bdf8;">累積總工時 (Hours):</span>
+              <span>${makeCapsuleHtml('total_normal_hours', '總工時小時數')}</span>
+            </div>
+          </div>
+        `;
+      } else if (tplId === 'TEMP-003' || name.includes('外包酬勞會計')) {
+        richHtml = `
+          <div style="background: #0f172a; border: 2px solid rgba(56, 189, 248, 0.4); border-radius: 12px; padding: 24px; color: white;">
+            <h3 style="color: #38bdf8; margin-top: 0; text-align: center;">【外包酬勞會計大總表 (v${version})】</h3>
+            <div style="margin-bottom: 16px;">
+              <span style="color: #94a3b8;">結算月份:</span> ${makeCapsuleHtml('settlement_month', '結算月份')}
+            </div>
+            <div style="background: rgba(30,41,59,0.5); padding: 12px; border: 1px solid #334155; border-radius: 6px; margin-bottom: 16px;">
+              ${makeCapsuleHtml('contractor_summary_rows', '全同仁酬勞匯總陣列')}
+            </div>
+            <div style="text-align: right; background: rgba(16,185,129,0.15); padding: 14px; border-radius: 8px; border: 1px solid #10b981;">
+              <span style="font-weight: bold; color: #10b981; font-size: 1.1rem; margin-right: 12px;">公司實付酬勞總額 (NT$):</span>
+              <span>${makeCapsuleHtml('company_total_payable', '公司實付總額')}</span>
+            </div>
+          </div>
+        `;
+      } else if (tplId === 'TEMP-004' || name.includes('晶廷機械')) {
+        richHtml = `
+          <div style="background: #0f172a; border: 2px solid rgba(56, 189, 248, 0.4); border-radius: 12px; padding: 24px; color: white;">
+            <h3 style="color: #38bdf8; margin-top: 0; text-align: center;">【晶廷機械工程款請款明細表 (v${version})】</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+              <div><span style="color: #94a3b8;">請款專案:</span> ${makeCapsuleHtml('project_name', '專案名稱')}</div>
+              <div><span style="color: #94a3b8;">發票號碼:</span> ${makeCapsuleHtml('invoice_no', '發票號碼')}</div>
+            </div>
+            <div style="background: rgba(30,41,59,0.5); padding: 12px; border: 1px solid #334155; border-radius: 6px; margin-bottom: 16px;">
+              ${makeCapsuleHtml('project_item_breakdown', '工程請款細項陣列')}
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 10px; background: rgba(56,189,248,0.1); border-radius: 6px;">
+              <span>含稅請款總金額 (5% 營業稅):</span>
+              <span>${makeCapsuleHtml('grand_total_with_tax', '含稅請款總額')}</span>
+            </div>
+          </div>
+        `;
+      } else {
+        let docText = currentWysiwygTplObj.content || `【${name}】黃金格式範本。以下為開箱辨識定位之動態 Slot 填空區：`;
+        vars.forEach(v => {
+          const cap = makeCapsuleHtml(v.key, v.label);
+          if (docText.includes(`{{${v.key}}}`)) {
+            docText = docText.replace(new RegExp(`{{${v.key}}}`, 'g'), cap);
+          } else {
+            docText += `<br><br><span style="color:#94a3b8;">📍 ${v.label}:</span> ${cap}`;
+          }
+        });
+        richHtml = `<div style="background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 20px; color: #e2e8f0; line-height: 1.8;">${docText}</div>`;
+      }
+
+      paper.innerHTML = richHtml;
+
+      vars.forEach(v => {
+        const isAuto = v.slotType === 'auto' || v.key.includes('name') || v.key.includes('hours') || v.key.includes('company');
+        const badgeColor = isAuto ? '#38bdf8' : '#c084fc';
+        const borderColor = isAuto ? '#38bdf8' : '#c084fc';
+        const labelTag = isAuto ? '[自動撈庫]' : '[即時輸入]';
+        const taxBadge = v.taxWithheld10 ? ' <span style="color:#f59e0b; font-size:0.7rem;">[☑預扣10%]</span>' : '';
 
         const itemDiv = document.createElement('div');
-        itemDiv.style = 'background: rgba(30, 41, 59, 0.8); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; font-size: 0.8rem;';
+        itemDiv.className = 'slot-variable-item';
+        itemDiv.dataset.key = v.key;
+        itemDiv.onclick = function() { selectSlotForInspector(v.key); };
+        itemDiv.style = 'background: rgba(30, 41, 59, 0.8); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s ease;';
         itemDiv.innerHTML = `
           <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-weight: 600; color: ${badgeColor};">${v.label}</span>
-            <button class="btn btn-outline" style="font-size:0.68rem; padding: 2px 6px; color:${badgeColor}; border-color:${borderColor};" onclick="toggleWysiwygSlotType('${v.key}')">${labelTag}</button>
+            <span style="font-weight: 600; color: ${badgeColor};">${v.label} ${taxBadge}</span>
+            <button class="btn btn-outline" style="font-size:0.68rem; padding: 2px 6px; color:${badgeColor}; border-color:${borderColor};" onclick="event.stopPropagation(); toggleWysiwygSlotType('${v.key}')">${labelTag}</button>
           </div>
-          <div style="font-size:0.72rem; color:var(--text-muted);">Key: ${v.key}</div>
+          <div style="font-size:0.72rem; color:var(--text-muted);">Key: ${v.key} | 類型: ${v.dataType || 'text'}</div>
         `;
         varsContainer.appendChild(itemDiv);
       });
-
-      paper.innerHTML = `<div style="font-family: inherit; font-size: 0.92rem;">${docText}</div>`;
     }
 
     function toggleWysiwygSlotType(key) {
@@ -1624,32 +1820,23 @@
 
     async function saveWysiwygTemplate() {
       if (!currentWysiwygTplObj) return;
-      const name = document.getElementById('wysiwygTplName').value.trim().replace(/【|】|黃金範本|日森精工 - /g, '');
+      const name = document.getElementById('wysiwygTplName').value.trim();
+      const effectiveMonth = document.getElementById('wysiwygEffectiveMonth').value;
+
       if (!name) {
         alert('請輸入範本名稱！');
         return;
       }
       currentWysiwygTplObj.name = name;
+      currentWysiwygTplObj.effectiveMonth = effectiveMonth;
 
-      try {
-        const res = await fetch(`/api/admin/templates/${currentWysiwygTplId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: currentWysiwygTplObj.name,
-            content: currentWysiwygTplObj.content,
-            variables: currentWysiwygTplObj.variables
-          })
-        });
-        const data = await res.json();
-        if (data.success) {
-          alert('✅ 範本「所見即所得」視覺化宣告保存成功！版本號已遞增。');
-          closeModal('wysiwygModal');
-          await loadTemplates();
-        }
-      } catch (e) {
-        alert('⚠️ 保存範本失敗: ' + e.message);
-      }
+      const currentVer = currentWysiwygTplObj.version || '2.6.0';
+      const parts = currentVer.split('.');
+      const nextVer = `${parts[0]}.${(parseInt(parts[1]) || 0) + 1}.0`;
+      document.getElementById('conflictNewVersionBadge').innerText = 'v' + nextVer;
+      document.getElementById('conflictEffectiveMonthSelect').value = effectiveMonth;
+
+      openModal('templateVersionConflictModal');
     }
 
     // 🖱️ 滑鼠抹黑圈選挖空 (Highlight to Slot) 全域捕捉處理器
