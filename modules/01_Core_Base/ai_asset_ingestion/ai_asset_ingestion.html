@@ -1842,57 +1842,19 @@
       openModal('templateVersionConflictModal');
     }
 
-    // 🖱️ 滑鼠抹黑圈選挖空 (Highlight to Slot) 全域捕捉處理器
-    let wysiwygSelectionText = '';
-    function initWysiwygSelectionHandler() {
-      const paper = document.getElementById('wysiwygDocumentPaper');
-      const tooltip = document.getElementById('wysiwygSelectionTooltip');
-      if (!paper || !tooltip) return;
+    // 🛡️ 防衛防護：相容過時或快取的 Canvas 處理器呼叫
+    window.initCanvasSelectionHandler = function() {
+      console.log('ℹ️ initCanvasSelectionHandler 舊版畫布處理器已廢除，採用二合一視窗與 Slot Inspector 控制台。');
+    };
 
-      document.addEventListener('mouseup', (e) => {
-        const selection = window.getSelection();
-        const str = selection ? selection.toString().trim() : '';
-
-        if (str && paper.contains(selection.anchorNode)) {
-          wysiwygSelectionText = str;
-          tooltip.style.left = `${e.pageX + 10}px`;
-          tooltip.style.top = `${e.pageY - 35}px`;
-          tooltip.style.display = 'block';
-        } else {
-          setTimeout(() => {
-            if (!window.getSelection().toString().trim()) {
-              tooltip.style.display = 'none';
-            }
-          }, 200);
-        }
-      });
-
-      tooltip.addEventListener('click', (e) => {
-        e.stopPropagation();
-        tooltip.style.display = 'none';
-        if (!wysiwygSelectionText || !currentWysiwygTplObj) return;
-
-        const slotLabel = prompt(`⚡ 請輸入新挖空欄位之名稱（如：發文日期、受文者）：`, wysiwygSelectionText);
-        if (!slotLabel || !slotLabel.trim()) return;
-
-        const newKey = 'slot_' + Date.now().toString().slice(-6);
-        const newVar = {
-          key: newKey,
-          label: slotLabel.trim(),
-          defaultValue: wysiwygSelectionText,
-          slotType: 'manual'
-        };
-
-        if (!currentWysiwygTplObj.variables) currentWysiwygTplObj.variables = [];
-        currentWysiwygTplObj.variables.push(newVar);
-
-        renderWysiwygPaperAndControls();
-        alert(`✅ 成功將「${wysiwygSelectionText}」劃設為全新發光動態 Slot 膠囊！`);
-      });
-    }
+    window.initWysiwygSelectionHandler = function() {
+      console.log('ℹ️ initWysiwygSelectionHandler 舊版畫布處理器已廢除，採用二合一視窗與 Slot Inspector 控制台。');
+    };
 
     document.addEventListener('DOMContentLoaded', () => {
-      initWysiwygSelectionHandler();
+      if (typeof window.initWysiwygSelectionHandler === 'function') {
+        window.initWysiwygSelectionHandler();
+      }
     });
 
     async function saveTemplateEditor() {
