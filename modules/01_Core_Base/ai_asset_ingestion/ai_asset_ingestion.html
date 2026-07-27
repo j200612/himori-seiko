@@ -1,4 +1,4 @@
-<!-- DEPLOY_VER: 2026-07-26-RECONSTRUCT-001 -->
+<!-- DEPLOY_VER: 2026-07-27-v2.7.1_FORCE_CLEAR -->
 <!--
 💡 版權所有 © 2026 映向行銷有限公司 (Image Marketing Co., Ltd.)。保留所有權利。
 ⚖️ 本原始碼與架構為映向行銷之核心商業機密，專為特定客戶「日森精工」打造之 AI 行政中心模組。
@@ -8,6 +8,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>AI行政中心 | 🧠 AI大腦模組</title>
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1237,6 +1240,7 @@
         const displayName = tpl.name || '未命名範本';
         const varCount = tpl.variables ? tpl.variables.length : 0;
         const descHtml = tpl.description ? `<span style="color: #94a3b8; font-size: 0.78rem; margin-top: 2px; display: block;">📝 備註: ${tpl.description}</span>` : '';
+        const previewUrl = window.getSmartPreviewUrl(tpl.previewUrl || tpl.url || tpl.gcsUrl || '', tpl.name);
 
         const row = document.createElement('div');
         row.className = 'file-stream-item';
@@ -1250,8 +1254,8 @@
             ${descHtml}
           </div>
           <div class="btn-group" style="align-items: center; display: flex; gap: 8px;">
-            <button class="btn btn-outline" style="border-color: var(--accent); color: var(--accent); font-weight: 600;" onclick="openWysiwygTemplateModal('${tpl.id}')">[⚙️ 範本設定]</button>
-            <button class="btn btn-danger" onclick="window.deleteSingleTemplate('${tpl.id}', 'template')">[🗑️ 物理刪除]</button>
+            <button class="btn btn-outline" style="border-color: var(--accent); color: var(--accent); font-weight: 600;" onclick="window.open('${previewUrl}', '_blank'); openWysiwygTemplateModal('${tpl.id}')">[⚙️ 範本排版與 Slot 設定]</button>
+            <button class="btn btn-danger" onclick="window.deleteSingleTemplate ? window.deleteSingleTemplate('${tpl.id}', 'template') : deleteTemplate('${tpl.id}')">[🗑️ 物理刪除]</button>
           </div>
         `;
         container.appendChild(row);
